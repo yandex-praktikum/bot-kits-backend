@@ -1,6 +1,6 @@
 {
   "./src/**/*.{ts,tsx}": [
-    "prettier --config .prettierrc.json --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "prettier --config .prettierrc --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
   ]
 }
