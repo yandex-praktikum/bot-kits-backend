@@ -2,6 +2,7 @@ import { Controller, Get, Body, Patch } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('user')
+//@UseGuards(JwtAuthGuard)
 @Controller('user')
 export class UsersController {
   // constructor(
