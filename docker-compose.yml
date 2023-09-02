@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  backend:
+    container_name: 'botkit-backend'
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+      - .env.db
+    restart: always
+    networks:
+      - back
+      - default
+
+  mongo:
+    container_name: 'botkit-mongodb'
+    image: mongo:latest
+    restart: always
+    env_file:
+      - .env.db
+    volumes:
+      - db_data:/data/db
+      - db_config:/data/configdb
+    networks:
+      - back
+
+networks:
+  back:
+    driver: bridge
+    internal: true
+
+volumes:
+  db_data:
+  db_config:
