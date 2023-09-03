@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import * as fs from 'fs';
+import * as yaml from 'js-yaml';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +14,10 @@ async function bootstrap() {
     .build(); // завершаем конфигурирование вызовом build
 
   const document = SwaggerModule.createDocument(app, config);
+
+  // Сохраняем JSON документ в YAML файл
+  const yamlDocument = yaml.dump(document);
+  fs.writeFileSync('./swagger.yaml', yamlDocument, 'utf8');
 
   // первый аргумент - путь, по которому будет доступна
   // веб-страница с документацией Swagger
