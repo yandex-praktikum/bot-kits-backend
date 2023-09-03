@@ -1,0 +1,6 @@
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --no-fund --no-audit
+RUN npm i -g @nestjs/cli
+CMD nest start --watch
