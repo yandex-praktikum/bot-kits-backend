@@ -1,0 +1,283 @@
+openapi: 3.0.0
+paths:
+  /:
+    get:
+      operationId: AppController_getHello
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+  /user:
+    patch:
+      operationId: UsersController_changePassword
+      summary: Сброс пароля
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        '200':
+          description: ''
+      tags: &ref_0
+        - user
+    get:
+      operationId: UsersController_mySettings
+      summary: Настройки аккаунта
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags: *ref_0
+  /user/payments:
+    get:
+      operationId: UsersController_myPayments
+      summary: Платежи и подписки
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags: *ref_0
+  /login:
+    post:
+      operationId: AuthController_login
+      summary: Авторизация
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthUserDto'
+      responses:
+        '201':
+          description: ''
+      tags: &ref_1
+        - auth
+  /logout:
+    post:
+      operationId: AuthController_logout
+      summary: Выход из профиля
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags: *ref_1
+  /signup:
+    post:
+      operationId: AuthController_signup
+      summary: Регистрация
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDto'
+      responses:
+        '201':
+          description: ''
+      tags: *ref_1
+  /bots:
+    get:
+      operationId: BotsController_findMy
+      summary: Список ботов пользователя
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags: &ref_2
+        - bots
+    post:
+      operationId: BotsController_create
+      summary: Создание нового бота
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags: *ref_2
+  /bots/{id}:
+    delete:
+      operationId: BotsController_remove
+      summary: Удаление бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags: *ref_2
+    post:
+      operationId: BotsController_copy
+      summary: Копирование бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '201':
+          description: ''
+      tags: *ref_2
+    patch:
+      operationId: BotsController_update
+      summary: Смена имени бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                botName:
+                  type: string
+      responses:
+        '200':
+          description: ''
+      tags: *ref_2
+    get:
+      operationId: BotsController_findOne
+      summary: Данные бота пользователя
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags: *ref_2
+  /bots/{id}/notificationLinks:
+    get:
+      operationId: BotsController_notificationLinks
+      summary: Настройки уведомлений бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags: *ref_2
+  /bots/{id}/link:
+    get:
+      operationId: BotsController_getLink
+      summary: Ссылка на бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+      tags: *ref_2
+  /bots/{id}/share:
+    post:
+      operationId: BotsController_share
+      summary: Поделиться доступом к боту
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        '201':
+          description: ''
+      tags: *ref_2
+  /botTemplates:
+    get:
+      operationId: botTemplatesController_findAll
+      summary: Список шаблонов ботов
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags: &ref_3
+        - botTemplates
+  /botTemplates/{id}:
+    get:
+      operationId: botTemplatesController_findOne
+      summary: Данные шаблона бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags: *ref_3
+info:
+  title: API BotKits
+  description: Ручки для команды frontend
+  version: '1.0'
+  contact: {}
+tags: []
+servers: []
+components:
+  schemas:
+    AuthUserDto:
+      type: object
+      properties:
+        password:
+          type: string
+        email:
+          type: string
+      required:
+        - password
+        - email
+    CreateUserDto:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+        telephone:
+          type: string
+      required:
+        - username
+        - password
+        - email
+        - telephone
