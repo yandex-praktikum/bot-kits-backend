@@ -5,7 +5,7 @@ services:
     build:
       dockerfile: 'Dockerfile-dev'
     ports:
-      - "3000:3000"
+      - "${APP_PORT:-3000}:${PORT:-3000}"
     env_file: .env.dev
     volumes:
       - .:/app/
@@ -18,7 +18,7 @@ services:
     env_file:
       - .env.db
     ports:
-      - "27017:27017"
+      - "27017:${MONGO_PORT:-27019}"
     volumes:
       - db_data:/data/db
       - db_config:/data/configdb

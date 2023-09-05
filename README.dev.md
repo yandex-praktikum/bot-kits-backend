@@ -7,12 +7,12 @@
 Примеры заполнения можно увидеть в .env.example
 
 Запуск проекта в dev режиме происходит в двух вариантах:
-```npm run start:dev:docker``` в attached режиме
-```docker-compose -f docker-compose-dev.yml up -d``` фоново
+- ```npm run start:dev:docker``` в attached режиме
+- ```docker-compose -f docker-compose-dev.yml up --env-file .env.dev --env-file .env.db -d``` фоново
 
 В обоих случаях поднимаются контейнеры с самим бэком + бд.
 
-Запуск production ```docker-compose -f docker-compose.yml up -d ```
+Запуск production ```docker-compose -f docker-compose.yml --env-file .env --env-file .env.db up -d ```
 
 ## Для того чтобы увидеть документацию Swagger
 
