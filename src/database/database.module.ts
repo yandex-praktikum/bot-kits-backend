@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { databaseProviders } from './database.providers';
+import mongoose from 'mongoose';
 
 @Module({
   providers: [...databaseProviders],
@@ -7,7 +8,6 @@ import { databaseProviders } from './database.providers';
 })
 export class DatabaseModule {
   constructor() {
-    const mongoose = require('mongoose');
     const connection = mongoose.connection;
 
     connection.on('connected', () => {
