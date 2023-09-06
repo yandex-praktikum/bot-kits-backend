@@ -1,6 +1,5 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { AuthUserDto } from './dto/auth-user.dto';
 
 @ApiTags('auth')
@@ -29,7 +28,7 @@ export class AuthController {
     summary: 'Регистрация',
   })
   @Post('signup')
-  async signup(@Body() createUserDto: CreateUserDto) {
+  async signup(@Body() createUserDto: any) {
     //return ;
   }
 }
