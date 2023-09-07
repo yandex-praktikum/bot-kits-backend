@@ -9,11 +9,13 @@ import { DatabaseModule } from './database//database.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
+import { TariffModule } from './tariff/tariff.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost/nest'),
     ProfilesModule,
+    TariffModule,
     AuthModule,
   ],
   controllers: [
