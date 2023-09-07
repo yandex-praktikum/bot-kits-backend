@@ -1,49 +1,52 @@
 import {
   IsEmail,
   IsEnum,
-  IsMongoId,
   IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 import TypeAccount from '../types/type-account';
 import Role from '../types/role';
 
 class Credentials {
+  @ApiProperty({ example: 'my@mail.ru' })
   @IsEmail()
   @IsOptional()
-  email: string;
+  email?: string;
 
+  @ApiProperty({ example: 'password123' })
   @IsString()
   @IsOptional()
-  password: string;
+  password?: string;
 
+  @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
   @IsString()
   @IsOptional()
-  accessToken: string;
+  accessToken?: string;
 
+  @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
   @IsString()
   @IsOptional()
-  refreshToken: string;
+  refreshToken?: string;
 }
 
 export class UpdateAccountDto {
-  @IsOptional()
+  @ApiProperty({ enum: TypeAccount, example: 'local' })
   @IsEnum(TypeAccount)
-  type: TypeAccount;
+  @IsOptional()
+  type?: TypeAccount;
 
+  @ApiProperty({ enum: Role, example: 'admin' })
   @IsOptional()
   @IsEnum(Role)
-  role: Role;
+  role?: Role;
 
-  @IsOptional()
+  @ApiProperty()
   @Type(() => Credentials)
   @ValidateNested()
-  credentials: Credentials;
-
   @IsOptional()
-  @IsMongoId()
-  profile: string;
+  credentials?: Credentials;
 }
