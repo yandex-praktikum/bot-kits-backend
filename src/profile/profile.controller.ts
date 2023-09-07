@@ -8,20 +8,21 @@ import {
   Delete,
   BadRequestException,
 } from '@nestjs/common';
-import { ProfileService } from './profile.service';
-import { CreateProfileDto } from './dto/create-profile.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
-import { Profile } from './schema/profile.schema';
 import {
   ApiBody,
+  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiParam,
-  ApiResponse,
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+
+import { ProfileService } from './profile.service';
+import { CreateProfileDto } from './dto/create-profile.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { Profile } from './schema/profile.schema';
 
 @ApiTags('Profile')
 @Controller('profile')
@@ -29,9 +30,8 @@ export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @ApiBody({ type: CreateProfileDto })
-  @ApiResponse({
-    status: 201,
-    description: 'Успешный ответ сервера',
+  @ApiCreatedResponse({
+    description: 'The record has been successfully created.',
     type: Profile,
   })
   @Post()

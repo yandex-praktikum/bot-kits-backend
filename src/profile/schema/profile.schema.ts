@@ -23,6 +23,12 @@ export class Profile {
   @ApiProperty({ example: 1400 })
   @Prop({ default: 0 })
   balance: number;
+
+  // Добавить после создание модели с Аккаунтами
+  //   @Prop({
+  //     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
+  //   })
+  //   accounts: Account[];
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);
