@@ -1,0 +1,29 @@
+import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
+import { Profile } from '../../profiles/entities/profile.entity';
+import Permission from '../types/types';
+
+
+@Schema({ timestamps: true }) //Включает поля createdAt и updatedAt
+export class BotAccess extends Document {
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'Profile',
+    required: true })
+  userId: Profile;
+
+
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'Bot',
+    required: true })
+  botId: Bot;
+
+  @Prop({
+    enum: Permission,
+    required: true,
+    })
+  permission: Permission;
+}
+
+export const BotAccessSchema = SchemaFactory.createForClass(BotAccess);
