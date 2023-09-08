@@ -19,8 +19,8 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 
-import { PlatformService } from './platform.service';
-import { Platform } from './schema/platform.schema';
+import { PlatformService } from './platforms.service';
+import { Platform } from './schema/platforms.schema';
 import { CreatePlatformDto } from './dto/create-platform.dto';
 import { UpdatePlatformDto } from './dto/update-platform.dto';
 

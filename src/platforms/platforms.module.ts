@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { PlatformService } from './platform.service';
-import { Platform, PlatformSchema } from './schema/platform.schema';
-import { PlatformController } from './platform.controller';
+import { PlatformService } from './platforms.service';
+import { Platform, PlatformSchema } from './schema/platforms.schema';
+import { PlatformController } from './platforms.controller';
 
 @Module({
   imports: [

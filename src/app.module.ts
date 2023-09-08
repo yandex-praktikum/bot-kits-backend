@@ -9,7 +9,7 @@ import { DatabaseModule } from './database//database.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
-import { PlatformModule } from './platform/platform.module';
+import { PlatformModule } from './platforms/platforms.module';
 
 @Module({
   imports: [

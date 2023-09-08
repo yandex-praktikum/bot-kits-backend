@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Platform, PlatformDocument } from './schema/platform.schema';
+import { Platform, PlatformDocument } from './schema/platforms.schema';
 import { CreatePlatformDto } from './dto/create-platform.dto';
 import { UpdatePlatformDto } from './dto/update-platform.dto';
 
