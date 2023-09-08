@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 
-import { Profile } from '../../profile/schema/profile.schema';
+import { Profile } from '../../profiles/schema/profile.schema';
 
 import TypeAccount from '../types/type-account';
 import Role from '../types/role';
