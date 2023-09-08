@@ -9,22 +9,17 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export type AccountDocument = HydratedDocument<Account>;
 
-@Schema({ _id: false })
 class Credentials {
   @ApiProperty({ example: 'my@mail.ru' })
-  @Prop()
   email: string;
 
   @ApiProperty({ example: 'password123' })
-  @Prop()
   password: string;
 
   @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
-  @Prop()
   accessToken: string;
 
   @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
-  @Prop()
   refreshToken: string;
 }
 
@@ -51,7 +46,7 @@ export class Account {
       refreshToken: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk',
     },
   })
-  @Prop()
+  @Prop({ type: Credentials })
   credentials: Credentials;
 
   @ApiProperty()

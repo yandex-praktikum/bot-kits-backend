@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsEnum,
   IsMongoId,
+  IsNotEmpty,
   IsOptional,
   IsString,
   ValidateNested,
@@ -15,23 +16,23 @@ import Role from '../types/role';
 class Credentials {
   @ApiProperty({ example: 'my@mail.ru' })
   @IsEmail()
-  @IsOptional()
-  email?: string;
+  @IsNotEmpty()
+  email: string;
 
   @ApiProperty({ example: 'password123' })
   @IsString()
-  @IsOptional()
-  password?: string;
+  @IsNotEmpty()
+  password: string;
 
   @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
   @IsString()
-  @IsOptional()
-  accessToken?: string;
+  @IsNotEmpty()
+  accessToken: string;
 
   @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
   @IsString()
-  @IsOptional()
-  refreshToken?: string;
+  @IsNotEmpty()
+  refreshToken: string;
 }
 
 export class CreateAccountDto {
