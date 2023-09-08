@@ -11,10 +11,10 @@ paths:
             application/json:
               schema:
                 type: string
-  /user:
-    patch:
-      operationId: UsersController_changePassword
-      summary: Сброс пароля
+  /signin:
+    post:
+      operationId: AuthController_signin
+      summary: Войти в систему
       parameters: []
       requestBody:
         required: true
@@ -23,55 +23,28 @@ paths:
             schema:
               type: object
               properties:
-                email:
+                username:
+                  type: string
+                password:
                   type: string
       responses:
-        '200':
-          description: ''
+        '201':
+          description: Успешный вход в систему
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: accessToken по умолчанию действует 1 день
+                  refreshToken:
+                    type: string
+                    description: refreshToken по умолчанию действует 7 дней
+        '401':
+          description: Неверное имя пользователя или пароль
       tags: &ref_0
-        - user
-    get:
-      operationId: UsersController_mySettings
-      summary: Настройки аккаунта
-      parameters: []
-      responses:
-        '200':
-          description: ''
-      tags: *ref_0
-  /user/payments:
-    get:
-      operationId: UsersController_myPayments
-      summary: Платежи и подписки
-      parameters: []
-      responses:
-        '200':
-          description: ''
-      tags: *ref_0
-  /login:
-    post:
-      operationId: AuthController_login
-      summary: Авторизация
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthUserDto'
-      responses:
-        '201':
-          description: ''
-      tags: &ref_1
         - auth
-  /logout:
-    post:
-      operationId: AuthController_logout
-      summary: Выход из профиля
-      parameters: []
-      responses:
-        '201':
-          description: ''
-      tags: *ref_1
   /signup:
     post:
       operationId: AuthController_signup
@@ -82,11 +55,44 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserDto'
+              $ref: '#/components/schemas/CreateProfileDto'
       responses:
         '201':
           description: ''
-      tags: *ref_1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+      tags: *ref_0
+  /refresh-token:
+    post:
+      operationId: AuthController_refreshToken
+      summary: Обновить токен
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '201':
+          description: accessToken успешно обновлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: accessToken по умолчанию действует 1 день
+                  refreshToken:
+                    type: string
+                    description: refreshToken по умолчанию действует 7 дней
+      tags: *ref_0
   /bots:
     get:
       operationId: BotsController_findMy
@@ -95,7 +101,7 @@ paths:
       responses:
         '200':
           description: ''
-      tags: &ref_2
+      tags: &ref_1
         - bots
     post:
       operationId: BotsController_create
@@ -104,7 +110,7 @@ paths:
       responses:
         '201':
           description: ''
-      tags: *ref_2
+      tags: *ref_1
   /bots/{id}:
     delete:
       operationId: BotsController_remove
@@ -118,7 +124,7 @@ paths:
       responses:
         '200':
           description: ''
-      tags: *ref_2
+      tags: *ref_1
     post:
       operationId: BotsController_copy
       summary: Копирование бота
@@ -131,7 +137,7 @@ paths:
       responses:
         '201':
           description: ''
-      tags: *ref_2
+      tags: *ref_1
     patch:
       operationId: BotsController_update
       summary: Смена имени бота
@@ -153,7 +159,7 @@ paths:
       responses:
         '200':
           description: ''
-      tags: *ref_2
+      tags: *ref_1
     get:
       operationId: BotsController_findOne
       summary: Данные бота пользователя
@@ -166,7 +172,7 @@ paths:
       responses:
         '200':
           description: ''
-      tags: *ref_2
+      tags: *ref_1
   /bots/{id}/notificationLinks:
     get:
       operationId: BotsController_notificationLinks
@@ -180,7 +186,7 @@ paths:
       responses:
         '200':
           description: ''
-      tags: *ref_2
+      tags: *ref_1
   /bots/{id}/link:
     get:
       operationId: BotsController_getLink
@@ -198,7 +204,7 @@ paths:
             application/json:
               schema:
                 type: string
-      tags: *ref_2
+      tags: *ref_1
   /bots/{id}/share:
     post:
       operationId: BotsController_share
@@ -221,7 +227,7 @@ paths:
       responses:
         '201':
           description: ''
-      tags: *ref_2
+      tags: *ref_1
   /botTemplates:
     get:
       operationId: botTemplatesController_findAll
@@ -230,7 +236,7 @@ paths:
       responses:
         '200':
           description: ''
-      tags: &ref_3
+      tags: &ref_2
         - botTemplates
   /botTemplates/{id}:
     get:
@@ -245,6 +251,132 @@ paths:
       responses:
         '200':
           description: ''
+      tags: *ref_2
+  /profiles:
+    post:
+      operationId: ProfilesController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProfileDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+  /platforms:
+    post:
+      operationId: PlatformController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePlatformDto'
+      responses:
+        '201':
+          description: The record has been successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+      tags: &ref_3
+        - Platforms
+    get:
+      operationId: PlatformController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Platform'
+        '403':
+          description: Unauthorized Request
+      tags: *ref_3
+  /platforms/{id}:
+    get:
+      operationId: PlatformController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Индификатор платформы
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The resource was returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Resource not found
+      tags: *ref_3
+    patch:
+      operationId: PlatformController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Индификатор платформы
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePlatformDto'
+      responses:
+        '200':
+          description: The resource was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Resource not found
+        '422':
+          description: Bad Request
+      tags: *ref_3
+    delete:
+      operationId: PlatformController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Индификатор платформы
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The resource was returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Resource not found
       tags: *ref_3
 info:
   title: API BotKits
@@ -255,17 +387,7 @@ tags: []
 servers: []
 components:
   schemas:
-    AuthUserDto:
-      type: object
-      properties:
-        password:
-          type: string
-        email:
-          type: string
-      required:
-        - password
-        - email
-    CreateUserDto:
+    CreateProfileDto:
       type: object
       properties:
         username:
@@ -281,3 +403,103 @@ components:
         - password
         - email
         - telephone
+    Profile:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        refreshToken:
+          type: string
+        phone:
+          type: string
+        avatar:
+          type: string
+        balance:
+          type: number
+        promoCodes:
+          type: array
+          items:
+            type: string
+        subscriptionId:
+          type: string
+      required:
+        - username
+        - password
+        - refreshToken
+        - phone
+        - avatar
+        - balance
+        - promoCodes
+        - subscriptionId
+    FormFields:
+      type: object
+      properties:
+        name:
+          type: boolean
+          example: true
+        pages:
+          type: boolean
+          example: true
+        accessKey:
+          type: boolean
+          example: false
+        url:
+          type: boolean
+          example: true
+      required:
+        - name
+        - pages
+        - accessKey
+        - url
+    CreatePlatformDto:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        title:
+          type: string
+          example: VK
+        formFields:
+          $ref: '#/components/schemas/FormFields'
+      required:
+        - icon
+        - title
+        - formFields
+    Platform:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        title:
+          type: string
+          example: VK
+        formFields:
+          example:
+            name: true
+            pages: true
+            accessKey: false
+            url: true
+          allOf:
+            - $ref: '#/components/schemas/FormFields'
+      required:
+        - icon
+        - title
+        - formFields
+    UpdatePlatformDto:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        title:
+          type: string
+          example: VK
+        formFields:
+          $ref: '#/components/schemas/FormFields'
