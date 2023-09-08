@@ -9,7 +9,7 @@ import { ProfileModule } from './profile/profile.module';
 import { AccountModule } from './account/account.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, ProfileModule, AccountModule],
   controllers: [
     AppController,
     AuthController,
