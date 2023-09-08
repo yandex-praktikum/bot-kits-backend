@@ -15,8 +15,8 @@ import { Account } from './schema/account.schema';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 
-@ApiTags('Account')
-@Controller('account')
+@ApiTags('Accounts')
+@Controller('accounts')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 

@@ -24,8 +24,8 @@ import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Profile } from './schema/profile.schema';
 
-@ApiTags('Profile')
-@Controller('profile')
+@ApiTags('Profiles')
+@Controller('profiles')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
