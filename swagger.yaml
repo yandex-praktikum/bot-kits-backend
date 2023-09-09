@@ -269,9 +269,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Profile'
-  /tariff:
+  /tariffs:
     post:
-      operationId: TariffController_create
+      operationId: TariffsController_create
       parameters: []
       requestBody:
         required: true
@@ -286,9 +286,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tariff'
-  /tariff/{id}:
+    get:
+      operationId: TariffsController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tariff'
+  /tariffs/{id}:
+    get:
+      operationId: TariffsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tariff'
+    patch:
+      operationId: TariffsController_updateTariff
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTariffDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
     delete:
-      operationId: TariffController_remove
+      operationId: TariffsController_remove
       parameters:
         - name: id
           required: true
@@ -383,3 +431,13 @@ components:
         - price
         - created_at
         - updated_at
+    UpdateTariffDto:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+      required:
+        - name
+        - price

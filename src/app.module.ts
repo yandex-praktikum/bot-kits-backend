@@ -5,17 +5,17 @@ import { ProfilesController } from './profiles/profiles.controller';
 import { AuthController } from './auth/auth.controller';
 import { BotsController } from './bots/bots.controller';
 import { botTemplatesController } from './botTemplates/bot-templates.controller';
-import { DatabaseModule } from './database//database.module';
+import { DatabaseModule } from './database/database.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
-import { TariffModule } from './tariff/tariff.module';
+import { TariffsModule } from './tariff/tariffs.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost/nest'),
     ProfilesModule,
-    TariffModule,
+    TariffsModule,
     AuthModule,
   ],
   controllers: [
