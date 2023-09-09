@@ -1,15 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString, IsUrl, Length } from 'class-validator';
 
-export class CreateProfileDto {
+export class UpdateProfileDto {
   @ApiProperty({ example: 'Ivan Ivanov' })
   @IsString()
   @Length(2, 30)
-  username: string;
+  @IsOptional()
+  username?: string;
 
   @ApiProperty({ example: '+79501364578' })
   @IsString()
-  phone: string;
+  @IsOptional()
+  phone?: string;
 
   @ApiProperty({ example: 'https://i.pravatar.cc/300' })
   @IsUrl()

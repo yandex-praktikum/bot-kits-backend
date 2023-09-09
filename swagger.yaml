@@ -269,6 +269,115 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Profile'
+  /platforms:
+    post:
+      operationId: PlatformController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePlatformDto'
+      responses:
+        '201':
+          description: The record has been successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+      tags: &ref_3
+        - Platforms
+    get:
+      operationId: PlatformController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Platform'
+        '403':
+          description: Unauthorized Request
+      tags: *ref_3
+  /platforms/{id}:
+    get:
+      operationId: PlatformController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Индификатор платформы
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The resource was returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Resource not found
+      tags: *ref_3
+    patch:
+      operationId: PlatformController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Индификатор платформы
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePlatformDto'
+      responses:
+        '200':
+          description: The resource was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Resource not found
+        '422':
+          description: Bad Request
+      tags: *ref_3
+    delete:
+      operationId: PlatformController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Индификатор платформы
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The resource was returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Resource not found
+      tags: *ref_3
   /tariffs:
     get:
       operationId: TariffsController_findAll
@@ -513,3 +622,73 @@ components:
       required:
         - name
         - price
+    FormFields:
+      type: object
+      properties:
+        name:
+          type: boolean
+          example: true
+        pages:
+          type: boolean
+          example: true
+        accessKey:
+          type: boolean
+          example: false
+        url:
+          type: boolean
+          example: true
+      required:
+        - name
+        - pages
+        - accessKey
+        - url
+    CreatePlatformDto:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        title:
+          type: string
+          example: VK
+        formFields:
+          $ref: '#/components/schemas/FormFields'
+      required:
+        - icon
+        - title
+        - formFields
+    Platform:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        title:
+          type: string
+          example: VK
+        formFields:
+          example:
+            name: true
+            pages: true
+            accessKey: false
+            url: true
+          allOf:
+            - $ref: '#/components/schemas/FormFields'
+      required:
+        - icon
+        - title
+        - formFields
+    UpdatePlatformDto:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        title:
+          type: string
+          example: VK
+        formFields:
+          $ref: '#/components/schemas/FormFields'

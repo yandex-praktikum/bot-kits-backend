@@ -10,6 +10,8 @@ import { ProfilesModule } from './profiles/profiles.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { TariffsModule } from './tariff/tariffs.module';
+import { PlatformModule } from './platforms/platforms.module';
+
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ import { TariffsModule } from './tariff/tariffs.module';
     ProfilesModule,
     TariffsModule,
     AuthModule,
+    PlatformModule,
   ],
   controllers: [
     AppController,
