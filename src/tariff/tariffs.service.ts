@@ -5,9 +5,9 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateTariffDto } from './dto/tariff.dto';
+import { CreateTariffDto } from './dto/create-tariff.dto';
 import { Tariff } from './entities/tariff.entity';
-import { UpdateTariffDto } from './dto/updateTariff.dto';
+import { UpdateTariffDto } from './dto/update-tariff.dto';
 
 @Injectable()
 export class TariffsService {

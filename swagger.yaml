@@ -276,22 +276,15 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Будет получен массив тарифов
+          description: The resources were returned successfully
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                    price:
-                      type: number
-                    created_at:
-                      type: string
-                    updated_at:
-                      type: string
+                  $ref: '#/components/schemas/Tariff'
+        '403':
+          description: Unauthorized Request
         '404':
           description: Нет ни одного тарифа
       tags: &ref_3
@@ -307,29 +300,16 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateTariffDto'
       responses:
-        '200':
-          description: Будет добавлен новый тариф
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  price:
-                    type: number
-                  created_at:
-                    type: string
-                  updated_at:
-                    type: string
         '201':
-          description: ''
+          description: The resources were returned successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tariff'
-        '404':
-          description: Нет тарифа с таким id
+        '403':
+          description: Unauthorized Request
+        '409':
+          description: Такой тариф уже существует
       tags: *ref_3
   /tariffs/{id}:
     get:
@@ -343,20 +323,13 @@ paths:
             type: string
       responses:
         '200':
-          description: Будет получен конкретный тариф по id
+          description: The resources were returned successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  price:
-                    type: number
-                  created_at:
-                    type: string
-                  updated_at:
-                    type: string
+                $ref: '#/components/schemas/Tariff'
+        '403':
+          description: Unauthorized Request
         '404':
           description: Нет тарифа с таким id
       tags: *ref_3
@@ -377,22 +350,15 @@ paths:
               $ref: '#/components/schemas/UpdateTariffDto'
       responses:
         '200':
-          description: Будет изменен тариф с указанным id
+          description: The resources were returned successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  price:
-                    type: number
-                  created_at:
-                    type: string
-                  updated_at:
-                    type: string
+                $ref: '#/components/schemas/Tariff'
+        '403':
+          description: Unauthorized Request
         '404':
-          description: Такого тарифа нет
+          description: Нет тарифа с таким id
       tags: *ref_3
     delete:
       operationId: TariffsController_remove
@@ -405,22 +371,15 @@ paths:
             type: string
       responses:
         '200':
-          description: Будет удален тариф с указанным id
+          description: The resources were returned successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  price:
-                    type: number
-                  created_at:
-                    type: string
-                  updated_at:
-                    type: string
+                $ref: '#/components/schemas/Tariff'
+        '403':
+          description: Unauthorized Request
         '404':
-          description: Такого тарифа нет
+          description: Нет тарифа с таким id
       tags: *ref_3
 info:
   title: API BotKits
@@ -477,39 +436,49 @@ components:
         - balance
         - promoCodes
         - subscriptionId
-    CreateTariffDto:
-      type: object
-      properties:
-        name:
-          type: string
-        price:
-          type: number
-      required:
-        - name
-        - price
     Tariff:
       type: object
       properties:
         name:
           type: string
+          example: Старт
         price:
           type: number
-        created_at:
+          example: 390
+        createdAt:
+          format: date-time
           type: string
-        updated_at:
+          example: '2023-09-10T16:07:34.285Z'
+        updatedAt:
+          format: date-time
           type: string
+          example: '2023-09-10T16:07:34.285Z'
       required:
         - name
         - price
-        - created_at
-        - updated_at
+    CreateTariffDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Старт
+        price:
+          type: number
+          minimum: 1
+          example: 390
+      required:
+        - name
+        - price
     UpdateTariffDto:
       type: object
       properties:
         name:
           type: string
+          example: Новый старт!
         price:
           type: number
+          minimum: 1
+          example: 490
       required:
         - name
         - price

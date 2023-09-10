@@ -8,10 +8,19 @@ import {
   Patch,
 } from '@nestjs/common';
 import { TariffsService } from './tariffs.service';
-import { CreateTariffDto } from './dto/tariff.dto';
+import { CreateTariffDto } from './dto/create-tariff.dto';
 import { Tariff } from './entities/tariff.entity';
-import { UpdateTariffDto } from './dto/updateTariff.dto';
-import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { UpdateTariffDto } from './dto/update-tariff.dto';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBody,
+  ApiOkResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiCreatedResponse,
+  ApiConflictResponse,
+} from '@nestjs/swagger';
 
 @ApiTags('tariffs')
 @Controller('tariffs')
@@ -21,26 +30,12 @@ export class TariffsController {
   @ApiOperation({
     summary: 'Получить все тарифы',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Будет получен массив тарифов',
-    schema: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          price: { type: 'number' },
-          created_at: { type: 'string' },
-          updated_at: { type: 'string' },
-        },
-      },
-    },
+  @ApiOkResponse({
+    description: 'The resources were returned successfully',
+    type: [Tariff],
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Нет ни одного тарифа',
-  })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiNotFoundResponse({ description: 'Нет ни одного тарифа' })
   @Get()
   findAll() {
     return this.tariffsService.findAll();
@@ -49,23 +44,12 @@ export class TariffsController {
   @ApiOperation({
     summary: 'Получить тариф по id',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Будет получен конкретный тариф по id',
-    schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string' },
-        price: { type: 'number' },
-        created_at: { type: 'string' },
-        updated_at: { type: 'string' },
-      },
-    },
+  @ApiOkResponse({
+    description: 'The resources were returned successfully',
+    type: Tariff,
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Нет тарифа с таким id',
-  })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiNotFoundResponse({ description: 'Нет тарифа с таким id' })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.tariffsService.findOne(id);
@@ -74,23 +58,13 @@ export class TariffsController {
   @ApiOperation({
     summary: 'Добавить новый тариф',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Будет добавлен новый тариф',
-    schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string' },
-        price: { type: 'number' },
-        created_at: { type: 'string' },
-        updated_at: { type: 'string' },
-      },
-    },
+  @ApiBody({ type: CreateTariffDto })
+  @ApiCreatedResponse({
+    description: 'The resources were returned successfully',
+    type: Tariff,
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Нет тарифа с таким id',
-  })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiConflictResponse({ description: 'Такой тариф уже существует' })
   @Post()
   create(@Body() CreateTariffDto: CreateTariffDto) {
     return this.tariffsService.create(CreateTariffDto);
@@ -99,23 +73,13 @@ export class TariffsController {
   @ApiOperation({
     summary: 'Изменить данные тарифа по id',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Будет изменен тариф с указанным id',
-    schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string' },
-        price: { type: 'number' },
-        created_at: { type: 'string' },
-        updated_at: { type: 'string' },
-      },
-    },
+  @ApiBody({ type: UpdateTariffDto })
+  @ApiOkResponse({
+    description: 'The resources were returned successfully',
+    type: Tariff,
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Такого тарифа нет',
-  })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiNotFoundResponse({ description: 'Нет тарифа с таким id' })
   @Patch(':id')
   updateTariff(
     @Param('id') id: string,
@@ -127,23 +91,12 @@ export class TariffsController {
   @ApiOperation({
     summary: 'Удалить тариф по id',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Будет удален тариф с указанным id',
-    schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string' },
-        price: { type: 'number' },
-        created_at: { type: 'string' },
-        updated_at: { type: 'string' },
-      },
-    },
+  @ApiOkResponse({
+    description: 'The resources were returned successfully',
+    type: Tariff,
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Такого тарифа нет',
-  })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiNotFoundResponse({ description: 'Нет тарифа с таким id' })
   @Delete(':id')
   remove(@Param('id') id: string): Promise<Tariff> {
     return this.tariffsService.remove(id);
