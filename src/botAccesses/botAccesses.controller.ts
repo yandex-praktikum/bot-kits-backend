@@ -7,7 +7,7 @@ import { BotAccess } from './shema/botAccesses.shema';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 
 @UseGuards(JwtGuard)
-@Controller('bots-accesses')
+@Controller('bot-accesses')
 export class BotAccessesController {
   constructor(private readonly botAccessesService: BotAccessesService) {}
 
