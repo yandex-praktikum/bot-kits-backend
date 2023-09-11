@@ -1,11 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { Document, HydratedDocument, Types } from 'mongoose';
+import { Account } from 'src/account/schema/account.schema';
 
 export type ProfileDocument = HydratedDocument<Profile>;
-
+//profile.schema.ts
 @Schema()
-export class Profile {
+export class Profile extends Document {
   @ApiProperty({ example: 'Ivan Ivanov' })
   @Prop({ required: true, minlength: 2, maxlength: 30 })
   username: string;
@@ -24,11 +25,10 @@ export class Profile {
   @Prop({ default: 0 })
   balance: number;
 
-  // Добавить после создание модели с Аккаунтами
-  //   @Prop({
-  //     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
-  //   })
-  //   accounts: Account[];
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
+  })
+  accounts: Account[];
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);
