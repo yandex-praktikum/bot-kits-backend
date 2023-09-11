@@ -1,34 +1,70 @@
 import {
+  Body,
   Controller,
   Get,
-  Body,
-  Patch,
   Param,
   Post,
-  Delete,
-} from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+  Put
+} from "@nestjs/common";
+import { ApiBody, ApiCreatedResponse, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import {BotTemplatesService} from "./bot-templates.service";
+import {BotTemplate} from "./schema/bot-template.schema";
+import BotTemplateDto from "./dto/bot-template.dto";
 
 @ApiTags('botTemplates')
-//@UseGuards(JwtAuthGuard)
 @Controller('botTemplates')
-export class botTemplatesController {
-  // constructor(
-  // ) { }
+export class BotTemplatesController {
+  constructor(private readonly botTemplatesService: BotTemplatesService) { }
 
   @ApiOperation({
     summary: 'Список шаблонов ботов',
   })
   @Get()
-  findAll() {
-    //return ;
+  async findAll(): Promise<BotTemplate[]>{
+    return await this.botTemplatesService.findAll();
   }
 
   @ApiOperation({
     summary: 'Данные шаблона бота',
   })
+  @ApiParam({
+    name: 'id',
+    description: 'Индификатор платформы',
+    example: '64f81ba37571bfaac18a857f',
+  })
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    //return ;
+  findOne(@Param('id') id: string) {
+    return this.botTemplatesService.findById(id);
+  }
+
+  @ApiOperation({
+    summary: 'Создать шаблон бота',
+  })
+  @ApiBody({ type:  BotTemplateDto})
+  @ApiCreatedResponse({
+    description: 'The record has been successfully created.',
+    type: BotTemplateDto,
+  })
+  @Post()
+  async create(@Body() updateDtoRequest: BotTemplateDto) {
+    return await this.botTemplatesService.create(updateDtoRequest);
+  }
+
+  @ApiOperation({
+    summary: 'Изменить шаблон бота',
+  })
+  @ApiBody({ type:  BotTemplateDto})
+  @ApiCreatedResponse({
+    description: 'The record has been updated created.',
+    type: BotTemplateDto,
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Индификатор платформы',
+    example: '64f81ba37571bfaac18a857f',
+  })
+  @Put(':id')
+  update(@Body() updateDtoRequest:BotTemplateDto, @Param('id') id: string) {
+    return this.botTemplatesService.update(id, updateDtoRequest);
   }
 }
