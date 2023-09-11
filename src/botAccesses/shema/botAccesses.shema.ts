@@ -1,6 +1,6 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Profile } from '../../profiles/entities/profile.entity';
+import { Profile } from '../../profiles/schema/profile.schema';
 import Permission from '../types/types';
 
 

@@ -17,17 +17,8 @@ export class BotAccessesService {
   ) {}
 
   async create(userId, createBotAccessDto: CreateBotAccessDto): Promise<BotAccess> {
-    try {
-      const botAccess = await this.access.create({...createBotAccessDto, userId});
-      return botAccess.save()
-
-    } catch (err) {
-      if (err.code === 11000) {
-        throw new ConflictException(
-          'Данный доступ уже предоставлен',
-        );
-      }
-    }
+    const botAccess = await this.access.create({...createBotAccessDto, userId});
+    return botAccess.save();
   }
 
   async findOne(id): Promise<BotAccess> {
@@ -48,7 +39,7 @@ export class BotAccessesService {
 
     if (!superAdmin) {
       throw new ForbiddenException(
-          'Недостаточно прав редактировать удалять к боту',
+          'Недостаточно прав удалять доступ к боту',
       );
     }
 
@@ -56,18 +47,7 @@ export class BotAccessesService {
   }
 
   async findOneByUserAndBotIds(userId, botId): Promise<BotAccess> {
-    const access = await this.access.findOne({
-      userId,
-      botId,
-    }).exec();
-
-    if (!access) {
-      throw new ConflictException(
-          'Данного доступа нет',
-      );
-    }
-
-    return access;
+    return await this.access.findOne({ userId, botId }).exec();
   }
 
   async findAll(): Promise<BotAccess[]> {
@@ -76,12 +56,20 @@ export class BotAccessesService {
 
   async getPermission(userId, botId): Promise<Permission> {
     const botAccess = await this.findOneByUserAndBotIds(userId, botId)
+    if (!botAccess) {
+      throw new NotFoundException('У данного пользователя нет доступа к боту')
+    }
     return botAccess.permission
   }
 
   async isSuperAdmin(userId, botId): Promise<boolean> {
     const permission = await this.getPermission(userId, botId)
     return permission === Permission.SUPER_ADMIN
+  }
+
+  async isThereAnyAccess(userId, botId): Promise<boolean> {
+    const botAccess = await this.findOneByUserAndBotIds(userId, botId);
+    return botAccess ? true : false
   }
 
   async updateAccess(superAdminId, botAccessId, updateBotAccessDto: UpdateBotAccessDto): Promise<BotAccess> {
@@ -105,13 +93,16 @@ export class BotAccessesService {
       );
     }
 
-    // предполагалась проверка по email
-    // const user = this.profileService.findOneByEmail(shareBotAccessDto.email)
-    // пока просто захардкоженный user
-    const user = {id: 'idid'}
+    const user = await this.profileService.findByEmail(shareBotAccessDto.email)
 
     if (!user) {
       throw new NotFoundException('Можно предоставить доступ только зарегистрированному пользователю')
+    }
+
+    const isThereAccess = await this.isThereAnyAccess(user.id, botId)
+
+    if (isThereAccess) {
+      throw new ConflictException('Доступ уже существует, вы можете обновить существующий доступ')
     }
 
     return await this.create(user.id, { botId, permission: shareBotAccessDto.permission })

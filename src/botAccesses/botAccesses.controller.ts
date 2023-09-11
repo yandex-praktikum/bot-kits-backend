@@ -1,20 +1,19 @@
-import { Controller, Post, Body, Delete, Patch, Get, Req, Param } from '@nestjs/common';
+import { Controller, Post, Body, Delete, Patch, Get, Req, Param, UseGuards } from '@nestjs/common';
 import { BotAccessesService } from './botAccesses.service';
 import { CreateBotAccessDto } from './dto/create-bot-access.dto';
 import { UpdateBotAccessDto } from './dto/update-bot-access.dto';
 import { ShareBotAccessDto } from './dto/share-bot-access.dto';
 import { BotAccess } from './shema/botAccesses.shema';
+import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 
-
+@UseGuards(JwtGuard)
 @Controller('bots-accesses')
 export class BotAccessesController {
   constructor(private readonly botAccessesService: BotAccessesService) {}
 
   @Post()
   create(@Req() req, @Body() createBotAccess: CreateBotAccessDto): Promise<BotAccess> {
-    // доделать после авторизации
-    // return this.botAccessesService.create(createBotAccess, req.user.id);
-    return this.botAccessesService.create('123', createBotAccess);
+     return this.botAccessesService.create(req.user.id, createBotAccess);
   }
 
   @Get()
@@ -29,14 +28,12 @@ export class BotAccessesController {
 
   @Patch(':id')
   update(@Req() req, @Param('id') botAccessId: string, @Body() updateBotAccessDto: UpdateBotAccessDto) {
-    //return this.botAccessesService.updateAccess(req.user.id, botAccessId, updateBotAccessDto);
-    return this.botAccessesService.updateAccess('123', botAccessId, updateBotAccessDto);
+    return this.botAccessesService.updateAccess(req.user.id, botAccessId, updateBotAccessDto);
   }
 
   @Delete(':botAccessId')
   delete(@Req() req, @Param('botAccessId') botAccessId: string) {
-    // return this.botAccessesService.delete(req.user.id, botAccessId);
-    return this.botAccessesService.delete('123', botAccessId);
+    return this.botAccessesService.delete(req.user.id, botAccessId);
   }
 
   @Get(':botId/:userId')
@@ -46,7 +43,6 @@ export class BotAccessesController {
 
   @Post(':botId')
   shareAccess(@Req() req, @Param('botId') botId: string, @Body() shareBotAccessDto: ShareBotAccessDto) {
-    //return this.botAccessesService.shareAccess(req.user.id, botId, shareBotAccessDto);
-    return this.botAccessesService.shareAccess('123', botId, shareBotAccessDto);
+    return this.botAccessesService.shareAccess(req.user.id, botId, shareBotAccessDto);
   }
 }
