@@ -9,12 +9,14 @@ import { DatabaseModule } from './database//database.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
+import { BotAccessesModule } from "./botAccesses/botAccesses.module";
 
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost/nest'),
     ProfilesModule,
     AuthModule,
+    BotAccessesModule,
   ],
   controllers: [
     AppController,

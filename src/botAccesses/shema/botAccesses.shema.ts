@@ -13,11 +13,16 @@ export class BotAccess extends Document {
   userId: Profile;
 
 
+// пока просто строка вместо сущности Bot
+  // @Prop({
+  //   type: Types.ObjectId,
+  //   ref: 'Bot',
+  //   required: true })
+  // botId: Bot;
+
   @Prop({
-    type: Types.ObjectId,
-    ref: 'Bot',
     required: true })
-  botId: Bot;
+  botId: string;
 
   @Prop({
     enum: Permission,

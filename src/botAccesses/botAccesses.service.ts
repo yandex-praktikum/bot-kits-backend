@@ -16,7 +16,7 @@ export class BotAccessesService {
     private readonly profileService: ProfilesService,
   ) {}
 
-  async create(createBotAccessDto: CreateBotAccessDto, userId): Promise<BotAccess> {
+  async create(userId, createBotAccessDto: CreateBotAccessDto): Promise<BotAccess> {
     try {
       const botAccess = await this.access.create({...createBotAccessDto, userId});
       return botAccess.save()
@@ -30,7 +30,7 @@ export class BotAccessesService {
     }
   }
 
-  async findOneById(id): Promise<BotAccess> {
+  async findOne(id): Promise<BotAccess> {
     const access = await this.access.findById(id).exec();
 
     if (!access) {
@@ -42,8 +42,17 @@ export class BotAccessesService {
     return access;
   }
 
-  async delete(id: number): Promise<BotAccess> {
-    return await this.access.findByIdAndDelete(id).exec();
+  async delete(superAdminId: string, botAccessId: string): Promise<BotAccess> {
+    const botAccess = await this.findOne(botAccessId)
+    const superAdmin = await this.isSuperAdmin(superAdminId, botAccess.botId)
+
+    if (!superAdmin) {
+      throw new ForbiddenException(
+          'Недостаточно прав редактировать удалять к боту',
+      );
+    }
+
+    return await botAccess.deleteOne();
   }
 
   async findOneByUserAndBotIds(userId, botId): Promise<BotAccess> {
@@ -61,43 +70,51 @@ export class BotAccessesService {
     return access;
   }
 
+  async findAll(): Promise<BotAccess[]> {
+    return await this.access.find().exec()
+  }
 
-  async checkAccess(userId, botId): Promise<Permission> {
+  async getPermission(userId, botId): Promise<Permission> {
     const botAccess = await this.findOneByUserAndBotIds(userId, botId)
     return botAccess.permission
   }
 
   async isSuperAdmin(userId, botId): Promise<boolean> {
-    const permission = await this.checkAccess(userId, botId)
-    return permission !== Permission.SUPER_ADMIN
+    const permission = await this.getPermission(userId, botId)
+    return permission === Permission.SUPER_ADMIN
   }
 
-  async updateAccess(superAdminId, botId, updateBotAccessDto: UpdateBotAccessDto): Promise<BotAccess> {
-    const superAdmin = await this.isSuperAdmin(superAdminId, botId)
+  async updateAccess(superAdminId, botAccessId, updateBotAccessDto: UpdateBotAccessDto): Promise<BotAccess> {
+    const botAccess = await this.findOne(botAccessId)
+    const superAdmin = await this.isSuperAdmin(superAdminId, botAccess.botId)
+
     if (!superAdmin) {
       throw new ForbiddenException(
           'Недостаточно прав редактировать доступ к боту',
       );
     }
-    const botAccess = await this.findOneByUserAndBotIds(updateBotAccessDto.userId, botId)
     return botAccess.updateOne(updateBotAccessDto)
   }
 
   async shareAccess(superAdminId, botId, shareBotAccessDto: ShareBotAccessDto): Promise<BotAccess> {
-    const superAdmin = await this.isSuperAdmin(superAdminId, botId)
+    const superAdmin = await this.isSuperAdmin(superAdminId, botId);
+
     if (!superAdmin) {
       throw new ForbiddenException(
-          'Недостаточно прав редактировать доступ к боту',
+          'Недостаточно прав предоставлять доступ к боту',
       );
     }
 
-    //const user = this.profileService.findOneByEmail(shareBotAccessDto.email)
-    const user = {id: 123}
+    // предполагалась проверка по email
+    // const user = this.profileService.findOneByEmail(shareBotAccessDto.email)
+    // пока просто захардкоженный user
+    const user = {id: 'idid'}
+
     if (!user) {
       throw new NotFoundException('Можно предоставить доступ только зарегистрированному пользователю')
     }
 
-    return await this.create({ botId, permission: shareBotAccessDto.permission }, user.id)
+    return await this.create(user.id, { botId, permission: shareBotAccessDto.permission })
   }
 
 }
