@@ -10,7 +10,7 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 
-import { AccountService } from './account.service';
+import { AccountService } from './accounts.service';
 import { Account } from './schema/account.schema';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
@@ -25,11 +25,6 @@ export class AccountController {
     description: 'The record has been successfully created.',
     type: Account,
   })
-  @Post()
-  create(@Body() createAccountDto: CreateAccountDto): Promise<Account> {
-    return this.accountService.create(createAccountDto);
-  }
-
   @ApiOkResponse({
     description: 'The resources were returned successfully',
     type: [Account],

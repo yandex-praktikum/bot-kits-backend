@@ -1,20 +1,31 @@
-import { Controller, Post, UseGuards, Req, Body } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Req,
+  Body,
+  ConflictException,
+} from '@nestjs/common';
 import { LocalGuard } from './guards/localAuth.guard';
-import { Profile } from 'src/profiles/entities/profile.entity';
-import { ProfilesService } from 'src/profiles/profiles.service';
 import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { AccountService } from 'src/account/accounts.service';
+import { AuthDto } from './dto/auth.dto';
+import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
+import { ProfilesService } from 'src/profiles/profiles.service';
+import { AuthService } from './auth.service';
+import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 
 interface RequestProfile extends Request {
-  user: Profile;
+  user: ProfileDocument;
 }
 
 @ApiTags('auth')
 @Controller()
 export class AuthController {
   constructor(
-    private profilesService: ProfilesService,
+    private accountService: AccountService,
+    private profileService: ProfilesService,
     private authService: AuthService,
   ) {}
 
@@ -25,7 +36,7 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        username: { type: 'string' },
+        email: { type: 'string' },
         password: { type: 'string' },
       },
     },
@@ -56,17 +67,52 @@ export class AuthController {
   async signin(@Req() req: RequestProfile) {
     return this.authService.auth(req.user);
   }
-
+  //auth.controller.ts
   @ApiOperation({
     summary: 'Регистрация',
   })
   @ApiBody({ type: CreateProfileDto })
   @Post('signup')
-  async signup(@Body() createProfileDto: CreateProfileDto) {
-    const profile = await this.profilesService.create(createProfileDto);
-    this.authService.auth(profile);
-    delete profile.password;
-    return profile;
+  async signup(@Body(new AuthDtoPipe()) authDto: AuthDto) {
+    const { profileDto, accountDto } = authDto;
+
+    //--Находим аккаунта по email--//
+    const dublicateAccount = await this.accountService.findByEmail(
+      accountDto.credentials.email,
+    );
+
+    //--Если находим аккаунт, то не даем создавать второй аналогичный и не создаем профиль--//
+    if (dublicateAccount) {
+      throw new ConflictException('Аккаунт уже существует');
+    }
+
+    //--Создаем новый профиль--//
+    const profileModel = await this.profileService.create(profileDto);
+
+    //--Создаем новый аккаунт--//
+    const accountModel = await this.accountService.create(
+      accountDto,
+      profileModel._id,
+    );
+
+    //--Авторизуем пользователя--//
+    const tokens = await this.authService.auth(profileModel);
+
+    //--Добавляем accessToken и refreshToken к accountDto--//
+    accountDto.credentials.accessToken = tokens.accessToken;
+    accountDto.credentials.refreshToken = tokens.refreshToken;
+
+    //--Обновляем аккаунт--//
+    await this.accountService.update(
+      accountModel._id.toHexString(),
+      accountDto,
+    );
+
+    //-Добавляем к профилю в массив новый аккаунт--//
+    profileModel.accounts.push(accountModel);
+    await profileModel.save();
+    delete profileModel.accounts[0].credentials.password;
+    return profileModel;
   }
 
   @ApiOperation({

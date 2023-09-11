@@ -11,13 +11,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { TariffsModule } from './tariff/tariffs.module';
 import { PlatformModule } from './platforms/platforms.module';
+import { AccountModule } from './account/accounts.module';
 
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/nest'),
+    MongooseModule.forRoot('mongodb://127.0.0.1/nest'),
     ProfilesModule,
     TariffsModule,
+    AccountModule,
     AuthModule,
     PlatformModule,
   ],
