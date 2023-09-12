@@ -13,6 +13,7 @@ import { Account, AccountSchema } from 'src/accounts/schema/account.schema';
 import { ProfilesModule } from 'src/profiles/profiles.module';
 import { AccountModule } from 'src/accounts/accounts.module';
 import { HashModule } from 'src/hash/hash.module';
+import { jwtOptions } from 'src/configs/jwt.config';
 
 @Module({
   imports: [
@@ -21,14 +22,7 @@ import { HashModule } from 'src/hash/hash.module';
     HashModule,
     PassportModule,
     ConfigModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') || 'some_super_secret',
-        signOptions: { expiresIn: '1d' },
-      }),
-      inject: [ConfigService],
-    }),
+    JwtModule.registerAsync(jwtOptions()),
     MongooseModule.forFeature([
       { name: Profile.name, schema: ProfileSchema },
       { name: Account.name, schema: AccountSchema },

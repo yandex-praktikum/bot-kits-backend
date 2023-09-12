@@ -1,19 +1,29 @@
 import { Module } from '@nestjs/common';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProfilesController } from './profiles/profiles.controller';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from '@nestjs/config';
+
 import { AuthController } from './auth/auth.controller';
 import { BotsController } from './bots/bots.controller';
 import { botTemplatesController } from './botTemplates/bot-templates.controller';
+
 import { ProfilesModule } from './profiles/profiles.module';
-import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { PlatformModule } from './platforms/platforms.module';
 import { AccountModule } from './accounts/accounts.module';
 
+import { config } from './configs/config';
+import { databaseConfig } from './configs/database.config';
+
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://127.0.0.1/nest'),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [config],
+    }),
+    MongooseModule.forRootAsync(databaseConfig()),
     ProfilesModule,
     AccountModule,
     AuthModule,
