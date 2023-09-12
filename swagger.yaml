@@ -11,223 +11,6 @@ paths:
             application/json:
               schema:
                 type: string
-  /signin:
-    post:
-      operationId: AuthController_signin
-      summary: Войти в систему
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                password:
-                  type: string
-      responses:
-        '201':
-          description: Успешный вход в систему
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  accessToken:
-                    type: string
-                    description: accessToken по умолчанию действует 1 день
-                  refreshToken:
-                    type: string
-                    description: refreshToken по умолчанию действует 7 дней
-        '401':
-          description: Неверное имя пользователя или пароль
-      tags: &ref_0
-        - auth
-  /signup:
-    post:
-      operationId: AuthController_signup
-      summary: Регистрация
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateProfileDto'
-      responses:
-        '201':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-      tags: *ref_0
-  /refresh-token:
-    post:
-      operationId: AuthController_refreshToken
-      summary: Обновить токен
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                refreshToken:
-                  type: string
-      responses:
-        '201':
-          description: accessToken успешно обновлен
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  accessToken:
-                    type: string
-                    description: accessToken по умолчанию действует 1 день
-                  refreshToken:
-                    type: string
-                    description: refreshToken по умолчанию действует 7 дней
-      tags: *ref_0
-  /bots:
-    get:
-      operationId: BotsController_findMy
-      summary: Список ботов пользователя
-      parameters: []
-      responses:
-        '200':
-          description: ''
-      tags: &ref_1
-        - bots
-    post:
-      operationId: BotsController_create
-      summary: Создание нового бота
-      parameters: []
-      responses:
-        '201':
-          description: ''
-      tags: *ref_1
-  /bots/{id}:
-    delete:
-      operationId: BotsController_remove
-      summary: Удаление бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: number
-      responses:
-        '200':
-          description: ''
-      tags: *ref_1
-    post:
-      operationId: BotsController_copy
-      summary: Копирование бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: number
-      responses:
-        '201':
-          description: ''
-      tags: *ref_1
-    patch:
-      operationId: BotsController_update
-      summary: Смена имени бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: number
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                botName:
-                  type: string
-      responses:
-        '200':
-          description: ''
-      tags: *ref_1
-    get:
-      operationId: BotsController_findOne
-      summary: Данные бота пользователя
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: number
-      responses:
-        '200':
-          description: ''
-      tags: *ref_1
-  /bots/{id}/notificationLinks:
-    get:
-      operationId: BotsController_notificationLinks
-      summary: Настройки уведомлений бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: number
-      responses:
-        '200':
-          description: ''
-      tags: *ref_1
-  /bots/{id}/link:
-    get:
-      operationId: BotsController_getLink
-      summary: Ссылка на бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: number
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: string
-      tags: *ref_1
-  /bots/{id}/share:
-    post:
-      operationId: BotsController_share
-      summary: Поделиться доступом к боту
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: number
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-      responses:
-        '201':
-          description: ''
-      tags: *ref_1
   /botTemplates:
     get:
       operationId: botTemplatesController_findAll
@@ -236,7 +19,7 @@ paths:
       responses:
         '200':
           description: ''
-      tags: &ref_2
+      tags: &ref_0
         - botTemplates
   /botTemplates/{id}:
     get:
@@ -251,7 +34,7 @@ paths:
       responses:
         '200':
           description: ''
-      tags: *ref_2
+      tags: *ref_0
   /profiles:
     post:
       operationId: ProfilesController_create
@@ -382,7 +165,7 @@ paths:
                 $ref: '#/components/schemas/Account'
         '403':
           description: Unauthorized Request
-      tags: &ref_3
+      tags: &ref_1
         - Accounts
   /accounts/{id}:
     patch:
@@ -414,7 +197,89 @@ paths:
           description: Resource not found
         '422':
           description: Bad Request
-      tags: *ref_3
+      tags: *ref_1
+  /signin:
+    post:
+      operationId: AuthController_signin
+      summary: Войти в систему
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Успешный вход в систему
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: accessToken по умолчанию действует 1 день
+                  refreshToken:
+                    type: string
+                    description: refreshToken по умолчанию действует 7 дней
+        '401':
+          description: Неверное имя пользователя или пароль
+      tags: &ref_2
+        - auth
+  /signup:
+    post:
+      operationId: AuthController_signup
+      summary: Регистрация
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProfileDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+      tags: *ref_2
+  /refresh-token:
+    post:
+      operationId: AuthController_refreshToken
+      summary: Обновить токен
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '201':
+          description: accessToken успешно обновлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: accessToken по умолчанию действует 1 день
+                  refreshToken:
+                    type: string
+                    description: refreshToken по умолчанию действует 7 дней
+      tags: *ref_2
   /platforms:
     post:
       operationId: PlatformController_create
@@ -432,7 +297,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Platform'
-      tags: &ref_4
+      tags: &ref_3
         - Platforms
     get:
       operationId: PlatformController_findAll
@@ -448,7 +313,7 @@ paths:
                   $ref: '#/components/schemas/Platform'
         '403':
           description: Unauthorized Request
-      tags: *ref_4
+      tags: *ref_3
   /platforms/{id}:
     get:
       operationId: PlatformController_findOne
@@ -471,7 +336,7 @@ paths:
           description: Unauthorized Request
         '404':
           description: Resource not found
-      tags: *ref_4
+      tags: *ref_3
     patch:
       operationId: PlatformController_update
       parameters:
@@ -501,7 +366,7 @@ paths:
           description: Resource not found
         '422':
           description: Bad Request
-      tags: *ref_4
+      tags: *ref_3
     delete:
       operationId: PlatformController_remove
       parameters:
@@ -523,6 +388,115 @@ paths:
           description: Unauthorized Request
         '404':
           description: Resource not found
+      tags: *ref_3
+  /bots:
+    get:
+      operationId: BotsController_findMy
+      summary: Список ботов пользователя
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjectId'
+      responses:
+        '200':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bot'
+        '403':
+          description: Unauthorized Request
+      tags: &ref_4
+        - bots
+    post:
+      operationId: BotsController_create
+      summary: Создание нового бота
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBotDto'
+      responses:
+        '201':
+          description: The record has been successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+      tags: *ref_4
+  /bots/{id}:
+    delete:
+      operationId: BotsController_remove
+      summary: Удаление бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+      tags: *ref_4
+    patch:
+      operationId: BotsController_update
+      summary: Смена имени бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                botName:
+                  type: string
+      responses:
+        '200':
+          description: The resource was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Resource not found
+        '422':
+          description: Bad Request
+      tags: *ref_4
+    get:
+      operationId: BotsController_findOne
+      summary: Данные бота пользователя
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
       tags: *ref_4
 info:
   title: API BotKits
@@ -763,3 +737,76 @@ components:
           example: VK
         formFields:
           $ref: '#/components/schemas/FormFields'
+    Messenger:
+      type: object
+      properties:
+        name:
+          type: string
+          example: VK
+        page:
+          type: string
+          example: vk.com/club1245321223
+        accessKey:
+          type: string
+          example: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
+        url:
+          type: string
+          example: some_url
+      required:
+        - name
+        - page
+        - accessKey
+        - url
+    Bot:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        botName:
+          type: string
+          example: Бот Автоответчик
+        profile:
+          $ref: '#/components/schemas/Profile'
+        messenger:
+          example:
+            name: VK
+            page: vk.com/club1245321223
+            accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
+            url: some_url
+          allOf:
+            - $ref: '#/components/schemas/Messenger'
+        botSettings:
+          type: object
+      required:
+        - icon
+        - botName
+        - profile
+        - messenger
+        - botSettings
+    CreateBotDto:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        botName:
+          type: string
+          example: Бот Автоответчик
+        profile:
+          example: 64f9ac26edb84d7ebf6281d0
+          allOf:
+            - $ref: '#/components/schemas/ObjectId'
+        messenger:
+          $ref: '#/components/schemas/Messenger'
+        botSettings:
+          type: object
+          properties: {}
+      required:
+        - icon
+        - botName
+        - profile
+        - messenger
+        - botSettings

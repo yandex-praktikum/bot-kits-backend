@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProfilesController } from './profiles/profiles.controller';
-import { AuthController } from './auth/auth.controller';
-import { BotsController } from './bots/bots.controller';
 import { botTemplatesController } from './botTemplates/bot-templates.controller';
 import { ProfilesModule } from './profiles/profiles.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { PlatformModule } from './platforms/platforms.module';
 import { AccountModule } from './account/accounts.module';
+import { BotsModule } from "./bots/bots.module";
 
 @Module({
   imports: [
@@ -18,11 +16,10 @@ import { AccountModule } from './account/accounts.module';
     AccountModule,
     AuthModule,
     PlatformModule,
+    BotsModule,
   ],
   controllers: [
     AppController,
-    AuthController,
-    BotsController,
     botTemplatesController,
   ],
   providers: [AppService],
