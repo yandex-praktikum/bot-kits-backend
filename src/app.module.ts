@@ -10,6 +10,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { PlatformModule } from './platforms/platforms.module';
 import { AccountModule } from './account/accounts.module';
+import { SubscriptionsController } from 'subscriptions/subscriptions.controller';
+import { SubscriptionsModule } from 'subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -18,12 +20,14 @@ import { AccountModule } from './account/accounts.module';
     AccountModule,
     AuthModule,
     PlatformModule,
+    SubscriptionsModule,
   ],
   controllers: [
     AppController,
     AuthController,
     BotsController,
     botTemplatesController,
+    SubscriptionsController,
   ],
   providers: [AppService],
 })
