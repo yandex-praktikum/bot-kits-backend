@@ -5,10 +5,8 @@ import {
   SubscriptionDocument,
 } from './schema/subscription.schema';
 import mongoose, { Model } from 'mongoose';
-import { Profile } from '../src/profiles/schema/profile.schema';
+import { Profile } from '../profiles/schema/profile.schema';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
-import { ProfilesService } from 'src/profiles/profiles.service';
-import { log } from 'console';
 
 @Injectable()
 export class SubscriptionsService {

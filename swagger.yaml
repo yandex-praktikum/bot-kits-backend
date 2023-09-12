@@ -252,21 +252,6 @@ paths:
         '200':
           description: ''
       tags: *ref_2
-  /userSubscriptions:
-    get:
-      operationId: SubscriptionsController_all
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Subscription'
-      tags: &ref_3
-        - userSubscriptions
   /userSubscriptions/{id}:
     get:
       operationId: SubscriptionsController_subscriptionAndPayments
@@ -279,18 +264,26 @@ paths:
             type: string
       responses:
         '200':
-          description: ''
+          description: Данные подписок и платежей успешно получены
           content:
             application/json:
               schema:
-                type: string
-      tags: *ref_3
+                type: object
+                properties: {}
+      tags: &ref_3
+        - userSubscriptions
   /userSubscriptions/activate:
     post:
       operationId: SubscriptionsController_activateSubscription
       summary: Активировать подписку
       parameters: []
       responses:
+        '200':
+          description: Подписка активирована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
         '201':
           description: ''
           content:
@@ -306,9 +299,26 @@ paths:
         - name: id
           required: true
           in: path
+          description: Идентификатор тарифа
+          example: 64f81ba37571bfaac18a857f
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cardMask:
+                  type: string
       responses:
+        '200':
+          description: Подписка оформлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
         '201':
           description: ''
           content:
@@ -633,7 +643,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-12T13:23:53.723Z
+          example: 2023-09-12T13:56:29.595Z
       required:
         - tariffId
         - status
