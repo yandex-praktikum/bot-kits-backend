@@ -16,17 +16,25 @@ import {
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
+  ApiResponse,
+  ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { Profile } from './schema/profile.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
+@ApiTags('profiles')
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
-
+  @ApiTags('profiles')
   @Post()
+  @ApiOperation({ summary: 'Создать новый профиль' })
+  @ApiBody({ type: CreateProfileDto })
+  @ApiResponse({ status: 201, description: 'Профиль успешно создан' })
+  @ApiResponse({ status: 400, description: 'Некорректные данные' })
   create(@Body() createProfileDto: CreateProfileDto) {
     return this.profilesService.create(createProfileDto);
   }

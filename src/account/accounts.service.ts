@@ -78,14 +78,16 @@ export class AccountService {
 
   //profiles.service.ts
   async saveRefreshToken(profileId: Types.ObjectId, refreshToken: string) {
-    const updatedAccount = await this.accountModel.findOneAndUpdate(
-      { profile: profileId },
-      { 'credentials.refreshToken': refreshToken },
-      { new: true }, // This option returns the modified document.
-    );
+    const updatedAccount = await this.accountModel
+      .findOneAndUpdate(
+        { profile: profileId },
+        { 'credentials.refreshToken': refreshToken },
+        { new: true }, //--Этот параметр возвращает измененный документ.--//
+      )
+      .populate('profile'); //--Возвращает вместе с документом Profile.--//
 
     if (updatedAccount) {
-      return updatedAccount;
+      return updatedAccount.profile;
     } else {
       throw new UnauthorizedException('Невалидный refreshToken');
     }

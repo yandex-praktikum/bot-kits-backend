@@ -33,14 +33,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  accessToken:
-                    type: string
-                    description: accessToken по умолчанию действует 1 день
-                  refreshToken:
-                    type: string
-                    description: refreshToken по умолчанию действует 7 дней
+                $ref: '#/components/schemas/CreateProfileDto'
         '401':
           description: Неверное имя пользователя или пароль
       tags: &ref_0
@@ -55,14 +48,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateProfileDto'
+              type: object
+              properties:
+                accountDto:
+                  type: object
+                  properties:
+                    credentials:
+                      type: object
+                      properties:
+                        password:
+                          type: string
+                        email:
+                          type: string
+                profileDto:
+                  type: object
+                  properties:
+                    phone:
+                      type: string
+                    username:
+                      type: string
       responses:
         '201':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
+          description: Успешная регистрация
+        '400':
+          description: Некорректные данные
+        '409':
+          description: Аккаунт уже существует
       tags: *ref_0
   /refresh-token:
     post:
@@ -255,6 +266,7 @@ paths:
   /profiles:
     post:
       operationId: ProfilesController_create
+      summary: Создать новый профиль
       parameters: []
       requestBody:
         required: true
@@ -264,11 +276,12 @@ paths:
               $ref: '#/components/schemas/CreateProfileDto'
       responses:
         '201':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
+          description: Профиль успешно создан
+        '400':
+          description: Некорректные данные
+      tags:
+        - profiles
+        - profiles
     get:
       operationId: ProfilesController_findAll
       parameters: []
@@ -283,6 +296,8 @@ paths:
                   $ref: '#/components/schemas/Profile'
         '403':
           description: Unauthorized Request
+      tags: &ref_3
+        - profiles
   /profiles/{id}:
     get:
       operationId: ProfilesController_findOne
@@ -305,6 +320,7 @@ paths:
           description: Unauthorized Request
         '404':
           description: Resource not found
+      tags: *ref_3
     patch:
       operationId: ProfilesController_update
       parameters:
@@ -334,6 +350,7 @@ paths:
           description: Resource not found
         '422':
           description: Bad Request
+      tags: *ref_3
     delete:
       operationId: ProfilesController_remove
       parameters:
@@ -355,6 +372,7 @@ paths:
           description: Unauthorized Request
         '404':
           description: Resource not found
+      tags: *ref_3
   /accounts:
     get:
       operationId: AccountController_findAll
@@ -382,7 +400,7 @@ paths:
                 $ref: '#/components/schemas/Account'
         '403':
           description: Unauthorized Request
-      tags: &ref_3
+      tags: &ref_4
         - Accounts
   /accounts/{id}:
     patch:
@@ -414,7 +432,7 @@ paths:
           description: Resource not found
         '422':
           description: Bad Request
-      tags: *ref_3
+      tags: *ref_4
   /platforms:
     post:
       operationId: PlatformController_create
@@ -432,7 +450,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Platform'
-      tags: &ref_4
+      tags: &ref_5
         - Platforms
     get:
       operationId: PlatformController_findAll
@@ -448,7 +466,7 @@ paths:
                   $ref: '#/components/schemas/Platform'
         '403':
           description: Unauthorized Request
-      tags: *ref_4
+      tags: *ref_5
   /platforms/{id}:
     get:
       operationId: PlatformController_findOne
@@ -471,7 +489,7 @@ paths:
           description: Unauthorized Request
         '404':
           description: Resource not found
-      tags: *ref_4
+      tags: *ref_5
     patch:
       operationId: PlatformController_update
       parameters:
@@ -501,7 +519,7 @@ paths:
           description: Resource not found
         '422':
           description: Bad Request
-      tags: *ref_4
+      tags: *ref_5
     delete:
       operationId: PlatformController_remove
       parameters:
@@ -523,7 +541,7 @@ paths:
           description: Unauthorized Request
         '404':
           description: Resource not found
-      tags: *ref_4
+      tags: *ref_5
 info:
   title: API BotKits
   description: Ручки для команды frontend
@@ -533,63 +551,6 @@ tags: []
 servers: []
 components:
   schemas:
-    CreateProfileDto:
-      type: object
-      properties:
-        username:
-          type: string
-          minLength: 2
-          maxLength: 30
-          example: Ivan Ivanov
-        phone:
-          type: string
-          example: '+79501364578'
-        avatar:
-          type: string
-          example: https://i.pravatar.cc/300
-        balance:
-          type: number
-          example: 1400
-      required:
-        - username
-        - phone
-    Profile:
-      type: object
-      properties:
-        username:
-          type: string
-          example: Ivan Ivanov
-        phone:
-          type: string
-          example: '+79501364578'
-        avatar:
-          type: string
-          example: https://i.pravatar.cc/300
-        balance:
-          type: number
-          example: 1400
-      required:
-        - username
-        - phone
-        - avatar
-        - balance
-    UpdateProfileDto:
-      type: object
-      properties:
-        username:
-          type: string
-          minLength: 2
-          maxLength: 30
-          example: Ivan Ivanov
-        phone:
-          type: string
-          example: '+79501364578'
-        avatar:
-          type: string
-          example: https://i.pravatar.cc/300
-        balance:
-          type: number
-          example: 1400
     Credentials:
       type: object
       properties:
@@ -610,6 +571,92 @@ components:
         - password
         - accessToken
         - refreshToken
+    Profile:
+      type: object
+      properties:
+        username:
+          type: string
+          example: Ivan Ivanov
+        phone:
+          type: string
+          example: '+79501364578'
+        avatar:
+          type: string
+          example: https://i.pravatar.cc/300
+        balance:
+          type: number
+          example: 1400
+      required:
+        - username
+        - phone
+        - avatar
+        - balance
+    Account:
+      type: object
+      properties:
+        type:
+          type: string
+          example: local
+        role:
+          type: string
+          example: admin
+        credentials:
+          example:
+            email: my@mail.ru
+            password: password123
+            accessToken: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
+            refreshToken: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
+          allOf:
+            - $ref: '#/components/schemas/Credentials'
+        profile:
+          $ref: '#/components/schemas/Profile'
+      required:
+        - type
+        - role
+        - credentials
+        - profile
+    CreateProfileDto:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 2
+          maxLength: 30
+          example: Ivan Ivanov
+        phone:
+          type: string
+          example: '+79501364578'
+        avatar:
+          type: string
+          example: https://i.pravatar.cc/300
+        balance:
+          type: number
+          example: 1400
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+      required:
+        - username
+        - phone
+        - accounts
+    UpdateProfileDto:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 2
+          maxLength: 30
+          example: Ivan Ivanov
+        phone:
+          type: string
+          example: '+79501364578'
+        avatar:
+          type: string
+          example: https://i.pravatar.cc/300
+        balance:
+          type: number
+          example: 1400
     ObjectId:
       type: object
       properties: {}
@@ -644,30 +691,6 @@ components:
       required:
         - type
         - role
-        - profile
-    Account:
-      type: object
-      properties:
-        type:
-          type: string
-          example: local
-        role:
-          type: string
-          example: admin
-        credentials:
-          example:
-            email: my@mail.ru
-            password: password123
-            accessToken: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
-            refreshToken: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
-          allOf:
-            - $ref: '#/components/schemas/Credentials'
-        profile:
-          $ref: '#/components/schemas/Profile'
-      required:
-        - type
-        - role
-        - credentials
         - profile
     UpdateAccountDto:
       type: object

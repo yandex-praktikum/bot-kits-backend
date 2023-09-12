@@ -2,7 +2,6 @@ import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
 import TypeAccount from '../../account/types/type-account';
 import Role from '../../account/types/role';
 import { AuthDto } from '../dto/auth.dto';
-import { Types } from 'mongoose';
 
 @Injectable()
 export class AuthDtoPipe implements PipeTransform {
