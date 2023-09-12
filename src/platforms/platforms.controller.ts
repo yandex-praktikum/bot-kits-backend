@@ -14,6 +14,7 @@ import {
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
   ApiUnprocessableEntityResponse,
@@ -34,6 +35,9 @@ export class PlatformController {
     description: 'The record has been successfully created.',
     type: Platform,
   })
+  @ApiOperation({
+    summary: 'Создать новую платформу',
+  })
   @Post()
   create(@Body() createPlatformDto: CreatePlatformDto): Promise<Platform> {
     return this.platformService.create(createPlatformDto);
@@ -44,6 +48,9 @@ export class PlatformController {
     type: [Platform],
   })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Получить все платформы',
+  })
   @Get()
   findAll(): Promise<Platform[]> {
     return this.platformService.findAll();
@@ -59,6 +66,9 @@ export class PlatformController {
     name: 'id',
     description: 'Индификатор платформы',
     example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiOperation({
+    summary: 'Получить платформу по id',
   })
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Platform> {
@@ -80,6 +90,9 @@ export class PlatformController {
     description: 'Индификатор платформы',
     example: '64f81ba37571bfaac18a857f',
   })
+  @ApiOperation({
+    summary: 'Обновить данные о платформе по id',
+  })
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -98,6 +111,9 @@ export class PlatformController {
     name: 'id',
     description: 'Индификатор платформы',
     example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiOperation({
+    summary: 'Удалить платформу по id',
   })
   @Delete(':id')
   remove(@Param('id') id: string): Promise<Platform> {
