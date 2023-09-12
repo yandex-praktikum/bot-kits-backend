@@ -9,7 +9,7 @@ import {
 import { LocalGuard } from './guards/localAuth.guard';
 import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
-import { AccountService } from 'src/account/accounts.service';
+import { AccountService } from 'src/accounts/accounts.service';
 import { AuthDto } from './dto/auth.dto';
 import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { ProfilesService } from 'src/profiles/profiles.service';
