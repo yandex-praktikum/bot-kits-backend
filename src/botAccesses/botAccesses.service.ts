@@ -81,7 +81,8 @@ export class BotAccessesService {
           'Недостаточно прав редактировать доступ к боту',
       );
     }
-    return botAccess.updateOne(updateBotAccessDto)
+    await botAccess.updateOne(updateBotAccessDto);
+    return botAccess;
   }
 
   async shareAccess(superAdminId, botId, shareBotAccessDto: ShareBotAccessDto): Promise<BotAccess> {
