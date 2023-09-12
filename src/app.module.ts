@@ -1,15 +1,13 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ProfilesController } from './profiles/profiles.controller';
-import { AuthController } from './auth/auth.controller';
-import { BotsController } from './bots/bots.controller';
-import { botTemplatesController } from './botTemplates/bot-templates.controller';
-import { DatabaseModule } from './database//database.module';
-import { ProfilesModule } from './profiles/profiles.module';
-import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from './auth/auth.module';
-import { PlatformModule } from './platforms/platforms.module';
+import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { AuthController } from "./auth/auth.controller";
+import { BotsController } from "./bots/bots.controller";
+import { ProfilesModule } from "./profiles/profiles.module";
+import { MongooseModule } from "@nestjs/mongoose";
+import { AuthModule } from "./auth/auth.module";
+import { PlatformModule } from "./platforms/platforms.module";
+import { BotTemplatesModule } from "./botTemplates/bot-templates.module";
 
 @Module({
   imports: [
@@ -17,6 +15,7 @@ import { PlatformModule } from './platforms/platforms.module';
     ProfilesModule,
     AuthModule,
     PlatformModule,
+    BotTemplatesModule
   ],
   controllers: [
     AppController,
