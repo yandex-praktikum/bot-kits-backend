@@ -524,6 +524,118 @@ paths:
         '404':
           description: Resource not found
       tags: *ref_4
+  /tariffs:
+    get:
+      operationId: TariffsController_findAll
+      summary: Получить все тарифы
+      parameters: []
+      responses:
+        '200':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tariff'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Нет ни одного тарифа
+      tags: &ref_3
+        - tariffs
+    post:
+      operationId: TariffsController_create
+      summary: Добавить новый тариф
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTariffDto'
+      responses:
+        '201':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tariff'
+        '403':
+          description: Unauthorized Request
+        '409':
+          description: Такой тариф уже существует
+      tags: *ref_3
+  /tariffs/{id}:
+    get:
+      operationId: TariffsController_findOne
+      summary: Получить тариф по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tariff'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Нет тарифа с таким id
+      tags: *ref_3
+    patch:
+      operationId: TariffsController_updateTariff
+      summary: Изменить данные тарифа по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTariffDto'
+      responses:
+        '200':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tariff'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Нет тарифа с таким id
+      tags: *ref_3
+    delete:
+      operationId: TariffsController_remove
+      summary: Удалить тариф по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tariff'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Нет тарифа с таким id
+      tags: *ref_3
 info:
   title: API BotKits
   description: Ручки для команды frontend
@@ -610,6 +722,57 @@ components:
         - password
         - accessToken
         - refreshToken
+        - phone
+        - avatar
+        - balance
+        - promoCodes
+        - subscriptionId
+    Tariff:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Старт
+        price:
+          type: number
+          example: 390
+        createdAt:
+          format: date-time
+          type: string
+          example: '2023-09-10T16:07:34.285Z'
+        updatedAt:
+          format: date-time
+          type: string
+          example: '2023-09-10T16:07:34.285Z'
+      required:
+        - name
+        - price
+    CreateTariffDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Старт
+        price:
+          type: number
+          minimum: 1
+          example: 390
+      required:
+        - name
+        - price
+    UpdateTariffDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Новый старт!
+        price:
+          type: number
+          minimum: 1
+          example: 490
+      required:
+        - name
+        - price
     ObjectId:
       type: object
       properties: {}
