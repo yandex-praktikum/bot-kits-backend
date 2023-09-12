@@ -5,6 +5,7 @@ import {
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
   ApiUnprocessableEntityResponse,
@@ -30,6 +31,9 @@ export class AccountController {
     type: [Account],
   })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Получить все аккаунты',
+  })
   @Get()
   findAll(): Promise<Account[]> {
     return this.accountService.findAll();
@@ -47,6 +51,9 @@ export class AccountController {
     name: 'id',
     description: 'Индификатор аккаунта',
     example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiOperation({
+    summary: 'Обновить данные аккаунта по id',
   })
   @Patch(':id')
   update(
