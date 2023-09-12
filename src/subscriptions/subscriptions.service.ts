@@ -4,41 +4,43 @@ import {
   Subscription,
   SubscriptionDocument,
 } from './schema/subscription.schema';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { Profile } from '../profiles/schema/profile.schema';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
+import { Payment } from '../payments/schema/payment.schema';
 
 @Injectable()
 export class SubscriptionsService {
   constructor(
     @InjectModel(Subscription.name)
     private subscriptionModel: Model<SubscriptionDocument>,
-    @InjectModel(Profile.name) private profile: Model<Profile>
+    @InjectModel(Payment.name) private paymentModel: Model<Payment>,
   ) {}
 
-  async subscriptionAndPayments(profile: string): Promise<string> {//Promise<object> {
-    const user = this.profile.findById(new mongoose.mongo.ObjectId(profile));
-    console.log((await user).username);
-    return "Work!";
-    // const subscription = await this.subscriptionModel.findById(
-    //   profile.id//subscriptionId,
-    // );
-    // if (!subscription) {
-    //   return {};
-    // } else {
-    //   return {
-    //     tariff: '', //Дополнить именем тарифа из соотв-щей сущности
-    //     status: subscription.status,
-    //     cardMask: subscription.cardMask,
-    //     debitDate: subscription.debitDate,
-    //     payments: {}, //Дополнить данными платежей
-    //   };
-    // }
+  async subscriptionAndPayments(profile: Profile): Promise<object> {
+    //Promise<object> {
+    const subscription = await this.subscriptionModel.findOne({ profile });
+    const payment = await this.paymentModel.find({ profile });
+    let tariff = '';
+    if (subscription) {
+      tariff = 'Бизнес'; //await this.tariffModel.findById({ subscription.tariffId });
+    }
+    return {
+      tariff,
+      status: subscription.status,
+      cardMask: subscription.cardMask,
+      debitDate: subscription.debitDate,
+      balance: profile.balance,
+      payments: payment,
+    };
   }
 
-  async activateSubscription(userId: string) {
-    const profile = await this.profile.findById(new mongoose.mongo.ObjectId(userId)).exec();
-    const subscription = await this.subscriptionModel.findOne({profile: profile}).exec();
+  async activateSubscription(profile: Profile) {
+    console.log(profile);
+    console.log(profile.id);
+    const subscription = await this.subscriptionModel
+      .findOne({ profile: profile })
+      .exec();
     if (!subscription) {
       throw new NotFoundException('Не найдена подписка пользователя');
     }
@@ -48,17 +50,17 @@ export class SubscriptionsService {
   }
 
   async create(
-    createSubscriptionDto: CreateSubscriptionDto, userId: string
+    createSubscriptionDto: CreateSubscriptionDto,
   ): Promise<Subscription> {
-    const profile = await this.profile.findById(new mongoose.mongo.ObjectId(userId)).exec();
-    const subscription = await this.subscriptionModel.findOne({profile: profile}).exec();
+    const subscription = await this.subscriptionModel
+      .findOne({ profile: createSubscriptionDto.profile })
+      .exec();
     if (subscription) {
       this.delete(subscription.id);
     }
     return await this.subscriptionModel.create({
       ...createSubscriptionDto,
       status: true,
-      profile: await this.profile.findById(new mongoose.mongo.ObjectId(userId)).exec()
     });
   }
 

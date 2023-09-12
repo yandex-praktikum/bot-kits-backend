@@ -1,19 +1,31 @@
-import { Controller, Get, Body, UseGuards, Req, Post, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  UseGuards,
+  Req,
+  Post,
+  Param,
+} from '@nestjs/common';
 import { SubscriptionsService } from './subscriptions.service';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  getSchemaPath,
+} from '@nestjs/swagger';
 import { Subscription } from './schema/subscription.schema';
+import { Payment } from 'src/payments/schema/payment.schema';
 
 @ApiTags('userSubscriptions')
-//@UseGuards(JwtGuard)
+@UseGuards(JwtGuard)
 @Controller('userSubscriptions')
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
-
-  // @Get()
-  // all() {
-  //   return this.subscriptionsService.findAll();
-  // }
 
   @ApiOperation({
     summary: 'Данные страницы "Подписка и платежи"',
@@ -23,26 +35,32 @@ export class SubscriptionsController {
     schema: {
       type: 'object',
       properties: {
+        tariff: { type: 'string', example: 'Бизнес' },
+        status: { type: 'boolean', example: true },
+        cardMask: { type: 'string', example: '4500 *** 1119' },
+        debitDate: { type: 'date', example: '2023-09-12' },
+        balance: { type: 'number', example: 1234 },
+        payments: { type: 'array', items: { $ref: getSchemaPath(Payment) } },
       },
     },
   })
-  @Get(':id')
-  subscriptionAndPayments(@Param('id') id: string, @Req() req) {
-    //const user = req.user;
-    return this.subscriptionsService.subscriptionAndPayments(id);//user);
+  @Get()
+  subscriptionAndPayments(@Req() req) {
+    const user = req.user;
+    return this.subscriptionsService.subscriptionAndPayments(user);
   }
 
   @ApiOperation({
     summary: 'Активировать подписку',
   })
-  @ApiOkResponse({
+  @ApiCreatedResponse({
     description: 'Подписка активирована',
     type: Subscription,
   })
-  @Post("activate")
-  activateSubscription(@Req() req, @Body() body: { userId: 'string'}) {
-    //const user = req.user;
-    return this.subscriptionsService.activateSubscription(body.userId);
+  @Post('activate')
+  activateSubscription(@Req() req) {
+    const user = req.user;
+    return this.subscriptionsService.activateSubscription(user);
   }
 
   @ApiOperation({
@@ -57,17 +75,27 @@ export class SubscriptionsController {
     schema: {
       type: 'object',
       properties: {
-        cardMask: { type: 'string' }
+        cardMask: { type: 'string', example: '4500 *** 1119' },
+        debitDate: { type: 'date', example: '2023-09-12' },
       },
     },
   })
-  @ApiOkResponse({
+  @ApiCreatedResponse({
     description: 'Подписка оформлена',
     type: Subscription,
   })
   @Post('newSubscription/:id')
-  createSubscription(@Req() req, @Body() body: { userId: 'string', cardMask: 'string' }, @Param('id') id: string) {
-    //const user = req.user;
-    return this.subscriptionsService.create({tariffId: id, cardMask: body.cardMask, debitDate: new Date()}, body.userId);
+  createSubscription(
+    @Req() req,
+    @Body() body: { cardMask: 'string'; debitDate: 'string' },
+    @Param('id') id: string,
+  ) {
+    const profile = req.user;
+    return this.subscriptionsService.create({
+      tariffId: id,
+      cardMask: body.cardMask,
+      debitDate: new Date(body.debitDate),
+      profile,
+    });
   }
 }

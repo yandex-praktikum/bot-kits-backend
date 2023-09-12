@@ -1,6 +1,6 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import mongoose, { Document, HydratedDocument, ObjectId } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { Profile } from 'src/profiles/schema/profile.schema';
 
 export type SubscriptionDocument = HydratedDocument<Subscription>;
@@ -8,7 +8,7 @@ export type SubscriptionDocument = HydratedDocument<Subscription>;
 @Schema({ timestamps: true })
 export class Subscription {
   @ApiProperty({ example: '111111111' })
-  @Prop({required: true})
+  @Prop({ required: true })
   tariffId: string;
 
   @ApiProperty({ example: true, default: false })
@@ -20,10 +20,15 @@ export class Subscription {
   cardMask: string;
 
   @ApiProperty({ example: new Date() })
-  @Prop({default: new Date(), required: true})
+  @Prop({ default: new Date(), required: true })
   debitDate: Date;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Profile', unique:true, required: true })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Profile',
+    unique: true,
+    required: true,
+  })
   profile: Profile;
 }
 

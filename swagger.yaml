@@ -252,16 +252,11 @@ paths:
         '200':
           description: ''
       tags: *ref_2
-  /userSubscriptions/{id}:
+  /userSubscriptions:
     get:
       operationId: SubscriptionsController_subscriptionAndPayments
       summary: Данные страницы "Подписка и платежи"
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
+      parameters: []
       responses:
         '200':
           description: Данные подписок и платежей успешно получены
@@ -269,7 +264,26 @@ paths:
             application/json:
               schema:
                 type: object
-                properties: {}
+                properties:
+                  tariff:
+                    type: string
+                    example: Бизнес
+                  status:
+                    type: boolean
+                    example: true
+                  cardMask:
+                    type: string
+                    example: 4500 *** 1119
+                  debitDate:
+                    type: date
+                    example: '2023-09-12'
+                  balance:
+                    type: number
+                    example: 1234
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Payment'
       tags: &ref_3
         - userSubscriptions
   /userSubscriptions/activate:
@@ -278,18 +292,12 @@ paths:
       summary: Активировать подписку
       parameters: []
       responses:
-        '200':
+        '201':
           description: Подписка активирована
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subscription'
-        '201':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
       tags: *ref_3
   /userSubscriptions/newSubscription/{id}:
     post:
@@ -312,20 +320,34 @@ paths:
               properties:
                 cardMask:
                   type: string
+                  example: 4500 *** 1119
+                debitDate:
+                  type: date
+                  example: '2023-09-12'
       responses:
-        '200':
+        '201':
           description: Подписка оформлена
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subscription'
-        '201':
-          description: ''
+      tags: *ref_3
+  /payments:
+    get:
+      operationId: PaymentsController_userPayments
+      summary: История платежей
+      parameters: []
+      responses:
+        '200':
+          description: История платежей успешно получена
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Subscription'
-      tags: *ref_3
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+      tags:
+        - payments
   /profiles:
     post:
       operationId: ProfilesController_create
@@ -643,12 +665,41 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-12T13:56:29.595Z
+          example: 2023-09-12T20:31:48.458Z
       required:
         - tariffId
         - status
         - cardMask
         - debitDate
+    Payment:
+      type: object
+      properties:
+        date:
+          format: date-time
+          type: string
+          example: 2023-09-12T20:31:48.464Z
+        amount:
+          type: number
+          example: 1000
+        successful:
+          type: boolean
+          example: true
+        operation:
+          type: string
+          enum:
+            - Поступление
+            - Списание
+          example: Списание
+        note:
+          type: string
+          example: Пополнение счета
+          default: '-'
+      required:
+        - date
+        - amount
+        - successful
+        - operation
+        - note
     Profile:
       type: object
       properties:

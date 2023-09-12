@@ -12,6 +12,8 @@ import { PlatformModule } from './platforms/platforms.module';
 import { AccountModule } from './account/accounts.module';
 import { SubscriptionsController } from './subscriptions/subscriptions.controller';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { PaymentsController } from './payments/payments.controller';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
     AuthModule,
     PlatformModule,
     SubscriptionsModule,
+    PaymentsModule,
   ],
   controllers: [
     AppController,
@@ -28,6 +31,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
     BotsController,
     botTemplatesController,
     SubscriptionsController,
+    PaymentsController,
   ],
   providers: [AppService],
 })

@@ -1,4 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
+import { Profile } from 'src/profiles/schema/profile.schema';
 
 export class CreateSubscriptionDto {
   @IsNotEmpty()
@@ -9,4 +10,7 @@ export class CreateSubscriptionDto {
 
   @IsNotEmpty()
   debitDate: Date;
+
+  @IsNotEmpty()
+  profile: Profile;
 }
