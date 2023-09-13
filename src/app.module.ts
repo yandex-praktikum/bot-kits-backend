@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { botTemplatesController } from './botTemplates/bot-templates.controller';
 import { ProfilesController } from './profiles/profiles.controller';
 import { AuthController } from './auth/auth.controller';
 import { BotsController } from './bots/bots.controller';
@@ -12,6 +13,7 @@ import { BotAccessesModule } from "./botAccesses/botAccesses.module";
 import { TariffsModule } from './tariff/tariffs.module';
 import { PlatformModule } from './platforms/platforms.module';
 import { AccountModule } from './account/accounts.module';
+import { BotsModule } from "./bots/bots.module";
 import { BotTemplatesModule } from "./botTemplates/bot-templates.module";
 import { SubscriptionsController } from './subscriptions/subscriptions.controller';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
@@ -27,14 +29,13 @@ import { PaymentsModule } from './payments/payments.module';
     AuthModule,
     BotAccessesModule,
     PlatformModule,
+    BotsModule,
     BotTemplatesModule
     SubscriptionsModule,
     PaymentsModule,
   ],
   controllers: [
     AppController,
-    AuthController,
-    BotsController,
     botTemplatesController,
     SubscriptionsController,
     PaymentsController,
