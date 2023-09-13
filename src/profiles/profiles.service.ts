@@ -20,7 +20,7 @@ export class ProfilesService {
   }
   //profiles.service.ts
   async findOne(id: string | number): Promise<Profile> {
-    const profile = await this.profile.findById({ id }).exec();
+    const profile = await this.profile.findById(id).exec();
     return profile;
   }
 
