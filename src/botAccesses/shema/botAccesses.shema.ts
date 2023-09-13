@@ -7,6 +7,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true }) //Включает поля createdAt и updatedAt
 export class BotAccess extends Document {
+  @ApiProperty({example: '64ff89e7faea577804940275'})
+  _id: string;
+
   @ApiProperty({ example: '64ff89e7faea577804940275' })
   @Prop({
     type: Types.ObjectId,
@@ -34,6 +37,12 @@ export class BotAccess extends Document {
     required: true,
     })
   permission: Permission;
+
+  @ApiProperty({example: '2023-09-12T15:29:12.117Z'})
+  createdAt: Date;
+
+  @ApiProperty({example: '2023-09-12T15:29:12.117Z'})
+  updatedAt: Date;
 }
 
 export const BotAccessSchema = SchemaFactory.createForClass(BotAccess);
