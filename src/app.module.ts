@@ -8,6 +8,7 @@ import { DatabaseModule } from './database/database.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
+import { BotAccessesModule } from "./botAccesses/botAccesses.module";
 import { TariffsModule } from './tariff/tariffs.module';
 import { PlatformModule } from './platforms/platforms.module';
 import { AccountModule } from './account/accounts.module';
@@ -24,6 +25,7 @@ import { PaymentsModule } from './payments/payments.module';
     TariffsModule,
     AccountModule,
     AuthModule,
+    BotAccessesModule,
     PlatformModule,
     BotTemplatesModule
     SubscriptionsModule,

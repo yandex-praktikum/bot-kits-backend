@@ -510,6 +510,132 @@ paths:
           description: Resource not found
         '422':
           description: Bad Request
+      tags: *ref_3
+  /bot-accesses:
+    post:
+      operationId: BotAccessesController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBotAccessDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotAccess'
+    get:
+      operationId: BotAccessesController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BotAccess'
+  /bot-accesses/{id}:
+    get:
+      operationId: BotAccessesController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotAccess'
+    patch:
+      operationId: BotAccessesController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBotAccessDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotAccess'
+  /bot-accesses/{botAccessId}:
+    delete:
+      operationId: BotAccessesController_delete
+      parameters:
+        - name: botAccessId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotAccess'
+  /bot-accesses/{botId}/{userId}:
+    get:
+      operationId: BotAccessesController_getPermission
+      parameters:
+        - name: botId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: userId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+  /bot-accesses/{botId}:
+    post:
+      operationId: BotAccessesController_shareAccess
+      parameters:
+        - name: botId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareBotAccessDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotAccess'
       tags: *ref_4
   /platforms:
     post:
@@ -1003,6 +1129,48 @@ components:
           example: admin
         credentials:
           $ref: '#/components/schemas/Credentials'
+    CreateBotAccessDto:
+      type: object
+      properties:
+        botId:
+          type: string
+        permission:
+          type: string
+          enum:
+            - super_admin
+            - admin
+            - user
+      required:
+        - botId
+        - permission
+    BotAccess:
+      type: object
+      properties: {}
+    UpdateBotAccessDto:
+      type: object
+      properties:
+        permission:
+          type: string
+          enum:
+            - super_admin
+            - admin
+            - user
+      required:
+        - permission
+    ShareBotAccessDto:
+      type: object
+      properties:
+        email:
+          type: string
+        permission:
+          type: string
+          enum:
+            - super_admin
+            - admin
+            - user
+      required:
+        - email
+        - permission
     FormFields:
       type: object
       properties:
