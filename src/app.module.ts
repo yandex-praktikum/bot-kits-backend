@@ -8,7 +8,7 @@ import { ProfilesModule } from './profiles/profiles.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { PlatformModule } from './platforms/platforms.module';
-import { AccountModule } from './account/accounts.module';
+import { AccountModule } from './accounts/accounts.module';
 
 @Module({
   imports: [
