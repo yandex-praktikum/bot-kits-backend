@@ -7,6 +7,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Profile } from 'src/profiles/schema/profile.schema';
 
 export type AccountDocument = HydratedDocument<Account>;
+
 class Credentials {
   @ApiProperty({ example: 'my@mail.ru' })
   @Prop({ unique: true })

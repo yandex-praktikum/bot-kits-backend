@@ -76,7 +76,6 @@ export class AccountService {
     return await this.accountModel.findByIdAndDelete(id).exec();
   }
 
-  //profiles.service.ts
   async saveRefreshToken(profileId: Types.ObjectId, refreshToken: string) {
     const updatedAccount = await this.accountModel
       .findOneAndUpdate(

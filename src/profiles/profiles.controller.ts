@@ -1,4 +1,3 @@
-//scr/profiles/profiles.controller.ts
 import {
   Controller,
   Post,
@@ -13,6 +12,7 @@ import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import {
   ApiBody,
+  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -25,11 +25,19 @@ import {
 import { Profile } from './schema/profile.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
-@ApiTags('profiles')
+@ApiTags('Profiles')
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
-  @ApiTags('profiles')
+
+  @ApiBody({ type: CreateProfileDto })
+  @ApiCreatedResponse({
+    description: 'The record has been successfully created.',
+    type: Profile,
+  })
+  @ApiOperation({
+    summary: 'Создать новый профиль',
+  })
   @Post()
   @ApiOperation({ summary: 'Создать новый профиль' })
   @ApiBody({ type: CreateProfileDto })
@@ -44,6 +52,9 @@ export class ProfilesController {
     type: [Profile],
   })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Получить все профили',
+  })
   @Get()
   findAll(): Promise<Profile[]> {
     return this.profilesService.findAll();
@@ -59,6 +70,9 @@ export class ProfilesController {
     name: 'id',
     description: 'Индификатор профиля',
     example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiOperation({
+    summary: 'Получить профиль по id',
   })
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Profile> {
@@ -80,6 +94,9 @@ export class ProfilesController {
     description: 'Индификатор профиля',
     example: '64f81ba37571bfaac18a857f',
   })
+  @ApiOperation({
+    summary: 'Обновить данные профиля по id',
+  })
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -98,6 +115,9 @@ export class ProfilesController {
     name: 'id',
     description: 'Индификатор профиля',
     example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiOperation({
+    summary: 'Удалить профиль по id',
   })
   @Delete(':id')
   remove(@Param('id') id: string): Promise<Profile> {
