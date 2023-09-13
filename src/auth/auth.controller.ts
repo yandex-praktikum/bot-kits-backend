@@ -1,20 +1,11 @@
-import {
-  Controller,
-  Post,
-  UseGuards,
-  Req,
-  Body,
-  ConflictException,
-} from '@nestjs/common';
+import { Controller, Post, UseGuards, Req, Body } from '@nestjs/common';
 import { LocalGuard } from './guards/localAuth.guard';
-import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
-import { AccountService } from 'src/accounts/accounts.service';
 import { AuthDto } from './dto/auth.dto';
-import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
-import { ProfilesService } from 'src/profiles/profiles.service';
+import { ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
+import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
@@ -23,11 +14,7 @@ interface RequestProfile extends Request {
 @ApiTags('auth')
 @Controller()
 export class AuthController {
-  constructor(
-    private accountService: AccountService,
-    private profileService: ProfilesService,
-    private authService: AuthService,
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @ApiOperation({
     summary: 'Войти в систему',
@@ -44,19 +31,7 @@ export class AuthController {
   @ApiResponse({
     status: 201,
     description: 'Успешный вход в систему',
-    schema: {
-      type: 'object',
-      properties: {
-        accessToken: {
-          type: 'string',
-          description: 'accessToken по умолчанию действует 1 день',
-        },
-        refreshToken: {
-          type: 'string',
-          description: 'refreshToken по умолчанию действует 7 дней',
-        },
-      },
-    },
+    type: CreateProfileDto,
   })
   @ApiResponse({
     status: 401,
@@ -67,52 +42,45 @@ export class AuthController {
   async signin(@Req() req: RequestProfile) {
     return this.authService.auth(req.user);
   }
-  //auth.controller.ts
-  @ApiOperation({
-    summary: 'Регистрация',
+
+  @ApiOperation({ summary: 'Регистрация' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        accountDto: {
+          type: 'object',
+          properties: {
+            credentials: {
+              type: 'object',
+              properties: {
+                password: { type: 'string' },
+                email: { type: 'string' },
+              },
+            },
+          },
+        },
+        profileDto: {
+          type: 'object',
+          properties: {
+            phone: { type: 'string' },
+            username: { type: 'string' },
+          },
+        },
+      },
+    },
   })
-  @ApiBody({ type: CreateProfileDto })
+  @ApiResponse({ status: 201, description: 'Успешная регистрация' })
+  @ApiResponse({
+    status: 201,
+    description: 'Успешная регистрация',
+    type: CreateProfileDto,
+  })
+  @ApiResponse({ status: 400, description: 'Некорректные данные' })
+  @ApiResponse({ status: 409, description: 'Аккаунт уже существует' })
   @Post('signup')
   async signup(@Body(new AuthDtoPipe()) authDto: AuthDto) {
-    const { profileDto, accountDto } = authDto;
-
-    //--Находим аккаунта по email--//
-    const dublicateAccount = await this.accountService.findByEmail(
-      accountDto.credentials.email,
-    );
-
-    //--Если находим аккаунт, то не даем создавать второй аналогичный и не создаем профиль--//
-    if (dublicateAccount) {
-      throw new ConflictException('Аккаунт уже существует');
-    }
-
-    //--Создаем новый профиль--//
-    const profileModel = await this.profileService.create(profileDto);
-
-    //--Создаем новый аккаунт--//
-    const accountModel = await this.accountService.create(
-      accountDto,
-      profileModel._id,
-    );
-
-    //--Авторизуем пользователя--//
-    const tokens = await this.authService.auth(profileModel);
-
-    //--Добавляем accessToken и refreshToken к accountDto--//
-    accountDto.credentials.accessToken = tokens.accessToken;
-    accountDto.credentials.refreshToken = tokens.refreshToken;
-
-    //--Обновляем аккаунт--//
-    await this.accountService.update(
-      accountModel._id.toHexString(),
-      accountDto,
-    );
-
-    //-Добавляем к профилю в массив новый аккаунт--//
-    profileModel.accounts.push(accountModel);
-    await profileModel.save();
-    delete profileModel.accounts[0].credentials.password;
-    return profileModel;
+    return await this.authService.registration(authDto);
   }
 
   @ApiOperation({

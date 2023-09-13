@@ -18,6 +18,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiResponse,
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
@@ -38,6 +39,10 @@ export class ProfilesController {
     summary: 'Создать новый профиль',
   })
   @Post()
+  @ApiOperation({ summary: 'Создать новый профиль' })
+  @ApiBody({ type: CreateProfileDto })
+  @ApiResponse({ status: 201, description: 'Профиль успешно создан' })
+  @ApiResponse({ status: 400, description: 'Некорректные данные' })
   create(@Body() createProfileDto: CreateProfileDto) {
     return this.profilesService.create(createProfileDto);
   }

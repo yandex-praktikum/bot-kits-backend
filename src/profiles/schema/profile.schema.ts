@@ -4,7 +4,7 @@ import mongoose, { Document, HydratedDocument, Types } from 'mongoose';
 import { Account } from 'src/accounts/schema/account.schema';
 
 export type ProfileDocument = HydratedDocument<Profile>;
-//profile.schema.ts
+
 @Schema()
 export class Profile extends Document {
   @ApiProperty({ example: 'Ivan Ivanov' })
