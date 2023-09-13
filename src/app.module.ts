@@ -12,6 +12,10 @@ import { AuthModule } from './auth/auth.module';
 import { TariffsModule } from './tariff/tariffs.module';
 import { PlatformModule } from './platforms/platforms.module';
 import { AccountModule } from './account/accounts.module';
+import { SubscriptionsController } from './subscriptions/subscriptions.controller';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { PaymentsController } from './payments/payments.controller';
+import { PaymentsModule } from './payments/payments.module';
 
 
 @Module({
@@ -22,12 +26,16 @@ import { AccountModule } from './account/accounts.module';
     AccountModule,
     AuthModule,
     PlatformModule,
+    SubscriptionsModule,
+    PaymentsModule,
   ],
   controllers: [
     AppController,
     AuthController,
     BotsController,
     botTemplatesController,
+    SubscriptionsController,
+    PaymentsController,
   ],
   providers: [AppService],
 })

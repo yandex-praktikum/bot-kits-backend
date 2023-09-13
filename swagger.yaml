@@ -252,6 +252,102 @@ paths:
         '200':
           description: ''
       tags: *ref_2
+  /userSubscriptions:
+    get:
+      operationId: SubscriptionsController_subscriptionAndPayments
+      summary: Данные страницы "Подписка и платежи"
+      parameters: []
+      responses:
+        '200':
+          description: Данные подписок и платежей успешно получены
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tariff:
+                    type: string
+                    example: Бизнес
+                  status:
+                    type: boolean
+                    example: true
+                  cardMask:
+                    type: string
+                    example: 4500 *** 1119
+                  debitDate:
+                    type: date
+                    example: '2023-09-12'
+                  balance:
+                    type: number
+                    example: 1234
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Payment'
+      tags: &ref_3
+        - userSubscriptions
+  /userSubscriptions/activate:
+    post:
+      operationId: SubscriptionsController_activateSubscription
+      summary: Активировать подписку
+      parameters: []
+      responses:
+        '201':
+          description: Подписка активирована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+      tags: *ref_3
+  /userSubscriptions/newSubscription/{id}:
+    post:
+      operationId: SubscriptionsController_createSubscription
+      summary: Оформить подписку
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор тарифа
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cardMask:
+                  type: string
+                  example: 4500 *** 1119
+                debitDate:
+                  type: date
+                  example: '2023-09-12'
+      responses:
+        '201':
+          description: Подписка оформлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+      tags: *ref_3
+  /payments:
+    get:
+      operationId: PaymentsController_userPayments
+      summary: История платежей
+      parameters: []
+      responses:
+        '200':
+          description: История платежей успешно получена
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+      tags:
+        - payments
   /profiles:
     post:
       operationId: ProfilesController_create
@@ -382,7 +478,7 @@ paths:
                 $ref: '#/components/schemas/Account'
         '403':
           description: Unauthorized Request
-      tags: &ref_3
+      tags: &ref_4
         - Accounts
   /accounts/{id}:
     patch:
@@ -414,7 +510,7 @@ paths:
           description: Resource not found
         '422':
           description: Bad Request
-      tags: *ref_3
+      tags: *ref_4
   /platforms:
     post:
       operationId: PlatformController_create
@@ -432,7 +528,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Platform'
-      tags: &ref_4
+      tags: &ref_5
         - Platforms
     get:
       operationId: PlatformController_findAll
@@ -448,7 +544,7 @@ paths:
                   $ref: '#/components/schemas/Platform'
         '403':
           description: Unauthorized Request
-      tags: *ref_4
+      tags: *ref_5
   /platforms/{id}:
     get:
       operationId: PlatformController_findOne
@@ -471,7 +567,7 @@ paths:
           description: Unauthorized Request
         '404':
           description: Resource not found
-      tags: *ref_4
+      tags: *ref_5
     patch:
       operationId: PlatformController_update
       parameters:
@@ -501,7 +597,7 @@ paths:
           description: Resource not found
         '422':
           description: Bad Request
-      tags: *ref_4
+      tags: *ref_5
     delete:
       operationId: PlatformController_remove
       parameters:
@@ -665,6 +761,57 @@ components:
       required:
         - username
         - phone
+    Subscription:
+      type: object
+      properties:
+        tariffId:
+          type: string
+          example: '111111111'
+        status:
+          type: boolean
+          example: true
+          default: false
+        cardMask:
+          type: string
+          example: 4500 *** 1119
+        debitDate:
+          format: date-time
+          type: string
+          example: 2023-09-12T20:31:48.458Z
+      required:
+        - tariffId
+        - status
+        - cardMask
+        - debitDate
+    Payment:
+      type: object
+      properties:
+        date:
+          format: date-time
+          type: string
+          example: 2023-09-12T20:31:48.464Z
+        amount:
+          type: number
+          example: 1000
+        successful:
+          type: boolean
+          example: true
+        operation:
+          type: string
+          enum:
+            - Поступление
+            - Списание
+          example: Списание
+        note:
+          type: string
+          example: Пополнение счета
+          default: '-'
+      required:
+        - date
+        - amount
+        - successful
+        - operation
+        - note
     Profile:
       type: object
       properties:
