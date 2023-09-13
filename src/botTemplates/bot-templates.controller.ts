@@ -1,21 +1,26 @@
-import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
-import { ApiBody, ApiCreatedResponse, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
-import { BotTemplatesService } from "./bot-templates.service";
-import { BotTemplate } from "./schema/bot-template.schema";
-import UpdateBotTemplateDto from "./dto/update.bot-template.dto";
-import CreateBotTemplateDto from "./dto/create.bot-template.dto";
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+import { BotTemplatesService } from './bot-templates.service';
+import { BotTemplate } from './schema/bot-template.schema';
+import UpdateBotTemplateDto from './dto/update.bot-template.dto';
+import CreateBotTemplateDto from './dto/create.bot-template.dto';
 
-@ApiTags("botTemplates")
-@Controller("botTemplates")
+@ApiTags('botTemplates')
+@Controller('botTemplates')
 export class BotTemplatesController {
-  constructor(private readonly botTemplatesService: BotTemplatesService) {
-  }
+  constructor(private readonly botTemplatesService: BotTemplatesService) {}
 
   @ApiOperation({
-    summary: "Список шаблонов ботов"
+    summary: 'Список шаблонов ботов',
   })
   @Get()
-  async findAll(): Promise<BotTemplate[]>{
+  async findAll(): Promise<BotTemplate[]> {
     return await this.botTemplatesService.findAll();
   }
 
@@ -33,12 +38,12 @@ export class BotTemplatesController {
   }
 
   @ApiOperation({
-    summary: "Создать шаблон бота"
+    summary: 'Создать шаблон бота',
   })
   @ApiBody({ type: CreateBotTemplateDto })
   @ApiCreatedResponse({
-    description: "The record has been successfully created.",
-    type: UpdateBotTemplateDto
+    description: 'The record has been successfully created.',
+    type: UpdateBotTemplateDto,
   })
   @Post()
   async create(@Body() createBotTemplateDto: CreateBotTemplateDto) {
@@ -46,20 +51,23 @@ export class BotTemplatesController {
   }
 
   @ApiOperation({
-    summary: "Изменить шаблон бота"
+    summary: 'Изменить шаблон бота',
   })
   @ApiBody({ type: UpdateBotTemplateDto })
   @ApiCreatedResponse({
-    description: "The record has been updated created.",
-    type: UpdateBotTemplateDto
+    description: 'The record has been updated created.',
+    type: UpdateBotTemplateDto,
   })
   @ApiParam({
-    name: "id",
-    description: "Индификатор шаблона",
-    example: "64f81ba37571bfaac18a857f"
+    name: 'id',
+    description: 'Индификатор шаблона',
+    example: '64f81ba37571bfaac18a857f',
   })
-  @Patch(":id")
-  update(@Body() updateBotTemplateDto: UpdateBotTemplateDto, @Param("id") id: string) {
+  @Patch(':id')
+  update(
+    @Body() updateBotTemplateDto: UpdateBotTemplateDto,
+    @Param('id') id: string,
+  ) {
     return this.botTemplatesService.update(id, updateBotTemplateDto);
   }
 }

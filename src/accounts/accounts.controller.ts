@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -15,7 +23,9 @@ import { AccountService } from './accounts.service';
 import { Account } from './schema/account.schema';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
+import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 
+@UseGuards(JwtGuard)
 @ApiTags('Accounts')
 @Controller('accounts')
 export class AccountController {
