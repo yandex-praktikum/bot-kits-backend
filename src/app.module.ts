@@ -10,7 +10,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { PlatformModule } from './platforms/platforms.module';
 import { AccountModule } from './account/accounts.module';
-import { PromocodeModule } from './promocode/promocode.module';
+import { PromocodesModule } from './promocodes/promocodes.module';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { PromocodeModule } from './promocode/promocode.module';
     AccountModule,
     AuthModule,
     PlatformModule,
-    PromocodeModule,
+    PromocodesModule,
   ],
   controllers: [
     AppController,
