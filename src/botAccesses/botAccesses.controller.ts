@@ -20,6 +20,7 @@ import {
   ApiOperation,
   ApiOkResponse,
   ApiCreatedResponse,
+  ApiBody,
 } from '@nestjs/swagger';
 
 @ApiTags('botAccesses')
@@ -37,6 +38,7 @@ export class BotAccessesController {
     description: 'Запись о доступе создана.',
     type: BotAccess,
   })
+  @ApiBody({ type: CreateBotAccessDto })
   @Post()
   create(
     @Req() req,
@@ -77,6 +79,7 @@ export class BotAccessesController {
     description: 'Доступ изменен.',
     type: BotAccess,
   })
+  @ApiBody({ type: UpdateBotAccessDto })
   @Patch(':id')
   update(
     @Req() req,
@@ -127,6 +130,7 @@ export class BotAccessesController {
     description: 'Новый доступ создан.',
     type: BotAccess,
   })
+  @ApiBody({ type: ShareBotAccessDto })
   @Post(':botId')
   shareAccess(
     @Req() req,
