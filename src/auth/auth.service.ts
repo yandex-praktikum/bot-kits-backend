@@ -1,10 +1,13 @@
-//src/auth/auth.service.ts
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from '../hash/hash.service';
 import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { ProfilesService } from 'src/profiles/profiles.service';
-import { AccountService } from 'src/account/accounts.service';
+import { AccountService } from 'src/accounts/accounts.service';
 
 @Injectable()
 export class AuthService {
@@ -15,14 +18,22 @@ export class AuthService {
     private hashService: HashService,
   ) {}
 
-  async auth(profile: ProfileDocument) {
-    const payload = { sub: profile._id };
+  private async getTokens(profileId) {
+    const payload = { sub: profileId };
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
-    await this.accountService.saveRefreshToken(profile._id, refreshToken);
     return { accessToken, refreshToken };
   }
-  //auth.service.ts
+
+  async auth(profile: ProfileDocument) {
+    const tokens = await this.getTokens(profile._id);
+    const res = await this.accountService.saveRefreshToken(
+      profile._id,
+      tokens.refreshToken,
+    );
+    return res;
+  }
+
   async validatePassword(
     accountEmail: string,
     password: string,
@@ -61,5 +72,44 @@ export class AuthService {
     );
 
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  }
+
+  async registration(authDto) {
+    const { profileDto, accountDto } = authDto;
+
+    //--Находим аккаунта по email--//
+    const dublicateAccount = await this.accountService.findByEmail(
+      accountDto.credentials.email,
+    );
+
+    //--Если находим аккаунт, то не даем создавать второй аналогичный и не создаем профиль--//
+    if (dublicateAccount) {
+      throw new ConflictException('Аккаунт уже существует');
+    }
+
+    //--Создаем новый профиль--//
+    const profileModel = await this.profilesService.create(profileDto);
+
+    //--Создаем новый аккаунт--//
+    const accountModel = await this.accountService.create(
+      accountDto,
+      profileModel._id,
+    );
+
+    //--Генерируем токены--//
+    const tokens = await this.getTokens(profileModel._id);
+
+    //--Добавляем accessToken и refreshToken к accountDto--//
+    accountDto.credentials.accessToken = tokens.accessToken;
+    accountDto.credentials.refreshToken = tokens.refreshToken;
+
+    //--Обновляем аккаунт--//
+    await this.accountService.update(accountModel._id, accountDto);
+
+    //-Добавляем к профилю в массив новый аккаунт--//
+    profileModel.accounts.push(accountModel);
+    await profileModel.save();
+    delete profileModel.accounts[0].credentials.password;
+    return profileModel;
   }
 }

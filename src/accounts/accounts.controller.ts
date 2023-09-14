@@ -1,10 +1,20 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
   ApiUnprocessableEntityResponse,
@@ -14,7 +24,9 @@ import { AccountService } from './accounts.service';
 import { Account } from './schema/account.schema';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
+import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 
+@UseGuards(JwtGuard)
 @ApiTags('Accounts')
 @Controller('accounts')
 export class AccountController {
@@ -30,6 +42,9 @@ export class AccountController {
     type: [Account],
   })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Получить все аккаунты',
+  })
   @Get()
   findAll(): Promise<Account[]> {
     return this.accountService.findAll();
@@ -47,6 +62,9 @@ export class AccountController {
     name: 'id',
     description: 'Индификатор аккаунта',
     example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiOperation({
+    summary: 'Обновить данные аккаунта по id',
   })
   @Patch(':id')
   update(

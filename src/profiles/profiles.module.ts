@@ -5,7 +5,7 @@ import { ProfilesController } from './profiles.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Profile, ProfileSchema } from './schema/profile.schema';
 import { HashService } from 'src/hash/hash.service';
-import { Account, AccountSchema } from 'src/account/schema/account.schema';
+import { Account, AccountSchema } from 'src/accounts/schema/account.schema';
 
 @Module({
   imports: [
