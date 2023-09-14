@@ -1,6 +1,7 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Profile } from '../../profiles/schema/profile.schema';
+import { Bot } from '../../bots/schema/bots.schema';
+import { Profile } from '../../profiles/schema/profile.schema'
 import Permission from '../types/types';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -18,18 +19,12 @@ export class BotAccess extends Document {
   userId: Profile;
 
 
-// пока просто строка вместо сущности Bot
- // @ApiProperty({ example: '64ff89e7faea577804940275' })
-  // @Prop({
-  //   type: Types.ObjectId,
-  //   ref: 'Bot',
-  //   required: true })
-  // botId: Bot;
-
-  @ApiProperty({ example: '64ff89e7faea577804940275' })
+ @ApiProperty({ example: '64ff89e7faea577804940275' })
   @Prop({
+    type: Types.ObjectId,
+    ref: 'Bot',
     required: true })
-  botId: string;
+  botId: Bot;
 
   @ApiProperty({ enum: [Permission.SUPER_ADMIN, Permission.ADMIN, Permission.USER] })
   @Prop({
