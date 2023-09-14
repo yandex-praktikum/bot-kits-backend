@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString, IsUrl, Length } from 'class-validator';
-
+//create-profile.dto.ts
 export class CreateProfileDto {
   @ApiProperty({ example: 'Ivan Ivanov' })
   @IsString()

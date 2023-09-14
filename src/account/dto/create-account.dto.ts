@@ -12,7 +12,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import TypeAccount from '../types/type-account';
 import Role from '../types/role';
-
+import { Types } from 'mongoose';
+//create-account.dto.ts
 class Credentials {
   @ApiProperty({ example: 'my@mail.ru' })
   @IsEmail()
@@ -26,12 +27,12 @@ class Credentials {
 
   @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   accessToken: string;
 
   @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   refreshToken: string;
 }
 
@@ -52,5 +53,5 @@ export class CreateAccountDto {
 
   @ApiProperty({ example: '64f9ac26edb84d7ebf6281d0' })
   @IsMongoId()
-  profile: string;
+  profile: Types.ObjectId;
 }

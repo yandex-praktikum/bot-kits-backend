@@ -10,14 +10,15 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super();
   }
 
-  async validate(profilename: string, password: string) {
-    const profile = await this.authService.validatePassword(
-      profilename,
-      password,
-    );
-    if (!profile) {
-      throw new UnauthorizedException('Неверное имя пользователя или пароль');
+  async validate(accountEmail: string, password: string) {
+    try {
+      const profile = await this.authService.validatePassword(
+        accountEmail,
+        password,
+      );
+      return profile;
+    } catch (err) {
+      throw err;
     }
-    return profile;
   }
 }

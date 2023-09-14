@@ -1,72 +1,58 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+////scr/profiles/profiles.service.ts
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CreateProfileDto } from './dto/create-profile.dto';
-import { Profile } from './entities/profile.entity';
-import { HashService } from 'src/hash/hash.service';
+import { Profile } from './schema/profile.schema';
+import { Account } from 'src/account/schema/account.schema';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class ProfilesService {
   constructor(
     @InjectModel(Profile.name) private profile: Model<Profile>,
-    private readonly hashServise: HashService,
+    @InjectModel(Account.name) private account: Model<Account>,
   ) {}
 
-  async create(createProfileDto: CreateProfileDto): Promise<Profile> {
-    const hashedPassword = await this.hashServise.getHash(
-      createProfileDto.password,
-    );
-    try {
-      const profile = await this.profile.create({
-        ...createProfileDto,
-        password: hashedPassword,
-      });
-      return await profile.save();
-    } catch (err) {
-      if (err.code === 11000) {
-        throw new ConflictException(
-          'Пользователь с таким username или email уже существует',
-        );
-      }
-    }
+  async create(createProfileDto: CreateProfileDto) {
+    const profileNew = new this.profile(createProfileDto);
+    return profileNew.save();
   }
-
-  async findOne(id: number): Promise<Profile> {
+  //profiles.service.ts
+  async findOne(id: string | number): Promise<Profile> {
     const profile = await this.profile.findById({ id }).exec();
     return profile;
   }
 
-  async findByProfilename(name: string): Promise<Profile | null> {
-    const profile = await this.profile.findOne({ username: name });
-    if (profile) {
-      return profile;
-    } else {
-      return null;
-    }
+  async findById(id: Types.ObjectId): Promise<Profile> {
+    const profile = await this.profile.findById(id).exec();
+    return profile;
   }
 
-  async saveRefreshToken(profileId: number, refreshToken: string) {
-    const profile = await this.profile.findById(profileId);
-    if (profile) {
-      profile.refreshToken = refreshToken;
-      await profile.save();
-    } else {
-      throw new UnauthorizedException('Невалидный refreshToken');
+  async findByEmail(email: string): Promise<Profile | null> {
+    const account = await this.account.findOne({ 'credentials.email': email });
+    if (account) {
+      const profile = await this.profile.findById(account.profile);
+      if (profile) {
+        return profile;
+      }
     }
+    return null;
   }
 
-  async findAndDeleteRefreshToken(refreshToken: string) {
-    const profile = await this.profile.findOne({ refreshToken });
-    if (profile) {
-      profile.refreshToken = undefined;
-      await profile.save();
-      return profile;
-    } else {
-      return null;
-    }
+  async findAll(): Promise<Profile[]> {
+    return await this.profile.find().exec();
+  }
+
+  async update(
+    id: string,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<Profile> {
+    await this.profile.findByIdAndUpdate(id, updateProfileDto);
+    return this.findOne(id);
+  }
+
+  async remove(id: string): Promise<Profile> {
+    return await this.profile.findByIdAndDelete(id).exec();
   }
 }
