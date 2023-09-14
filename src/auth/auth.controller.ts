@@ -1,4 +1,14 @@
-import { Controller, Post, UseGuards, Req, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Req,
+  Body,
+  Get,
+  Res,
+  Query,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
 import { LocalGuard } from './guards/localAuth.guard';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { AuthDto } from './dto/auth.dto';
@@ -6,9 +16,25 @@ import { ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
+import { YandexGuard } from './guards/yandex.guards';
+import axios from 'axios';
+import TypeAccount from 'src/accounts/types/type-account';
+import Role from 'src/accounts/types/role';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
+}
+
+interface IYandexUser {
+  id: string;
+  displayName: string;
+  email: string;
+  picture: string;
+  accessToken: string;
+}
+
+interface IRequestYandexUser extends Request {
+  user: IYandexUser;
 }
 
 @ApiTags('auth')
@@ -114,5 +140,40 @@ export class AuthController {
   @Post('refresh-token')
   async refreshToken(@Body('refreshToken') refreshToken: string) {
     return this.authService.refreshToken(refreshToken);
+  }
+
+  //Ручки для авторизации через яндекс
+  @UseGuards(YandexGuard)
+  @Get('yandex')
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  yandexAuth() {}
+
+  @UseGuards(YandexGuard)
+  @Get('yandex/callback')
+  async yandexAuthCallback(
+    @Req() req: IRequestYandexUser,
+    @Res() res: Response,
+  ) {
+    const token = req.user['accessToken'];
+    const { data } = await axios.get(
+      `https://login.yandex.ru/info?format=json&oauth_token=${token}`,
+    );
+    const authDto = {
+      profileDto: {
+        username: data.display_name,
+        phone: data.default_phone.number,
+        avatar: data.default_avatar_id,
+      },
+      accountDto: {
+        type: TypeAccount.YANDEX,
+        role: Role.USER,
+        credentials: {
+          email: data.emails[0],
+          password: '',
+        },
+      },
+    };
+    // res.redirect(`/`);
+    return await this.authService.registration(authDto);
   }
 }

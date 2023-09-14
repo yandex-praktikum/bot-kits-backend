@@ -13,6 +13,8 @@ import { ProfilesModule } from 'src/profiles/profiles.module';
 import { AccountModule } from 'src/accounts/accounts.module';
 import { HashModule } from 'src/hash/hash.module';
 import { jwtOptions } from 'src/configs/jwt.config';
+import { STRTAGIES } from './strategies';
+import { GUARDS } from './guards';
 
 @Module({
   imports: [
@@ -27,7 +29,7 @@ import { jwtOptions } from 'src/configs/jwt.config';
       { name: Account.name, schema: AccountSchema },
     ]),
   ],
-  providers: [AuthService, JwtStrategy, LocalStrategy],
+  providers: [AuthService, ...STRTAGIES, ...GUARDS],
   exports: [AuthService],
   controllers: [AuthController],
 })
