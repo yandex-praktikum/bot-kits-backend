@@ -12,7 +12,6 @@ import { AuthModule } from './auth/auth.module';
 import { TariffsModule } from './tariff/tariffs.module';
 import { PlatformModule } from './platforms/platforms.module';
 
-
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost/nest'),

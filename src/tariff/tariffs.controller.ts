@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { TariffsService } from './tariffs.service';
 import { CreateTariffDto } from './dto/create-tariff.dto';
-import { Tariff } from './entities/tariff.entity';
+import { Tariff } from './schema/tariff.schema';
 import { UpdateTariffDto } from './dto/update-tariff.dto';
 import {
   ApiTags,

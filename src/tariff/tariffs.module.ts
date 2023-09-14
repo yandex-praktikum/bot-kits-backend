@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TariffsService } from './tariffs.service';
 import { TariffsController } from './tariffs.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Tariff, TariffSchema } from './entities/tariff.entity';
+import { Tariff, TariffSchema } from './schema/tariff.schema';
 
 @Module({
   imports: [
