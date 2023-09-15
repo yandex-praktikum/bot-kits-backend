@@ -61,17 +61,17 @@ export class BotsController {
   @ApiOperation({
     summary: 'Удаление бота',
   })
-  remove(@Param('id') id: string): Promise<Bot> {
-    return this.botsService.remove(id);
+  remove(@Req() req, @Param('id') id: string): Promise<Bot> {
+    return this.botsService.remove(req.user.id, id);
   }
 
-  // @ApiOperation({
-  //   summary: 'Копирование бота',
-  // })
-  // @Post(':id')
-  // copy(@Param('id') id: string) {
-  //   //return ;
-  // }
+  @ApiOperation({
+    summary: 'Копирование бота',
+  })
+  @Post(':id/copy')
+  copy(@Req() req, @Param('id') id: string) {
+    return this.botsService.copy(req.user.id, id);
+  }
 
   @Patch(':id')
   @ApiOperation({
@@ -95,61 +95,18 @@ export class BotsController {
     },
   })
   update(
+    @Req() req,
     @Param('id') id: string,
     @Body() body: { botName: 'string' },
   ): Promise<Bot> {
-    return this.botsService.update(id, body);
+    return this.botsService.update(req.user.id, id, body);
   }
-
-  // @ApiOperation({
-  //   summary: 'Настройки уведомлений бота',
-  // })
-  // @Get(':id/notificationLinks')
-  // notificationLinks(
-  //   //@AuthUser() user,
-  //   @Param('id') id: number,
-  // ) {
-  //   //return ;
-  // }
-
-  // @ApiOperation({
-  //   summary: 'Ссылка на бота',
-  // })
-  // @Get(':id/link')
-  // getLink(
-  //   //@AuthUser() user,
-  //   @Param('id') id: number,
-  // ): string {
-  //   return '';
-  // }
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Данные бота пользователя',
+    summary: 'Данные бота по Id',
   })
   findOne(@Param('id') id: string): Promise<Bot> {
     return this.botsService.findOne(id);
   }
-
-  // @ApiOperation({
-  //   summary: 'Поделиться доступом к боту',
-  // })
-  // @ApiBody({
-  //   schema: {
-  //     type: 'object',
-  //     properties: {
-  //       email: {
-  //         type: 'string',
-  //       },
-  //     },
-  //   },
-  // })
-  // @Post(':id/share')
-  // share(
-  //   //@AuthUser() user,
-  //   @Param('id') id: number,
-  //   @Body() body: { email: 'string' },
-  // ) {
-  //   //return ;
-  // }
 }
