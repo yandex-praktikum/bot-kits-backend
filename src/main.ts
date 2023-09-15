@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const port = configService.get('port');
+  const port = configService.get('APP_PORT');
   // Создаем экземпляр билдера Swagger-документации
   const config = new DocumentBuilder()
     .setTitle('API BotKits')
