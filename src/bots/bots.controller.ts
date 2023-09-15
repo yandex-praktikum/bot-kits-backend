@@ -27,6 +27,7 @@ import {CreateBotDto} from "./dto/create-bot.dto";
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
 
+  @Get()
   @ApiOperation({
     summary: 'Список ботов пользователя',
   })
@@ -36,11 +37,11 @@ export class BotsController {
     type: [Bot],
   })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @Get()
   findMy(@Body() userId: string): Promise<Bot[] | null> {
     return this.botsService.findAllByUser(userId)
   }
 
+  @Post()
   @ApiOperation({
     summary: 'Создание нового бота',
   })
@@ -49,15 +50,14 @@ export class BotsController {
     description: 'The record has been successfully created.',
     type: Bot,
   })
-  @Post()
   create(@Body() createBotDto: CreateBotDto): Promise<Bot> {
     return this.botsService.create(createBotDto);
   }
 
+  @Delete(':id')
   @ApiOperation({
     summary: 'Удаление бота',
   })
-  @Delete(':id')
   remove(@Param('id') id: string): Promise<Bot> {
     return this.botsService.remove(id);
   }
@@ -70,6 +70,7 @@ export class BotsController {
   //   //return ;
   // }
 
+  @Patch(':id')
   @ApiOperation({
     summary: 'Смена имени бота',
   })
@@ -90,7 +91,6 @@ export class BotsController {
       },
     },
   })
-  @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() body: { botName: 'string' }): Promise<Bot> {
@@ -119,10 +119,10 @@ export class BotsController {
   //   return '';
   // }
 
+  @Get(':id')
   @ApiOperation({
     summary: 'Данные бота пользователя',
   })
-  @Get(':id')
   findOne(@Param('id') id: string): Promise<Bot> {
     return this.botsService.findOne(id);
   }
