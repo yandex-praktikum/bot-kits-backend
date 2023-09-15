@@ -5,7 +5,7 @@ import { Profile } from '../../profiles/schema/profile.schema';
 import Permission from '../types/types';
 import { ApiProperty } from '@nestjs/swagger';
 
-@Schema()
+@Schema({ timestamps: true })
 export class BotAccess extends Document {
   @ApiProperty({ example: '64ff89e7faea577804940275' })
   _id: string;
@@ -34,6 +34,13 @@ export class BotAccess extends Document {
     required: true,
   })
   permission: Permission;
+
+  @ApiProperty({example: '2023-09-12T15:29:12.117Z'})
+  createdAt: Date;
+
+  @ApiProperty({example: '2023-09-12T15:29:12.117Z'})
+  updatedAt: Date;
+
 }
 
 export const BotAccessSchema = SchemaFactory.createForClass(BotAccess);
