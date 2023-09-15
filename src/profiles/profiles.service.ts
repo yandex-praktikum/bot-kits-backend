@@ -25,7 +25,14 @@ export class ProfilesService {
   }
 
   async findById(id: Types.ObjectId): Promise<Profile> {
-    const profile = await this.profile.findById(id).exec();
+    const profile = await (
+      await this.profile.findById(id)
+    ).populate('accounts');
+    profile.accounts.forEach((account) => {
+      if (account.credentials) {
+        delete account.credentials.password;
+      }
+    });
     return profile;
   }
 

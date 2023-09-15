@@ -4,22 +4,21 @@ import { Profile } from '../../profiles/schema/profile.schema';
 import Permission from '../types/types';
 import { ApiProperty } from '@nestjs/swagger';
 
-
 @Schema({ timestamps: true }) //Включает поля createdAt и updatedAt
 export class BotAccess extends Document {
-  @ApiProperty({example: '64ff89e7faea577804940275'})
+  @ApiProperty({ example: '64ff89e7faea577804940275' })
   _id: string;
 
   @ApiProperty({ example: '64ff89e7faea577804940275' })
   @Prop({
     type: Types.ObjectId,
     ref: 'Profile',
-    required: true })
+    required: true,
+  })
   userId: Profile;
 
-
-// пока просто строка вместо сущности Bot
- // @ApiProperty({ example: '64ff89e7faea577804940275' })
+  // пока просто строка вместо сущности Bot
+  // @ApiProperty({ example: '64ff89e7faea577804940275' })
   // @Prop({
   //   type: Types.ObjectId,
   //   ref: 'Bot',
@@ -28,20 +27,23 @@ export class BotAccess extends Document {
 
   @ApiProperty({ example: '64ff89e7faea577804940275' })
   @Prop({
-    required: true })
+    required: true,
+  })
   botId: string;
 
-  @ApiProperty({ enum: [Permission.SUPER_ADMIN, Permission.ADMIN, Permission.USER] })
+  @ApiProperty({
+    enum: [Permission.SUPER_ADMIN, Permission.ADMIN, Permission.USER],
+  })
   @Prop({
     enum: Permission,
     required: true,
-    })
+  })
   permission: Permission;
 
-  @ApiProperty({example: '2023-09-12T15:29:12.117Z'})
+  @ApiProperty({ example: '2023-09-12T15:29:12.117Z' })
   createdAt: Date;
 
-  @ApiProperty({example: '2023-09-12T15:29:12.117Z'})
+  @ApiProperty({ example: '2023-09-12T15:29:12.117Z' })
   updatedAt: Date;
 }
 
