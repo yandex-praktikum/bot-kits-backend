@@ -22,6 +22,7 @@ import {
   ApiCreatedResponse,
   ApiBody,
 } from '@nestjs/swagger';
+import Permission from './types/types';
 
 @ApiTags('botAccesses')
 @UseGuards(JwtGuard)
@@ -29,6 +30,7 @@ import {
 export class BotAccessesController {
   constructor(private readonly botAccessesService: BotAccessesService) {}
 
+  @Post()
   @ApiOperation({
     summary: 'Создает доступ',
     description:
@@ -39,7 +41,6 @@ export class BotAccessesController {
     type: BotAccess,
   })
   @ApiBody({ type: CreateBotAccessDto })
-  @Post()
   create(
     @Req() req,
     @Body() createBotAccess: CreateBotAccessDto,
@@ -47,16 +48,17 @@ export class BotAccessesController {
     return this.botAccessesService.create(req.user.id, createBotAccess);
   }
 
+  @Get()
   @ApiOperation({ summary: 'Найти все доступы' })
   @ApiOkResponse({
     description: 'Все доступы найдены.',
     type: [BotAccess],
   })
-  @Get()
   findAll() {
     return this.botAccessesService.findAll();
   }
 
+  @Get(':id')
   @ApiOperation({
     summary: 'Найти доступ по ID',
     description:
@@ -66,11 +68,11 @@ export class BotAccessesController {
     description: 'Доступ найден.',
     type: BotAccess,
   })
-  @Get(':id')
   findOne(@Param('id') id: string) {
     return this.botAccessesService.findOne(id);
   }
 
+  @Patch(':id')
   @ApiOperation({
     summary: 'Изменить уровень доступа',
     description: 'Изменяет уровень существующего доступа',
@@ -80,7 +82,6 @@ export class BotAccessesController {
     type: BotAccess,
   })
   @ApiBody({ type: UpdateBotAccessDto })
-  @Patch(':id')
   update(
     @Req() req,
     @Param('id') botAccessId: string,
@@ -93,6 +94,7 @@ export class BotAccessesController {
     );
   }
 
+  @Delete(':id')
   @ApiOperation({
     summary: 'Удалить доступ',
   })
@@ -100,20 +102,19 @@ export class BotAccessesController {
     description: 'Доступ удален.',
     type: BotAccess,
   })
-  @Delete(':id')
   delete(@Req() req, @Param('id') botAccessId: string) {
     return this.botAccessesService.delete(req.user.id, botAccessId);
   }
 
+  @Get(':botId/:userId')
   @ApiOperation({
     summary: 'Получить доступ',
     description: 'Позвоялет проверить уровень доступа по botId и userId',
   })
   @ApiOkResponse({
     description: 'Информация о доступе по botId и userId получена.',
-    type: 'admin',
+    type: Permission.OWNER,
   })
-  @Get(':botId/:userId')
   getPermission(
     @Param('botId') botId: string,
     @Param('userId') userId: string,
@@ -121,17 +122,17 @@ export class BotAccessesController {
     return this.botAccessesService.getPermission(userId, botId);
   }
 
+  @Post(':botId')
   @ApiOperation({
     summary: 'Поделиться доступом',
     description:
-      'Позвоялет поделиться доступом по botId и создать новый доступ, если пользователь имеет уровень доступа super_admin к данному боту',
+      `Позвоялет поделиться доступом по botId и создать новый доступ, если пользователь имеет уровень доступа ${Permission.OWNER} к данному боту`,
   })
   @ApiCreatedResponse({
     description: 'Новый доступ создан.',
     type: BotAccess,
   })
   @ApiBody({ type: ShareBotAccessDto })
-  @Post(':botId')
   shareAccess(
     @Req() req,
     @Param('botId') botId: string,

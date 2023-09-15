@@ -41,11 +41,11 @@ export class BotAccessesService {
     return access;
   }
 
-  async delete(superAdminId: string, botAccessId: string): Promise<BotAccess> {
+  async delete(ownerId: string, botAccessId: string): Promise<BotAccess> {
     const botAccess = await this.findOne(botAccessId);
-    const superAdmin = await this.isSuperAdmin(superAdminId, botAccess.botId);
+    const owner = await this.isOwner(ownerId, botAccess.botId);
 
-    if (!superAdmin) {
+    if (!owner) {
       throw new ForbiddenException('Недостаточно прав удалять доступ к боту');
     }
 
@@ -68,9 +68,9 @@ export class BotAccessesService {
     return botAccess.permission;
   }
 
-  async isSuperAdmin(userId, botId): Promise<boolean> {
+  async isOwner(userId, botId): Promise<boolean> {
     const permission = await this.getPermission(userId, botId);
-    return permission === Permission.SUPER_ADMIN;
+    return permission === Permission.OWNER;
   }
 
   async isThereAnyAccess(userId, botId): Promise<boolean> {
@@ -79,14 +79,14 @@ export class BotAccessesService {
   }
 
   async updateAccess(
-    superAdminId,
+    ownerId,
     botAccessId,
     updateBotAccessDto: UpdateBotAccessDto,
   ): Promise<BotAccess> {
     const botAccess = await this.findOne(botAccessId);
-    const superAdmin = await this.isSuperAdmin(superAdminId, botAccess.botId);
+    const owner = await this.isOwner(ownerId, botAccess.botId);
 
-    if (!superAdmin) {
+    if (!owner) {
       throw new ForbiddenException(
         'Недостаточно прав редактировать доступ к боту',
       );
@@ -96,13 +96,13 @@ export class BotAccessesService {
   }
 
   async shareAccess(
-    superAdminId,
+    ownerId,
     botId,
     shareBotAccessDto: ShareBotAccessDto,
   ): Promise<BotAccess> {
-    const superAdmin = await this.isSuperAdmin(superAdminId, botId);
+    const owner = await this.isOwner(ownerId, botId);
 
-    if (!superAdmin) {
+    if (!owner) {
       throw new ForbiddenException(
         'Недостаточно прав предоставлять доступ к боту',
       );

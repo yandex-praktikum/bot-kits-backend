@@ -5,7 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class UpdateBotAccessDto {
   @ApiProperty({
     description: 'уровень доступа',
-    enum: [Permission.SUPER_ADMIN, Permission.ADMIN, Permission.USER],
+    enum: [Permission.OWNER, Permission.LEVEL_1, Permission.LEVEL_2],
   })
   @IsNotEmpty()
   @IsEnum(Permission)

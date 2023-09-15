@@ -27,7 +27,7 @@ export class BotAccess extends Document {
   botId: Bot;
 
   @ApiProperty({
-    enum: [Permission.SUPER_ADMIN, Permission.ADMIN, Permission.USER],
+    enum: [Permission.OWNER, Permission.LEVEL_1, Permission.LEVEL_2],
   })
   @Prop({
     enum: Permission,
