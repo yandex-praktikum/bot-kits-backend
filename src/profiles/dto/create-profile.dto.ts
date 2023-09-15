@@ -29,7 +29,7 @@ export class CreateProfileDto {
   @IsOptional()
   balance?: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsArray()
   @IsOptional()
   accounts: Account[];
