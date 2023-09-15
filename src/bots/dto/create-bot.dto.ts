@@ -20,11 +20,6 @@ export class CreateBotDto {
 	@IsNotEmpty()
 	botName: string;
 
-	@ApiProperty({ example: '64f9ac26edb84d7ebf6281d0' })
-	@IsMongoId()
-	@IsNotEmpty()
-	profile: Types.ObjectId;
-
 	@ApiProperty()
 	@Type( () => Messenger)
 	@ValidateNested()

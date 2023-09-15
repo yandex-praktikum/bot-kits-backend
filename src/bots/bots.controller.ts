@@ -6,6 +6,8 @@ import {
   Param,
   Post,
   Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -14,15 +16,17 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiTags, ApiUnprocessableEntityResponse
+  ApiTags,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import {BotsService} from "./bots.service";
-import mongoose from "mongoose";
-import {Bot} from "./schema/bots.schema";
-import {CreateBotDto} from "./dto/create-bot.dto";
+import { BotsService } from './bots.service';
+import mongoose from 'mongoose';
+import { Bot } from './schema/bots.schema';
+import { CreateBotDto } from './dto/create-bot.dto';
+import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 
 @ApiTags('bots')
-// @UseGuards(JwtGuard)
+@UseGuards(JwtGuard)
 @Controller('bots')
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
@@ -31,14 +35,13 @@ export class BotsController {
   @ApiOperation({
     summary: 'Список ботов пользователя',
   })
-  @ApiBody({ type: mongoose.Schema.Types.ObjectId })
   @ApiOkResponse({
     description: 'The resources were returned successfully',
     type: [Bot],
   })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  findMy(@Body() userId: string): Promise<Bot[] | null> {
-    return this.botsService.findAllByUser(userId)
+  findMy(@Req() req): Promise<Bot[] | null> {
+    return this.botsService.findAllByUser(req.user.id);
   }
 
   @Post()
@@ -50,8 +53,8 @@ export class BotsController {
     description: 'The record has been successfully created.',
     type: Bot,
   })
-  create(@Body() createBotDto: CreateBotDto): Promise<Bot> {
-    return this.botsService.create(createBotDto);
+  create(@Req() req, @Body() createBotDto: CreateBotDto): Promise<Bot> {
+    return this.botsService.create(req.user.id, createBotDto);
   }
 
   @Delete(':id')
@@ -93,7 +96,8 @@ export class BotsController {
   })
   update(
     @Param('id') id: string,
-    @Body() body: { botName: 'string' }): Promise<Bot> {
+    @Body() body: { botName: 'string' },
+  ): Promise<Bot> {
     return this.botsService.update(id, body);
   }
 

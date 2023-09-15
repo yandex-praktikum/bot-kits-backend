@@ -11,8 +11,8 @@ export class BotsService {
 		@InjectModel(Bot.name) private botModel: Model<BotDocument>,
 	) {}
 
-	async create(createBotDto: CreateBotDto): Promise<Bot> {
-		return await new this.botModel(createBotDto).save();
+	async create(profile, createBotDto: CreateBotDto): Promise<Bot> {
+		return await new this.botModel({...createBotDto, profile}).save();
 	}
 
 	async findOne(id: string): Promise<Bot> {
