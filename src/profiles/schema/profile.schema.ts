@@ -5,7 +5,7 @@ import { Account } from 'src/accounts/schema/account.schema';
 
 export type ProfileDocument = HydratedDocument<Profile>;
 
-@Schema()
+@Schema({ versionKey: false }) //--Отключит поле __v для всех документов--//
 export class Profile extends Document {
   @ApiProperty({ example: 'Ivan Ivanov' })
   @Prop({ required: true, minlength: 2, maxlength: 30 })
@@ -25,6 +25,7 @@ export class Profile extends Document {
   @Prop({ default: 0 })
   balance: number;
 
+  @ApiProperty()
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
   })

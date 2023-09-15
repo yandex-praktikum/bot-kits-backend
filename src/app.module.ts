@@ -18,6 +18,8 @@ import { BotAccessesModule } from './botAccesses/botAccesses.module';
 import { TariffsModule } from './tariff/tariffs.module';
 import { PlatformModule } from './platforms/platforms.module';
 
+import { PromocodesModule } from './promocodes/promocodes.module';
+
 import { AccountModule } from './accounts/accounts.module';
 import { databaseConfig } from './configs/database.config';
 
@@ -46,6 +48,7 @@ import { BotTemplatesModule } from './botTemplates/bot-templates.module';
     AuthModule,
     BotAccessesModule,
     PlatformModule,
+    PromocodesModule,
     BotsModule,
     BotTemplatesModule,
     SubscriptionsModule,

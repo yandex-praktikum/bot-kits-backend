@@ -8,10 +8,10 @@ export class AuthDto {
   @ApiProperty({ description: 'Данные профиля', type: CreateProfileDto })
   @Type(() => CreateProfileDto)
   @ValidateNested()
-  profileDto: CreateProfileDto;
+  profileData: CreateProfileDto;
 
   @ApiProperty({ description: 'Данные аккаунта', type: CreateAccountDto })
   @Type(() => CreateAccountDto)
   @ValidateNested()
-  accountDto: CreateAccountDto;
+  accountData: CreateAccountDto;
 }

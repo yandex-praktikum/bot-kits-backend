@@ -25,7 +25,7 @@ class Credentials {
   refreshToken: string;
 }
 
-@Schema()
+@Schema({ versionKey: false }) //--Отключит поле __v для всех документов--//
 export class Account extends Document {
   @ApiProperty({ example: 'local' })
   @Prop({
