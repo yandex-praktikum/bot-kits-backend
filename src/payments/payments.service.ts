@@ -18,11 +18,12 @@ export class PaymentsService {
     });
   }
 
-  async delete(id: number) {
+  async delete(id: string) {
+    //Не проверяем принадлежность операции пользователю, поскольку метод для администрирования, а не фронта
     return await this.paymentModel.findByIdAndRemove(id).exec();
   }
 
-  async findOne(id: number): Promise<Payment> {
+  async findOne(id: string): Promise<Payment> {
     return this.paymentModel.findById(id).exec();
   }
 
@@ -32,5 +33,14 @@ export class PaymentsService {
 
   async findUsersAll(profile: Profile): Promise<Payment[]> {
     return await this.paymentModel.find({ profile }).exec();
+  }
+
+  async update(
+    id: string,
+    updatePaymentDto: CreatePaymentDto,
+  ): Promise<Payment> {
+    //Не проверяем принадлежность операции пользователю, поскольку метод для администрирования, а не фронта
+    await this.paymentModel.findByIdAndUpdate(id, updatePaymentDto);
+    return this.findOne(id);
   }
 }
