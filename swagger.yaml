@@ -1802,7 +1802,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-16T10:31:27.800Z
+          example: 2023-09-16T12:27:10.236Z
       required:
         - tariffId
         - status
@@ -1814,7 +1814,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-16T10:31:27.802Z
+          example: 2023-09-16T12:27:10.238Z
         amount:
           type: number
           example: 1000
