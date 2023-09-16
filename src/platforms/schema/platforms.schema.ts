@@ -23,7 +23,7 @@ class FormFields {
   url: boolean;
 }
 
-@Schema()
+@Schema({ timestamps: true })
 export class Platform {
   @ApiProperty({
     example:
