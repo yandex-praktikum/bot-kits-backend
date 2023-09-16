@@ -11,7 +11,7 @@ import { AuthController } from './auth/auth.controller';
 import { ProfilesModule } from './profiles/profiles.module';
 import { AuthModule } from './auth/auth.module';
 import { BotAccessesModule } from './botAccesses/botAccesses.module';
-import { TariffsModule } from './tariff/tariffs.module';
+import { TariffsModule } from './tariffs/tariffs.module';
 import { PlatformModule } from './platforms/platforms.module';
 
 import { PromocodesModule } from './promocodes/promocodes.module';
