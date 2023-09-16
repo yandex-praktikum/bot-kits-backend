@@ -1415,9 +1415,6 @@ components:
       required:
         - name
         - price
-    ObjectId:
-      type: object
-      properties: {}
     CreateAccountDto:
       type: object
       properties:
@@ -1443,9 +1440,8 @@ components:
         credentials:
           $ref: '#/components/schemas/Credentials'
         profile:
+          type: object
           example: 64f9ac26edb84d7ebf6281d0
-          allOf:
-            - $ref: '#/components/schemas/ObjectId'
       required:
         - type
         - role
@@ -1686,6 +1682,9 @@ components:
           type: number
           minimum: 1
           example: 10
+    ObjectId:
+      type: object
+      properties: {}
     Messenger:
       type: object
       properties:
@@ -1810,7 +1809,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-15T23:20:57.864Z
+          example: 2023-09-16T13:22:50.447Z
       required:
         - tariffId
         - status
@@ -1822,7 +1821,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-15T23:20:57.868Z
+          example: 2023-09-16T13:22:50.450Z
         amount:
           type: number
           example: 1000

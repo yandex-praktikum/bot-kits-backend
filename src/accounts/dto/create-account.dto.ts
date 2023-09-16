@@ -1,7 +1,6 @@
 import {
   IsEmail,
   IsEnum,
-  IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -16,13 +15,16 @@ import { Types } from 'mongoose';
 //create-account.dto.ts
 class Credentials {
   @ApiProperty({ example: 'my@mail.ru' })
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail(
+    {},
+    { message: 'Email должен быть действительным адресом электронной почты' },
+  )
+  @IsNotEmpty({ message: 'Email не может быть пустым' })
   email: string;
 
   @ApiProperty({ example: 'password123' })
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Password не может быть пустым' })
   password: string;
 
   @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
@@ -52,6 +54,5 @@ export class CreateAccountDto {
   credentials?: Credentials;
 
   @ApiProperty({ example: '64f9ac26edb84d7ebf6281d0' })
-  @IsMongoId()
-  profile: Types.ObjectId;
+  profile: Types.ObjectId | string;
 }
