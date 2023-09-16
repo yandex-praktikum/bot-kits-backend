@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, IsUrl, Length } from 'class-validator';
+import {
+  IsArray,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Length,
+} from 'class-validator';
+import { Account } from 'src/accounts/schema/account.schema';
 //create-profile.dto.ts
 export class CreateProfileDto {
   @ApiProperty({ example: 'Ivan Ivanov' })
@@ -11,7 +19,7 @@ export class CreateProfileDto {
   @IsString()
   phone: string;
 
-  @ApiProperty({ example: 'https://i.pravatar.cc/300' })
+  @ApiProperty({ example: 'https://i.pravatar.cc/300', required: false })
   @IsUrl()
   @IsOptional()
   avatar?: string;
@@ -20,4 +28,9 @@ export class CreateProfileDto {
   @IsNumber()
   @IsOptional()
   balance?: number;
+
+  @ApiProperty({ required: false })
+  @IsArray()
+  @IsOptional()
+  accounts: Account[];
 }

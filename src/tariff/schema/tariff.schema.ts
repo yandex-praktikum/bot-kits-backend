@@ -11,14 +11,6 @@ export class Tariff extends Document {
   @ApiProperty({ example: 390 })
   @Prop({ required: true })
   price: number;
-
-  @ApiProperty({ example: '2023-09-10T16:07:34.285Z', required: false })
-  @Prop({ default: Date.now })
-  createdAt: Date;
-
-  @ApiProperty({ example: '2023-09-10T16:07:34.285Z', required: false })
-  @Prop({ default: Date.now })
-  updatedAt: Date;
 }
 
 export const TariffSchema = SchemaFactory.createForClass(Tariff);

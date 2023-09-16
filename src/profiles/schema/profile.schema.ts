@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import mongoose, { Document, HydratedDocument, Types } from 'mongoose';
-import { Account } from 'src/account/schema/account.schema';
+import mongoose, { Document, HydratedDocument } from 'mongoose';
+import { Account } from 'src/accounts/schema/account.schema';
 
 export type ProfileDocument = HydratedDocument<Profile>;
-//profile.schema.ts
-@Schema()
+
+@Schema({ versionKey: false }) //--Отключит поле __v для всех документов--//
 export class Profile extends Document {
   @ApiProperty({ example: 'Ivan Ivanov' })
   @Prop({ required: true, minlength: 2, maxlength: 30 })
@@ -25,6 +25,7 @@ export class Profile extends Document {
   @Prop({ default: 0 })
   balance: number;
 
+  @ApiProperty()
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
   })

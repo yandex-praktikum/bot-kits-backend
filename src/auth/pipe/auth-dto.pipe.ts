@@ -1,8 +1,7 @@
 import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
-import TypeAccount from '../../account/types/type-account';
-import Role from '../../account/types/role';
+import TypeAccount from '../../accounts/types/type-account';
+import Role from '../../accounts/types/role';
 import { AuthDto } from '../dto/auth.dto';
-import { Types } from 'mongoose';
 
 @Injectable()
 export class AuthDtoPipe implements PipeTransform {
@@ -11,25 +10,25 @@ export class AuthDtoPipe implements PipeTransform {
       balance: 0,
       avatar: 'https://i.pravatar.cc/300',
       accounts: [],
-      ...value.profileDto,
+      ...value.profileData,
     };
 
     const enrichedAccount = {
       type: TypeAccount.LOCAL,
       role: Role.USER,
       credentials: {
-        email: value.accountDto.credentials.email,
-        password: value.accountDto.credentials.password,
+        email: value.accountData.credentials.email,
+        password: value.accountData.credentials.password,
         accessToken: '',
         refreshToken: '',
       },
       profile: '',
-      ...value.accountDto,
+      ...value.accountData,
     };
 
     return {
-      profileDto: enrichedProfile,
-      accountDto: enrichedAccount,
+      profileData: enrichedProfile,
+      accountData: enrichedAccount,
     };
   }
 }
