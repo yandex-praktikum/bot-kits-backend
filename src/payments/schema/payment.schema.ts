@@ -3,7 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Profile } from 'src/profiles/schema/profile.schema';
 import TypeOperation from '../types/type-operation';
-import { IsEnum } from 'class-validator';
 
 export type PaymentDocument = HydratedDocument<Payment>;
 

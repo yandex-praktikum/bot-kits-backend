@@ -721,7 +721,7 @@ paths:
       summary: Поделиться доступом
       description: >-
         Позвоялет поделиться доступом по botId и создать новый доступ, если
-        пользователь имеет уровень доступа super_admin к данному боту
+        пользователь имеет уровень доступа owner к данному боту
       parameters:
         - name: botId
           required: true
@@ -1378,14 +1378,6 @@ components:
         price:
           type: number
           example: 390
-        createdAt:
-          format: date-time
-          type: string
-          example: '2023-09-10T16:07:34.285Z'
-        updatedAt:
-          format: date-time
-          type: string
-          example: '2023-09-10T16:07:34.285Z'
       required:
         - name
         - price
@@ -1483,14 +1475,62 @@ components:
           example: 64ff94ef12477f1d0934c614
         permission:
           enum:
-            - super_admin
-            - admin
-            - user
+            - owner
+            - level_1
+            - level_2
           type: string
           description: уровень доступа
       required:
         - botId
         - permission
+    Messenger:
+      type: object
+      properties:
+        name:
+          type: string
+          example: VK
+        page:
+          type: string
+          example: vk.com/club1245321223
+        accessKey:
+          type: string
+          example: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
+        url:
+          type: string
+          example: some_url
+      required:
+        - name
+        - page
+        - accessKey
+        - url
+    Bot:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        botName:
+          type: string
+          example: Бот Автоответчик
+        profile:
+          $ref: '#/components/schemas/Profile'
+        messenger:
+          example:
+            name: VK
+            page: vk.com/club1245321223
+            accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
+            url: some_url
+          allOf:
+            - $ref: '#/components/schemas/Messenger'
+        botSettings:
+          type: object
+      required:
+        - icon
+        - botName
+        - profile
+        - messenger
+        - botSettings
     BotAccess:
       type: object
       properties:
@@ -1502,14 +1542,15 @@ components:
           allOf:
             - $ref: '#/components/schemas/Profile'
         botId:
-          type: string
           example: 64ff89e7faea577804940275
+          allOf:
+            - $ref: '#/components/schemas/Bot'
         permission:
           type: string
           enum:
-            - super_admin
-            - admin
-            - user
+            - owner
+            - level_1
+            - level_2
         createdAt:
           format: date-time
           type: string
@@ -1530,9 +1571,9 @@ components:
       properties:
         permission:
           enum:
-            - super_admin
-            - admin
-            - user
+            - owner
+            - level_1
+            - level_2
           type: string
           description: уровень доступа
       required:
@@ -1546,9 +1587,9 @@ components:
           example: test@test.ru
         permission:
           enum:
-            - super_admin
-            - admin
-            - user
+            - owner
+            - level_1
+            - level_2
           type: string
           description: уровень доступа
       required:
@@ -1686,54 +1727,6 @@ components:
           type: number
           minimum: 1
           example: 10
-    Messenger:
-      type: object
-      properties:
-        name:
-          type: string
-          example: VK
-        page:
-          type: string
-          example: vk.com/club1245321223
-        accessKey:
-          type: string
-          example: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
-        url:
-          type: string
-          example: some_url
-      required:
-        - name
-        - page
-        - accessKey
-        - url
-    Bot:
-      type: object
-      properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        botName:
-          type: string
-          example: Бот Автоответчик
-        profile:
-          $ref: '#/components/schemas/Profile'
-        messenger:
-          example:
-            name: VK
-            page: vk.com/club1245321223
-            accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
-            url: some_url
-          allOf:
-            - $ref: '#/components/schemas/Messenger'
-        botSettings:
-          type: object
-      required:
-        - icon
-        - botName
-        - profile
-        - messenger
-        - botSettings
     CreateBotDto:
       type: object
       properties:
@@ -1752,7 +1745,6 @@ components:
           $ref: '#/components/schemas/Messenger'
         botSettings:
           type: object
-          properties: {}
       required:
         - icon
         - botName
@@ -1810,7 +1802,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-15T23:20:57.864Z
+          example: 2023-09-16T12:27:10.236Z
       required:
         - tariffId
         - status
@@ -1822,7 +1814,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-15T23:20:57.868Z
+          example: 2023-09-16T12:27:10.238Z
         amount:
           type: number
           example: 1000

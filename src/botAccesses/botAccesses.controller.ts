@@ -125,8 +125,7 @@ export class BotAccessesController {
   @Post(':botId')
   @ApiOperation({
     summary: 'Поделиться доступом',
-    description:
-      `Позвоялет поделиться доступом по botId и создать новый доступ, если пользователь имеет уровень доступа ${Permission.OWNER} к данному боту`,
+    description: `Позвоялет поделиться доступом по botId и создать новый доступ, если пользователь имеет уровень доступа ${Permission.OWNER} к данному боту`,
   })
   @ApiCreatedResponse({
     description: 'Новый доступ создан.',
