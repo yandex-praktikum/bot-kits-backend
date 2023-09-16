@@ -87,7 +87,7 @@ export class BotTemplatesController {
   update(
     @Body() updateBotTemplateDto: UpdateBotTemplateDto,
     @Param('id') id: string,
-  ) {
+  ): Promise<BotTemplate> {
     return this.botTemplatesService.update(id, updateBotTemplateDto);
   }
 }
