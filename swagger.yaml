@@ -1154,7 +1154,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpdateBotTemplateDto'
       tags: *ref_8
-  /userSubscriptions:
+  /subscriptions:
     get:
       operationId: SubscriptionsController_subscriptionAndPayments
       summary: Данные страницы "Подписка и платежи"
@@ -1186,13 +1186,27 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Payment'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
       tags: &ref_9
-        - userSubscriptions
-  /userSubscriptions/activate:
+        - subscriptions
+  /subscriptions/activate:
     post:
       operationId: SubscriptionsController_activateSubscription
-      summary: Активировать подписку
+      summary: Активировать(отменить) подписку
       parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: boolean
+                  example: true
       responses:
         '201':
           description: Подписка активирована
@@ -1200,8 +1214,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subscription'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+        '422':
+          description: Неверный запрос
       tags: *ref_9
-  /userSubscriptions/newSubscription/{id}:
+  /subscriptions/{id}:
     post:
       operationId: SubscriptionsController_createSubscription
       summary: Оформить подписку
@@ -1233,6 +1253,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subscription'
+        '403':
+          description: Отказ в доступе
+        '422':
+          description: Неверный запрос
       tags: *ref_9
   /payments:
     get:
@@ -1789,9 +1813,6 @@ components:
     Subscription:
       type: object
       properties:
-        tariffId:
-          type: string
-          example: '111111111'
         status:
           type: boolean
           example: true
@@ -1802,9 +1823,8 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-16T12:27:10.236Z
+          example: 2023-09-17T09:06:36.675Z
       required:
-        - tariffId
         - status
         - cardMask
         - debitDate
@@ -1814,7 +1834,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-16T12:27:10.238Z
+          example: 2023-09-17T09:06:36.681Z
         amount:
           type: number
           example: 1000
