@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Body,
-  UseGuards,
-  Req,
-  Post,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get, UseGuards, Req } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';

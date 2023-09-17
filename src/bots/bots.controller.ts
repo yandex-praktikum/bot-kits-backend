@@ -14,12 +14,13 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiTags, ApiUnprocessableEntityResponse
+  ApiTags,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import {BotsService} from "./bots.service";
-import mongoose from "mongoose";
-import {Bot} from "./schema/bots.schema";
-import {CreateBotDto} from "./dto/create-bot.dto";
+import { BotsService } from './bots.service';
+import mongoose from 'mongoose';
+import { Bot } from './schema/bots.schema';
+import { CreateBotDto } from './dto/create-bot.dto';
 
 @ApiTags('bots')
 // @UseGuards(JwtGuard)
@@ -38,7 +39,7 @@ export class BotsController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @Get()
   findMy(@Body() userId: string): Promise<Bot[] | null> {
-    return this.botsService.findAllByUser(userId)
+    return this.botsService.findAllByUser(userId);
   }
 
   @ApiOperation({
@@ -93,7 +94,8 @@ export class BotsController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() body: { botName: 'string' }): Promise<Bot> {
+    @Body() body: { botName: 'string' },
+  ): Promise<Bot> {
     return this.botsService.update(id, body);
   }
 
