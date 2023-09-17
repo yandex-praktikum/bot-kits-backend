@@ -6,10 +6,11 @@ import {
   Param,
   Get,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 import { TariffsService } from './tariffs.service';
 import { CreateTariffDto } from './dto/create-tariff.dto';
-import { Tariff } from './entities/tariff.entity';
+import { Tariff } from './schema/tariff.schema';
 import { UpdateTariffDto } from './dto/update-tariff.dto';
 import {
   ApiTags,
@@ -21,8 +22,10 @@ import {
   ApiCreatedResponse,
   ApiConflictResponse,
 } from '@nestjs/swagger';
+import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 
 @ApiTags('tariffs')
+@UseGuards(JwtGuard)
 @Controller('tariffs')
 export class TariffsController {
   constructor(private readonly tariffsService: TariffsService) {}

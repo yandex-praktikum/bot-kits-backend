@@ -721,7 +721,7 @@ paths:
       summary: Поделиться доступом
       description: >-
         Позвоялет поделиться доступом по botId и создать новый доступ, если
-        пользователь имеет уровень доступа super_admin к данному боту
+        пользователь имеет уровень доступа owner к данному боту
       parameters:
         - name: botId
           required: true
@@ -856,6 +856,118 @@ paths:
         '404':
           description: Resource not found
       tags: *ref_5
+  /promocodes:
+    post:
+      operationId: PromocodesController_create
+      summary: Добавить новый промокод
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePromocodeDto'
+      responses:
+        '201':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Unauthorized Request
+        '409':
+          description: Такой промокод уже существует
+      tags: &ref_6
+        - Promocodes
+    get:
+      operationId: PromocodesController_findAll
+      summary: Получить все промокоды
+      parameters: []
+      responses:
+        '200':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Нет ни одного промокода
+      tags: *ref_6
+  /promocodes/{id}:
+    get:
+      operationId: PromocodesController_findOne
+      summary: Получить промокод по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Нет промокода с таким id
+      tags: *ref_6
+    patch:
+      operationId: PromocodesController_update
+      summary: Изменить данные промокода по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePromocodeDto'
+      responses:
+        '200':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Нет промокода с таким id
+      tags: *ref_6
+    delete:
+      operationId: PromocodesController_remove
+      summary: Удалить промокод по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The resources were returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Unauthorized Request
+        '404':
+          description: Нет промокода с таким id
+      tags: *ref_6
   /bots:
     get:
       operationId: BotsController_findMy
@@ -878,7 +990,7 @@ paths:
                   $ref: '#/components/schemas/Bot'
         '403':
           description: Unauthorized Request
-      tags: &ref_6
+      tags: &ref_7
         - bots
     post:
       operationId: BotsController_create
@@ -897,7 +1009,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
-      tags: *ref_6
+      tags: *ref_7
   /bots/{id}:
     delete:
       operationId: BotsController_remove
@@ -915,7 +1027,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
-      tags: *ref_6
+      tags: *ref_7
     patch:
       operationId: BotsController_update
       summary: Смена имени бота
@@ -947,7 +1059,7 @@ paths:
           description: Resource not found
         '422':
           description: Bad Request
-      tags: *ref_6
+      tags: *ref_7
     get:
       operationId: BotsController_findOne
       summary: Данные бота пользователя
@@ -964,7 +1076,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
-      tags: *ref_6
+      tags: *ref_7
   /botTemplates:
     get:
       operationId: BotTemplatesController_findAll
@@ -979,7 +1091,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/BotTemplate'
-      tags: &ref_7
+      tags: &ref_8
         - botTemplates
     post:
       operationId: BotTemplatesController_create
@@ -998,7 +1110,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateBotTemplateDto'
-      tags: *ref_7
+      tags: *ref_8
   /botTemplates/{id}:
     get:
       operationId: BotTemplatesController_findOne
@@ -1014,7 +1126,7 @@ paths:
       responses:
         '200':
           description: ''
-      tags: *ref_7
+      tags: *ref_8
     patch:
       operationId: BotTemplatesController_update
       summary: Изменить шаблон бота
@@ -1041,7 +1153,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateBotTemplateDto'
-      tags: *ref_7
+      tags: *ref_8
   /userSubscriptions:
     get:
       operationId: SubscriptionsController_subscriptionAndPayments
@@ -1074,7 +1186,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Payment'
-      tags: &ref_8
+      tags: &ref_9
         - userSubscriptions
   /userSubscriptions/activate:
     post:
@@ -1088,7 +1200,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subscription'
-      tags: *ref_8
+      tags: *ref_9
   /userSubscriptions/newSubscription/{id}:
     post:
       operationId: SubscriptionsController_createSubscription
@@ -1121,7 +1233,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subscription'
-      tags: *ref_8
+      tags: *ref_9
   /payments:
     get:
       operationId: PaymentsController_userPayments
@@ -1266,14 +1378,6 @@ components:
         price:
           type: number
           example: 390
-        createdAt:
-          format: date-time
-          type: string
-          example: '2023-09-10T16:07:34.285Z'
-        updatedAt:
-          format: date-time
-          type: string
-          example: '2023-09-10T16:07:34.285Z'
       required:
         - name
         - price
@@ -1371,14 +1475,62 @@ components:
           example: 64ff94ef12477f1d0934c614
         permission:
           enum:
-            - super_admin
-            - admin
-            - user
+            - owner
+            - level_1
+            - level_2
           type: string
           description: уровень доступа
       required:
         - botId
         - permission
+    Messenger:
+      type: object
+      properties:
+        name:
+          type: string
+          example: VK
+        page:
+          type: string
+          example: vk.com/club1245321223
+        accessKey:
+          type: string
+          example: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
+        url:
+          type: string
+          example: some_url
+      required:
+        - name
+        - page
+        - accessKey
+        - url
+    Bot:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        botName:
+          type: string
+          example: Бот Автоответчик
+        profile:
+          $ref: '#/components/schemas/Profile'
+        messenger:
+          example:
+            name: VK
+            page: vk.com/club1245321223
+            accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
+            url: some_url
+          allOf:
+            - $ref: '#/components/schemas/Messenger'
+        botSettings:
+          type: object
+      required:
+        - icon
+        - botName
+        - profile
+        - messenger
+        - botSettings
     BotAccess:
       type: object
       properties:
@@ -1390,14 +1542,15 @@ components:
           allOf:
             - $ref: '#/components/schemas/Profile'
         botId:
-          type: string
           example: 64ff89e7faea577804940275
+          allOf:
+            - $ref: '#/components/schemas/Bot'
         permission:
           type: string
           enum:
-            - super_admin
-            - admin
-            - user
+            - owner
+            - level_1
+            - level_2
         createdAt:
           format: date-time
           type: string
@@ -1418,9 +1571,9 @@ components:
       properties:
         permission:
           enum:
-            - super_admin
-            - admin
-            - user
+            - owner
+            - level_1
+            - level_2
           type: string
           description: уровень доступа
       required:
@@ -1434,9 +1587,9 @@ components:
           example: test@test.ru
         permission:
           enum:
-            - super_admin
-            - admin
-            - user
+            - owner
+            - level_1
+            - level_2
           type: string
           description: уровень доступа
       required:
@@ -1512,54 +1665,68 @@ components:
           example: VK
         formFields:
           $ref: '#/components/schemas/FormFields'
-    Messenger:
+    CreatePromocodeDto:
       type: object
       properties:
-        name:
+        code:
           type: string
-          example: VK
-        page:
+          example: PROMO50
+        actionPeriod:
+          format: date-time
           type: string
-          example: vk.com/club1245321223
-        accessKey:
-          type: string
-          example: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
-        url:
-          type: string
-          example: some_url
+          example: '2023-09-10T16:07:34.285Z'
+        activationCount:
+          type: number
+          minimum: 1
+          example: 2
+        maxActivationCount:
+          type: number
+          minimum: 1
+          example: 10
       required:
-        - name
-        - page
-        - accessKey
-        - url
-    Bot:
+        - code
+        - actionPeriod
+        - activationCount
+        - maxActivationCount
+    Promocode:
       type: object
       properties:
-        icon:
+        code:
           type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        botName:
+          example: PROMO50
+        actionPeriod:
+          format: date-time
           type: string
-          example: Бот Автоответчик
-        profile:
-          $ref: '#/components/schemas/Profile'
-        messenger:
-          example:
-            name: VK
-            page: vk.com/club1245321223
-            accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
-            url: some_url
-          allOf:
-            - $ref: '#/components/schemas/Messenger'
-        botSettings:
-          type: object
+          example: '2023-09-10T16:07:34.285Z'
+        activationCount:
+          type: number
+          example: 2
+        maxActivationCount:
+          type: number
+          example: 10
       required:
-        - icon
-        - botName
-        - profile
-        - messenger
-        - botSettings
+        - code
+        - actionPeriod
+        - activationCount
+        - maxActivationCount
+    UpdatePromocodeDto:
+      type: object
+      properties:
+        code:
+          type: string
+          example: PROMO100
+        actionPeriod:
+          format: date-time
+          type: string
+          example: '2024-12-10T00:00:00.285Z'
+        activationCount:
+          type: number
+          minimum: 1
+          example: 2
+        maxActivationCount:
+          type: number
+          minimum: 1
+          example: 10
     CreateBotDto:
       type: object
       properties:
@@ -1578,7 +1745,6 @@ components:
           $ref: '#/components/schemas/Messenger'
         botSettings:
           type: object
-          properties: {}
       required:
         - icon
         - botName
@@ -1636,7 +1802,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-15T06:32:16.635Z
+          example: 2023-09-16T12:27:10.236Z
       required:
         - tariffId
         - status
@@ -1648,7 +1814,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-15T06:32:16.638Z
+          example: 2023-09-16T12:27:10.238Z
         amount:
           type: number
           example: 1000

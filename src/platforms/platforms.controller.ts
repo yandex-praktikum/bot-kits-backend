@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -24,7 +25,9 @@ import { PlatformService } from './platforms.service';
 import { Platform } from './schema/platforms.schema';
 import { CreatePlatformDto } from './dto/create-platform.dto';
 import { UpdatePlatformDto } from './dto/update-platform.dto';
+import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 
+@UseGuards(JwtGuard)
 @ApiTags('Platforms')
 @Controller('platforms')
 export class PlatformController {
