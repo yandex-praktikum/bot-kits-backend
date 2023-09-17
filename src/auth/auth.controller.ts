@@ -22,6 +22,7 @@ import { map, mergeMap, tap } from 'rxjs';
 import TypeAccount from 'src/accounts/types/type-account';
 import Role from 'src/accounts/types/role';
 import { ValidationDtoPipe } from './pipe/validation-dto.pipe';
+import { CombinedDto } from './dto/combined.dto';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
@@ -45,6 +46,7 @@ export class AuthController {
   constructor(
     private httpService: HttpService,
     private authService: AuthService,
+    private readonly authDtoPipe: AuthDtoPipe,
   ) {}
 
   @UseGuards(LocalGuard)
@@ -269,10 +271,18 @@ export class AuthController {
       },
     },
   })
-  async signup(
-    @Body(new AuthDtoPipe(), new ValidationDtoPipe())
-    authDto: AuthDto,
-  ): Promise<Profile> {
+  async signup(@Body() combinedDto: CombinedDto): Promise<Profile> {
+    const newAccount: CombinedDto = {
+      email: combinedDto.email,
+      password: combinedDto.password,
+      username: combinedDto.username,
+      phone: combinedDto.phone,
+      avatar: combinedDto.avatar,
+    };
+    const authDto = this.authDtoPipe.transform(newAccount, {
+      type: 'body',
+      data: 'combinedDto',
+    });
     return await this.authService.registration(authDto);
   }
 
@@ -352,19 +362,23 @@ export class AuthController {
     return this.httpService
       .get(`https://login.yandex.ru/info?format=json&oauth_token=${token}`)
       .pipe(
-        map(({ data }) => {
-          const newAccount = {
+        mergeMap(({ data }) => {
+          const newAccount: CombinedDto = {
             email: data.display_name,
             password: '',
             username: data.default_email,
             phone: data.default_phone.number,
             avatar: data.default_avatar_id,
           };
-
-          // return await this.authService.authSocial(newAccount);
-          return newAccount;
+          const authDto = this.authDtoPipe.transform(newAccount, {
+            type: 'body',
+            data: 'combinedDto',
+          });
+          return this.authService.authSocial(authDto);
+          //return newAccount;
         }),
       );
+  }
 
   @Post('reset-password')
   @ApiOperation({

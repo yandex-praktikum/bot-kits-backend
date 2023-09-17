@@ -131,8 +131,8 @@ export class AuthService {
 
   async authSocial(dataLogin: AuthDto) {
     const user = await this.accountService.findByEmailAndType(
-      dataLogin.accountDto.credentials.email,
-      dataLogin.accountDto.type,
+      dataLogin.accountData.credentials.email,
+      dataLogin.accountData.type,
     );
 
     if (user) {

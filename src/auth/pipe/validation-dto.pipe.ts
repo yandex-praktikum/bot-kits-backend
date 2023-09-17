@@ -4,6 +4,8 @@ import { ValidationError } from 'class-validator';
 export class ValidationDtoPipe extends ValidationPipe {
   constructor() {
     super({
+      transform: true,
+      whitelist: true,
       exceptionFactory: (errors: ValidationError[]) =>
         this.customExceptionFactory(errors),
     });
