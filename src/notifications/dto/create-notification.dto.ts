@@ -1,26 +1,17 @@
-import { IsBoolean, IsDate, IsNotEmpty } from 'class-validator';
-import { FromWhom } from '../entities/fromWhom.schema';
-import { ToWhom } from '../entities/toWhom.schema';
+import { IsNotEmpty } from 'class-validator';
+import { FromWhom, ToWhom } from '../schema/notifications.schema';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateNotificationDto {
+  @ApiProperty({ description: 'id отправителя', nullable: false })
   @IsNotEmpty()
   fromWhom: FromWhom;
 
+  @ApiProperty({ description: 'id получателя', nullable: false })
   @IsNotEmpty()
   toWhom: ToWhom;
 
+  @ApiProperty({ description: 'содержимое', nullable: false })
   @IsNotEmpty()
   message: object;
-
-  @IsNotEmpty()
-  @IsBoolean()
-  isReceived: boolean;
-
-  @IsNotEmpty()
-  @IsDate()
-  created_at: Date;
-
-  @IsNotEmpty()
-  @IsDate()
-  updated_at: Date;
 }

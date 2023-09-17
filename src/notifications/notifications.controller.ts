@@ -7,12 +7,19 @@ import {
   Delete,
   Param,
   Patch,
+  HttpStatus,
 } from '@nestjs/common';
-import { NotificationService } from './notification.service';
+import { NotificationService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { Notification } from './entities/notification.schema';
+import { Notification } from './schema/notifications.schema';
 import UpdateNotificationDto from './dto/update-notification.dto';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiTags,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 
 @ApiTags('notification')
 @Controller('notification')
@@ -22,7 +29,13 @@ export class NotificationController {
   @ApiOperation({
     summary: 'Создать уведомление',
   })
-  @Post('create')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: CreateNotificationDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @Post()
   @Header('Content-Type', 'application/json')
   create(@Body() createNotificationDto: CreateNotificationDto) {
     this.notificationService.create(createNotificationDto);
@@ -31,7 +44,13 @@ export class NotificationController {
   @ApiOperation({
     summary: 'Все уведомления',
   })
-  @Get('all')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: [Notification],
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @Get()
   getAll() {
     return this.notificationService.findAll();
   }
@@ -39,6 +58,13 @@ export class NotificationController {
   @ApiOperation({
     summary: 'Получить уведомление по id',
   })
+  @ApiParam({ name: 'id', required: true, description: 'notification id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: Notification,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Notification> {
     return this.notificationService.findbyId(id);
@@ -47,6 +73,13 @@ export class NotificationController {
   @ApiOperation({
     summary: 'Удалить уведомление',
   })
+  @ApiParam({ name: 'id', required: true, description: 'notification id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: Notification,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @Delete(':id')
   remove(@Param('id') id: string): Promise<Notification> {
     return this.notificationService.remove(id);
@@ -56,6 +89,13 @@ export class NotificationController {
     summary: 'Изменить уведомление',
   })
   @ApiBody({ type: UpdateNotificationDto })
+  @ApiParam({ name: 'id', required: true, description: 'notification id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: UpdateNotificationDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @Patch(':id')
   update(
     @Body() updateNotificationDto: UpdateNotificationDto,
