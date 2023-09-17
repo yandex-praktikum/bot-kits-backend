@@ -5,6 +5,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
+import { CopyBotDto } from './dto/copy-bot.dto';
 import { BotAccessesService } from '../botAccesses/botAccesses.service';
 import Permission from '../botAccesses/types/types';
 
@@ -58,12 +59,12 @@ export class BotsService {
     return await this.botModel.findByIdAndRemove(id).exec();
   }
 
-  async copy(profile: string, id: string): Promise<Bot> {
-    const { icon, botName, messenger, botSettings } = await this.findOne(id);
+  async copy(profile: string, id: string, copyBotDto: CopyBotDto): Promise<Bot> {
+    const { icon, botName, botSettings } = await this.findOne(id);
     return await this.create(profile, {
       icon,
       botName,
-      messenger,
+      messenger: copyBotDto.messenger,
       botSettings,
     });
   }

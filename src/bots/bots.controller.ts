@@ -21,6 +21,7 @@ import { Bot } from './schema/bots.schema';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import { ShareBotDto } from './dto/share-bot.dto';
+import { CopyBotDto } from './dto/copy-bot.dto';
 
 @ApiTags('bots')
 @UseGuards(JwtGuard)
@@ -73,8 +74,9 @@ export class BotsController {
     description: 'Бот скопирован',
     type: Bot,
   })
-  copy(@Req() req, @Param('id') id: string) {
-    return this.botsService.copy(req.user.id, id);
+  @ApiBody({ type: CopyBotDto })
+  copy(@Req() req, @Param('id') id: string, @Body() copyBotDto: CopyBotDto) {
+    return this.botsService.copy(req.user.id, id, copyBotDto);
   }
 
   @Patch(':id')
