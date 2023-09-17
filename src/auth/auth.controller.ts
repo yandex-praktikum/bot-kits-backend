@@ -5,6 +5,7 @@ import { AuthDto } from './dto/auth.dto';
 import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService, ITokens } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
+import { ValidationDtoPipe } from './pipe/validation-dto.pipe';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
@@ -134,25 +135,10 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        accountData: {
-          type: 'object',
-          properties: {
-            credentials: {
-              type: 'object',
-              properties: {
-                password: { type: 'string' },
-                email: { type: 'string' },
-              },
-            },
-          },
-        },
-        profileData: {
-          type: 'object',
-          properties: {
-            phone: { type: 'string' },
-            username: { type: 'string' },
-          },
-        },
+        password: { type: 'string' },
+        email: { type: 'string' },
+        phone: { type: 'string' },
+        username: { type: 'string' },
       },
     },
   })
@@ -252,7 +238,10 @@ export class AuthController {
       },
     },
   })
-  async signup(@Body(new AuthDtoPipe()) authDto: AuthDto): Promise<Profile> {
+  async signup(
+    @Body(new AuthDtoPipe(), new ValidationDtoPipe())
+    authDto: AuthDto,
+  ): Promise<Profile> {
     return await this.authService.registration(authDto);
   }
 
