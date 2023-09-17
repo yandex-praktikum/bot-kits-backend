@@ -106,7 +106,7 @@ export class BotAccessesController {
     return this.botAccessesService.delete(req.user.id, botAccessId);
   }
 
-  @Get(':botId/:userId')
+  @Get(':userId/:botId')
   @ApiOperation({
     summary: 'Получить доступ',
     description: 'Позвоялет проверить уровень доступа по botId и userId',

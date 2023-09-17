@@ -6,81 +6,87 @@ import {
   Param,
   Post,
   Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
-  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { BotsService } from './bots.service';
-import mongoose from 'mongoose';
 import { Bot } from './schema/bots.schema';
 import { CreateBotDto } from './dto/create-bot.dto';
+import { JwtGuard } from '../auth/guards/jwtAuth.guards';
+import { ShareBotDto } from './dto/share-bot.dto';
+import { CopyBotDto } from './dto/copy-bot.dto';
 
 @ApiTags('bots')
-// @UseGuards(JwtGuard)
+@UseGuards(JwtGuard)
 @Controller('bots')
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
 
+  @Get()
   @ApiOperation({
     summary: 'Список ботов пользователя',
   })
-  @ApiBody({ type: mongoose.Schema.Types.ObjectId })
   @ApiOkResponse({
-    description: 'The resources were returned successfully',
+    description: 'Список ботов пользователя получен',
     type: [Bot],
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @Get()
-  findMy(@Body() userId: string): Promise<Bot[] | null> {
-    return this.botsService.findAllByUser(userId);
+  findMy(@Req() req): Promise<Bot[] | null> {
+    return this.botsService.findAllByUser(req.user.id);
   }
 
+  @Post()
   @ApiOperation({
     summary: 'Создание нового бота',
   })
-  @ApiBody({ type: CreateBotDto })
   @ApiCreatedResponse({
-    description: 'The record has been successfully created.',
+    description: 'Новый бот создан',
     type: Bot,
   })
-  @Post()
-  create(@Body() createBotDto: CreateBotDto): Promise<Bot> {
-    return this.botsService.create(createBotDto);
+  @ApiBody({ type: CreateBotDto })
+  create(@Req() req, @Body() createBotDto: CreateBotDto): Promise<Bot> {
+    return this.botsService.create(req.user.id, createBotDto);
   }
 
+  @Delete(':id')
   @ApiOperation({
     summary: 'Удаление бота',
   })
-  @Delete(':id')
-  remove(@Param('id') id: string): Promise<Bot> {
-    return this.botsService.remove(id);
+  @ApiOkResponse({
+    description: 'Бот удален',
+    type: Bot,
+  })
+  remove(@Req() req, @Param('id') id: string): Promise<Bot> {
+    return this.botsService.remove(req.user.id, id);
   }
 
-  // @ApiOperation({
-  //   summary: 'Копирование бота',
-  // })
-  // @Post(':id')
-  // copy(@Param('id') id: string) {
-  //   //return ;
-  // }
+  @Post(':id/copy')
+  @ApiOperation({
+    summary: 'Копирование бота',
+  })
+  @ApiCreatedResponse({
+    description: 'Бот скопирован',
+    type: Bot,
+  })
+  @ApiBody({ type: CopyBotDto })
+  copy(@Req() req, @Param('id') id: string, @Body() copyBotDto: CopyBotDto) {
+    return this.botsService.copy(req.user.id, id, copyBotDto);
+  }
 
+  @Patch(':id')
   @ApiOperation({
     summary: 'Смена имени бота',
   })
   @ApiOkResponse({
-    description: 'The resource was updated successfully',
+    description: 'Имя бота обновлено',
     type: Bot,
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
-  @ApiUnprocessableEntityResponse({ description: 'Bad Request' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -91,63 +97,41 @@ export class BotsController {
       },
     },
   })
-  @Patch(':id')
   update(
+    @Req() req,
     @Param('id') id: string,
     @Body() body: { botName: 'string' },
   ): Promise<Bot> {
-    return this.botsService.update(id, body);
+    return this.botsService.update(req.user.id, id, body);
   }
 
-  // @ApiOperation({
-  //   summary: 'Настройки уведомлений бота',
-  // })
-  // @Get(':id/notificationLinks')
-  // notificationLinks(
-  //   //@AuthUser() user,
-  //   @Param('id') id: number,
-  // ) {
-  //   //return ;
-  // }
-
-  // @ApiOperation({
-  //   summary: 'Ссылка на бота',
-  // })
-  // @Get(':id/link')
-  // getLink(
-  //   //@AuthUser() user,
-  //   @Param('id') id: number,
-  // ): string {
-  //   return '';
-  // }
-
-  @ApiOperation({
-    summary: 'Данные бота пользователя',
-  })
   @Get(':id')
+  @ApiOperation({
+    summary: 'Получить данные бота по Id',
+  })
+  @ApiOkResponse({
+    description: 'Информация о боте по Id',
+    type: Bot,
+  })
   findOne(@Param('id') id: string): Promise<Bot> {
     return this.botsService.findOne(id);
   }
 
-  // @ApiOperation({
-  //   summary: 'Поделиться доступом к боту',
-  // })
-  // @ApiBody({
-  //   schema: {
-  //     type: 'object',
-  //     properties: {
-  //       email: {
-  //         type: 'string',
-  //       },
-  //     },
-  //   },
-  // })
-  // @Post(':id/share')
-  // share(
-  //   //@AuthUser() user,
-  //   @Param('id') id: number,
-  //   @Body() body: { email: 'string' },
-  // ) {
-  //   //return ;
-  // }
+  @Post(':id/share')
+  @ApiOperation({
+    summary:
+      'Предоставить общий доступ к боту, первичный доступ при отправке email',
+  })
+  @ApiCreatedResponse({
+    description: 'Первичный доступ создан',
+    type: Bot,
+  })
+  @ApiBody({ type: ShareBotDto })
+  share(
+    @Req() req,
+    @Param('id') id: string,
+    @Body() shareBotDto: ShareBotDto,
+  ): Promise<string> {
+    return this.botsService.share(req.user.id, id, shareBotDto);
+  }
 }

@@ -17,5 +17,5 @@ export class UpdateBotDto {
 
   @ApiProperty()
   @IsObject()
-  botSettings?: object;
+  botSettings?: {};
 }
