@@ -12,18 +12,21 @@ import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import {
   ApiBody,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
+  ApiUnprocessableEntityResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
 import { Subscription } from './schema/subscription.schema';
 import { Payment } from 'src/payments/schema/payment.schema';
 
-@ApiTags('userSubscriptions')
+@ApiTags('subscriptions')
 @UseGuards(JwtGuard)
-@Controller('userSubscriptions')
+@Controller('subscriptions')
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
@@ -44,6 +47,8 @@ export class SubscriptionsController {
       },
     },
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Get()
   subscriptionAndPayments(@Req() req) {
     const user = req.user;
@@ -51,16 +56,27 @@ export class SubscriptionsController {
   }
 
   @ApiOperation({
-    summary: 'Активировать подписку',
+    summary: 'Активировать(отменить) подписку',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        status: { type: 'boolean', example: true },
+      },
+    },
   })
   @ApiCreatedResponse({
     description: 'Подписка активирована',
     type: Subscription,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Post('activate')
-  activateSubscription(@Req() req) {
+  activateSubscription(@Req() req, @Body() body: { status: boolean }) {
     const user = req.user;
-    return this.subscriptionsService.activateSubscription(user);
+    return this.subscriptionsService.activateSubscription(user, body.status);
   }
 
   @ApiOperation({
@@ -84,10 +100,12 @@ export class SubscriptionsController {
     description: 'Подписка оформлена',
     type: Subscription,
   })
-  @Post('newSubscription/:id')
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @Post(':id')
   createSubscription(
     @Req() req,
-    @Body() body: { cardMask: 'string'; debitDate: 'string' },
+    @Body() body: { cardMask: string; debitDate: string },
     @Param('id') id: string,
   ) {
     const profile = req.user;

@@ -2,14 +2,18 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Profile } from 'src/profiles/schema/profile.schema';
+import { Tariff } from 'src/tariffs/schema/tariff.schema';
 
 export type SubscriptionDocument = HydratedDocument<Subscription>;
 
 @Schema({ timestamps: true })
 export class Subscription {
-  @ApiProperty({ example: '111111111' })
-  @Prop({ required: true })
-  tariffId: string;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Tariff',
+    required: true,
+  })
+  tariff: Tariff;
 
   @ApiProperty({ example: true, default: false })
   @Prop({ required: true, default: false })

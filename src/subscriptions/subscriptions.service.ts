@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   Subscription,
@@ -8,6 +12,7 @@ import { Model } from 'mongoose';
 import { Profile } from '../profiles/schema/profile.schema';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { Payment } from '../payments/schema/payment.schema';
+import { Tariff } from 'src/tariffs/schema/tariff.schema';
 
 @Injectable()
 export class SubscriptionsService {
@@ -15,36 +20,40 @@ export class SubscriptionsService {
     @InjectModel(Subscription.name)
     private subscriptionModel: Model<SubscriptionDocument>,
     @InjectModel(Payment.name) private paymentModel: Model<Payment>,
+    @InjectModel(Tariff.name) private tariffModel: Model<Tariff>,
   ) {}
 
   async subscriptionAndPayments(profile: Profile): Promise<object> {
-    //Promise<object> {
     const subscription = await this.subscriptionModel.findOne({ profile });
     const payment = await this.paymentModel.find({ profile });
-    let tariff = '';
-    if (subscription) {
-      tariff = 'Бизнес'; //await this.tariffModel.findById({ subscription.tariffId });
-    }
-    return {
-      tariff,
-      status: subscription.status,
-      cardMask: subscription.cardMask,
-      debitDate: subscription.debitDate,
+    const dataObject = {
+      tariff: '',
+      status: false,
+      cardMask: '',
+      debitDate: new Date(),
       balance: profile.balance,
       payments: payment,
     };
+    if (subscription) {
+      const tariff = await this.tariffModel
+        .findById(subscription.tariff)
+        .exec();
+      dataObject.tariff = tariff.name;
+      dataObject.status = subscription.status;
+      dataObject.cardMask = subscription.cardMask;
+      dataObject.debitDate = subscription.debitDate;
+    }
+    return dataObject;
   }
 
-  async activateSubscription(profile: Profile) {
-    console.log(profile);
-    console.log(profile.id);
+  async activateSubscription(profile: Profile, status: boolean) {
     const subscription = await this.subscriptionModel
       .findOne({ profile: profile })
       .exec();
     if (!subscription) {
       throw new NotFoundException('Не найдена подписка пользователя');
     }
-    subscription.status = true;
+    subscription.status = status;
     await subscription.save();
     return subscription;
   }
@@ -55,11 +64,18 @@ export class SubscriptionsService {
     const subscription = await this.subscriptionModel
       .findOne({ profile: createSubscriptionDto.profile })
       .exec();
+    const tariff = await this.tariffModel
+      .findById(createSubscriptionDto.tariffId)
+      .exec();
+    if (!tariff) {
+      throw new UnprocessableEntityException('Неверный идентификатор тарифа');
+    }
     if (subscription) {
-      this.delete(subscription.id);
+      await this.subscriptionModel.findByIdAndRemove(subscription.id).exec();
     }
     return await this.subscriptionModel.create({
       ...createSubscriptionDto,
+      tariff,
       status: true,
     });
   }
