@@ -1,13 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsMongoId,
   IsNotEmpty,
   IsObject,
   IsString,
   IsUrl,
   ValidateNested,
 } from 'class-validator';
-import { Types } from 'mongoose';
 import { Messenger } from '../schema/bots.schema';
 import { Type } from 'class-transformer';
 

@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
+import { ShareBotDto } from './dto/share-bot.dto';
 import { BotAccessesService } from '../botAccesses/botAccesses.service';
 import Permission from '../botAccesses/types/types';
 
@@ -38,7 +39,7 @@ export class BotsService {
     return await this.botModel.find().exec();
   }
 
-  async update(userId, id: string, updateBotDto: UpdateBotDto): Promise<Bot> {
+  async update(userId: string, id: string, updateBotDto: UpdateBotDto): Promise<Bot> {
     const permission = await this.botAccessesService.getPermission(userId, id);
 
     if (permission !== Permission.OWNER) {
@@ -49,7 +50,7 @@ export class BotsService {
     return this.findOne(id);
   }
 
-  async remove(userId, id: string): Promise<Bot> {
+  async remove(userId: string, id: string): Promise<Bot> {
     const isOwner = await this.botAccessesService.isOwner(userId, id);
     if (!isOwner) {
       throw new ForbiddenException('Недостаточно прав для удаления бота');
@@ -57,7 +58,7 @@ export class BotsService {
     return await this.botModel.findByIdAndRemove(id).exec();
   }
 
-  async copy(profile, id: string): Promise<Bot> {
+  async copy(profile: string, id: string): Promise<Bot> {
     const { icon, botName, messenger, botSettings } = await this.findOne(id);
     return await this.create(profile, {
       icon,
@@ -65,5 +66,15 @@ export class BotsService {
       messenger,
       botSettings,
     });
+  }
+
+  async share(profile: string, id: string, shareBotDto: ShareBotDto): Promise<string> {
+    // создаем первичный уровень доступа
+    await this.botAccessesService.shareAccess(profile, id, {
+      email: shareBotDto.email,
+      permission: Permission.LEVEL_1,
+    });
+
+    return 'Запрос на предоставление доступа отправлен';
   }
 }
