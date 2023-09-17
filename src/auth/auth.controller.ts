@@ -11,17 +11,12 @@ import {
 import { Request, Response } from 'express';
 import { LocalGuard } from './guards/localAuth.guard';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
-import { AuthDto } from './dto/auth.dto';
 import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService, ITokens } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
-import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
 import { YandexGuard } from './guards/yandex.guards';
 import { HttpService } from '@nestjs/axios';
-import { map, mergeMap, tap } from 'rxjs';
-import TypeAccount from 'src/accounts/types/type-account';
-import Role from 'src/accounts/types/role';
-import { ValidationDtoPipe } from './pipe/validation-dto.pipe';
+import { mergeMap } from 'rxjs';
 import { CombinedDto } from './dto/combined.dto';
 
 interface RequestProfile extends Request {

@@ -272,6 +272,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                type: object
       tags: *ref_0
   /reset-password:
     post:
@@ -1821,7 +1825,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-17T09:33:41.160Z
+          example: 2023-09-17T11:47:07.975Z
       required:
         - tariffId
         - status
@@ -1833,7 +1837,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-17T09:33:41.163Z
+          example: 2023-09-17T11:47:07.977Z
         amount:
           type: number
           example: 1000
