@@ -32,6 +32,7 @@ import { AccountController } from './accounts/accounts.controller';
 import { BotAccessesController } from './botAccesses/botAccesses.controller';
 import { PlatformController } from './platforms/platforms.controller';
 import { BotTemplatesModule } from './botTemplates/bot-templates.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { BotTemplatesModule } from './botTemplates/bot-templates.module';
     BotTemplatesModule,
     SubscriptionsModule,
     PaymentsModule,
+    HttpModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],

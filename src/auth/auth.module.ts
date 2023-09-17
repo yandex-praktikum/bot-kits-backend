@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
-import { LocalStrategy } from './strategies/local.strategy';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Profile, ProfileSchema } from 'src/profiles/schema/profile.schema';
@@ -15,9 +13,11 @@ import { HashModule } from 'src/hash/hash.module';
 import { jwtOptions } from 'src/configs/jwt.config';
 import { STRTAGIES } from './strategies';
 import { GUARDS } from './guards';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
+    HttpModule,
     ProfilesModule,
     AccountModule,
     HashModule,

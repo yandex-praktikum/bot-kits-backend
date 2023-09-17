@@ -20,7 +20,6 @@ export class YandexStrategy extends PassportStrategy(Strategy, 'yandex') {
     done: (err: any, user: any, info?: any) => void,
   ): Promise<any> {
     const { id, displayName, emails, photos } = profile;
-    // Тут нужно сделать проверку, есть ли такой профиль уже в Бд, если есть, то его нужно логинеть
     const user = {
       id,
       displayName,

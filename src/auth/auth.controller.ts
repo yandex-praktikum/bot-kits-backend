@@ -17,7 +17,8 @@ import { AuthService } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
 import { YandexGuard } from './guards/yandex.guards';
-import axios from 'axios';
+import { HttpService } from '@nestjs/axios';
+import { map, mergeMap, tap } from 'rxjs';
 import TypeAccount from 'src/accounts/types/type-account';
 import Role from 'src/accounts/types/role';
 
@@ -40,7 +41,10 @@ interface IRequestYandexUser extends Request {
 @ApiTags('auth')
 @Controller()
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private httpService: HttpService,
+    private authService: AuthService,
+  ) {}
 
   @ApiOperation({
     summary: 'Войти в систему',
@@ -142,7 +146,6 @@ export class AuthController {
     return this.authService.refreshToken(refreshToken);
   }
 
-  //Ручки для авторизации через яндекс
   @UseGuards(YandexGuard)
   @Get('yandex')
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -150,30 +153,28 @@ export class AuthController {
 
   @UseGuards(YandexGuard)
   @Get('yandex/callback')
-  async yandexAuthCallback(
-    @Req() req: IRequestYandexUser,
-    @Res() res: Response,
-  ) {
+  async yandexCallback(@Req() req: IRequestYandexUser, @Res() res: Response) {
     const token = req.user['accessToken'];
-    const { data } = await axios.get(
-      `https://login.yandex.ru/info?format=json&oauth_token=${token}`,
-    );
-    const authDto = {
-      profileDto: {
-        username: data.display_name,
-        phone: data.default_phone.number,
-        avatar: data.default_avatar_id,
-      },
-      accountDto: {
-        type: TypeAccount.YANDEX,
-        role: Role.USER,
-        credentials: {
-          email: data.emails[0],
-          password: '',
-        },
-      },
-    };
-    // res.redirect(`/`);
-    return await this.authService.registration(authDto);
+    return res.redirect(`http://localhost:3000/yandex/success?token=${token}`);
+  }
+
+  @Get('yandex/success')
+  async yandexSuccess(@Query('token') token: string) {
+    return this.httpService
+      .get(`https://login.yandex.ru/info?format=json&oauth_token=${token}`)
+      .pipe(
+        map(({ data }) => {
+          const newAccount = {
+            email: data.display_name,
+            password: '',
+            username: data.default_email,
+            phone: data.default_phone.number,
+            avatar: data.default_avatar_id,
+          };
+
+          // return await this.authService.authSocial(newAccount);
+          return newAccount;
+        }),
+      );
   }
 }
