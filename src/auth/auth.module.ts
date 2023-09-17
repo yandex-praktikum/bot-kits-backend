@@ -30,7 +30,7 @@ import { AuthDtoPipe } from './pipe/auth-dto.pipe';
       { name: Account.name, schema: AccountSchema },
     ]),
   ],
-  providers: [AuthService, AuthDtoPipe, ...STRTAGIES, ...GUARDS],
+  providers: [AuthService, ...STRTAGIES, ...GUARDS, AuthDtoPipe],
   exports: [AuthService, AuthDtoPipe],
   controllers: [AuthController],
 })
