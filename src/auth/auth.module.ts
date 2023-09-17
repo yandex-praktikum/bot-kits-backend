@@ -14,6 +14,7 @@ import { jwtOptions } from 'src/configs/jwt.config';
 import { STRTAGIES } from './strategies';
 import { GUARDS } from './guards';
 import { HttpModule } from '@nestjs/axios';
+import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 
 @Module({
   imports: [
@@ -29,8 +30,8 @@ import { HttpModule } from '@nestjs/axios';
       { name: Account.name, schema: AccountSchema },
     ]),
   ],
-  providers: [AuthService, ...STRTAGIES, ...GUARDS],
-  exports: [AuthService],
+  providers: [AuthService, AuthDtoPipe, ...STRTAGIES, ...GUARDS],
+  exports: [AuthService, AuthDtoPipe],
   controllers: [AuthController],
 })
 export class AuthModule {}

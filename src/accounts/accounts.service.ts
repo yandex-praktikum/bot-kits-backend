@@ -51,8 +51,9 @@ export class AccountService {
     id: string,
     updateAccountDto: UpdateAccountDto,
   ): Promise<Account> {
-    await this.accountModel.findByIdAndUpdate(id, updateAccountDto);
-    return this.findOne(id);
+    return await this.accountModel
+      .findByIdAndUpdate(id, updateAccountDto, { new: true })
+      .populate('profile');
   }
   //account.service.ts
   async findByEmail(email: string): Promise<Account | null> {
