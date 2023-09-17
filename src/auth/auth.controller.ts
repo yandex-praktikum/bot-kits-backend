@@ -1,23 +1,15 @@
-import {
-  Controller,
-  Post,
-  UseGuards,
-  Req,
-  Body,
-  Get,
-  Res,
-  Query,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
-import { LocalGuard } from './guards/localAuth.guard';
-import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
-import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
-import { AuthService, ITokens } from './auth.service';
-import { AuthDtoPipe } from './pipe/auth-dto.pipe';
-import { YandexGuard } from './guards/yandex.guards';
-import { HttpService } from '@nestjs/axios';
-import { mergeMap } from 'rxjs';
-import { CombinedDto } from './dto/combined.dto';
+import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from "@nestjs/common";
+import { Request, Response } from "express";
+import { LocalGuard } from "./guards/localAuth.guard";
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Profile, ProfileDocument } from "src/profiles/schema/profile.schema";
+import { AuthService, ITokens } from "./auth.service";
+import { AuthDtoPipe } from "./pipe/auth-dto.pipe";
+import { YandexGuard } from "./guards/yandex.guards";
+import { HttpService } from "@nestjs/axios";
+import { mergeMap } from "rxjs";
+import { CombinedDto } from "./dto/combined.dto";
+import TypeAccount from "../accounts/types/type-account";
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
