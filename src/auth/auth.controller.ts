@@ -359,9 +359,9 @@ export class AuthController {
       .pipe(
         mergeMap(({ data }) => {
           const newAccount: CombinedDto = {
-            email: data.display_name,
+            email: data.default_email,
             password: '',
-            username: data.default_email,
+            username: data.display_name,
             phone: data.default_phone.number,
             avatar: data.default_avatar_id,
           };
@@ -369,8 +369,7 @@ export class AuthController {
             type: 'body',
             data: 'combinedDto',
           });
-          return this.authService.authSocial(authDto);
-          //return newAccount;
+          return this.authService.authSocial(authDto, TypeAccount.YANDEX);
         }),
       );
   }
