@@ -10,6 +10,7 @@ import { Account, AccountDocument } from './schema/account.schema';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { HashService } from 'src/hash/hash.service';
+import TypeAccount from './types/type-account';
 import { ITokens } from 'src/auth/auth.service';
 
 @Injectable()
@@ -50,13 +51,26 @@ export class AccountService {
     id: string,
     updateAccountDto: UpdateAccountDto,
   ): Promise<Account> {
-    await this.accountModel.findByIdAndUpdate(id, updateAccountDto);
-    return this.findOne(id);
+    return await this.accountModel
+      .findByIdAndUpdate(id, updateAccountDto, { new: true })
+      .populate('profile');
   }
   //account.service.ts
   async findByEmail(email: string): Promise<Account | null> {
     return await this.accountModel
       .findOne({ 'credentials.email': email })
+      .populate('profile');
+  }
+
+  async findByEmailAndType(
+    email: string,
+    typeAccount: TypeAccount,
+  ): Promise<Account | null> {
+    return await this.accountModel
+      .findOne({
+        'credentials.email': email,
+        type: typeAccount,
+      })
       .populate('profile');
   }
 
