@@ -9,6 +9,8 @@ import { HashService } from '../hash/hash.service';
 import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { ProfilesService } from 'src/profiles/profiles.service';
 import { AccountService } from 'src/accounts/accounts.service';
+import TypeAccount from 'src/accounts/types/type-account';
+import { AuthDto } from './dto/auth.dto';
 
 export interface ITokens {
   accessToken: string;
@@ -125,5 +127,19 @@ export class AuthService {
     return {
       message: `Ссылка на сброс пароля отправлена на ваш email: ${email}`,
     };
+  }
+
+  async authSocial(dataLogin: AuthDto) {
+    const user = await this.accountService.findByEmailAndType(
+      dataLogin.accountDto.credentials.email,
+      dataLogin.accountDto.type,
+    );
+
+    if (user) {
+      const tokens = await this.getTokens(user.profile._id);
+      return tokens;
+    }
+
+    return await this.registration(dataLogin);
   }
 }

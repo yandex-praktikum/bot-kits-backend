@@ -1,20 +1,51 @@
-import { Controller, Post, UseGuards, Req, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Req,
+  Body,
+  Get,
+  Res,
+  Query,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
 import { LocalGuard } from './guards/localAuth.guard';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { AuthDto } from './dto/auth.dto';
 import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService, ITokens } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
+import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
+import { YandexGuard } from './guards/yandex.guards';
+import { HttpService } from '@nestjs/axios';
+import { map, mergeMap, tap } from 'rxjs';
+import TypeAccount from 'src/accounts/types/type-account';
+import Role from 'src/accounts/types/role';
 import { ValidationDtoPipe } from './pipe/validation-dto.pipe';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
 }
 
+interface IYandexUser {
+  id: string;
+  displayName: string;
+  email: string;
+  picture: string;
+  accessToken: string;
+}
+
+interface IRequestYandexUser extends Request {
+  user: IYandexUser;
+}
+
 @ApiTags('auth')
 @Controller()
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private httpService: HttpService,
+    private authService: AuthService,
+  ) {}
 
   @UseGuards(LocalGuard)
   @Post('signin')
@@ -303,6 +334,37 @@ export class AuthController {
   ): Promise<ITokens> {
     return this.authService.refreshToken(refreshToken);
   }
+
+  @UseGuards(YandexGuard)
+  @Get('yandex')
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  yandexAuth() {}
+
+  @UseGuards(YandexGuard)
+  @Get('yandex/callback')
+  async yandexCallback(@Req() req: IRequestYandexUser, @Res() res: Response) {
+    const token = req.user['accessToken'];
+    return res.redirect(`http://localhost:3000/yandex/success?token=${token}`);
+  }
+
+  @Get('yandex/success')
+  async yandexSuccess(@Query('token') token: string) {
+    return this.httpService
+      .get(`https://login.yandex.ru/info?format=json&oauth_token=${token}`)
+      .pipe(
+        map(({ data }) => {
+          const newAccount = {
+            email: data.display_name,
+            password: '',
+            username: data.default_email,
+            phone: data.default_phone.number,
+            avatar: data.default_avatar_id,
+          };
+
+          // return await this.authService.authSocial(newAccount);
+          return newAccount;
+        }),
+      );
 
   @Post('reset-password')
   @ApiOperation({
