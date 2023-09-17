@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document, HydratedDocument, Types } from 'mongoose';
+import mongoose, { Document, HydratedDocument } from 'mongoose';
 
 import TypeAccount from '../types/type-account';
 import Role from '../types/role';
@@ -25,7 +25,7 @@ class Credentials {
   refreshToken: string;
 }
 
-@Schema()
+@Schema({ versionKey: false }) //--Отключит поле __v для всех документов--//
 export class Account extends Document {
   @ApiProperty({ example: 'local' })
   @Prop({

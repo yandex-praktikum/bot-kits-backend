@@ -4,14 +4,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types, UpdateQuery } from 'mongoose';
 
 import { Account, AccountDocument } from './schema/account.schema';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { HashService } from 'src/hash/hash.service';
 import TypeAccount from './types/type-account';
-//account.service.ts
+import { ITokens } from 'src/auth/auth.service';
+
 @Injectable()
 export class AccountService {
   constructor(
@@ -89,14 +90,21 @@ export class AccountService {
     return await this.accountModel.findByIdAndDelete(id).exec();
   }
 
-  async saveRefreshToken(profileId: Types.ObjectId, refreshToken: string) {
+  async saveRefreshToken(profileId: Types.ObjectId, tokens: ITokens) {
+    const updateQuery: UpdateQuery<any> = {
+      $set: {
+        'credentials.accessToken': tokens.accessToken,
+        'credentials.refreshToken': tokens.refreshToken,
+      },
+    };
+
     const updatedAccount = await this.accountModel
       .findOneAndUpdate(
         { profile: profileId },
-        { 'credentials.refreshToken': refreshToken },
-        { new: true }, //--Этот параметр возвращает измененный документ.--//
+        updateQuery,
+        { new: true }, //--Этот параметр возвращает измененный документ--//
       )
-      .populate('profile'); //--Возвращает вместе с документом Profile.--//
+      .populate('profile'); //--Возвращает вместе с документом Profile--//
 
     if (updatedAccount) {
       return updatedAccount.profile;

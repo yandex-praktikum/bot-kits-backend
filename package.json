@@ -40,7 +40,8 @@
     "passport-local": "^1.0.0",
     "passport-yandex": "^0.0.5",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "husky": "^8.0.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.7.1",
@@ -59,7 +60,6 @@
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "husky": "^8.0.3",
     "jest": "^29.5.0",
     "js-yaml": "^4.1.0",
     "lint-staged": "^14.0.1",
