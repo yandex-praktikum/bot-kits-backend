@@ -2,7 +2,7 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Bot } from '../../bots/schema/bots.schema';
 import { Profile } from '../../profiles/schema/profile.schema';
-import Permission from '../types/types';
+import { defaultPermission, Permission } from '../types/types';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true })
@@ -26,12 +26,10 @@ export class BotAccess extends Document {
   })
   botId: Bot;
 
-  @ApiProperty({
-    enum: [Permission.OWNER, Permission.LEVEL_1, Permission.LEVEL_2],
-  })
+  @ApiProperty({ example: defaultPermission })
   @Prop({
-    enum: Permission,
     required: true,
+    type: Object || 'string',
   })
   permission: Permission;
 

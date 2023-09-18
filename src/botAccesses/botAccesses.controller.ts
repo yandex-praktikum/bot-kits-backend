@@ -22,7 +22,7 @@ import {
   ApiCreatedResponse,
   ApiBody,
 } from '@nestjs/swagger';
-import Permission from './types/types';
+import { Permission } from './types/types';
 
 @ApiTags('botAccesses')
 @UseGuards(JwtGuard)
@@ -113,19 +113,18 @@ export class BotAccessesController {
   })
   @ApiOkResponse({
     description: 'Информация о доступе по botId и userId получена.',
-    type: Permission.OWNER,
   })
   getPermission(
     @Param('botId') botId: string,
     @Param('userId') userId: string,
-  ): Promise<string> {
+  ): Promise<Permission> {
     return this.botAccessesService.getPermission(userId, botId);
   }
 
   @Post(':botId')
   @ApiOperation({
     summary: 'Поделиться доступом',
-    description: `Позвоялет поделиться доступом по botId и создать новый доступ, если пользователь имеет уровень доступа ${Permission.OWNER} к данному боту`,
+    description: `Позвоялет поделиться доступом по botId и создать новый доступ, если пользователь имеет полный уровень доступа к данному боту`,
   })
   @ApiCreatedResponse({
     description: 'Новый доступ создан.',

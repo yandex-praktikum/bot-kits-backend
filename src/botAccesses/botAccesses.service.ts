@@ -11,7 +11,7 @@ import { ProfilesService } from '../profiles/profiles.service';
 import { CreateBotAccessDto } from './dto/create-bot-access.dto';
 import { UpdateBotAccessDto } from './dto/update-bot-access.dto';
 import { ShareBotAccessDto } from './dto/share-bot-access.dto';
-import Permission from './types/types';
+import { Permission, fullPermission } from './types/types';
 
 @Injectable()
 export class BotAccessesService {
@@ -43,9 +43,9 @@ export class BotAccessesService {
 
   async delete(ownerId: string, botAccessId: string): Promise<BotAccess> {
     const botAccess = await this.findOne(botAccessId);
-    const owner = await this.isOwner(ownerId, botAccess.botId);
+    const hasFullAccess = await this.hasFullAccess(ownerId, botAccess.botId);
 
-    if (!owner) {
+    if (!hasFullAccess) {
       throw new ForbiddenException('Недостаточно прав удалять доступ к боту');
     }
 
@@ -68,9 +68,9 @@ export class BotAccessesService {
     return botAccess.permission;
   }
 
-  async isOwner(userId, botId): Promise<boolean> {
+  async hasFullAccess(userId, botId): Promise<boolean> {
     const permission = await this.getPermission(userId, botId);
-    return permission === Permission.OWNER;
+    return JSON.stringify(permission) === JSON.stringify(fullPermission);
   }
 
   async isThereAnyAccess(userId, botId): Promise<boolean> {
@@ -84,15 +84,15 @@ export class BotAccessesService {
     updateBotAccessDto: UpdateBotAccessDto,
   ): Promise<BotAccess> {
     const botAccess = await this.findOne(botAccessId);
-    const owner = await this.isOwner(ownerId, botAccess.botId);
+    const hasFullAccess = await this.hasFullAccess(ownerId, botAccess.botId);
 
-    if (!owner) {
+    if (!hasFullAccess) {
       throw new ForbiddenException(
         'Недостаточно прав редактировать доступ к боту',
       );
     }
     await botAccess.updateOne(updateBotAccessDto);
-    return botAccess;
+    return this.findOne(botAccessId);
   }
 
   async shareAccess(
@@ -100,9 +100,9 @@ export class BotAccessesService {
     botId,
     shareBotAccessDto: ShareBotAccessDto,
   ): Promise<BotAccess> {
-    const owner = await this.isOwner(ownerId, botId);
+    const hasFullAccess = await this.hasFullAccess(ownerId, botId);
 
-    if (!owner) {
+    if (!hasFullAccess) {
       throw new ForbiddenException(
         'Недостаточно прав предоставлять доступ к боту',
       );
