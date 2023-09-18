@@ -11,7 +11,7 @@ import { AuthController } from './auth/auth.controller';
 import { ProfilesModule } from './profiles/profiles.module';
 import { AuthModule } from './auth/auth.module';
 import { BotAccessesModule } from './botAccesses/botAccesses.module';
-import { TariffsModule } from './tariff/tariffs.module';
+import { TariffsModule } from './tariffs/tariffs.module';
 import { PlatformModule } from './platforms/platforms.module';
 
 import { PromocodesModule } from './promocodes/promocodes.module';
@@ -23,6 +23,7 @@ import { BotsModule } from './bots/bots.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
 import { BotTemplatesModule } from './botTemplates/bot-templates.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { BotTemplatesModule } from './botTemplates/bot-templates.module';
     BotTemplatesModule,
     SubscriptionsModule,
     PaymentsModule,
+    HttpModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],

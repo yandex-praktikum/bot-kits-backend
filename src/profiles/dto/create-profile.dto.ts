@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -12,15 +13,19 @@ import { Account } from 'src/accounts/schema/account.schema';
 export class CreateProfileDto {
   @ApiProperty({ example: 'Ivan Ivanov' })
   @IsString()
-  @Length(2, 30)
+  @IsNotEmpty({ message: 'Username не может быть пустым' })
+  @Length(2, 30, {
+    message: 'Длинная username должна быть от 2 до 30 символов',
+  })
   username: string;
 
   @ApiProperty({ example: '+79501364578' })
+  @IsNotEmpty({ message: 'Phone не может быть пустым' })
   @IsString()
   phone: string;
 
   @ApiProperty({ example: 'https://i.pravatar.cc/300', required: false })
-  @IsUrl()
+  @IsUrl({}, { message: 'Avatar должен быть действительным URL' })
   @IsOptional()
   avatar?: string;
 

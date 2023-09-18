@@ -9,6 +9,9 @@ import { HashService } from '../hash/hash.service';
 import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { ProfilesService } from 'src/profiles/profiles.service';
 import { AccountService } from 'src/accounts/accounts.service';
+import TypeAccount from 'src/accounts/types/type-account';
+import { AuthDto } from './dto/auth.dto';
+import Role from 'src/accounts/types/role';
 
 export interface ITokens {
   accessToken: string;
@@ -45,18 +48,19 @@ export class AuthService {
     accountEmail: string,
     password: string,
   ): Promise<Profile> {
-    const account = await this.accountService.findByEmail(accountEmail);
-    if (account.profile.accounts.length) {
-      if (
-        await this.hashService.isPasswordCorrect(
-          password,
-          account.credentials.password,
-        )
-      ) {
-        return account.profile;
-      } else
-        throw new UnauthorizedException('Неверное имя пользователя или пароль');
-    }
+    const account = await this.accountService.findByEmailAndType(
+      accountEmail,
+      TypeAccount.LOCAL,
+    );
+    const isPasswordMatched = await this.hashService.isPasswordCorrect(
+      password,
+      account.credentials.password,
+    );
+
+    if (!account || !isPasswordMatched)
+      throw new UnauthorizedException('Неверное имя пользователя или пароль');
+
+    return account.profile;
   }
 
   async refreshToken(oldRefreshToken: string): Promise<ITokens> {
@@ -78,43 +82,54 @@ export class AuthService {
     return tokens;
   }
 
-  async registration(authDto): Promise<Profile> {
+  async registration(
+    authDto: AuthDto,
+    provider: TypeAccount = TypeAccount.LOCAL,
+    role: Role = Role.USER,
+  ): Promise<Profile> {
     const { profileData, accountData } = authDto;
+    const email = accountData.credentials.email;
+    accountData.type = provider;
+    let profile;
 
-    //--Находим аккаунта по email--//
-    const account = await this.accountService.findByEmail(
-      accountData.credentials.email,
-    );
+    const existsAccountByTypeAndEmail =
+      await this.accountService.findByEmailAndType(email, provider);
 
-    //--Если находим аккаунт, то не даем создавать второй аналогичный и не создаем профиль--//
-    if (account) {
+    if (existsAccountByTypeAndEmail) {
       throw new ConflictException('Аккаунт уже существует');
     }
 
-    //--Создаем новый профиль--//
-    const newProfile = await this.profilesService.create(profileData);
+    const existsAccount = await this.accountService.findByEmail(email);
+
+    if (!existsAccount) {
+      //--Создаем новый профиль--//
+      profile = await this.profilesService.create(profileData);
+    } else {
+      profile = await this.profilesService.findByEmail(email);
+    }
 
     //--Создаем новый аккаунт--//
     const newAccount = await this.accountService.create(
       accountData,
-      newProfile._id,
+      profile._id,
     );
 
-    //--Генерируем токены--//
-    const tokens = await this.getTokens(newProfile._id);
+    const tokens = await this.getTokens(profile._id);
 
-    //--Добавляем accessToken и refreshToken к accountDto--//
     accountData.credentials.accessToken = tokens.accessToken;
     accountData.credentials.refreshToken = tokens.refreshToken;
 
-    //--Обновляем аккаунт--//
     await this.accountService.update(newAccount._id, accountData);
 
-    //-Добавляем к профилю в массив новый аккаунт--//
-    newProfile.accounts.push(newAccount);
-    await newProfile.save();
-    delete newProfile.accounts[0].credentials.password;
-    return newProfile;
+    profile.accounts.push(newAccount);
+    await profile.save();
+
+    const returnProfile = await this.profilesService.findById(profile._id);
+    returnProfile.accounts.map((account) => {
+      delete account.credentials.password;
+    });
+
+    return returnProfile;
   }
 
   async sendPasswordResetEmail(email) {
@@ -125,5 +140,28 @@ export class AuthService {
     return {
       message: `Ссылка на сброс пароля отправлена на ваш email: ${email}`,
     };
+  }
+
+  async authSocial(dataLogin: AuthDto, typeAccount: TypeAccount) {
+    const user = await this.accountService.findByEmailAndType(
+      dataLogin.accountData.credentials.email,
+      typeAccount,
+    );
+
+    if (user) {
+      const { refreshToken, accessToken } = await this.getTokens(
+        user.profile._id,
+      );
+
+      return await this.accountService.update(user._id, {
+        credentials: {
+          email: user.credentials.email,
+          refreshToken,
+          accessToken,
+        },
+      });
+    }
+
+    return await this.registration(dataLogin, typeAccount);
   }
 }
