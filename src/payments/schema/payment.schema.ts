@@ -20,7 +20,7 @@ export class Payment {
   @Prop({ required: true })
   successful: boolean;
 
-  @ApiProperty({ enum: TypeOperation, example: 'Списание' })
+  @ApiProperty({ enum: TypeOperation, example: 'Поступление' })
   @Prop({ required: true, enum: TypeOperation, type: String })
   operation: TypeOperation;
 
