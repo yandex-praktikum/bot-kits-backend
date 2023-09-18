@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document, HydratedDocument, Types } from 'mongoose';
+import mongoose, { Document, HydratedDocument } from 'mongoose';
 
 import TypeAccount from '../types/type-account';
 import Role from '../types/role';

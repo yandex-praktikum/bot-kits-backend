@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -24,7 +25,9 @@ import {
 } from '@nestjs/swagger';
 import { Profile } from './schema/profile.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 
+@UseGuards(JwtGuard)
 @ApiTags('Profiles')
 @Controller('profiles')
 export class ProfilesController {

@@ -6,7 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateTariffDto } from './dto/create-tariff.dto';
-import { Tariff } from './entities/tariff.entity';
+import { Tariff } from './schema/tariff.schema';
 import { UpdateTariffDto } from './dto/update-tariff.dto';
 
 @Injectable()
@@ -46,9 +46,13 @@ export class TariffsService {
 
   async updateTariff(id: string, updateTariffDto: UpdateTariffDto) {
     try {
-      const tariff = await this.tariff.findByIdAndUpdate(id, {
-        ...updateTariffDto,
-      });
+      const tariff = await this.tariff.findByIdAndUpdate(
+        id,
+        {
+          ...updateTariffDto,
+        },
+        { new: true },
+      );
       return tariff;
     } catch (error) {
       throw new Error('Что-то пошло не так');
@@ -58,6 +62,11 @@ export class TariffsService {
   async remove(id: string): Promise<Tariff> {
     try {
       const tariff = await this.tariff.findByIdAndDelete(id).exec();
+      if (!tariff) {
+        // Сразу после удаления тариф будет null, проверяем при повторном запросе на удаление
+        throw new NotFoundException('Тариф не найден');
+      }
+
       return tariff;
     } catch (error) {
       throw new NotFoundException('Тарифа с таким названием нет');

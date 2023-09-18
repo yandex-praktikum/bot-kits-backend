@@ -3,7 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Profile } from 'src/profiles/schema/profile.schema';
 import TypeOperation from '../types/type-operation';
-import { IsEnum } from 'class-validator';
 
 export type PaymentDocument = HydratedDocument<Payment>;
 
@@ -21,7 +20,7 @@ export class Payment {
   @Prop({ required: true })
   successful: boolean;
 
-  @ApiProperty({ enum: TypeOperation, example: 'Списание' })
+  @ApiProperty({ enum: TypeOperation, example: 'Поступление' })
   @Prop({ required: true, enum: TypeOperation, type: String })
   operation: TypeOperation;
 

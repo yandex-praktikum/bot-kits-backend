@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import mongoose, { Document, HydratedDocument, Types } from 'mongoose';
+import mongoose, { Document, HydratedDocument } from 'mongoose';
 import { Account } from 'src/accounts/schema/account.schema';
 
 export type ProfileDocument = HydratedDocument<Profile>;
 
-@Schema({ versionKey: false }) //--Отключит поле __v для всех документов--//
+@Schema({ versionKey: false, timestamps: true })
 export class Profile extends Document {
   @ApiProperty({ example: 'Ivan Ivanov' })
   @Prop({ required: true, minlength: 2, maxlength: 30 })
