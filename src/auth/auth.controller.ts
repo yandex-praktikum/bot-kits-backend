@@ -16,8 +16,10 @@ import { AuthService, ITokens } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { YandexGuard } from './guards/yandex.guards';
 import { HttpService } from '@nestjs/axios';
-import { mergeMap } from 'rxjs';
+import { map, mergeMap } from 'rxjs';
 import { CombinedDto } from './dto/combined.dto';
+import TypeAccount from 'src/accounts/types/type-account';
+import { GoogleGuard } from './guards/google.guard';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
@@ -372,6 +374,29 @@ export class AuthController {
           return this.authService.authSocial(authDto, TypeAccount.YANDEX);
         }),
       );
+  }
+
+  @UseGuards(GoogleGuard)
+  @Get('google')
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  googleAuth() {}
+
+  @UseGuards(GoogleGuard)
+  @Get('google/callback')
+  async googleCallback(@Req() req: any) {
+    const { email, username, avatar } = req.user;
+    const newAccount: CombinedDto = {
+      email,
+      password: '',
+      username,
+      phone: ' ',
+      avatar,
+    };
+    const authDto = this.authDtoPipe.transform(newAccount, {
+      type: 'body',
+      data: 'combinedDto',
+    });
+    return this.authService.authSocial(authDto, TypeAccount.GOOGLE);
   }
 
   @Post('reset-password')
