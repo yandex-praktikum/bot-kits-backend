@@ -13,7 +13,7 @@ import { BotAccessesService } from './botAccesses.service';
 import { CreateBotAccessDto } from './dto/create-bot-access.dto';
 import { UpdateBotAccessDto } from './dto/update-bot-access.dto';
 import { ShareBotAccessDto } from './dto/share-bot-access.dto';
-import { BotAccess } from './shema/botAccesses.shema';
+import { BotAccess, Permission } from './shema/botAccesses.shema';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import {
   ApiTags,
@@ -22,9 +22,8 @@ import {
   ApiCreatedResponse,
   ApiBody,
 } from '@nestjs/swagger';
-import { Permission } from './types/types';
 
-@ApiTags('botAccesses')
+@ApiTags('BotAccesses')
 @UseGuards(JwtGuard)
 @Controller('bot-accesses')
 export class BotAccessesController {
@@ -113,6 +112,7 @@ export class BotAccessesController {
   })
   @ApiOkResponse({
     description: 'Информация о доступе по botId и userId получена.',
+    type: Permission
   })
   getPermission(
     @Param('botId') botId: string,

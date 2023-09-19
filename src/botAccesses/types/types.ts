@@ -13,18 +13,16 @@ export enum LEVEL_ACCESS {
   VIEWER = 'viewer',
 }
 
-type OptionsFlags<Type> = {
-  [Property in keyof Type]: LEVEL_ACCESS;
+export type TPermission = {
+  [Property in keyof TAB_ACCESS]: LEVEL_ACCESS;
 };
 
-export type Permission = OptionsFlags<TAB_ACCESS>;
-
 // По умолчанию предоставляется доступ только к вкладке Воронки на уровне просмотра
-export const defaultPermission: Permission = {
+export const defaultPermission: TPermission = {
   'voronki': LEVEL_ACCESS.VIEWER,
 }
 
-export const fullPermission: Permission = {
+export const fullPermission: TPermission = {
   'voronki': LEVEL_ACCESS.EDITOR,
   'newsletters': LEVEL_ACCESS.EDITOR,
   'lists': LEVEL_ACCESS.EDITOR,

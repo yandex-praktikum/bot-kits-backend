@@ -6,12 +6,12 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { BotAccess } from './shema/botAccesses.shema';
+import { BotAccess, Permission } from './shema/botAccesses.shema';
 import { ProfilesService } from '../profiles/profiles.service';
 import { CreateBotAccessDto } from './dto/create-bot-access.dto';
 import { UpdateBotAccessDto } from './dto/update-bot-access.dto';
 import { ShareBotAccessDto } from './dto/share-bot-access.dto';
-import { Permission, fullPermission } from './types/types';
+import { fullPermission } from './types/types';
 
 @Injectable()
 export class BotAccessesService {

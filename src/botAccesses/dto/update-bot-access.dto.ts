@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
-import { Permission } from '../types/types';
 import { ApiProperty } from '@nestjs/swagger';
+import { Permission } from '../shema/botAccesses.shema';
 
 export class UpdateBotAccessDto {
   @ApiProperty({
