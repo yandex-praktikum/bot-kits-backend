@@ -1,21 +1,36 @@
-import { Controller, Get, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  UseGuards,
+  Req,
+  Post,
+  Param,
+  Delete,
+  Patch,
+} from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiUnprocessableEntityResponse,
+  OmitType,
+} from '@nestjs/swagger';
 import { Payment } from './schema/payment.schema';
-//import { CreatePaymentDto } from './dto/create-payment.dto';
+import { CreatePaymentDto } from './dto/create-payment.dto';
 
 @ApiTags('payments')
 @UseGuards(JwtGuard)
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
-
-  // @Post()
-  // create(@Req() req, @Body() createPaymentDto: CreatePaymentDto) {
-  //   const profile = req.user;
-  //   return this.paymentsService.create({ ...createPaymentDto, profile});
-  // }
 
   @ApiOperation({
     summary: 'История платежей',
@@ -24,9 +39,73 @@ export class PaymentsController {
     description: 'История платежей успешно получена',
     type: [Payment],
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Get()
   userPayments(@Req() req) {
     const user = req.user;
     return this.paymentsService.findUsersAll(user);
+  }
+
+  @ApiOperation({
+    summary: 'Добавить данные финансовой операции',
+  })
+  @ApiBody({ type: OmitType(CreatePaymentDto, ['profile']) })
+  @ApiCreatedResponse({
+    description: 'Операция успешно добавлена',
+    type: Payment,
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @Post()
+  create(
+    @Req() req,
+    @Body() createPaymentDto: CreatePaymentDto,
+  ): Promise<Payment> {
+    const profile = req.user;
+    return this.paymentsService.create({ ...createPaymentDto, profile });
+  }
+
+  @ApiOperation({
+    summary: 'Удалить финансовую операцию',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор фин.операции',
+    example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiOkResponse({
+    description: 'Операция успешно удалена',
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @Delete(':id')
+  delete(@Req() req, @Param('id') id: string) {
+    this.paymentsService.delete(id);
+  }
+
+  @ApiOperation({
+    summary: 'Обновить данные финансовой операции',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор фин.операции',
+    example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiBody({ type: OmitType(CreatePaymentDto, ['profile']) })
+  @ApiOkResponse({
+    description: 'Операция успешно обновлена',
+    type: Payment,
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @Patch(':id')
+  update(
+    @Req() req,
+    @Param('id') id: string,
+    @Body() updatePaymentDto: CreatePaymentDto,
+  ) {
+    const profile = req.user;
+    return this.paymentsService.update(id, { ...updatePaymentDto, profile });
   }
 }

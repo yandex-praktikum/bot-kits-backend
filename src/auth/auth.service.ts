@@ -52,15 +52,19 @@ export class AuthService {
       accountEmail,
       TypeAccount.LOCAL,
     );
-    const isPasswordMatched = await this.hashService.isPasswordCorrect(
-      password,
-      account.credentials.password,
-    );
-
-    if (!account || !isPasswordMatched)
+    if (!account) {
       throw new UnauthorizedException('Неверное имя пользователя или пароль');
-
-    return account.profile;
+    } else {
+      const isPasswordMatched = await this.hashService.isPasswordCorrect(
+        password,
+        account.credentials.password,
+      );
+      if (!isPasswordMatched) {
+        throw new UnauthorizedException('Неверное имя пользователя или пароль');
+      } else {
+        return account.profile;
+      }
+    }
   }
 
   async refreshToken(oldRefreshToken: string): Promise<ITokens> {
