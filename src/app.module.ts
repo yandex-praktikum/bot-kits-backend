@@ -24,6 +24,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
 import { BotTemplatesModule } from './botTemplates/bot-templates.module';
 import { HttpModule } from '@nestjs/axios';
+import { BlacklistTokensModule } from './blacklistTokens/blacklistTokens.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { HttpModule } from '@nestjs/axios';
     SubscriptionsModule,
     PaymentsModule,
     HttpModule,
+    BlacklistTokensModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],
