@@ -100,7 +100,7 @@ paths:
                     example: '401'
                     description: HTTP-статус код
       tags: &ref_0
-        - auth
+        - Auth
   /signup:
     post:
       operationId: AuthController_signup
@@ -641,15 +641,31 @@ paths:
   /logout:
     get:
       operationId: BlacklistTokensController_addToken
+      summary: Разлогинить пользователя
       parameters:
         - name: authorization
           required: true
           in: header
+          description: Access токен
           schema:
             type: string
       responses:
         '200':
           description: ''
+        '201':
+          description: Пользователь успешно разлогинен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Сообщение об успешном разлогине
+      tags:
+        - Logout
+      security:
+        - bearer: []
   /bot-accesses:
     post:
       operationId: BotAccessesController_create
@@ -2058,7 +2074,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-20T18:16:14.174Z
+          example: 2023-09-20T18:56:27.413Z
       required:
         - status
         - cardMask
@@ -2069,7 +2085,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-20T18:16:14.176Z
+          example: 2023-09-20T18:56:27.417Z
         amount:
           type: number
           example: 1000

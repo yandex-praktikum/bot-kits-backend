@@ -17,7 +17,6 @@ import { HttpModule } from '@nestjs/axios';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.module';
 
-//auth.module.ts
 @Module({
   imports: [
     HttpModule,

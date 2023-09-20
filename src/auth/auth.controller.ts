@@ -16,7 +16,7 @@ import { AuthService, ITokens } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { YandexGuard } from './guards/yandex.guards';
 import { HttpService } from '@nestjs/axios';
-import { map, mergeMap } from 'rxjs';
+import { mergeMap } from 'rxjs';
 import { CombinedDto } from './dto/combined.dto';
 import TypeAccount from 'src/accounts/types/type-account';
 import { GoogleGuard } from './guards/google.guard';
@@ -37,7 +37,7 @@ interface IRequestYandexUser extends Request {
   user: IYandexUser;
 }
 
-@ApiTags('auth')
+@ApiTags('Auth')
 @Controller()
 export class AuthController {
   constructor(

@@ -6,7 +6,6 @@ import { ProfilesService } from 'src/profiles/profiles.service';
 import { Profile } from 'src/profiles/schema/profile.schema';
 import { BlacklistTokensService } from 'src/blacklistTokens/blacklistTokens.service';
 
-//jwt.strategy.ts
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
@@ -25,16 +24,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(request: any, jwtPayload: { sub: number }): Promise<Profile> {
     // Получаем токен из заголовка запроса
     const token = ExtractJwt.fromAuthHeaderAsBearerToken()(request);
+    const user = await this.profilesService.findOne(jwtPayload.sub);
 
     // Проверяем токен на наличие в черном списке
-    if (await this.blacklistTokensService.isTokenBlacklisted(token)) {
-      throw new UnauthorizedException('Токен находится в черном списке');
-    }
-
-    const user = await this.profilesService.findOne(jwtPayload.sub);
-    if (!user) {
+    if (
+      (await this.blacklistTokensService.isTokenBlacklisted(token)) ||
+      !user
+    ) {
       throw new UnauthorizedException('Пользователь не авторизован');
+    } else {
+      return user;
     }
-    return user;
   }
 }

@@ -28,7 +28,7 @@ export class BlacklistTokensService {
 
     //--Проверяем, существует ли поле exp в декодированном токене--//
     if (!decodedToken || !decodedToken.exp) {
-      throw new BadRequestException('Invalid token.');
+      throw new BadRequestException('Невалидный токен');
     }
 
     //--Преобразуем временную метку UNIX в объект Date--//
