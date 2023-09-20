@@ -1,15 +1,25 @@
-import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from "@nestjs/common";
-import { Request, Response } from "express";
-import { LocalGuard } from "./guards/localAuth.guard";
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { Profile, ProfileDocument } from "src/profiles/schema/profile.schema";
-import { AuthService, ITokens } from "./auth.service";
-import { AuthDtoPipe } from "./pipe/auth-dto.pipe";
-import { YandexGuard } from "./guards/yandex.guards";
-import { HttpService } from "@nestjs/axios";
-import { mergeMap } from "rxjs";
-import { CombinedDto } from "./dto/combined.dto";
-import TypeAccount from "../accounts/types/type-account";
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Req,
+  Body,
+  Get,
+  Res,
+  Query,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
+import { LocalGuard } from './guards/localAuth.guard';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
+import { AuthService, ITokens } from './auth.service';
+import { AuthDtoPipe } from './pipe/auth-dto.pipe';
+import { YandexGuard } from './guards/yandex.guards';
+import { HttpService } from '@nestjs/axios';
+import { map, mergeMap } from 'rxjs';
+import { CombinedDto } from './dto/combined.dto';
+import TypeAccount from 'src/accounts/types/type-account';
+import { GoogleGuard } from './guards/google.guard';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
@@ -341,7 +351,9 @@ export class AuthController {
   @Get('yandex/callback')
   async yandexCallback(@Req() req: IRequestYandexUser, @Res() res: Response) {
     const token = req.user['accessToken'];
-    return res.redirect(`http://localhost:3000/yandex/success?token=${token}`);
+    return res.redirect(
+      `https://botkits.nomoreparties.co/api/yandex/success?token=${token}`,
+    );
   }
 
   @Get('yandex/success')
@@ -364,6 +376,29 @@ export class AuthController {
           return this.authService.authSocial(authDto, TypeAccount.YANDEX);
         }),
       );
+  }
+
+  @UseGuards(GoogleGuard)
+  @Get('google')
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  googleAuth() {}
+
+  @UseGuards(GoogleGuard)
+  @Get('google/callback')
+  async googleCallback(@Req() req: any) {
+    const { email, username, avatar } = req.user;
+    const newAccount: CombinedDto = {
+      email,
+      password: '',
+      username,
+      phone: ' ',
+      avatar,
+    };
+    const authDto = this.authDtoPipe.transform(newAccount, {
+      type: 'body',
+      data: 'combinedDto',
+    });
+    return this.authService.authSocial(authDto, TypeAccount.GOOGLE);
   }
 
   @Post('reset-password')

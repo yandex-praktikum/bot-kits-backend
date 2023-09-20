@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-yandex';
+import { Strategy } from 'passport-google-oauth20';
 
 @Injectable()
-export class YandexStrategy extends PassportStrategy(Strategy, 'yandex') {
+export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(private readonly configService: ConfigService) {
     super({
-      clientID: configService.get('YANDEX_APP_ID'),
-      clientSecret: configService.get('YANDEX_APP_SECRET'),
-      callbackURL: 'https://botkits.nomoreparties.co/api/yandex/callback',
+      clientID: configService.get('GOOGLE_APP_ID'),
+      clientSecret: configService.get('GOOGLE_APP_SECRET'),
+      callbackURL: 'https://botkits.nomoreparties.co/api/google/callback',
+      scope: ['email', 'profile'],
     });
   }
 
@@ -19,12 +20,11 @@ export class YandexStrategy extends PassportStrategy(Strategy, 'yandex') {
     profile,
     done: (err: any, user: any, info?: any) => void,
   ): Promise<any> {
-    const { id, displayName, emails, photos } = profile;
+    const { name, emails, photos } = profile;
     const user = {
-      id,
-      displayName,
       email: emails[0].value,
-      picture: photos[0].value,
+      username: `${name.givenName} ${name.familyName}`,
+      avatar: photos[0].value,
       accessToken,
     };
     done(null, user);
