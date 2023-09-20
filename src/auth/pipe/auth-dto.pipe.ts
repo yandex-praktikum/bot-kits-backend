@@ -19,7 +19,7 @@ export class AuthDtoPipe implements PipeTransform {
       type: TypeAccount.LOCAL,
       role: Role.USER,
       credentials: {
-        email: value.email,
+        email: value.email.toLowerCase(),
         password: value.password,
         accessToken: '',
         refreshToken: '',

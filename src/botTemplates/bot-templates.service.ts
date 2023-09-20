@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Error, Model } from 'mongoose';
-import { BotTemplate, BotTemplateDocument } from './schema/bot-template.schema';
+import { BotTemplate } from './schema/bot-template.schema';
 import UpdateBotTemplateDto from './dto/update.bot-template.dto';
 import CreateBotTemplateDto from './dto/create.bot-template.dto';
 
@@ -16,21 +16,25 @@ export class BotTemplatesService {
     private readonly botTemplateModel: Model<BotTemplate>,
   ) {}
 
-  async create(createBotTemplateDto: CreateBotTemplateDto) {
+  async create(
+    createBotTemplateDto: CreateBotTemplateDto,
+  ): Promise<BotTemplate> {
     const botTemplate = await this.botTemplateModel.create(
       createBotTemplateDto,
     );
-    const savedBotTemplate = await botTemplate.save();
-    return { ...savedBotTemplate.toJSON(), _id: savedBotTemplate.id };
+    return await botTemplate.save();
   }
 
-  async update(id: string, updateBotTemplateDto: UpdateBotTemplateDto) {
+  async update(
+    id: string,
+    updateBotTemplateDto: UpdateBotTemplateDto,
+  ): Promise<BotTemplate> {
     try {
       const result = await this.botTemplateModel
         .findByIdAndUpdate(id, updateBotTemplateDto, { new: true })
         .exec();
       if (!result) throw new NotFoundException();
-      return { ...result.toJSON(), _id: result.id };
+      return result;
     } catch (e) {
       if (e instanceof Error.CastError)
         throw new BadRequestException('Invalid resource id');
@@ -38,20 +42,15 @@ export class BotTemplatesService {
     }
   }
 
-  async findAll() {
-    return (await this.botTemplateModel.find().exec()).flatMap((it) => ({
-      ...it.toJSON(),
-      _id: it.id,
-    }));
+  async findAll(): Promise<BotTemplate[]> {
+    return await this.botTemplateModel.find().exec();
   }
 
   async findById(id: string) {
     try {
-      const result: BotTemplateDocument = await this.botTemplateModel
-        .findById(id)
-        .exec();
+      const result = await this.botTemplateModel.findById(id).exec();
       if (!result) throw new NotFoundException();
-      return { ...result.toJSON(), _id: result.id };
+      return result;
     } catch (e) {
       if (e instanceof Error.CastError)
         throw new BadRequestException('Invalid resource id');

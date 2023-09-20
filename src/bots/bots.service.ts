@@ -40,7 +40,11 @@ export class BotsService {
     return await this.botModel.find().exec();
   }
 
-  async update(userId: string, id: string, updateBotDto: UpdateBotDto): Promise<Bot> {
+  async update(
+    userId: string,
+    id: string,
+    updateBotDto: UpdateBotDto,
+  ): Promise<Bot> {
     const permission = await this.botAccessesService.getPermission(userId, id);
 
     if (permission !== Permission.OWNER) {
@@ -59,7 +63,11 @@ export class BotsService {
     return await this.botModel.findByIdAndRemove(id).exec();
   }
 
-  async copy(profile: string, id: string, copyBotDto: CopyBotDto): Promise<Bot> {
+  async copy(
+    profile: string,
+    id: string,
+    copyBotDto: CopyBotDto,
+  ): Promise<Bot> {
     const { icon, botName, botSettings } = await this.findOne(id);
     return await this.create(profile, {
       icon,
@@ -69,7 +77,11 @@ export class BotsService {
     });
   }
 
-  async share(profile: string, id: string, shareBotDto: ShareBotDto): Promise<string> {
+  async share(
+    profile: string,
+    id: string,
+    shareBotDto: ShareBotDto,
+  ): Promise<string> {
     // создаем первичный уровень доступа
     await this.botAccessesService.shareAccess(profile, id, {
       email: shareBotDto.email,
