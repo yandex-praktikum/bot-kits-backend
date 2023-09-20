@@ -277,6 +277,26 @@ paths:
               schema:
                 type: object
       tags: *ref_0
+  /google:
+    get:
+      operationId: AuthController_googleAuth
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags: *ref_0
+  /google/callback:
+    get:
+      operationId: AuthController_googleCallback
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+      tags: *ref_0
   /reset-password:
     post:
       operationId: AuthController_resetPassword
@@ -618,6 +638,18 @@ paths:
         '422':
           description: Bad Request
       tags: *ref_3
+  /logout:
+    get:
+      operationId: BlacklistTokensController_addToken
+      parameters:
+        - name: authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
   /bot-accesses:
     post:
       operationId: BotAccessesController_create
@@ -2026,7 +2058,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-18T15:11:16.465Z
+          example: 2023-09-20T18:16:14.174Z
       required:
         - status
         - cardMask
@@ -2037,7 +2069,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-18T15:11:16.467Z
+          example: 2023-09-20T18:16:14.176Z
         amount:
           type: number
           example: 1000

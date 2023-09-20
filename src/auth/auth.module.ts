@@ -15,7 +15,9 @@ import { STRTAGIES } from './strategies';
 import { GUARDS } from './guards';
 import { HttpModule } from '@nestjs/axios';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
+import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.module';
 
+//auth.module.ts
 @Module({
   imports: [
     HttpModule,
@@ -29,6 +31,7 @@ import { AuthDtoPipe } from './pipe/auth-dto.pipe';
       { name: Profile.name, schema: ProfileSchema },
       { name: Account.name, schema: AccountSchema },
     ]),
+    BlacklistTokensModule,
   ],
   providers: [AuthService, ...STRTAGIES, ...GUARDS, AuthDtoPipe],
   exports: [AuthService, AuthDtoPipe],
