@@ -74,7 +74,8 @@ export class BotAccessesController {
   @Patch(':id')
   @ApiOperation({
     summary: 'Изменить уровень доступа',
-    description: 'Изменяет уровень существующего доступа',
+    description:
+      'Изменяет уровень существующего доступа. Должен передаваться полностью объект с теми доступами, которые должны быть у пользователя.',
   })
   @ApiOkResponse({
     description: 'Доступ изменен.',
@@ -112,7 +113,7 @@ export class BotAccessesController {
   })
   @ApiOkResponse({
     description: 'Информация о доступе по botId и userId получена.',
-    type: Permission
+    type: Permission,
   })
   getPermission(
     @Param('botId') botId: string,

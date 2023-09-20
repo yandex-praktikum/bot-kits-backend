@@ -2,7 +2,7 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Bot } from '../../bots/schema/bots.schema';
 import { Profile } from '../../profiles/schema/profile.schema';
-import { defaultPermission, LEVEL_ACCESS, TPermission } from '../types/types';
+import { fullPermission, LEVEL_ACCESS, TPermission } from '../types/types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, ValidateNested } from 'class-validator';
 
@@ -57,7 +57,7 @@ export class BotAccess extends Document {
   })
   botId: Bot;
 
-  @ApiProperty({ example: defaultPermission })
+  @ApiProperty({ example: fullPermission })
   @Prop({
     required: true,
     type: Permission,
