@@ -351,7 +351,9 @@ export class AuthController {
   @Get('yandex/callback')
   async yandexCallback(@Req() req: IRequestYandexUser, @Res() res: Response) {
     const token = req.user['accessToken'];
-    return res.redirect(`http://localhost:3000/yandex/success?token=${token}`);
+    return res.redirect(
+      `https://botkits.nomoreparties.co/api/yandex/success?token=${token}`,
+    );
   }
 
   @Get('yandex/success')
