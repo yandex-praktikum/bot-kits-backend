@@ -15,6 +15,11 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiUnprocessableEntityResponse,
+  ApiParam,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { BotsService } from './bots.service';
 import { Bot } from './schema/bots.schema';
@@ -24,6 +29,7 @@ import { ShareBotDto } from './dto/share-bot.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
 
 @ApiTags('bots')
+@ApiBearerAuth()
 @UseGuards(JwtGuard)
 @Controller('bots')
 export class BotsController {
@@ -37,6 +43,8 @@ export class BotsController {
     description: 'Список ботов пользователя получен',
     type: [Bot],
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   findMy(@Req() req): Promise<Bot[] | null> {
     return this.botsService.findAllByUser(req.user.id);
   }
@@ -49,6 +57,8 @@ export class BotsController {
     description: 'Новый бот создан',
     type: Bot,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: CreateBotDto })
   create(@Req() req, @Body() createBotDto: CreateBotDto): Promise<Bot> {
     return this.botsService.create(req.user.id, createBotDto);
@@ -58,10 +68,17 @@ export class BotsController {
   @ApiOperation({
     summary: 'Удаление бота',
   })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор бота',
+    example: '64f81ba37571bfaac18a857f',
+  })
   @ApiOkResponse({
     description: 'Бот удален',
     type: Bot,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   remove(@Req() req, @Param('id') id: string): Promise<Bot> {
     return this.botsService.remove(req.user.id, id);
   }
@@ -74,7 +91,15 @@ export class BotsController {
     description: 'Бот скопирован',
     type: Bot,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: CopyBotDto })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор бота',
+    example: '64f81ba37571bfaac18a857f',
+  })
   copy(@Req() req, @Param('id') id: string, @Body() copyBotDto: CopyBotDto) {
     return this.botsService.copy(req.user.id, id, copyBotDto);
   }
@@ -87,15 +112,23 @@ export class BotsController {
     description: 'Имя бота обновлено',
     type: Bot,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
         botName: {
           type: 'string',
+          example: 'Салон красоты',
         },
       },
     },
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор бота',
+    example: '64f81ba37571bfaac18a857f',
   })
   update(
     @Req() req,
@@ -109,10 +142,17 @@ export class BotsController {
   @ApiOperation({
     summary: 'Получить данные бота по Id',
   })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор бота',
+    example: '64f81ba37571bfaac18a857f',
+  })
   @ApiOkResponse({
-    description: 'Информация о боте по Id',
+    description: 'Информация о боте по Id получена',
     type: Bot,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   findOne(@Param('id') id: string): Promise<Bot> {
     return this.botsService.findOne(id);
   }
@@ -126,7 +166,15 @@ export class BotsController {
     description: 'Первичный доступ создан',
     type: Bot,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: ShareBotDto })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор бота',
+    example: '64f81ba37571bfaac18a857f',
+  })
   share(
     @Req() req,
     @Param('id') id: string,

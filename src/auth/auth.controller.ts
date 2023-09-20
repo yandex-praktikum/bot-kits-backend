@@ -10,7 +10,13 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { LocalGuard } from './guards/localAuth.guard';
-import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBody,
+  ApiResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService, ITokens } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
@@ -55,8 +61,8 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        email: { type: 'string' },
-        password: { type: 'string' },
+        email: { type: 'string', example: 'test@mail.ru' },
+        password: { type: 'string', example: '123' },
       },
     },
   })
@@ -69,22 +75,27 @@ export class AuthController {
         _id: {
           type: 'string',
           description: 'Идентификатор',
+          example: '650b396dd4201e5ca499f3b3',
         },
         username: {
           type: 'string',
           description: 'Имя пользователя',
+          example: 'test',
         },
         phone: {
           type: 'string',
           description: 'Номер телефона',
+          example: '+79999999999',
         },
         avatar: {
           type: 'string',
           description: 'URL аватара',
+          example: 'https://i.pravatar.cc/300',
         },
         balance: {
           type: 'number',
           description: 'Баланс',
+          example: 0,
         },
         accounts: {
           type: 'array',
@@ -94,14 +105,17 @@ export class AuthController {
               _id: {
                 type: 'string',
                 description: 'Идентификатор аккаунта',
+                example: '650b396ed4201e5ca499f3b5',
               },
               type: {
                 type: 'string',
                 description: 'Тип аккаунта',
+                example: 'local',
               },
               role: {
                 type: 'string',
                 description: 'Роль аккаунта',
+                example: 'user',
               },
               credentials: {
                 type: 'object',
@@ -109,20 +123,25 @@ export class AuthController {
                   email: {
                     type: 'string',
                     description: 'Email',
+                    example: 'test@mail.ru',
                   },
                   accessToken: {
                     type: 'string',
                     description: 'AccessToken',
+                    example:
+                      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTBiMzk2ZGQ0MjAxZTVjYTQ5OWYzYjMiLCJpYXQiOjE2OTUyMzQ0MTQsImV4cCI6MTY5NTMyMDgxNH0.1GIu8iWeg8iWF-i5iynAhelc7kO3ouj09boZHjqn5HE',
                   },
                   refreshToken: {
                     type: 'string',
                     description: 'RefreshToken',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
                   },
                 },
               },
               profile: {
                 type: 'string',
                 description: 'Идентификатор профиля',
+                example: '650b396dd4201e5ca499f3b3',
               },
             },
           },
@@ -165,10 +184,10 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        password: { type: 'string' },
-        email: { type: 'string' },
-        phone: { type: 'string' },
-        username: { type: 'string' },
+        password: { type: 'string', example: '123' },
+        email: { type: 'string', example: 'test@mail.ru' },
+        phone: { type: 'string', example: '+79999999999' },
+        username: { type: 'string', example: 'test' },
       },
     },
   })
@@ -181,18 +200,22 @@ export class AuthController {
         username: {
           type: 'string',
           description: 'Имя пользователя',
+          example: 'test',
         },
         phone: {
           type: 'string',
           description: 'Номер телефона',
+          example: '+79999999999',
         },
         avatar: {
           type: 'string',
           description: 'URL аватара',
+          example: 'https://i.pravatar.cc/300',
         },
         balance: {
           type: 'number',
           description: 'Баланс',
+          example: 0,
         },
         accounts: {
           type: 'array',
@@ -202,10 +225,12 @@ export class AuthController {
               type: {
                 type: 'string',
                 description: 'Тип аккаунта',
+                example: 'local',
               },
               role: {
                 type: 'string',
                 description: 'Роль',
+                example: 'user',
               },
               credentials: {
                 type: 'object',
@@ -213,24 +238,29 @@ export class AuthController {
                   email: {
                     type: 'string',
                     description: 'Email',
+                    example: 'test@mail.ru',
                   },
                   accessToken: {
                     type: 'string',
                     description: 'AccessToken',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
                   },
                   refreshToken: {
                     type: 'string',
                     description: 'RefreshToken',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
                   },
                 },
               },
               profile: {
                 type: 'string',
                 description: 'Идентификатор профиля ',
+                example: '650b396dd4201e5ca499f3b3',
               },
               _id: {
                 type: 'string',
                 description: 'Идентификатор аккаунта',
+                example: '650b396dd4201e5ca499f3b3',
               },
             },
           },
@@ -239,6 +269,7 @@ export class AuthController {
         _id: {
           type: 'string',
           description: 'Идентификатор профиля',
+          example: '650b396dd4201e5ca499f3b3',
         },
       },
     },
@@ -291,7 +322,10 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        refreshToken: { type: 'string' },
+        refreshToken: {
+          type: 'string',
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
+        },
       },
     },
   })
@@ -304,10 +338,12 @@ export class AuthController {
         accessToken: {
           type: 'string',
           description: 'accessToken по умолчанию действует 1 день',
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
         },
         refreshToken: {
           type: 'string',
           description: 'refreshToken по умолчанию действует 7 дней',
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
         },
       },
     },
@@ -342,11 +378,23 @@ export class AuthController {
     return this.authService.refreshToken(refreshToken);
   }
 
+  @ApiOperation({
+    summary: 'Авторизация через Yandex',
+  })
+  @ApiOkResponse({
+    description: '',
+  })
   @UseGuards(YandexGuard)
   @Get('yandex')
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   yandexAuth() {}
 
+  @ApiOperation({
+    summary: '',
+  })
+  @ApiOkResponse({
+    description: '',
+  })
   @UseGuards(YandexGuard)
   @Get('yandex/callback')
   async yandexCallback(@Req() req: IRequestYandexUser, @Res() res: Response) {
@@ -356,6 +404,12 @@ export class AuthController {
     );
   }
 
+  @ApiOperation({
+    summary: '',
+  })
+  @ApiOkResponse({
+    description: '',
+  })
   @Get('yandex/success')
   async yandexSuccess(@Query('token') token: string) {
     return this.httpService
@@ -378,11 +432,23 @@ export class AuthController {
       );
   }
 
+  @ApiOperation({
+    summary: 'Авторизация через Google',
+  })
+  @ApiOkResponse({
+    description: '',
+  })
   @UseGuards(GoogleGuard)
   @Get('google')
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   googleAuth() {}
 
+  @ApiOperation({
+    summary: '',
+  })
+  @ApiOkResponse({
+    description: '',
+  })
   @UseGuards(GoogleGuard)
   @Get('google/callback')
   async googleCallback(@Req() req: any) {
@@ -409,7 +475,11 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        email: { type: 'string', description: 'Email пользователя' },
+        email: {
+          type: 'string',
+          description: 'Email пользователя',
+          example: 'test@mail.ru',
+        },
       },
     },
   })
@@ -421,7 +491,7 @@ export class AuthController {
         message: {
           type: 'string',
           example:
-            'Ссылка на сброс пароля отправлена на ваш email: youremail@domain.ru',
+            'Ссылка на сброс пароля отправлена на ваш email: test@mail.ru',
           description: 'Email пользователя',
         },
       },
