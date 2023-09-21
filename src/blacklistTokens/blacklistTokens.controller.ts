@@ -10,7 +10,7 @@ import {
 } from '@nestjs/swagger';
 
 @UseGuards(JwtGuard)
-@ApiTags('Logout')
+@ApiTags('logout')
 @Controller()
 export class BlacklistTokensController {
   constructor(

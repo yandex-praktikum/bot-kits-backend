@@ -43,7 +43,7 @@ interface IRequestYandexUser extends Request {
   user: IYandexUser;
 }
 
-@ApiTags('Auth')
+@ApiTags('auth')
 @Controller()
 export class AuthController {
   constructor(
