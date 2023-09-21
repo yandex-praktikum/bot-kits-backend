@@ -156,7 +156,7 @@ export class BotAccessesController {
     description: 'Информация о доступе по botId и userId получена.',
     schema: {
       type: 'Permission',
-      example: Permission.OWNER,
+      //example: Permission.OWNER,
     },
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
