@@ -13,7 +13,7 @@ import { BotAccessesService } from './botAccesses.service';
 import { CreateBotAccessDto } from './dto/create-bot-access.dto';
 import { UpdateBotAccessDto } from './dto/update-bot-access.dto';
 import { ShareBotAccessDto } from './dto/share-bot-access.dto';
-import { BotAccess } from './shema/botAccesses.shema';
+import { BotAccess, Permission } from './shema/botAccesses.shema';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import {
   ApiTags,
@@ -27,7 +27,6 @@ import {
   ApiNotFoundResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import Permission from './types/types';
 
 @ApiTags('botAccesses')
 @ApiBearerAuth()
@@ -91,7 +90,8 @@ export class BotAccessesController {
   @Patch(':id')
   @ApiOperation({
     summary: 'Изменить уровень доступа',
-    description: 'Изменяет уровень существующего доступа',
+    description:
+      'Изменяет уровень существующего доступа. Должен передаваться полностью объект с теми доступами, которые должны быть у пользователя.',
   })
   @ApiOkResponse({
     description: 'Доступ изменен.',
@@ -164,14 +164,14 @@ export class BotAccessesController {
   getPermission(
     @Param('botId') botId: string,
     @Param('userId') userId: string,
-  ): Promise<string> {
+  ): Promise<Permission> {
     return this.botAccessesService.getPermission(userId, botId);
   }
 
   @Post(':botId')
   @ApiOperation({
     summary: 'Поделиться доступом',
-    description: `Позвоялет поделиться доступом по botId и создать новый доступ, если пользователь имеет уровень доступа ${Permission.OWNER} к данному боту`,
+    description: `Позвоялет поделиться доступом по botId и создать новый доступ, если пользователь имеет полный уровень доступа к данному боту`,
   })
   @ApiCreatedResponse({
     description: 'Новый доступ создан.',

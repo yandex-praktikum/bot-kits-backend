@@ -1,5 +1,5 @@
-import { IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
-import Permission from '../types/types';
+import { IsEmail, IsNotEmpty } from 'class-validator';
+import { defaultPermission, TPermission } from '../types/types';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ShareBotAccessDto {
@@ -13,9 +13,8 @@ export class ShareBotAccessDto {
 
   @ApiProperty({
     description: 'уровень доступа',
-    enum: [Permission.OWNER, Permission.LEVEL_1, Permission.LEVEL_2],
+    example: defaultPermission
   })
   @IsNotEmpty()
-  @IsEnum(Permission)
-  permission: Permission;
+  permission: TPermission;
 }
