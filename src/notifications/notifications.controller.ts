@@ -19,9 +19,13 @@ import {
   ApiTags,
   ApiResponse,
   ApiParam,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 
 @ApiTags('notification')
+@ApiBearerAuth()
 @Controller('notification')
 export class NotificationController {
   constructor(private notificationService: NotificationService) {}
@@ -30,11 +34,15 @@ export class NotificationController {
     summary: 'Создать уведомление',
   })
   @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
+    status: HttpStatus.CREATED,
+    description: 'Уведомление успешно создано',
     type: CreateNotificationDto,
   })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Неверный запрос',
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @Post()
   @Header('Content-Type', 'application/json')
   create(@Body() createNotificationDto: CreateNotificationDto) {
@@ -46,10 +54,10 @@ export class NotificationController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Success',
+    description: 'Уведомления успешно получены',
     type: [Notification],
   })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @Get()
   getAll() {
     return this.notificationService.findAll();
@@ -58,13 +66,19 @@ export class NotificationController {
   @ApiOperation({
     summary: 'Получить уведомление по id',
   })
-  @ApiParam({ name: 'id', required: true, description: 'notification id' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Идентификатор уведомления',
+    example: '64f81ba37571bfaac18a857f',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Success',
+    description: 'Уведомление успешно получено',
     type: Notification,
   })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Notification> {
     return this.notificationService.findbyId(id);
@@ -73,13 +87,19 @@ export class NotificationController {
   @ApiOperation({
     summary: 'Удалить уведомление',
   })
-  @ApiParam({ name: 'id', required: true, description: 'notification id' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Идентификатор уведомления',
+    example: '64f81ba37571bfaac18a857f',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Success',
+    description: 'Уведомление успешно удалено',
     type: Notification,
   })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Delete(':id')
   remove(@Param('id') id: string): Promise<Notification> {
     return this.notificationService.remove(id);
@@ -89,13 +109,23 @@ export class NotificationController {
     summary: 'Изменить уведомление',
   })
   @ApiBody({ type: UpdateNotificationDto })
-  @ApiParam({ name: 'id', required: true, description: 'notification id' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Идентификатор уведомления',
+    example: '64f81ba37571bfaac18a857f',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Success',
+    description: 'Уведомление успешно изменено',
     type: UpdateNotificationDto,
   })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Неверный запрос',
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Patch(':id')
   update(
     @Body() updateNotificationDto: UpdateNotificationDto,

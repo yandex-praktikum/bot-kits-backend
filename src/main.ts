@@ -22,6 +22,19 @@ async function bootstrap() {
     .setTitle('API BotKits')
     .setDescription('Ручки для команды frontend')
     .setVersion('1.0')
+    .addTag('auth', 'Авторизация пользователей')
+    .addTag('accounts', 'Аккаунты пользователей')
+    .addTag('profiles', 'Профили пользователей')
+    .addTag('botTemplates', 'Шаблоны ботов')
+    .addTag('bots', 'Боты')
+    .addTag('botAccesses', 'Управление доступами к ботам')
+    .addTag('platforms', 'Подключаемые платформы')
+    .addTag('tariffs', 'Тарифы работы с площадкой')
+    .addTag('subscriptions', 'Подписки пользователей на тарифы')
+    .addTag('payments', 'Платежи пользователей')
+    .addTag('promocodes', 'Промокоды')
+    .addTag('notification', 'Уведомления пользователей')
+    .addBearerAuth()
     .build(); // завершаем конфигурирование вызовом build
 
   const document = SwaggerModule.createDocument(app, config);

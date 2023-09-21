@@ -8,18 +8,20 @@ import {
   Delete,
   BadRequestException,
   UseGuards,
+  Headers,
 } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiHeader,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiResponse,
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
@@ -28,33 +30,33 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 
 @UseGuards(JwtGuard)
-@ApiTags('Profiles')
+@ApiTags('profiles')
+@ApiBearerAuth()
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
-  @ApiBody({ type: CreateProfileDto })
-  @ApiCreatedResponse({
-    description: 'The record has been successfully created.',
-    type: Profile,
-  })
   @ApiOperation({
     summary: 'Создать новый профиль',
   })
-  @Post()
-  @ApiOperation({ summary: 'Создать новый профиль' })
   @ApiBody({ type: CreateProfileDto })
-  @ApiResponse({ status: 201, description: 'Профиль успешно создан' })
-  @ApiResponse({ status: 400, description: 'Некорректные данные' })
+  @ApiCreatedResponse({
+    description: 'Профиль успешно создан',
+    type: Profile,
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @Post()
   create(@Body() createProfileDto: CreateProfileDto) {
     return this.profilesService.create(createProfileDto);
   }
 
   @ApiOkResponse({
-    description: 'The resources were returned successfully',
+    description: 'Профили успешно получены',
     type: [Profile],
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiOperation({
     summary: 'Получить все профили',
   })
@@ -63,15 +65,30 @@ export class ProfilesController {
     return this.profilesService.findAll();
   }
 
+  @ApiOperation({
+    summary: 'Получить текущий профиль',
+  })
+  @Get('me')
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Access токен',
+    required: true,
+  })
+  async findProfileByToken(@Headers('authorization') authHeader: string) {
+    const token = authHeader.split(' ')[1];
+    return await this.profilesService.findByToken(token);
+  }
+
   @ApiOkResponse({
-    description: 'The resource was returned successfully',
+    description: 'Профиль успешно получен',
     type: Profile,
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiParam({
     name: 'id',
-    description: 'Индификатор профиля',
+    description: 'Идентификатор профиля',
     example: '64f81ba37571bfaac18a857f',
   })
   @ApiOperation({
@@ -80,21 +97,21 @@ export class ProfilesController {
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Profile> {
     const profile = await this.profilesService.findOne(id);
-    if (!profile) throw new BadRequestException('Resource not found');
+    if (!profile) throw new BadRequestException('Ресурс не найден');
     return profile;
   }
 
   @ApiOkResponse({
-    description: 'The resource was updated successfully',
+    description: 'Профиль успешно обновлен',
     type: Profile,
   })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiUnprocessableEntityResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: UpdateProfileDto })
   @ApiParam({
     name: 'id',
-    description: 'Индификатор профиля',
+    description: 'Идентификатор профиля',
     example: '64f81ba37571bfaac18a857f',
   })
   @ApiOperation({
@@ -109,14 +126,14 @@ export class ProfilesController {
   }
 
   @ApiOkResponse({
-    description: 'The resource was returned successfully',
+    description: 'Профиль успешно удален',
     type: Profile,
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiParam({
     name: 'id',
-    description: 'Индификатор профиля',
+    description: 'Идентификатор профиля',
     example: '64f81ba37571bfaac18a857f',
   })
   @ApiOperation({

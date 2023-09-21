@@ -10,6 +10,7 @@ import {
 import { SubscriptionsService } from './subscriptions.service';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -25,6 +26,7 @@ import { Subscription } from './schema/subscription.schema';
 import { Payment } from 'src/payments/schema/payment.schema';
 
 @ApiTags('subscriptions')
+@ApiBearerAuth()
 @UseGuards(JwtGuard)
 @Controller('subscriptions')
 export class SubscriptionsController {
@@ -50,7 +52,7 @@ export class SubscriptionsController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Get()
-  subscriptionAndPayments(@Req() req) {
+  subscriptionAndPayments(@Req() req): Promise<object> {
     const user = req.user;
     return this.subscriptionsService.subscriptionAndPayments(user);
   }
@@ -74,7 +76,10 @@ export class SubscriptionsController {
   @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Post('activate')
-  activateSubscription(@Req() req, @Body() body: { status: boolean }) {
+  activateSubscription(
+    @Req() req,
+    @Body() body: { status: boolean },
+  ): Promise<Subscription> {
     const user = req.user;
     return this.subscriptionsService.activateSubscription(user, body.status);
   }
@@ -101,13 +106,14 @@ export class SubscriptionsController {
     type: Subscription,
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @Post(':id')
   createSubscription(
     @Req() req,
     @Body() body: { cardMask: string; debitDate: string },
     @Param('id') id: string,
-  ) {
+  ): Promise<Subscription> {
     const profile = req.user;
     return this.subscriptionsService.create({
       tariffId: id,

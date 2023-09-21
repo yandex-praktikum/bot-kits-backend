@@ -21,9 +21,15 @@ import {
   ApiOkResponse,
   ApiCreatedResponse,
   ApiBody,
+  ApiForbiddenResponse,
+  ApiUnprocessableEntityResponse,
+  ApiParam,
+  ApiNotFoundResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 
-@ApiTags('BotAccesses')
+@ApiTags('botAccesses')
+@ApiBearerAuth()
 @UseGuards(JwtGuard)
 @Controller('bot-accesses')
 export class BotAccessesController {
@@ -39,6 +45,8 @@ export class BotAccessesController {
     description: 'Запись о доступе создана.',
     type: BotAccess,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: CreateBotAccessDto })
   create(
     @Req() req,
@@ -53,6 +61,7 @@ export class BotAccessesController {
     description: 'Все доступы найдены.',
     type: [BotAccess],
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   findAll() {
     return this.botAccessesService.findAll();
   }
@@ -63,10 +72,17 @@ export class BotAccessesController {
     description:
       'ВАЖНО! Находит доступ по botAccessId (запись о связи botId и userId)',
   })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор botAccessId',
+    example: '64f81ba37571bfaac18a857f',
+  })
   @ApiOkResponse({
     description: 'Доступ найден.',
     type: BotAccess,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   findOne(@Param('id') id: string) {
     return this.botAccessesService.findOne(id);
   }
@@ -81,7 +97,15 @@ export class BotAccessesController {
     description: 'Доступ изменен.',
     type: BotAccess,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: UpdateBotAccessDto })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор botAccessId',
+    example: '64f81ba37571bfaac18a857f',
+  })
   update(
     @Req() req,
     @Param('id') botAccessId: string,
@@ -102,19 +126,41 @@ export class BotAccessesController {
     description: 'Доступ удален.',
     type: BotAccess,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор botAccessId',
+    example: '64f81ba37571bfaac18a857f',
+  })
   delete(@Req() req, @Param('id') botAccessId: string) {
     return this.botAccessesService.delete(req.user.id, botAccessId);
   }
 
   @Get(':userId/:botId')
+  @ApiParam({
+    name: 'userId',
+    description: 'Идентификатор пользователя',
+    example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiParam({
+    name: 'botId',
+    description: 'Идентификатор бота',
+    example: '64f81ba37571bfaac18a857f',
+  })
   @ApiOperation({
     summary: 'Получить доступ',
     description: 'Позвоялет проверить уровень доступа по botId и userId',
   })
   @ApiOkResponse({
     description: 'Информация о доступе по botId и userId получена.',
-    type: Permission,
+    schema: {
+      type: 'Permission',
+      example: Permission.OWNER,
+    },
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   getPermission(
     @Param('botId') botId: string,
     @Param('userId') userId: string,
@@ -131,7 +177,15 @@ export class BotAccessesController {
     description: 'Новый доступ создан.',
     type: BotAccess,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: ShareBotAccessDto })
+  @ApiParam({
+    name: 'botId',
+    description: 'Идентификатор бота',
+    example: '64f81ba37571bfaac18a857f',
+  })
   shareAccess(
     @Req() req,
     @Param('botId') botId: string,

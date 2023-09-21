@@ -19,10 +19,14 @@ import {
   ApiNotFoundResponse,
   ApiCreatedResponse,
   ApiConflictResponse,
+  ApiParam,
+  ApiUnprocessableEntityResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { Promocode } from './schema/promocode.schema';
 
-@ApiTags('Promocodes')
+@ApiTags('promocodes')
+@ApiBearerAuth()
 @Controller('promocodes')
 export class PromocodesController {
   constructor(private readonly promocodesService: PromocodesService) {}
@@ -32,13 +36,13 @@ export class PromocodesController {
   })
   @ApiBody({ type: CreatePromocodeDto })
   @ApiCreatedResponse({
-    description: 'The resources were returned successfully',
+    description: 'Промокод успешно добавлен',
     type: Promocode,
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiConflictResponse({ description: 'Такой промокод уже существует' })
   @Post()
-  create(@Body() createPromocodeDto: CreatePromocodeDto) {
+  create(@Body() createPromocodeDto: CreatePromocodeDto): Promise<Promocode> {
     return this.promocodesService.create(createPromocodeDto);
   }
 
@@ -46,27 +50,31 @@ export class PromocodesController {
     summary: 'Получить все промокоды',
   })
   @ApiOkResponse({
-    description: 'The resources were returned successfully',
+    description: 'Промокоды успешно получены',
     type: [Promocode],
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiNotFoundResponse({ description: 'Нет ни одного промокода' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @Get()
-  findAll() {
+  findAll(): Promise<Promocode[]> {
     return this.promocodesService.findAll();
   }
 
   @ApiOperation({
     summary: 'Получить промокод по id',
   })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор промокода',
+    example: '64f81ba37571bfaac18a857f',
+  })
   @ApiOkResponse({
-    description: 'The resources were returned successfully',
+    description: 'Промокод успешно получен',
     type: Promocode,
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiNotFoundResponse({ description: 'Нет промокода с таким id' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<Promocode> {
     return this.promocodesService.findOne(id);
   }
 
@@ -74,31 +82,42 @@ export class PromocodesController {
     summary: 'Изменить данные промокода по id',
   })
   @ApiBody({ type: UpdatePromocodeDto })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор промокода',
+    example: '64f81ba37571bfaac18a857f',
+  })
   @ApiOkResponse({
-    description: 'The resources were returned successfully',
+    description: 'Данные промокода успешно изменены',
     type: Promocode,
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiNotFoundResponse({ description: 'Нет промокода с таким id' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updatePromocodeDto: UpdatePromocodeDto,
-  ) {
+  ): Promise<Promocode> {
     return this.promocodesService.update(id, updatePromocodeDto);
   }
 
   @ApiOperation({
     summary: 'Удалить промокод по id',
   })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор промокода',
+    example: '64f81ba37571bfaac18a857f',
+  })
   @ApiOkResponse({
-    description: 'The resources were returned successfully',
+    description: 'Промокод успешно удален',
     type: Promocode,
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiNotFoundResponse({ description: 'Нет промокода с таким id' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<Promocode> {
     return this.promocodesService.remove(id);
   }
 }
