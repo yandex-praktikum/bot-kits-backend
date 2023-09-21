@@ -2,8 +2,39 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Bot } from '../../bots/schema/bots.schema';
 import { Profile } from '../../profiles/schema/profile.schema';
-import Permission from '../types/types';
+import { fullPermission, LEVEL_ACCESS, TPermission } from '../types/types';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, ValidateNested } from 'class-validator';
+
+export class Permission implements TPermission {
+  @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
+  @IsEnum(LEVEL_ACCESS)
+  voronki: LEVEL_ACCESS;
+
+  @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
+  @IsEnum(LEVEL_ACCESS)
+  newsletters?: LEVEL_ACCESS;
+
+  @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
+  @IsEnum(LEVEL_ACCESS)
+  lists?: LEVEL_ACCESS;
+
+  @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
+  @IsEnum(LEVEL_ACCESS)
+  statistic?: LEVEL_ACCESS;
+
+  @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
+  @IsEnum(LEVEL_ACCESS)
+  dialogs?: LEVEL_ACCESS;
+
+  @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
+  @IsEnum(LEVEL_ACCESS)
+  crm?: LEVEL_ACCESS;
+
+  @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
+  @IsEnum(LEVEL_ACCESS)
+  mini_landing?: LEVEL_ACCESS;
+}
 
 @Schema({ timestamps: true })
 export class BotAccess extends Document {
@@ -26,13 +57,12 @@ export class BotAccess extends Document {
   })
   botId: Bot;
 
-  @ApiProperty({
-    enum: [Permission.OWNER, Permission.LEVEL_1, Permission.LEVEL_2],
-  })
+  @ApiProperty({ example: fullPermission })
   @Prop({
-    enum: Permission,
     required: true,
+    type: Permission,
   })
+  @ValidateNested()
   permission: Permission;
 
   @ApiProperty({ example: '2023-09-12T15:29:12.117Z' })

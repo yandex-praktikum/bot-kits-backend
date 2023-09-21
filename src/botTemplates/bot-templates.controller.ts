@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -16,15 +17,16 @@ import UpdateBotTemplateDto from './dto/update.bot-template.dto';
 import CreateBotTemplateDto from './dto/create.bot-template.dto';
 
 @ApiTags('botTemplates')
+@ApiBearerAuth()
 @Controller('botTemplates')
 export class BotTemplatesController {
   constructor(private readonly botTemplatesService: BotTemplatesService) {}
 
   @ApiOkResponse({
-    description: 'The resources were returned successfully',
+    description: 'Шаблоны ботов успешно получены',
     type: [BotTemplate],
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiOperation({
     summary: 'Список шаблонов ботов',
   })
@@ -34,14 +36,14 @@ export class BotTemplatesController {
   }
 
   @ApiOkResponse({
-    description: 'The resource was returned successfully',
+    description: 'Шаблон бота успешно получен',
     type: BotTemplate,
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiParam({
     name: 'id',
-    description: 'Индификатор шаблона бота',
+    description: 'Идентификатор шаблона бота',
     example: '64f81ba37571bfaac18a857f',
   })
   @ApiOperation({
@@ -53,13 +55,15 @@ export class BotTemplatesController {
   }
 
   @ApiCreatedResponse({
-    description: 'The record has been successfully created.',
+    description: 'Шаблон бота успешно создан',
     type: BotTemplate,
   })
   @ApiOperation({
     summary: 'Создать шаблон бота',
   })
   @ApiBody({ type: CreateBotTemplateDto })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @Post()
   async create(
     @Body() createBotTemplateDto: CreateBotTemplateDto,
@@ -68,16 +72,16 @@ export class BotTemplatesController {
   }
 
   @ApiOkResponse({
-    description: 'The resource was updated successfully',
+    description: 'Шаблон бота успешно изменен',
     type: BotTemplate,
   })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiUnprocessableEntityResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: UpdateBotTemplateDto })
   @ApiParam({
     name: 'id',
-    description: 'Индификатор шаблона бота',
+    description: 'Идентификатор шаблона бота',
     example: '64f81ba37571bfaac18a857f',
   })
   @ApiOperation({

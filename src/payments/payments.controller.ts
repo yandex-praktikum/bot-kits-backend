@@ -12,6 +12,7 @@ import {
 import { PaymentsService } from './payments.service';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -27,6 +28,7 @@ import { Payment } from './schema/payment.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 
 @ApiTags('payments')
+@ApiBearerAuth()
 @UseGuards(JwtGuard)
 @Controller('payments')
 export class PaymentsController {
@@ -40,9 +42,8 @@ export class PaymentsController {
     type: [Payment],
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Get()
-  userPayments(@Req() req) {
+  userPayments(@Req() req): Promise<Payment[]> {
     const user = req.user;
     return this.paymentsService.findUsersAll(user);
   }
@@ -99,12 +100,13 @@ export class PaymentsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @Patch(':id')
   update(
     @Req() req,
     @Param('id') id: string,
     @Body() updatePaymentDto: CreatePaymentDto,
-  ) {
+  ): Promise<Payment> {
     const profile = req.user;
     return this.paymentsService.update(id, { ...updatePaymentDto, profile });
   }

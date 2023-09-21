@@ -7,7 +7,7 @@ import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
 import { BotAccessesService } from '../botAccesses/botAccesses.service';
-import Permission from '../botAccesses/types/types';
+import { defaultPermission, fullPermission, LEVEL_ACCESS } from '../botAccesses/types/types';
 
 @Injectable()
 export class BotsService {
@@ -19,10 +19,10 @@ export class BotsService {
   async create(profile, createBotDto: CreateBotDto): Promise<Bot> {
     const bot = await new this.botModel({ ...createBotDto, profile }).save();
 
-    // При создании бота, создаем доступ сразу с уровнем owner
+    // При создании бота, создаем доступ сразу с полным уровнем
     await this.botAccessesService.create(profile, {
       botId: bot.id,
-      permission: Permission.OWNER,
+      permission: fullPermission,
     });
 
     return bot;
@@ -47,7 +47,8 @@ export class BotsService {
   ): Promise<Bot> {
     const permission = await this.botAccessesService.getPermission(userId, id);
 
-    if (permission !== Permission.OWNER) {
+    // Если есть доступ только для просмотра вкладки Воронки, то нельзя редактировать
+    if (permission.voronki === LEVEL_ACCESS.VIEWER) {
       throw new ForbiddenException('Недостаточно прав для редактирования бота');
     }
 
@@ -56,8 +57,8 @@ export class BotsService {
   }
 
   async remove(userId: string, id: string): Promise<Bot> {
-    const isOwner = await this.botAccessesService.isOwner(userId, id);
-    if (!isOwner) {
+    const hasFullAccess = await this.botAccessesService.hasFullAccess(userId, id);
+    if (!hasFullAccess) {
       throw new ForbiddenException('Недостаточно прав для удаления бота');
     }
     return await this.botModel.findByIdAndRemove(id).exec();
@@ -85,7 +86,7 @@ export class BotsService {
     // создаем первичный уровень доступа
     await this.botAccessesService.shareAccess(profile, id, {
       email: shareBotDto.email,
-      permission: Permission.LEVEL_1,
+      permission: defaultPermission,
     });
 
     return 'Запрос на предоставление доступа отправлен';
