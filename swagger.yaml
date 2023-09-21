@@ -405,7 +405,8 @@ paths:
       tags: &ref_1
         - profiles
       security: &ref_2
-        - bearer: []
+        - &ref_3
+          bearer: []
     get:
       operationId: ProfilesController_findAll
       summary: Получить все профили
@@ -425,6 +426,28 @@ paths:
           description: Ресурс не найден
       tags: *ref_1
       security: *ref_2
+  /profiles/me:
+    get:
+      operationId: ProfilesController_findProfileByToken
+      summary: Получить текущий профиль
+      parameters:
+        - name: authorization
+          required: true
+          in: header
+          description: Access токен
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+      tags: *ref_1
+      security:
+        - *ref_3
+        - bearer: []
   /profiles/{id}:
     get:
       operationId: ProfilesController_findOne
@@ -522,9 +545,9 @@ paths:
                   $ref: '#/components/schemas/Tariff'
         '403':
           description: Отказ в доступе
-      tags: &ref_3
+      tags: &ref_4
         - tariffs
-      security: &ref_4
+      security: &ref_5
         - bearer: []
     post:
       operationId: TariffsController_create
@@ -549,8 +572,8 @@ paths:
           description: Такой тариф уже существует
         '422':
           description: Неверный запрос
-      tags: *ref_3
-      security: *ref_4
+      tags: *ref_4
+      security: *ref_5
   /tariffs/{id}:
     get:
       operationId: TariffsController_findOne
@@ -574,8 +597,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_3
-      security: *ref_4
+      tags: *ref_4
+      security: *ref_5
     patch:
       operationId: TariffsController_updateTariff
       summary: Изменить данные тарифа по id
@@ -606,8 +629,8 @@ paths:
           description: Ресурс не найден
         '422':
           description: Неверный запрос
-      tags: *ref_3
-      security: *ref_4
+      tags: *ref_4
+      security: *ref_5
     delete:
       operationId: TariffsController_remove
       summary: Удалить тариф по id
@@ -630,8 +653,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_3
-      security: *ref_4
+      tags: *ref_4
+      security: *ref_5
   /accounts:
     get:
       operationId: AccountController_findAll
@@ -654,9 +677,9 @@ paths:
                   $ref: '#/components/schemas/Account'
         '403':
           description: Отказ в доступе
-      tags: &ref_5
+      tags: &ref_6
         - accounts
-      security: &ref_6
+      security: &ref_7
         - bearer: []
   /accounts/{id}:
     patch:
@@ -689,8 +712,8 @@ paths:
           description: Ресурс не найден
         '422':
           description: Неверный запрос
-      tags: *ref_5
-      security: *ref_6
+      tags: *ref_6
+      security: *ref_7
   /logout:
     get:
       operationId: BlacklistTokensController_addToken
@@ -744,9 +767,9 @@ paths:
           description: Отказ в доступе
         '422':
           description: Неверный запрос
-      tags: &ref_7
+      tags: &ref_8
         - botAccesses
-      security: &ref_8
+      security: &ref_9
         - bearer: []
     get:
       operationId: BotAccessesController_findAll
@@ -763,8 +786,8 @@ paths:
                   $ref: '#/components/schemas/BotAccess'
         '403':
           description: Отказ в доступе
-      tags: *ref_7
-      security: *ref_8
+      tags: *ref_8
+      security: *ref_9
   /bot-accesses/{id}:
     get:
       operationId: BotAccessesController_findOne
@@ -789,8 +812,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_7
-      security: *ref_8
+      tags: *ref_8
+      security: *ref_9
     patch:
       operationId: BotAccessesController_update
       summary: Изменить уровень доступа
@@ -822,8 +845,8 @@ paths:
           description: Ресурс не найден
         '422':
           description: Неверный запрос
-      tags: *ref_7
-      security: *ref_8
+      tags: *ref_8
+      security: *ref_9
     delete:
       operationId: BotAccessesController_delete
       summary: Удалить доступ
@@ -846,8 +869,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_7
-      security: *ref_8
+      tags: *ref_8
+      security: *ref_9
   /bot-accesses/{userId}/{botId}:
     get:
       operationId: BotAccessesController_getPermission
@@ -880,8 +903,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_7
-      security: *ref_8
+      tags: *ref_8
+      security: *ref_9
   /bot-accesses/{botId}:
     post:
       operationId: BotAccessesController_shareAccess
@@ -916,8 +939,8 @@ paths:
           description: Ресурс не найден
         '422':
           description: Неверный запрос
-      tags: *ref_7
-      security: *ref_8
+      tags: *ref_8
+      security: *ref_9
   /platforms:
     post:
       operationId: PlatformController_create
@@ -940,9 +963,9 @@ paths:
           description: Отказ в доступе
         '422':
           description: Неверный запрос
-      tags: &ref_9
+      tags: &ref_10
         - platforms
-      security: &ref_10
+      security: &ref_11
         - bearer: []
     get:
       operationId: PlatformController_findAll
@@ -959,8 +982,8 @@ paths:
                   $ref: '#/components/schemas/Platform'
         '403':
           description: Отказ в доступе
-      tags: *ref_9
-      security: *ref_10
+      tags: *ref_10
+      security: *ref_11
   /platforms/{id}:
     get:
       operationId: PlatformController_findOne
@@ -984,8 +1007,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_9
-      security: *ref_10
+      tags: *ref_10
+      security: *ref_11
     patch:
       operationId: PlatformController_update
       summary: Обновить данные о платформе по id
@@ -1016,8 +1039,8 @@ paths:
           description: Ресурс не найден
         '422':
           description: Неверный запрос
-      tags: *ref_9
-      security: *ref_10
+      tags: *ref_10
+      security: *ref_11
     delete:
       operationId: PlatformController_remove
       summary: Удалить платформу по id
@@ -1040,8 +1063,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_9
-      security: *ref_10
+      tags: *ref_10
+      security: *ref_11
   /promocodes:
     post:
       operationId: PromocodesController_create
@@ -1064,9 +1087,9 @@ paths:
           description: Отказ в доступе
         '409':
           description: Такой промокод уже существует
-      tags: &ref_11
+      tags: &ref_12
         - promocodes
-      security: &ref_12
+      security: &ref_13
         - bearer: []
     get:
       operationId: PromocodesController_findAll
@@ -1083,8 +1106,8 @@ paths:
                   $ref: '#/components/schemas/Promocode'
         '403':
           description: Отказ в доступе
-      tags: *ref_11
-      security: *ref_12
+      tags: *ref_12
+      security: *ref_13
   /promocodes/{id}:
     get:
       operationId: PromocodesController_findOne
@@ -1108,8 +1131,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_11
-      security: *ref_12
+      tags: *ref_12
+      security: *ref_13
     patch:
       operationId: PromocodesController_update
       summary: Изменить данные промокода по id
@@ -1140,8 +1163,8 @@ paths:
           description: Ресурс не найден
         '422':
           description: Неверный запрос
-      tags: *ref_11
-      security: *ref_12
+      tags: *ref_12
+      security: *ref_13
     delete:
       operationId: PromocodesController_remove
       summary: Удалить промокод по id
@@ -1164,8 +1187,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_11
-      security: *ref_12
+      tags: *ref_12
+      security: *ref_13
   /bots:
     get:
       operationId: BotsController_findMy
@@ -1184,9 +1207,9 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: &ref_13
+      tags: &ref_14
         - bots
-      security: &ref_14
+      security: &ref_15
         - bearer: []
     post:
       operationId: BotsController_create
@@ -1209,8 +1232,8 @@ paths:
           description: Отказ в доступе
         '422':
           description: Неверный запрос
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_14
+      security: *ref_15
   /bots/{id}:
     delete:
       operationId: BotsController_remove
@@ -1234,8 +1257,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_14
+      security: *ref_15
     patch:
       operationId: BotsController_update
       summary: Смена имени бота
@@ -1268,8 +1291,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_14
+      security: *ref_15
     get:
       operationId: BotsController_findOne
       summary: Получить данные бота по Id
@@ -1292,8 +1315,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_14
+      security: *ref_15
   /bots/{id}/copy:
     post:
       operationId: BotsController_copy
@@ -1325,8 +1348,8 @@ paths:
           description: Ресурс не найден
         '422':
           description: Неверный запрос
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_14
+      security: *ref_15
   /bots/{id}/share:
     post:
       operationId: BotsController_share
@@ -1358,8 +1381,8 @@ paths:
           description: Ресурс не найден
         '422':
           description: Неверный запрос
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_14
+      security: *ref_15
   /botTemplates:
     get:
       operationId: BotTemplatesController_findAll
@@ -1376,9 +1399,9 @@ paths:
                   $ref: '#/components/schemas/BotTemplate'
         '403':
           description: Отказ в доступе
-      tags: &ref_15
+      tags: &ref_16
         - botTemplates
-      security: &ref_16
+      security: &ref_17
         - bearer: []
     post:
       operationId: BotTemplatesController_create
@@ -1401,8 +1424,8 @@ paths:
           description: Отказ в доступе
         '422':
           description: Неверный запрос
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_16
+      security: *ref_17
   /botTemplates/{id}:
     get:
       operationId: BotTemplatesController_findOne
@@ -1426,8 +1449,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_16
+      security: *ref_17
     patch:
       operationId: BotTemplatesController_update
       summary: Изменить шаблон бота
@@ -1458,8 +1481,8 @@ paths:
           description: Ресурс не найден
         '422':
           description: Неверный запрос
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_16
+      security: *ref_17
   /subscriptions:
     get:
       operationId: SubscriptionsController_subscriptionAndPayments
@@ -1496,9 +1519,9 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: &ref_17
+      tags: &ref_18
         - subscriptions
-      security: &ref_18
+      security: &ref_19
         - bearer: []
   /subscriptions/activate:
     post:
@@ -1528,8 +1551,8 @@ paths:
           description: Ресурс не найден
         '422':
           description: Неверный запрос
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_18
+      security: *ref_19
   /subscriptions/{id}:
     post:
       operationId: SubscriptionsController_createSubscription
@@ -1568,8 +1591,8 @@ paths:
           description: Ресурс не найден
         '422':
           description: Неверный запрос
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_18
+      security: *ref_19
   /payments:
     get:
       operationId: PaymentsController_userPayments
@@ -1586,9 +1609,9 @@ paths:
                   $ref: '#/components/schemas/Payment'
         '403':
           description: Отказ в доступе
-      tags: &ref_19
+      tags: &ref_20
         - payments
-      security: &ref_20
+      security: &ref_21
         - bearer: []
     post:
       operationId: PaymentsController_create
@@ -1611,8 +1634,8 @@ paths:
           description: Отказ в доступе
         '422':
           description: Неверный запрос
-      tags: *ref_19
-      security: *ref_20
+      tags: *ref_20
+      security: *ref_21
   /payments/{id}:
     delete:
       operationId: PaymentsController_delete
@@ -1632,8 +1655,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_19
-      security: *ref_20
+      tags: *ref_20
+      security: *ref_21
     patch:
       operationId: PaymentsController_update
       summary: Обновить данные финансовой операции
@@ -1664,8 +1687,8 @@ paths:
           description: Ресурс не найден
         '422':
           description: Неверный запрос
-      tags: *ref_19
-      security: *ref_20
+      tags: *ref_20
+      security: *ref_21
   /notification:
     post:
       operationId: NotificationController_create
@@ -1688,9 +1711,9 @@ paths:
           description: Неверный запрос
         '403':
           description: Отказ в доступе
-      tags: &ref_21
+      tags: &ref_22
         - notification
-      security: &ref_22
+      security: &ref_23
         - bearer: []
     get:
       operationId: NotificationController_getAll
@@ -1707,8 +1730,8 @@ paths:
                   $ref: '#/components/schemas/Notification'
         '403':
           description: Отказ в доступе
-      tags: *ref_21
-      security: *ref_22
+      tags: *ref_22
+      security: *ref_23
   /notification/{id}:
     get:
       operationId: NotificationController_findOne
@@ -1732,8 +1755,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_21
-      security: *ref_22
+      tags: *ref_22
+      security: *ref_23
     delete:
       operationId: NotificationController_remove
       summary: Удалить уведомление
@@ -1756,8 +1779,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_21
-      security: *ref_22
+      tags: *ref_22
+      security: *ref_23
     patch:
       operationId: NotificationController_update
       summary: Изменить уведомление
@@ -1788,8 +1811,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_21
-      security: *ref_22
+      tags: *ref_22
+      security: *ref_23
 info:
   title: API BotKits
   description: Ручки для команды frontend
@@ -2424,7 +2447,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-21T08:54:29.618Z
+          example: 2023-09-21T09:10:17.868Z
       required:
         - status
         - cardMask
@@ -2435,7 +2458,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-21T08:54:29.620Z
+          example: 2023-09-21T09:10:17.870Z
         amount:
           type: number
           example: 1000

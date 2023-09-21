@@ -47,6 +47,19 @@ export class ProfilesService {
     return null;
   }
 
+  async findByToken(token: string): Promise<Profile | null> {
+    const account = await this.account.findOne({
+      'credentials.accessToken': token,
+    });
+    if (account) {
+      const profile = await this.profile.findById(account.profile);
+      if (profile) {
+        return profile;
+      }
+    }
+    return null;
+  }
+
   async findAll(): Promise<Profile[]> {
     return await this.profile.find().exec();
   }

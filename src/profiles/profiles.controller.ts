@@ -8,6 +8,7 @@ import {
   Delete,
   BadRequestException,
   UseGuards,
+  Headers,
 } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -16,11 +17,11 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiHeader,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiResponse,
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
@@ -62,6 +63,21 @@ export class ProfilesController {
   @Get()
   findAll(): Promise<Profile[]> {
     return this.profilesService.findAll();
+  }
+
+  @ApiOperation({
+    summary: 'Получить текущий профиль',
+  })
+  @Get('me')
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Access токен',
+    required: true,
+  })
+  async findProfileByToken(@Headers('authorization') authHeader: string) {
+    const token = authHeader.split(' ')[1];
+    return await this.profilesService.findByToken(token);
   }
 
   @ApiOkResponse({
