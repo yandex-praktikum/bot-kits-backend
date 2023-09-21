@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -28,16 +29,19 @@ import { UpdatePlatformDto } from './dto/update-platform.dto';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 
 @UseGuards(JwtGuard)
-@ApiTags('Platforms')
+@ApiTags('platforms')
+@ApiBearerAuth()
 @Controller('platforms')
 export class PlatformController {
   constructor(private readonly platformService: PlatformService) {}
 
   @ApiBody({ type: CreatePlatformDto })
   @ApiCreatedResponse({
-    description: 'The record has been successfully created.',
+    description: 'Платформа успешно создана',
     type: Platform,
   })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @ApiOperation({
     summary: 'Создать новую платформу',
   })
@@ -47,10 +51,10 @@ export class PlatformController {
   }
 
   @ApiOkResponse({
-    description: 'The resources were returned successfully',
+    description: 'Платформы успешно получены',
     type: [Platform],
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiOperation({
     summary: 'Получить все платформы',
   })
@@ -60,14 +64,14 @@ export class PlatformController {
   }
 
   @ApiOkResponse({
-    description: 'The resource was returned successfully',
+    description: 'Платформа успешно получена',
     type: Platform,
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiParam({
     name: 'id',
-    description: 'Индификатор платформы',
+    description: 'Идентиификатор платформы',
     example: '64f81ba37571bfaac18a857f',
   })
   @ApiOperation({
@@ -76,21 +80,21 @@ export class PlatformController {
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Platform> {
     const platform = await this.platformService.findOne(id);
-    if (!platform) throw new BadRequestException('Resource not found');
+    if (!platform) throw new BadRequestException('Ресурс не найден');
     return platform;
   }
 
   @ApiOkResponse({
-    description: 'The resource was updated successfully',
+    description: 'Платформа успешно обновлена',
     type: Platform,
   })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiUnprocessableEntityResponse({ description: 'Bad Request' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: UpdatePlatformDto })
   @ApiParam({
     name: 'id',
-    description: 'Индификатор платформы',
+    description: 'Идентификатор платформы',
     example: '64f81ba37571bfaac18a857f',
   })
   @ApiOperation({
@@ -105,14 +109,14 @@ export class PlatformController {
   }
 
   @ApiOkResponse({
-    description: 'The resource was returned successfully',
+    description: 'Платформа успешно удалена',
     type: Platform,
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiParam({
     name: 'id',
-    description: 'Индификатор платформы',
+    description: 'Идентификатор платформы',
     example: '64f81ba37571bfaac18a857f',
   })
   @ApiOperation({

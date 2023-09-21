@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -18,21 +19,18 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 
 @UseGuards(JwtGuard)
-@ApiTags('Accounts')
+@ApiTags('accounts')
+@ApiBearerAuth()
 @Controller('accounts')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @ApiBody({ type: CreateAccountDto })
-  @ApiCreatedResponse({
-    description: 'The record has been successfully created.',
-    type: Account,
-  })
   @ApiOkResponse({
-    description: 'The resources were returned successfully',
+    description: 'Запрос выполнен успешно',
     type: [Account],
   })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiOperation({
     summary: 'Получить все аккаунты',
   })
@@ -42,12 +40,12 @@ export class AccountController {
   }
 
   @ApiOkResponse({
-    description: 'The resource was updated successfully',
+    description: 'Аккаунт успешно обновлен',
     type: Account,
   })
-  @ApiNotFoundResponse({ description: 'Resource not found' })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiUnprocessableEntityResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: UpdateAccountDto })
   @ApiParam({
     name: 'id',
