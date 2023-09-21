@@ -285,30 +285,69 @@ paths:
       parameters: []
       responses:
         '200':
-          description: ''
-      tags: *ref_0
-  /yandex/callback:
-    get:
-      operationId: AuthController_yandexCallback
-      summary: ''
-      parameters: []
-      responses:
-        '200':
-          description: ''
-      tags: *ref_0
-  /yandex/success:
-    get:
-      operationId: AuthController_yandexSuccess
-      summary: ''
-      parameters:
-        - name: token
-          required: true
-          in: query
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
+          description: Успешная регистрация
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    description: Имя пользователя
+                    example: test
+                  phone:
+                    type: string
+                    description: Номер телефона
+                    example: '+79999999999'
+                  avatar:
+                    type: string
+                    description: URL аватара
+                    example: https://i.pravatar.cc/300
+                  balance:
+                    type: number
+                    description: Баланс
+                    example: 0
+                  accounts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: Тип аккаунта
+                          example: local
+                        role:
+                          type: string
+                          description: Роль
+                          example: user
+                        credentials:
+                          type: object
+                          properties:
+                            email:
+                              type: string
+                              description: Email
+                              example: test@mail.ru
+                            accessToken:
+                              type: string
+                              description: AccessToken
+                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
+                            refreshToken:
+                              type: string
+                              description: RefreshToken
+                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
+                        profile:
+                          type: string
+                          description: 'Идентификатор профиля '
+                          example: 650b396dd4201e5ca499f3b3
+                        _id:
+                          type: string
+                          description: Идентификатор аккаунта
+                          example: 650b396dd4201e5ca499f3b3
+                    description: Список аккаунтов
+                  _id:
+                    type: string
+                    description: Идентификатор профиля
+                    example: 650b396dd4201e5ca499f3b3
       tags: *ref_0
   /google:
     get:
@@ -317,16 +356,69 @@ paths:
       parameters: []
       responses:
         '200':
-          description: ''
-      tags: *ref_0
-  /google/callback:
-    get:
-      operationId: AuthController_googleCallback
-      summary: ''
-      parameters: []
-      responses:
-        '200':
-          description: ''
+          description: Успешная регистрация
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    description: Имя пользователя
+                    example: test
+                  phone:
+                    type: string
+                    description: Номер телефона
+                    example: '+79999999999'
+                  avatar:
+                    type: string
+                    description: URL аватара
+                    example: https://i.pravatar.cc/300
+                  balance:
+                    type: number
+                    description: Баланс
+                    example: 0
+                  accounts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: Тип аккаунта
+                          example: local
+                        role:
+                          type: string
+                          description: Роль
+                          example: user
+                        credentials:
+                          type: object
+                          properties:
+                            email:
+                              type: string
+                              description: Email
+                              example: test@mail.ru
+                            accessToken:
+                              type: string
+                              description: AccessToken
+                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
+                            refreshToken:
+                              type: string
+                              description: RefreshToken
+                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
+                        profile:
+                          type: string
+                          description: 'Идентификатор профиля '
+                          example: 650b396dd4201e5ca499f3b3
+                        _id:
+                          type: string
+                          description: Идентификатор аккаунта
+                          example: 650b396dd4201e5ca499f3b3
+                    description: Список аккаунтов
+                  _id:
+                    type: string
+                    description: Идентификатор профиля
+                    example: 650b396dd4201e5ca499f3b3
       tags: *ref_0
   /reset-password:
     post:
@@ -2424,7 +2516,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-21T08:54:29.618Z
+          example: 2023-09-21T09:09:51.571Z
       required:
         - status
         - cardMask
@@ -2435,7 +2527,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-21T08:54:29.620Z
+          example: 2023-09-21T09:09:51.575Z
         amount:
           type: number
           example: 1000

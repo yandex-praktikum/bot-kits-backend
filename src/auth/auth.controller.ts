@@ -16,6 +16,7 @@ import {
   ApiBody,
   ApiResponse,
   ApiOkResponse,
+  ApiExcludeEndpoint,
 } from '@nestjs/swagger';
 import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService, ITokens } from './auth.service';
@@ -381,20 +382,95 @@ export class AuthController {
   @ApiOperation({
     summary: 'Авторизация через Yandex',
   })
-  @ApiOkResponse({
-    description: '',
+  @ApiResponse({
+    status: 200,
+    description: 'Успешная регистрация',
+    schema: {
+      type: 'object',
+      properties: {
+        username: {
+          type: 'string',
+          description: 'Имя пользователя',
+          example: 'test',
+        },
+        phone: {
+          type: 'string',
+          description: 'Номер телефона',
+          example: '+79999999999',
+        },
+        avatar: {
+          type: 'string',
+          description: 'URL аватара',
+          example: 'https://i.pravatar.cc/300',
+        },
+        balance: {
+          type: 'number',
+          description: 'Баланс',
+          example: 0,
+        },
+        accounts: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              type: {
+                type: 'string',
+                description: 'Тип аккаунта',
+                example: 'local',
+              },
+              role: {
+                type: 'string',
+                description: 'Роль',
+                example: 'user',
+              },
+              credentials: {
+                type: 'object',
+                properties: {
+                  email: {
+                    type: 'string',
+                    description: 'Email',
+                    example: 'test@mail.ru',
+                  },
+                  accessToken: {
+                    type: 'string',
+                    description: 'AccessToken',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
+                  },
+                  refreshToken: {
+                    type: 'string',
+                    description: 'RefreshToken',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
+                  },
+                },
+              },
+              profile: {
+                type: 'string',
+                description: 'Идентификатор профиля ',
+                example: '650b396dd4201e5ca499f3b3',
+              },
+              _id: {
+                type: 'string',
+                description: 'Идентификатор аккаунта',
+                example: '650b396dd4201e5ca499f3b3',
+              },
+            },
+          },
+          description: 'Список аккаунтов',
+        },
+        _id: {
+          type: 'string',
+          description: 'Идентификатор профиля',
+          example: '650b396dd4201e5ca499f3b3',
+        },
+      },
+    },
   })
   @UseGuards(YandexGuard)
   @Get('yandex')
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   yandexAuth() {}
 
-  @ApiOperation({
-    summary: '',
-  })
-  @ApiOkResponse({
-    description: '',
-  })
+  @ApiExcludeEndpoint(true)
   @UseGuards(YandexGuard)
   @Get('yandex/callback')
   async yandexCallback(@Req() req: IRequestYandexUser, @Res() res: Response) {
@@ -404,12 +480,7 @@ export class AuthController {
     );
   }
 
-  @ApiOperation({
-    summary: '',
-  })
-  @ApiOkResponse({
-    description: '',
-  })
+  @ApiExcludeEndpoint(true)
   @Get('yandex/success')
   async yandexSuccess(@Query('token') token: string) {
     return this.httpService
@@ -435,20 +506,95 @@ export class AuthController {
   @ApiOperation({
     summary: 'Авторизация через Google',
   })
-  @ApiOkResponse({
-    description: '',
+  @ApiResponse({
+    status: 200,
+    description: 'Успешная регистрация',
+    schema: {
+      type: 'object',
+      properties: {
+        username: {
+          type: 'string',
+          description: 'Имя пользователя',
+          example: 'test',
+        },
+        phone: {
+          type: 'string',
+          description: 'Номер телефона',
+          example: '+79999999999',
+        },
+        avatar: {
+          type: 'string',
+          description: 'URL аватара',
+          example: 'https://i.pravatar.cc/300',
+        },
+        balance: {
+          type: 'number',
+          description: 'Баланс',
+          example: 0,
+        },
+        accounts: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              type: {
+                type: 'string',
+                description: 'Тип аккаунта',
+                example: 'local',
+              },
+              role: {
+                type: 'string',
+                description: 'Роль',
+                example: 'user',
+              },
+              credentials: {
+                type: 'object',
+                properties: {
+                  email: {
+                    type: 'string',
+                    description: 'Email',
+                    example: 'test@mail.ru',
+                  },
+                  accessToken: {
+                    type: 'string',
+                    description: 'AccessToken',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
+                  },
+                  refreshToken: {
+                    type: 'string',
+                    description: 'RefreshToken',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
+                  },
+                },
+              },
+              profile: {
+                type: 'string',
+                description: 'Идентификатор профиля ',
+                example: '650b396dd4201e5ca499f3b3',
+              },
+              _id: {
+                type: 'string',
+                description: 'Идентификатор аккаунта',
+                example: '650b396dd4201e5ca499f3b3',
+              },
+            },
+          },
+          description: 'Список аккаунтов',
+        },
+        _id: {
+          type: 'string',
+          description: 'Идентификатор профиля',
+          example: '650b396dd4201e5ca499f3b3',
+        },
+      },
+    },
   })
   @UseGuards(GoogleGuard)
   @Get('google')
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   googleAuth() {}
 
-  @ApiOperation({
-    summary: '',
-  })
-  @ApiOkResponse({
-    description: '',
-  })
+  @ApiExcludeEndpoint(true)
   @UseGuards(GoogleGuard)
   @Get('google/callback')
   async googleCallback(@Req() req: any) {
