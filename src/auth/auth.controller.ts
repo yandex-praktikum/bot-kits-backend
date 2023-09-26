@@ -5,8 +5,8 @@ import {
   Req,
   Body,
   Get,
-  Res,
-  Query,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { LocalGuard } from './guards/localAuth.guard';
@@ -15,18 +15,17 @@ import {
   ApiOperation,
   ApiBody,
   ApiResponse,
-  ApiOkResponse,
   ApiExcludeEndpoint,
 } from '@nestjs/swagger';
 import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService, ITokens } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
-import { YandexGuard } from './guards/yandex.guards';
 import { HttpService } from '@nestjs/axios';
-import { mergeMap } from 'rxjs';
 import { CombinedDto } from './dto/combined.dto';
 import TypeAccount from 'src/accounts/types/type-account';
 import { GoogleGuard } from './guards/google.guard';
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
@@ -51,6 +50,7 @@ export class AuthController {
     private httpService: HttpService,
     private authService: AuthService,
     private readonly authDtoPipe: AuthDtoPipe,
+    private readonly configService: ConfigService,
   ) {}
 
   @UseGuards(LocalGuard)
@@ -465,42 +465,50 @@ export class AuthController {
       },
     },
   })
-  @UseGuards(YandexGuard)
-  @Get('yandex')
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  yandexAuth() {}
+  @Post('yandex/exchange')
+  async exchangeCode(@Body('codeAuth') codeAuth: string) {
+    const CLIENT_ID = this.configService.get('YANDEX_APP_ID');
+    const CLIENT_SECRET = this.configService.get('YANDEX_APP_SECRET');
+    const TOKEN_URL = 'https://oauth.yandex.ru/token';
+    const USER_INFO_URL = 'https://login.yandex.ru/info?format=json';
 
-  @ApiExcludeEndpoint(true)
-  @UseGuards(YandexGuard)
-  @Get('yandex/callback')
-  async yandexCallback(@Req() req: IRequestYandexUser, @Res() res: Response) {
-    const token = req.user['accessToken'];
-    return res.redirect(
-      `https://botkits.nomoreparties.co/api/yandex/success?token=${token}`,
-    );
-  }
-
-  @ApiExcludeEndpoint(true)
-  @Get('yandex/success')
-  async yandexSuccess(@Query('token') token: string) {
-    return this.httpService
-      .get(`https://login.yandex.ru/info?format=json&oauth_token=${token}`)
-      .pipe(
-        mergeMap(({ data }) => {
-          const newAccount: CombinedDto = {
-            email: data.default_email,
-            password: '',
-            username: data.display_name,
-            phone: data.default_phone.number,
-            avatar: data.default_avatar_id,
-          };
-          const authDto = this.authDtoPipe.transform(newAccount, {
-            type: 'body',
-            data: 'combinedDto',
-          });
-          return this.authService.authSocial(authDto, TypeAccount.YANDEX);
-        }),
+    try {
+      const tokenResponse = await axios.post(
+        TOKEN_URL,
+        `grant_type=authorization_code&code=${codeAuth}`,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${Buffer.from(
+              `${CLIENT_ID}:${CLIENT_SECRET}`,
+            ).toString('base64')}`,
+          },
+        },
       );
+      const accessToken = tokenResponse.data.access_token;
+
+      const userDataResponse = await axios.get(
+        `${USER_INFO_URL}&oauth_token=${accessToken}`,
+      );
+      const newAccount: CombinedDto = {
+        email: userDataResponse.data.default_email,
+        password: '',
+        username:
+          userDataResponse.data.real_name || userDataResponse.data.first_name,
+        phone: userDataResponse.data.default_phone.number,
+        avatar: '',
+      };
+      const authDto = this.authDtoPipe.transform(newAccount, {
+        type: 'body',
+        data: 'combinedDto',
+      });
+      return this.authService.authSocial(authDto, TypeAccount.YANDEX);
+    } catch (error) {
+      throw new HttpException(
+        'Ошибка в процессе авторизации через Яндекс',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   @ApiOperation({
