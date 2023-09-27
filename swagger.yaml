@@ -21,99 +21,20 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  example: test@mail.ru
-                password:
-                  type: string
-                  example: '123'
+              $ref: '#/components/schemas/SignInRequestBody'
       responses:
         '201':
           description: Успешный вход в систему
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  _id:
-                    type: string
-                    description: Идентификатор
-                    example: 650b396dd4201e5ca499f3b3
-                  username:
-                    type: string
-                    description: Имя пользователя
-                    example: test
-                  phone:
-                    type: string
-                    description: Номер телефона
-                    example: '+79999999999'
-                  avatar:
-                    type: string
-                    description: URL аватара
-                    example: https://i.pravatar.cc/300
-                  balance:
-                    type: number
-                    description: Баланс
-                    example: 0
-                  accounts:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                          description: Идентификатор аккаунта
-                          example: 650b396ed4201e5ca499f3b5
-                        type:
-                          type: string
-                          description: Тип аккаунта
-                          example: local
-                        role:
-                          type: string
-                          description: Роль аккаунта
-                          example: user
-                        credentials:
-                          type: object
-                          properties:
-                            email:
-                              type: string
-                              description: Email
-                              example: test@mail.ru
-                            accessToken:
-                              type: string
-                              description: AccessToken
-                              example: >-
-                                eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTBiMzk2ZGQ0MjAxZTVjYTQ5OWYzYjMiLCJpYXQiOjE2OTUyMzQ0MTQsImV4cCI6MTY5NTMyMDgxNH0.1GIu8iWeg8iWF-i5iynAhelc7kO3ouj09boZHjqn5HE
-                            refreshToken:
-                              type: string
-                              description: RefreshToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                        profile:
-                          type: string
-                          description: Идентификатор профиля
-                          example: 650b396dd4201e5ca499f3b3
-                    description: Список аккаунтов
+                $ref: '#/components/schemas/SigninResponseBodyOK'
         '401':
           description: Неверное имя пользователя или пароль
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Неверное имя пользователя или пароль
-                    description: Сообщение об ошибке
-                  error:
-                    type: string
-                    example: Unauthorized
-                    description: Тип ошибки
-                  statusCode:
-                    type: number
-                    example: '401'
-                    description: HTTP-статус код
+                $ref: '#/components/schemas/SigninResponseBodyNotOK'
       tags: &ref_0
         - auth
   /signup:
@@ -126,85 +47,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                password:
-                  type: string
-                  example: '123'
-                email:
-                  type: string
-                  example: test@mail.ru
-                phone:
-                  type: string
-                  example: '+79999999999'
-                username:
-                  type: string
-                  example: test
+              $ref: '#/components/schemas/SignUpRequestBody'
       responses:
         '201':
           description: Успешная регистрация
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  username:
-                    type: string
-                    description: Имя пользователя
-                    example: test
-                  phone:
-                    type: string
-                    description: Номер телефона
-                    example: '+79999999999'
-                  avatar:
-                    type: string
-                    description: URL аватара
-                    example: https://i.pravatar.cc/300
-                  balance:
-                    type: number
-                    description: Баланс
-                    example: 0
-                  accounts:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          description: Тип аккаунта
-                          example: local
-                        role:
-                          type: string
-                          description: Роль
-                          example: user
-                        credentials:
-                          type: object
-                          properties:
-                            email:
-                              type: string
-                              description: Email
-                              example: test@mail.ru
-                            accessToken:
-                              type: string
-                              description: AccessToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                            refreshToken:
-                              type: string
-                              description: RefreshToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                        profile:
-                          type: string
-                          description: 'Идентификатор профиля '
-                          example: 650b396dd4201e5ca499f3b3
-                        _id:
-                          type: string
-                          description: Идентификатор аккаунта
-                          example: 650b396dd4201e5ca499f3b3
-                    description: Список аккаунтов
-                  _id:
-                    type: string
-                    description: Идентификатор профиля
-                    example: 650b396dd4201e5ca499f3b3
+                $ref: '#/components/schemas/SigninResponseBodyOK'
         '400':
           description: Некорректные данные
         '409':
@@ -212,20 +62,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Аккаунт уже существует
-                    description: Сообщение об ошибке
-                  error:
-                    type: string
-                    example: Conflict
-                    description: Тип ошибки
-                  statusCode:
-                    type: number
-                    example: '409'
-                    description: HTTP-статус код
+                $ref: '#/components/schemas/SignupResponseBodyNotOK'
       tags: *ref_0
   /refresh-token:
     post:
@@ -237,27 +74,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                refreshToken:
-                  type: string
-                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
+              $ref: '#/components/schemas/RefreshRequestBody'
       responses:
         '201':
           description: accessToken успешно обновлен
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  accessToken:
-                    type: string
-                    description: accessToken по умолчанию действует 1 день
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                  refreshToken:
-                    type: string
-                    description: refreshToken по умолчанию действует 7 дней
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
+                $ref: '#/components/schemas/refreshTokenResponseBodyOK'
         '401':
           description: Невалидный refreshToken
           content:
@@ -1950,6 +1774,125 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    SignInRequestBody:
+      type: object
+      properties:
+        email:
+          type: string
+          example: test@mail.ru
+          description: Почта пользователя
+        password:
+          type: string
+          example: '123'
+          description: Пароль пользователя
+      required:
+        - email
+        - password
+    SigninResponseBodyOK:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 650b396dd4201e5ca499f3b3
+        username:
+          type: string
+          example: test
+        phone:
+          type: string
+          example: '+79999999999'
+        avatar:
+          type: string
+          example: https://i.pravatar.cc/300
+        balance:
+          type: number
+          example: 0
+        accounts:
+          type: array
+          example:
+            - _id: 650b396ed4201e5ca499f3b5
+              type: local
+              role: user
+              credentials:
+                email: test@mail.ru
+                accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+              profile: 650b396dd4201e5ca499f3b3
+      required:
+        - accounts
+    SigninResponseBodyNotOK:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Неверное имя пользователя или пароль
+          description: Сообщение об ошибке
+        error:
+          type: string
+          example: Unauthorized
+          description: Тип ошибки
+        statusCode:
+          type: number
+          example: '401'
+          description: HTTP-статус код
+    SignUpRequestBody:
+      type: object
+      properties:
+        password:
+          type: string
+          example: '123'
+          description: Пароль пользователя
+        email:
+          type: string
+          example: test@mail.ru
+          description: Email пользователя
+        phone:
+          type: string
+          example: '+79999999999'
+          description: Телефонный номер пользователя
+        username:
+          type: string
+          example: test
+          description: Имя пользователя
+      required:
+        - password
+        - email
+        - phone
+        - username
+    SignupResponseBodyNotOK:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Аккаунт уже существует
+          description: Сообщение об ошибке
+        error:
+          type: string
+          example: Conflict
+          description: Тип ошибки
+        statusCode:
+          type: number
+          example: '409'
+          description: HTTP-статус код
+    RefreshRequestBody:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+          description: Выданный рефреш токен
+      required:
+        - refreshToken
+    refreshTokenResponseBodyOK:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+          description: accessToken по умолчанию действует 1 день
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+          description: refreshToken по умолчанию действует 7 день
     Credentials:
       type: object
       properties:
@@ -2575,7 +2518,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-26T13:52:42.098Z
+          example: 2023-09-27T09:17:28.156Z
       required:
         - status
         - cardMask
@@ -2586,7 +2529,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-26T13:52:42.100Z
+          example: 2023-09-27T09:17:28.163Z
         amount:
           type: number
           example: 1000
