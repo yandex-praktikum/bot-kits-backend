@@ -3,6 +3,8 @@ import {
   Injectable,
   UnauthorizedException,
   NotFoundException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from '../hash/hash.service';
@@ -12,6 +14,8 @@ import { AccountService } from 'src/accounts/accounts.service';
 import TypeAccount from 'src/accounts/types/type-account';
 import { AuthDto } from './dto/auth.dto';
 import Role from 'src/accounts/types/role';
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 
 export interface ITokens {
   accessToken: string;
@@ -25,6 +29,7 @@ export class AuthService {
     private profilesService: ProfilesService,
     private accountService: AccountService,
     private hashService: HashService,
+    private readonly configService: ConfigService,
   ) {}
 
   private async getTokens(profileId): Promise<ITokens> {
@@ -167,5 +172,38 @@ export class AuthService {
     }
 
     return await this.registration(dataLogin, typeAccount);
+  }
+
+  async authYandex(codeAuth: string) {
+    const CLIENT_ID = this.configService.get('YANDEX_APP_ID');
+    const CLIENT_SECRET = this.configService.get('YANDEX_APP_SECRET');
+    const TOKEN_URL = 'https://oauth.yandex.ru/token';
+    const USER_INFO_URL = 'https://login.yandex.ru/info?format=json';
+
+    try {
+      const tokenResponse = await axios.post(
+        TOKEN_URL,
+        `grant_type=authorization_code&code=${codeAuth}`,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${Buffer.from(
+              `${CLIENT_ID}:${CLIENT_SECRET}`,
+            ).toString('base64')}`,
+          },
+        },
+      );
+      const accessToken = tokenResponse.data.access_token;
+
+      const userDataResponse = await axios.get(
+        `${USER_INFO_URL}&oauth_token=${accessToken}`,
+      );
+      return userDataResponse;
+    } catch (error) {
+      throw new HttpException(
+        'Ошибка в процессе авторизации через Яндекс',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

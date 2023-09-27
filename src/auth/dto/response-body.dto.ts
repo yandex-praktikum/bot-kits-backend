@@ -69,6 +69,37 @@ const refreshTokenBodyDescription: IFieldDescription[] = [
   ),
 ];
 
+const badRequestRefreshTokeDescription: IFieldDescription[] = [
+  createField(
+    'message',
+    'Невалидный refreshToken',
+    'string',
+    'Сообщение об ошибке',
+  ),
+  createField('error', 'Unauthorized', 'string', 'Тип ошибки'),
+  createField('statusCode', '401', 'number', 'HTTP-статус код'),
+];
+
+const resetPasswordResBodyDescription: IFieldDescription[] = [
+  createField(
+    'message',
+    'Ссылка на сброс пароля отправлена на ваш email: test@mail.ru',
+    'string',
+    'Сообщение об успешном сбросе пароля',
+  ),
+];
+
+const badRequestResetPasswordDescription: IFieldDescription[] = [
+  createField(
+    'message',
+    'Пользователь с указанным Email не найден',
+    'string',
+    'Сообщение об ошибке',
+  ),
+  createField('error', 'Not Found', 'string', 'Тип ошибки'),
+  createField('statusCode', '404', 'number', 'HTTP-статус код'),
+];
+
 export const SigninResponseBodyOK = new ApiPropertyFactory(
   userDescription,
 ).generate('SigninResponseBodyOK');
@@ -84,3 +115,15 @@ export const SignupResponseBodyNotOK = new ApiPropertyFactory(
 export const refreshTokenResponseBodyOK = new ApiPropertyFactory(
   refreshTokenBodyDescription,
 ).generate('refreshTokenResponseBodyOK');
+
+export const refreshTokenResponseBodyNotOK = new ApiPropertyFactory(
+  badRequestRefreshTokeDescription,
+).generate('refreshTokenResponseBodyNotOK');
+
+export const ResetPasswordResponseBodyOK = new ApiPropertyFactory(
+  resetPasswordResBodyDescription,
+).generate('ResetPasswordResponseBodyOK');
+
+export const ResetPasswordResponseBodyNotFound = new ApiPropertyFactory(
+  badRequestResetPasswordDescription,
+).generate('ResetPasswordResponseBodyNotFound');

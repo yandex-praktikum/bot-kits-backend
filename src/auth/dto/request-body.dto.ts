@@ -32,6 +32,10 @@ const refreshTokenfield: IFieldDescription[] = [
   ),
 ];
 
+const resetPasswordFields: IFieldDescription[] = [
+  createField('email', 'test@mail.ru', 'string', 'Почта пользователя', true),
+];
+
 export const SigninRequestBody = new ApiPropertyFactory(signInFields).generate(
   'SignInRequestBody',
 );
@@ -43,3 +47,7 @@ export const SignupRequestBody = new ApiPropertyFactory(signUpFields).generate(
 export const RefreshTokenRequestBody = new ApiPropertyFactory(
   refreshTokenfield,
 ).generate('RefreshRequestBody');
+
+export const ResetPasswordRequestBody = new ApiPropertyFactory(
+  resetPasswordFields,
+).generate('ResetPasswordRequestBody');
