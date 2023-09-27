@@ -19,7 +19,7 @@ const accountsDescription: IFieldDescription = createNestedObject([
   createField('profile', '650b396dd4201e5ca499f3b3', 'string'),
 ]);
 
-const userDescription: IFieldDescription[] = [
+const profileDescription: IFieldDescription[] = [
   createField('_id', '650b396dd4201e5ca499f3b3', 'string'),
   createField('username', 'test', 'string'),
   createField('phone', '+79999999999', 'string'),
@@ -101,7 +101,7 @@ const badRequestResetPasswordDescription: IFieldDescription[] = [
 ];
 
 export const SigninResponseBodyOK = new ApiPropertyFactory(
-  userDescription,
+  profileDescription,
 ).generate('SigninResponseBodyOK');
 
 export const SigninResponseBodyNotOK = new ApiPropertyFactory(
