@@ -45,8 +45,10 @@ export class AuthService {
       profile._id,
       tokens,
     );
-    const findProfile = await this.profilesService.findById(authProfile._id);
-    return findProfile;
+    return await this.profilesService.findByIdAndProvider(
+      authProfile._id,
+      TypeAccount.LOCAL,
+    );
   }
 
   async validatePassword(
@@ -133,12 +135,10 @@ export class AuthService {
     profile.accounts.push(newAccount);
     await profile.save();
 
-    const returnProfile = await this.profilesService.findById(profile._id);
-    returnProfile.accounts.map((account) => {
-      delete account.credentials.password;
-    });
-
-    return returnProfile;
+    return await this.profilesService.findByIdAndProvider(
+      profile._id,
+      provider,
+    );
   }
 
   async sendPasswordResetEmail(email) {
@@ -162,13 +162,18 @@ export class AuthService {
         user.profile._id,
       );
 
-      return await this.accountService.update(user._id, {
+      await this.accountService.update(user._id, {
         credentials: {
           email: user.credentials.email,
           refreshToken,
           accessToken,
         },
       });
+
+      return this.profilesService.findByIdAndProvider(
+        user.profile._id,
+        typeAccount,
+      );
     }
 
     return await this.registration(dataLogin, typeAccount);
