@@ -30,6 +30,7 @@ import {
   refreshTokenResponseBodyNotOK,
   refreshTokenResponseBodyOK,
 } from './dto/response-body.dto';
+import { VkontakteGuard } from './guards/vkontakte.guards';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
@@ -137,6 +138,117 @@ export class AuthController {
       data: 'combinedDto',
     });
     return await this.authService.authSocial(authDto, TypeAccount.YANDEX);
+  }
+
+  @ApiOperation({
+    summary: 'Авторизация через Вконтакте',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Успешная регистрация',
+    schema: {
+      type: 'object',
+      properties: {
+        username: {
+          type: 'string',
+          description: 'Имя пользователя',
+          example: 'test',
+        },
+        phone: {
+          type: 'string',
+          description: 'Номер телефона',
+          example: '+79999999999',
+        },
+        avatar: {
+          type: 'string',
+          description: 'URL аватара',
+          example: 'https://i.pravatar.cc/300',
+        },
+        balance: {
+          type: 'number',
+          description: 'Баланс',
+          example: 0,
+        },
+        accounts: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              type: {
+                type: 'string',
+                description: 'Тип аккаунта',
+                example: 'vk',
+              },
+              role: {
+                type: 'string',
+                description: 'Роль',
+                example: 'user',
+              },
+              credentials: {
+                type: 'object',
+                properties: {
+                  email: {
+                    type: 'string',
+                    description: 'Email',
+                    example: 'test@mail.ru',
+                  },
+                  accessToken: {
+                    type: 'string',
+                    description: 'AccessToken',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
+                  },
+                  refreshToken: {
+                    type: 'string',
+                    description: 'RefreshToken',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
+                  },
+                },
+              },
+              profile: {
+                type: 'string',
+                description: 'Идентификатор профиля ',
+                example: '650b396dd4201e5ca499f3b3',
+              },
+              _id: {
+                type: 'string',
+                description: 'Идентификатор аккаунта',
+                example: '650b396dd4201e5ca499f3b3',
+              },
+            },
+          },
+          description: 'Список аккаунтов',
+        },
+        _id: {
+          type: 'string',
+          description: 'Идентификатор профиля',
+          example: '650b396dd4201e5ca499f3b3',
+        },
+      },
+    },
+  })
+  @UseGuards(VkontakteGuard)
+  @Get('vkontakte')
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  vkontakteAuth() {}
+
+  @ApiExcludeEndpoint(true)
+  @UseGuards(VkontakteGuard)
+  @Get('vkontakte/callback')
+  async vkontakteCallback(@Req() req: any) {
+    const { email, username, avatar } = req.user.profile;
+    const newAccount: CombinedDto = {
+      email,
+      password: '',
+      username,
+      phone: ' ',
+      avatar,
+    };
+
+    const authDto = this.authDtoPipe.transform(newAccount, {
+      type: 'body',
+      data: 'combinedDto',
+    });
+    return this.authService.authSocial(authDto, TypeAccount.VK);
   }
 
   @ApiOperation({
