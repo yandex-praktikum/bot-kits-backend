@@ -6,6 +6,7 @@ import { CreateProfileDto } from './dto/create-profile.dto';
 import { Profile } from './schema/profile.schema';
 import { Account } from 'src/accounts/schema/account.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import TypeAccount from 'src/accounts/types/type-account';
 
 @Injectable()
 export class ProfilesService {
@@ -33,6 +34,16 @@ export class ProfilesService {
         delete account.credentials.password;
       }
     });
+    return profile;
+  }
+
+  async findByIdAndProvider(id: Types.ObjectId, provider: TypeAccount) {
+    const profile = await this.profile.findOne({ _id: id }).populate({
+      path: 'accounts',
+      match: { type: provider },
+      options: { sort: { type: 1 } },
+    });
+    delete profile.accounts[0].credentials.password;
     return profile;
   }
 
