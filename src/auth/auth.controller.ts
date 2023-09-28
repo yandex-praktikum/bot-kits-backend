@@ -31,6 +31,7 @@ import {
   refreshTokenResponseBodyOK,
 } from './dto/response-body.dto';
 import { VkontakteGuard } from './guards/vkontakte.guards';
+import { Account } from 'src/accounts/schema/account.schema';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
@@ -61,7 +62,7 @@ export class AuthController {
     description: 'Неверное имя пользователя или пароль',
     type: SigninResponseBodyNotOK,
   })
-  async signin(@Req() req: RequestProfile): Promise<Profile> {
+  async signin(@Req() req: RequestProfile): Promise<Account> {
     return this.authService.auth(req.user);
   }
 
@@ -79,7 +80,7 @@ export class AuthController {
     description: 'Аккаунт уже существует',
     type: SignupResponseBodyNotOK,
   })
-  async signup(@Body() combinedDto: CombinedDto): Promise<Profile> {
+  async signup(@Body() combinedDto: CombinedDto): Promise<Account> {
     const newAccount: CombinedDto = {
       email: combinedDto.email,
       password: combinedDto.password,

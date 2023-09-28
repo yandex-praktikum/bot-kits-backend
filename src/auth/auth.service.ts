@@ -16,6 +16,7 @@ import { AuthDto } from './dto/auth.dto';
 import Role from 'src/accounts/types/role';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { Account } from 'src/accounts/schema/account.schema';
 
 export interface ITokens {
   accessToken: string;
@@ -39,13 +40,13 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async auth(profile: ProfileDocument): Promise<Profile> {
+  async auth(profile: ProfileDocument): Promise<Account> {
     const tokens = await this.getTokens(profile._id);
     const authProfile = await this.accountService.saveRefreshToken(
       profile._id,
       tokens,
     );
-    return await this.profilesService.findByIdAndProvider(
+    return await this.accountService.findByIdAndProvider(
       authProfile._id,
       TypeAccount.LOCAL,
     );
@@ -97,7 +98,7 @@ export class AuthService {
     authDto: AuthDto,
     provider: TypeAccount = TypeAccount.LOCAL,
     role: Role = Role.USER,
-  ): Promise<Profile> {
+  ): Promise<Account> {
     const { profileData, accountData } = authDto;
     const email = accountData.credentials.email;
     accountData.type = provider;
@@ -135,10 +136,7 @@ export class AuthService {
     profile.accounts.push(newAccount);
     await profile.save();
 
-    return await this.profilesService.findByIdAndProvider(
-      profile._id,
-      provider,
-    );
+    return await this.accountService.findByIdAndProvider(profile._id, provider);
   }
 
   async sendPasswordResetEmail(email) {
@@ -170,7 +168,7 @@ export class AuthService {
         },
       });
 
-      return this.profilesService.findByIdAndProvider(
+      return this.accountService.findByIdAndProvider(
         user.profile._id,
         typeAccount,
       );
