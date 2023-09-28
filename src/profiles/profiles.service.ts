@@ -37,16 +37,6 @@ export class ProfilesService {
     return profile;
   }
 
-  async findByIdAndProvider(id: Types.ObjectId, provider: TypeAccount) {
-    const profile = await this.profile.findOne({ _id: id }).populate({
-      path: 'accounts',
-      match: { type: provider },
-      options: { sort: { type: 1 } },
-    });
-    delete profile.accounts[0].credentials.password;
-    return profile;
-  }
-
   async findByEmail(email: string): Promise<Profile | null> {
     const account = await this.account.findOne({ 'credentials.email': email });
     if (account) {

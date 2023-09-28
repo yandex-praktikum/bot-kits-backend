@@ -74,6 +74,21 @@ export class AccountService {
       .populate('profile');
   }
 
+  async findByIdAndProvider(
+    id: Types.ObjectId,
+    provider: TypeAccount,
+  ): Promise<Account> {
+    const account: Account = await this.accountModel
+      .findOne({
+        profile: id,
+        type: provider,
+      })
+      .populate('profile');
+    delete account.credentials.password;
+    account.profile.accounts = undefined;
+    return account;
+  }
+
   async findAndDeleteRefreshToken(refreshToken: string) {
     const account = await this.accountModel.findOne({
       'credentials.refreshToken': refreshToken,
