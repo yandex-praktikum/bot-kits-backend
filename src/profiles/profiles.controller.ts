@@ -28,6 +28,7 @@ import {
 import { Profile } from './schema/profile.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
+import { Account } from 'src/accounts/schema/account.schema';
 
 @UseGuards(JwtGuard)
 @ApiTags('profiles')
@@ -99,6 +100,25 @@ export class ProfilesController {
     const profile = await this.profilesService.findOne(id);
     if (!profile) throw new BadRequestException('Ресурс не найден');
     return profile;
+  }
+
+  @ApiOkResponse({
+    description: 'Аккаунты профиля успешно получены',
+    type: [Account],
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор профиля',
+    example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiOperation({
+    summary: 'Получить все аккаунты пользователя по id профиля',
+  })
+  @Get(':id/accounts')
+  async findAccountByProfileId(@Param('id') id: string): Promise<Account[]> {
+    return await this.profilesService.findAccountsById(id);
   }
 
   @ApiOkResponse({

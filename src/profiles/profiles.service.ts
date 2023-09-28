@@ -1,3 +1,4 @@
+import { profile } from 'console';
 ////scr/profiles/profiles.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -25,7 +26,12 @@ export class ProfilesService {
     return profile;
   }
 
-  async findById(id: Types.ObjectId): Promise<Profile> {
+  async findAccountsById(id: string): Promise<Account[]> {
+    const profile = await this.findById(id);
+    return profile.accounts;
+  }
+
+  async findById(id: string): Promise<Profile> {
     const profile = await (
       await this.profile.findById(id)
     ).populate('accounts');
