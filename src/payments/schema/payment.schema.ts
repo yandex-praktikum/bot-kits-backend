@@ -3,10 +3,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Profile } from 'src/profiles/schema/profile.schema';
 import TypeOperation from '../types/type-operation';
+import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 
 export type PaymentDocument = HydratedDocument<Payment>;
 
-@Schema({ timestamps: true })
+@Schema(baseSchemaOptions)
 export class Payment {
   @ApiProperty({ example: new Date() })
   @Prop({ required: true })

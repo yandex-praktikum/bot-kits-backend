@@ -5,6 +5,7 @@ import TypeAccount from '../types/type-account';
 import Role from '../types/role';
 import { ApiProperty } from '@nestjs/swagger';
 import { Profile } from 'src/profiles/schema/profile.schema';
+import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 
 export type AccountDocument = HydratedDocument<Account>;
 
@@ -25,7 +26,7 @@ class Credentials {
   refreshToken: string;
 }
 
-@Schema({ versionKey: false }) //--Отключит поле __v для всех документов--//
+@Schema(baseSchemaOptions) //--Отключит поле __v для всех документов--//
 export class Account extends Document {
   @ApiProperty({ example: 'local' })
   @Prop({
