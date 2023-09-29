@@ -5,6 +5,7 @@ import { Profile } from '../../profiles/schema/profile.schema';
 import { fullPermission, LEVEL_ACCESS, TPermission } from '../types/types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, ValidateNested } from 'class-validator';
+import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 
 export class Permission implements TPermission {
   @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
@@ -36,7 +37,7 @@ export class Permission implements TPermission {
   mini_landing?: LEVEL_ACCESS;
 }
 
-@Schema({ timestamps: true })
+@Schema(baseSchemaOptions)
 export class BotAccess extends Document {
   @ApiProperty({ example: '64ff89e7faea577804940275' })
   _id: string;

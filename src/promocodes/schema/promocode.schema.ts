@@ -1,8 +1,9 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
+import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 
-@Schema({ timestamps: true }) //Включает поля createdAt и updatedAt
+@Schema(baseSchemaOptions) //Включает поля createdAt и updatedAt
 export class Promocode extends Document {
   @ApiProperty({ example: 'PROMO50' })
   @Prop({ required: true, unique: true })

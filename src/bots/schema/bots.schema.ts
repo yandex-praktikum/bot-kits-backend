@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { HydratedDocument, Document } from 'mongoose';
 import { IsString } from 'class-validator';
 import { Profile } from '../../profiles/schema/profile.schema';
+import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 
 export type BotDocument = HydratedDocument<Bot>;
 
@@ -24,7 +25,7 @@ export class Messenger {
   url?: string;
 }
 
-@Schema()
+@Schema(baseSchemaOptions)
 export class Bot extends Document {
   @ApiProperty({
     example:
