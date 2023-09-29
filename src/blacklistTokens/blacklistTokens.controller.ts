@@ -4,8 +4,8 @@ import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 import {
   ApiBearerAuth,
   ApiHeader,
+  ApiOkResponse,
   ApiOperation,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -27,8 +27,7 @@ export class BlacklistTokensController {
     description: 'Access токен',
     required: true,
   })
-  @ApiResponse({
-    status: 201,
+  @ApiOkResponse({
     description: 'Пользователь успешно разлогинен',
     schema: {
       type: 'object',

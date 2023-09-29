@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiForbiddenResponse,
@@ -8,7 +9,6 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
-  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 
 import { AccountService } from './accounts.service';
@@ -44,7 +44,7 @@ export class AccountController {
   })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: UpdateAccountDto })
   @ApiParam({
     name: 'id',

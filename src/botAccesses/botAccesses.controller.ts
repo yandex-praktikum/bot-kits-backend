@@ -22,10 +22,10 @@ import {
   ApiCreatedResponse,
   ApiBody,
   ApiForbiddenResponse,
-  ApiUnprocessableEntityResponse,
   ApiParam,
   ApiNotFoundResponse,
   ApiBearerAuth,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 
 @ApiTags('botAccesses')
@@ -46,7 +46,7 @@ export class BotAccessesController {
     type: BotAccess,
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: CreateBotAccessDto })
   create(
     @Req() req,
@@ -99,7 +99,7 @@ export class BotAccessesController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: UpdateBotAccessDto })
   @ApiParam({
     name: 'id',
@@ -179,7 +179,7 @@ export class BotAccessesController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: ShareBotAccessDto })
   @ApiParam({
     name: 'botId',

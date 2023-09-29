@@ -13,6 +13,7 @@ import {
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
@@ -23,7 +24,6 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
-  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { Profile } from './schema/profile.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -46,7 +46,7 @@ export class ProfilesController {
     type: Profile,
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @Post()
   create(@Body() createProfileDto: CreateProfileDto) {
     return this.profilesService.create(createProfileDto);
@@ -127,7 +127,7 @@ export class ProfilesController {
   })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: UpdateProfileDto })
   @ApiParam({
     name: 'id',

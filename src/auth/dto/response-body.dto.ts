@@ -1,3 +1,4 @@
+import { HttpStatus } from '@nestjs/common';
 import {
   ApiPropertyFactory,
   IFieldDescription,
@@ -40,7 +41,12 @@ const badRequestSigninDescription: IFieldDescription[] = [
     'Сообщение об ошибке',
   ),
   createField('error', 'Unauthorized', 'string', 'Тип ошибки'),
-  createField('statusCode', '401', 'number', 'HTTP-статус код'),
+  createField(
+    'statusCode',
+    HttpStatus.UNAUTHORIZED,
+    'number',
+    'HTTP-статус код',
+  ),
 ];
 
 const badRequestSignupDescription: IFieldDescription[] = [
@@ -51,7 +57,7 @@ const badRequestSignupDescription: IFieldDescription[] = [
     'Сообщение об ошибке',
   ),
   createField('error', 'Conflict', 'string', 'Тип ошибки'),
-  createField('statusCode', '409', 'number', 'HTTP-статус код'),
+  createField('statusCode', HttpStatus.CONFLICT, 'number', 'HTTP-статус код'),
 ];
 
 const refreshTokenBodyDescription: IFieldDescription[] = [
@@ -77,7 +83,12 @@ const badRequestRefreshTokeDescription: IFieldDescription[] = [
     'Сообщение об ошибке',
   ),
   createField('error', 'Unauthorized', 'string', 'Тип ошибки'),
-  createField('statusCode', '401', 'number', 'HTTP-статус код'),
+  createField(
+    'statusCode',
+    HttpStatus.UNAUTHORIZED,
+    'number',
+    'HTTP-статус код',
+  ),
 ];
 
 const resetPasswordResBodyDescription: IFieldDescription[] = [
@@ -97,7 +108,7 @@ const badRequestResetPasswordDescription: IFieldDescription[] = [
     'Сообщение об ошибке',
   ),
   createField('error', 'Not Found', 'string', 'Тип ошибки'),
-  createField('statusCode', '404', 'number', 'HTTP-статус код'),
+  createField('statusCode', HttpStatus.NOT_FOUND, 'number', 'HTTP-статус код'),
 ];
 
 export const SigninResponseBodyOK = new ApiPropertyFactory(

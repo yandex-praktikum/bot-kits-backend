@@ -20,8 +20,8 @@ import {
   ApiCreatedResponse,
   ApiConflictResponse,
   ApiParam,
-  ApiUnprocessableEntityResponse,
   ApiBearerAuth,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { Promocode } from './schema/promocode.schema';
 
@@ -93,7 +93,7 @@ export class PromocodesController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @Patch(':id')
   update(
     @Param('id') id: string,

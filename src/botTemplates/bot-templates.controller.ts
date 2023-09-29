@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
@@ -9,7 +10,6 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
-  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { BotTemplatesService } from './bot-templates.service';
 import { BotTemplate } from './schema/bot-template.schema';
@@ -63,7 +63,7 @@ export class BotTemplatesController {
   })
   @ApiBody({ type: CreateBotTemplateDto })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @Post()
   async create(
     @Body() createBotTemplateDto: CreateBotTemplateDto,
@@ -77,7 +77,7 @@ export class BotTemplatesController {
   })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: UpdateBotTemplateDto })
   @ApiParam({
     name: 'id',

@@ -5,8 +5,13 @@ import {
   ApiTags,
   ApiOperation,
   ApiBody,
-  ApiResponse,
   ApiExcludeEndpoint,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiConflictResponse,
 } from '@nestjs/swagger';
 import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService, ITokens } from './auth.service';
@@ -52,13 +57,11 @@ export class AuthController {
     summary: 'Войти в систему',
   })
   @ApiBody({ type: SigninRequestBody })
-  @ApiResponse({
-    status: 201,
+  @ApiCreatedResponse({
     description: 'Успешный вход в систему',
     type: SigninResponseBodyOK,
   })
-  @ApiResponse({
-    status: 401,
+  @ApiUnauthorizedResponse({
     description: 'Неверное имя пользователя или пароль',
     type: SigninResponseBodyNotOK,
   })
@@ -69,14 +72,12 @@ export class AuthController {
   @Post('signup')
   @ApiOperation({ summary: 'Регистрация' })
   @ApiBody({ type: SignupRequestBody })
-  @ApiResponse({
-    status: 201,
+  @ApiCreatedResponse({
     description: 'Успешная регистрация',
     type: SigninResponseBodyOK,
   })
-  @ApiResponse({ status: 400, description: 'Некорректные данные' })
-  @ApiResponse({
-    status: 409,
+  @ApiBadRequestResponse({ description: 'Некорректные данные' })
+  @ApiConflictResponse({
     description: 'Аккаунт уже существует',
     type: SignupResponseBodyNotOK,
   })
@@ -100,13 +101,11 @@ export class AuthController {
     summary: 'Обновить токен',
   })
   @ApiBody({ type: RefreshTokenRequestBody })
-  @ApiResponse({
-    status: 201,
+  @ApiCreatedResponse({
     description: 'accessToken успешно обновлен',
     type: refreshTokenResponseBodyOK,
   })
-  @ApiResponse({
-    status: 401,
+  @ApiUnauthorizedResponse({
     description: 'Невалидный refreshToken',
     type: refreshTokenResponseBodyNotOK,
   })
@@ -119,8 +118,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Авторизация через Yandex',
   })
-  @ApiResponse({
-    status: 201,
+  @ApiCreatedResponse({
     description: 'Успешная регистрация',
     type: SigninResponseBodyOK,
   })
@@ -144,8 +142,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Авторизация через Вконтакте',
   })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Успешная регистрация',
     schema: {
       type: 'object',
@@ -255,8 +252,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Авторизация через Google',
   })
-  @ApiResponse({
-    status: 201,
+  @ApiOkResponse({
     description: 'Успешная регистрация',
     type: SigninResponseBodyOK,
   })
@@ -291,17 +287,14 @@ export class AuthController {
   @ApiBody({
     type: ResetPasswordRequestBody,
   })
-  @ApiResponse({
-    status: 201,
+  @ApiCreatedResponse({
     type: ResetPasswordResponseBodyOK,
     description: 'Ссылка для сброса пароля отправлена на указанный Email',
   })
-  @ApiResponse({
-    status: 400,
+  @ApiBadRequestResponse({
     description: 'Некорректные данные',
   })
-  @ApiResponse({
-    status: 404,
+  @ApiNotFoundResponse({
     type: ResetPasswordResponseBodyNotFound,
     description: 'Пользователь с указанным Email не найден',
   })

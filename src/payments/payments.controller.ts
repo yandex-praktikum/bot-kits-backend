@@ -12,6 +12,7 @@ import {
 import { PaymentsService } from './payments.service';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
@@ -21,7 +22,6 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
-  ApiUnprocessableEntityResponse,
   OmitType,
 } from '@nestjs/swagger';
 import { Payment } from './schema/payment.schema';
@@ -57,7 +57,7 @@ export class PaymentsController {
     type: Payment,
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @Post()
   create(
     @Req() req,
@@ -100,7 +100,7 @@ export class PaymentsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @Patch(':id')
   update(
     @Req() req,
