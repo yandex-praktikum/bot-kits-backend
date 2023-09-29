@@ -22,8 +22,8 @@ import {
   ApiCreatedResponse,
   ApiConflictResponse,
   ApiParam,
-  ApiUnprocessableEntityResponse,
   ApiBearerAuth,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 
@@ -75,7 +75,7 @@ export class TariffsController {
     type: Tariff,
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiConflictResponse({ description: 'Такой тариф уже существует' })
   @Post()
   create(@Body() CreateTariffDto: CreateTariffDto) {
@@ -97,7 +97,7 @@ export class TariffsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @Patch(':id')
   updateTariff(
     @Param('id') id: string,

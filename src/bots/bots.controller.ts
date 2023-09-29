@@ -17,9 +17,9 @@ import {
   ApiTags,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
-  ApiUnprocessableEntityResponse,
   ApiParam,
   ApiBearerAuth,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { BotsService } from './bots.service';
 import { Bot } from './schema/bots.schema';
@@ -58,7 +58,7 @@ export class BotsController {
     type: Bot,
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: CreateBotDto })
   create(@Req() req, @Body() createBotDto: CreateBotDto): Promise<Bot> {
     return this.botsService.create(req.user.id, createBotDto);
@@ -93,7 +93,7 @@ export class BotsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: CopyBotDto })
   @ApiParam({
     name: 'id',
@@ -168,7 +168,7 @@ export class BotsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: ShareBotDto })
   @ApiParam({
     name: 'id',

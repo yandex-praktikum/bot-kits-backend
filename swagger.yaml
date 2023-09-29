@@ -102,6 +102,77 @@ paths:
               schema:
                 $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
+  /vkontakte:
+    get:
+      operationId: AuthController_vkontakteAuth
+      summary: Авторизация через Вконтакте
+      parameters: []
+      responses:
+        '200':
+          description: Успешная регистрация
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    description: Имя пользователя
+                    example: test
+                  phone:
+                    type: string
+                    description: Номер телефона
+                    example: '+79999999999'
+                  avatar:
+                    type: string
+                    description: URL аватара
+                    example: https://i.pravatar.cc/300
+                  balance:
+                    type: number
+                    description: Баланс
+                    example: 0
+                  accounts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: Тип аккаунта
+                          example: vk
+                        role:
+                          type: string
+                          description: Роль
+                          example: user
+                        credentials:
+                          type: object
+                          properties:
+                            email:
+                              type: string
+                              description: Email
+                              example: test@mail.ru
+                            accessToken:
+                              type: string
+                              description: AccessToken
+                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
+                            refreshToken:
+                              type: string
+                              description: RefreshToken
+                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
+                        profile:
+                          type: string
+                          description: 'Идентификатор профиля '
+                          example: 650b396dd4201e5ca499f3b3
+                        _id:
+                          type: string
+                          description: Идентификатор аккаунта
+                          example: 650b396dd4201e5ca499f3b3
+                    description: Список аккаунтов
+                  _id:
+                    type: string
+                    description: Идентификатор профиля
+                    example: 650b396dd4201e5ca499f3b3
+      tags: *ref_0
   /google:
     get:
       operationId: AuthController_googleAuth
@@ -109,8 +180,6 @@ paths:
       parameters: []
       responses:
         '200':
-          description: ''
-        '201':
           description: Успешная регистрация
           content:
             application/json:
@@ -162,10 +231,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Profile'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
-        '422':
-          description: Неверный запрос
       tags: &ref_1
         - profiles
       security: &ref_2
@@ -261,12 +330,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Profile'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_1
       security: *ref_2
     delete:
@@ -287,6 +356,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Profile'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_1
+      security: *ref_2
+  /profiles/{id}/accounts:
+    get:
+      operationId: ProfilesController_findAccountByProfileId
+      summary: Получить все аккаунты пользователя по id профиля
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор профиля
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Аккаунты профиля успешно получены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
         '403':
           description: Отказ в доступе
         '404':
@@ -330,12 +426,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tariff'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '409':
           description: Такой тариф уже существует
-        '422':
-          description: Неверный запрос
       tags: *ref_4
       security: *ref_5
   /tariffs/{id}:
@@ -387,12 +483,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tariff'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_4
       security: *ref_5
     delete:
@@ -470,12 +566,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Account'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_6
       security: *ref_7
   /logout:
@@ -491,8 +587,6 @@ paths:
             type: string
       responses:
         '200':
-          description: ''
-        '201':
           description: Пользователь успешно разлогинен
           content:
             application/json:
@@ -527,10 +621,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BotAccess'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
-        '422':
-          description: Неверный запрос
       tags: &ref_8
         - botAccesses
       security: &ref_9
@@ -605,12 +699,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BotAccess'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_8
       security: *ref_9
     delete:
@@ -698,12 +792,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BotAccess'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_8
       security: *ref_9
   /platforms:
@@ -724,10 +818,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Platform'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
-        '422':
-          description: Неверный запрос
       tags: &ref_10
         - platforms
       security: &ref_11
@@ -798,12 +892,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Platform'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_10
       security: *ref_11
     delete:
@@ -922,12 +1016,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promocode'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_12
       security: *ref_13
     delete:
@@ -993,10 +1087,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
-        '422':
-          description: Неверный запрос
       tags: *ref_14
       security: *ref_15
   /bots/{id}:
@@ -1107,12 +1201,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_14
       security: *ref_15
   /bots/{id}/share:
@@ -1140,12 +1234,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_14
       security: *ref_15
   /botTemplates:
@@ -1185,10 +1279,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BotTemplate'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
-        '422':
-          description: Неверный запрос
       tags: *ref_16
       security: *ref_17
   /botTemplates/{id}:
@@ -1240,12 +1334,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BotTemplate'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_16
       security: *ref_17
   /subscriptions:
@@ -1310,12 +1404,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subscription'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_18
       security: *ref_19
   /subscriptions/{id}:
@@ -1350,12 +1444,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subscription'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_18
       security: *ref_19
   /payments:
@@ -1395,10 +1489,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Payment'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
-        '422':
-          description: Неверный запрос
       tags: *ref_20
       security: *ref_21
   /payments/{id}:
@@ -1446,12 +1540,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Payment'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_20
       security: *ref_21
   /notification:
@@ -1674,7 +1768,7 @@ components:
           description: Тип ошибки
         statusCode:
           type: number
-          example: '401'
+          example: 401
           description: HTTP-статус код
     SignUpRequestBody:
       type: object
@@ -1713,7 +1807,7 @@ components:
           description: Тип ошибки
         statusCode:
           type: number
-          example: '409'
+          example: 409
           description: HTTP-статус код
     RefreshRequestBody:
       type: object
@@ -1748,7 +1842,7 @@ components:
           description: Тип ошибки
         statusCode:
           type: number
-          example: '401'
+          example: 401
           description: HTTP-статус код
     ResetPasswordRequestBody:
       type: object
@@ -1779,7 +1873,7 @@ components:
           description: Тип ошибки
         statusCode:
           type: number
-          example: '404'
+          example: 404
           description: HTTP-статус код
     Credentials:
       type: object
@@ -2406,7 +2500,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-27T10:50:28.120Z
+          example: 2023-09-29T07:55:34.265Z
       required:
         - status
         - cardMask
@@ -2417,7 +2511,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-27T10:50:28.124Z
+          example: 2023-09-29T07:55:34.271Z
         amount:
           type: number
           example: 1000
