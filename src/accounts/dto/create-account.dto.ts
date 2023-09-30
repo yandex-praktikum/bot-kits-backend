@@ -14,7 +14,6 @@ import Role from '../types/role';
 import { Types } from 'mongoose';
 //create-account.dto.ts
 class Credentials {
-  @ApiProperty({ example: 'my@mail.ru' })
   @IsEmail(
     {},
     { message: 'Email должен быть действительным адресом электронной почты' },
@@ -22,33 +21,27 @@ class Credentials {
   @IsNotEmpty({ message: 'Email не может быть пустым' })
   email: string;
 
-  @ApiProperty({ example: 'password123' })
   @IsString()
   @IsNotEmpty({ message: 'Password не может быть пустым' })
   password: string;
 
-  @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
   @IsString()
   @IsOptional()
   accessToken: string;
 
-  @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
   @IsOptional()
   @IsString()
   refreshToken: string;
 }
 
 export class CreateAccountDto {
-  @ApiProperty({ enum: TypeAccount, example: 'local' })
   @IsEnum(TypeAccount)
   type: TypeAccount;
 
-  @ApiProperty({ enum: Role, example: 'user' })
   @IsOptional()
   @IsEnum(Role)
   role: Role;
 
-  @ApiProperty()
   @Type(() => Credentials)
   @ValidateNested()
   credentials?: Credentials;

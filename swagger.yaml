@@ -113,65 +113,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  username:
-                    type: string
-                    description: Имя пользователя
-                    example: test
-                  phone:
-                    type: string
-                    description: Номер телефона
-                    example: '+79999999999'
-                  avatar:
-                    type: string
-                    description: URL аватара
-                    example: https://i.pravatar.cc/300
-                  balance:
-                    type: number
-                    description: Баланс
-                    example: 0
-                  accounts:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          description: Тип аккаунта
-                          example: vk
-                        role:
-                          type: string
-                          description: Роль
-                          example: user
-                        credentials:
-                          type: object
-                          properties:
-                            email:
-                              type: string
-                              description: Email
-                              example: test@mail.ru
-                            accessToken:
-                              type: string
-                              description: AccessToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                            refreshToken:
-                              type: string
-                              description: RefreshToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                        profile:
-                          type: string
-                          description: 'Идентификатор профиля '
-                          example: 650b396dd4201e5ca499f3b3
-                        _id:
-                          type: string
-                          description: Идентификатор аккаунта
-                          example: 650b396dd4201e5ca499f3b3
-                    description: Список аккаунтов
-                  _id:
-                    type: string
-                    description: Идентификатор профиля
-                    example: 650b396dd4201e5ca499f3b3
+                $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
   /google:
     get:
@@ -520,12 +462,6 @@ paths:
       operationId: AccountController_findAll
       summary: Получить все аккаунты
       parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateAccountDto'
       responses:
         '200':
           description: Запрос выполнен успешно
@@ -534,7 +470,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Account'
+                  $ref: '#/components/schemas/SingleAccountResponseBodyOK'
         '403':
           description: Отказ в доступе
       tags: &ref_6
@@ -558,14 +494,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateAccountDto'
+              $ref: '#/components/schemas/AccountUpdateRequestBody'
       responses:
         '200':
           description: Аккаунт успешно обновлен
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: '#/components/schemas/SingleAccountResponseBodyOK'
         '400':
           description: Неверный запрос
         '403':
@@ -1751,7 +1687,7 @@ components:
               credentials:
                 email: test@mail.ru
                 accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-                refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                refreshToken: eyJhbGciOiJIUzI1NiIsInR5cPCI6IkpXVCJ9
               profile: 650b396dd4201e5ca499f3b3
       required:
         - accounts
@@ -1875,26 +1811,33 @@ components:
           type: number
           example: 404
           description: HTTP-статус код
-    Credentials:
+    Account:
+      type: object
+      properties: {}
+    CreateProfileDto:
       type: object
       properties:
-        email:
+        username:
           type: string
-          example: my@mail.ru
-        password:
+          minLength: 2
+          maxLength: 30
+          example: Ivan Ivanov
+        phone:
           type: string
-          example: password123
-        accessToken:
+          example: '+79501364578'
+        avatar:
           type: string
-          example: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
-        refreshToken:
-          type: string
-          example: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
+          example: https://i.pravatar.cc/300
+        balance:
+          type: number
+          example: 1400
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
       required:
-        - email
-        - password
-        - accessToken
-        - refreshToken
+        - username
+        - phone
     Profile:
       type: object
       properties:
@@ -1920,54 +1863,6 @@ components:
         - avatar
         - balance
         - accounts
-    Account:
-      type: object
-      properties:
-        type:
-          type: string
-          example: local
-        role:
-          type: string
-          example: admin
-        credentials:
-          example:
-            email: my@mail.ru
-            password: password123
-            accessToken: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
-            refreshToken: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
-          allOf:
-            - $ref: '#/components/schemas/Credentials'
-        profile:
-          $ref: '#/components/schemas/Profile'
-      required:
-        - type
-        - role
-        - credentials
-        - profile
-    CreateProfileDto:
-      type: object
-      properties:
-        username:
-          type: string
-          minLength: 2
-          maxLength: 30
-          example: Ivan Ivanov
-        phone:
-          type: string
-          example: '+79501364578'
-        avatar:
-          type: string
-          example: https://i.pravatar.cc/300
-        balance:
-          type: number
-          example: 1400
-        accounts:
-          type: array
-          items:
-            $ref: '#/components/schemas/Account'
-      required:
-        - username
-        - phone
     UpdateProfileDto:
       type: object
       properties:
@@ -2023,61 +1918,47 @@ components:
       required:
         - name
         - price
-    CreateAccountDto:
+    SingleAccountResponseBodyOK:
       type: object
       properties:
+        _id:
+          type: string
+          example: 6516ab8f2c612e8cce53e45f
         type:
-          enum:
-            - local
-            - google
-            - yandex
-            - mail
-            - vk
-            - ok
-            - facebook
-            - telegram
           type: string
           example: local
         role:
-          enum:
-            - user
-            - admin
-            - superAdmin
           type: string
           example: user
         credentials:
-          $ref: '#/components/schemas/Credentials'
-        profile:
           type: object
-          example: 64f9ac26edb84d7ebf6281d0
+          example:
+            email: test@mail.ru
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+            refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        profile:
+          type: string
+          example: 6516ab8f2c612e8cce53e45d
+        success:
+          type: boolean
+          example: true
       required:
-        - type
-        - role
-        - profile
-    UpdateAccountDto:
+        - credentials
+    AccountUpdateRequestBody:
       type: object
       properties:
         type:
-          enum:
-            - local
-            - google
-            - yandex
-            - mail
-            - vk
-            - ok
-            - facebook
-            - telegram
           type: string
           example: local
         role:
-          enum:
-            - user
-            - admin
-            - superAdmin
           type: string
-          example: admin
+          example: user
         credentials:
-          $ref: '#/components/schemas/Credentials'
+          type: object
+          example:
+            email: test@mail.ru
+      required:
+        - credentials
     CreateBotAccessDto:
       type: object
       properties:
@@ -2500,7 +2381,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-29T10:24:25.678Z
+          example: 2023-09-30T09:48:41.984Z
       required:
         - status
         - cardMask
@@ -2511,7 +2392,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-29T10:24:25.681Z
+          example: 2023-09-30T09:48:41.987Z
         amount:
           type: number
           example: 1000

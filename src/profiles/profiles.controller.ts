@@ -36,7 +36,7 @@ import { Account } from 'src/accounts/schema/account.schema';
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
-
+  @Post()
   @ApiOperation({
     summary: 'Создать новый профиль',
   })
@@ -47,7 +47,6 @@ export class ProfilesController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  @Post()
   create(@Body() createProfileDto: CreateProfileDto) {
     return this.profilesService.create(createProfileDto);
   }

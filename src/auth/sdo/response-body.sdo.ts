@@ -9,7 +9,11 @@ import {
 const credentialsDescription: IFieldDescription = createNestedObject([
   createField('email', 'test@mail.ru', 'string'),
   createField('accessToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9', 'string'),
-  createField('refreshToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9', 'string'),
+  createField(
+    'refreshToken',
+    'eyJhbGciOiJIUzI1NiIsInR5cPCI6IkpXVCJ9',
+    'string',
+  ),
 ]);
 
 const accountsDescription: IFieldDescription = createNestedObject([

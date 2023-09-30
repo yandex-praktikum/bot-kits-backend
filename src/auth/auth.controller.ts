@@ -25,7 +25,7 @@ import {
   ResetPasswordRequestBody,
   SigninRequestBody,
   SignupRequestBody,
-} from './dto/request-body.dto';
+} from './sdo/request-body.sdo';
 import {
   ResetPasswordResponseBodyNotFound,
   ResetPasswordResponseBodyOK,
@@ -34,7 +34,7 @@ import {
   SignupResponseBodyNotOK,
   refreshTokenResponseBodyNotOK,
   refreshTokenResponseBodyOK,
-} from './dto/response-body.dto';
+} from './sdo/response-body.sdo';
 import { VkontakteGuard } from './guards/vkontakte.guards';
 import { Account } from 'src/accounts/schema/account.schema';
 
@@ -115,6 +115,7 @@ export class AuthController {
     return this.authService.refreshToken(refreshToken);
   }
 
+  @Post('yandex/exchange')
   @ApiOperation({
     summary: 'Авторизация через Yandex',
   })
@@ -122,7 +123,6 @@ export class AuthController {
     description: 'Успешная регистрация',
     type: SigninResponseBodyOK,
   })
-  @Post('yandex/exchange')
   async exchangeCode(@Body('codeAuth') codeAuth: string) {
     const userData = await this.authService.authYandex(codeAuth);
     const newAccount: CombinedDto = {
@@ -139,93 +139,15 @@ export class AuthController {
     return await this.authService.authSocial(authDto, TypeAccount.YANDEX);
   }
 
+  @UseGuards(VkontakteGuard)
+  @Get('vkontakte')
   @ApiOperation({
     summary: 'Авторизация через Вконтакте',
   })
   @ApiOkResponse({
     description: 'Успешная регистрация',
-    schema: {
-      type: 'object',
-      properties: {
-        username: {
-          type: 'string',
-          description: 'Имя пользователя',
-          example: 'test',
-        },
-        phone: {
-          type: 'string',
-          description: 'Номер телефона',
-          example: '+79999999999',
-        },
-        avatar: {
-          type: 'string',
-          description: 'URL аватара',
-          example: 'https://i.pravatar.cc/300',
-        },
-        balance: {
-          type: 'number',
-          description: 'Баланс',
-          example: 0,
-        },
-        accounts: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              type: {
-                type: 'string',
-                description: 'Тип аккаунта',
-                example: 'vk',
-              },
-              role: {
-                type: 'string',
-                description: 'Роль',
-                example: 'user',
-              },
-              credentials: {
-                type: 'object',
-                properties: {
-                  email: {
-                    type: 'string',
-                    description: 'Email',
-                    example: 'test@mail.ru',
-                  },
-                  accessToken: {
-                    type: 'string',
-                    description: 'AccessToken',
-                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
-                  },
-                  refreshToken: {
-                    type: 'string',
-                    description: 'RefreshToken',
-                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
-                  },
-                },
-              },
-              profile: {
-                type: 'string',
-                description: 'Идентификатор профиля ',
-                example: '650b396dd4201e5ca499f3b3',
-              },
-              _id: {
-                type: 'string',
-                description: 'Идентификатор аккаунта',
-                example: '650b396dd4201e5ca499f3b3',
-              },
-            },
-          },
-          description: 'Список аккаунтов',
-        },
-        _id: {
-          type: 'string',
-          description: 'Идентификатор профиля',
-          example: '650b396dd4201e5ca499f3b3',
-        },
-      },
-    },
+    type: SigninResponseBodyOK,
   })
-  @UseGuards(VkontakteGuard)
-  @Get('vkontakte')
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   vkontakteAuth() {}
 
@@ -249,6 +171,8 @@ export class AuthController {
     return this.authService.authSocial(authDto, TypeAccount.VK);
   }
 
+  @UseGuards(GoogleGuard)
+  @Get('google')
   @ApiOperation({
     summary: 'Авторизация через Google',
   })
@@ -256,8 +180,6 @@ export class AuthController {
     description: 'Успешная регистрация',
     type: SigninResponseBodyOK,
   })
-  @UseGuards(GoogleGuard)
-  @Get('google')
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   googleAuth() {}
 
