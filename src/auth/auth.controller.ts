@@ -13,7 +13,7 @@ import {
   ApiNotFoundResponse,
   ApiConflictResponse,
 } from '@nestjs/swagger';
-import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
+import { ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService, ITokens } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { HttpService } from '@nestjs/axios';

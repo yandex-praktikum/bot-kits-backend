@@ -7,7 +7,11 @@ import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
 import { BotAccessesService } from '../botAccesses/botAccesses.service';
-import { defaultPermission, fullPermission, LEVEL_ACCESS } from '../botAccesses/types/types';
+import {
+  defaultPermission,
+  fullPermission,
+  LEVEL_ACCESS,
+} from '../botAccesses/types/types';
 
 @Injectable()
 export class BotsService {
@@ -57,7 +61,10 @@ export class BotsService {
   }
 
   async remove(userId: string, id: string): Promise<Bot> {
-    const hasFullAccess = await this.botAccessesService.hasFullAccess(userId, id);
+    const hasFullAccess = await this.botAccessesService.hasFullAccess(
+      userId,
+      id,
+    );
     if (!hasFullAccess) {
       throw new ForbiddenException('Недостаточно прав для удаления бота');
     }
