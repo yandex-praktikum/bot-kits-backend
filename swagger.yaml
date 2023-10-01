@@ -2440,7 +2440,6 @@ components:
           $ref: '#/components/schemas/Messenger'
         botSettings:
           type: object
-          properties: {}
       required:
         - icon
         - botName
@@ -2558,7 +2557,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-10-01T18:59:58.805Z
+          example: 2023-09-30T15:31:17.580Z
       required:
         - status
         - cardMask
@@ -2569,7 +2568,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-10-01T18:59:58.807Z
+          example: 2023-09-30T15:31:17.582Z
         amount:
           type: number
           example: 1000

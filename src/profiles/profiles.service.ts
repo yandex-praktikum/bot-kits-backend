@@ -1,13 +1,11 @@
-import { profile } from 'console';
 ////scr/profiles/profiles.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { Profile } from './schema/profile.schema';
 import { Account } from 'src/accounts/schema/account.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import TypeAccount from 'src/accounts/types/type-account';
 
 @Injectable()
 export class ProfilesService {
