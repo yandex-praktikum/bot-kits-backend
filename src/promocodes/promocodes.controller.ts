@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PromocodesService } from './promocodes.service';
 import { CreatePromocodeDto } from './dto/create-promocode.dto';
@@ -24,7 +26,9 @@ import {
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { Promocode } from './schema/promocode.schema';
+import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 
+@UseGuards(JwtGuard)
 @ApiTags('promocodes')
 @ApiBearerAuth()
 @Controller('promocodes')
@@ -57,6 +61,32 @@ export class PromocodesController {
   @Get()
   findAll(): Promise<Promocode[]> {
     return this.promocodesService.findAll();
+  }
+
+  @ApiOperation({
+    summary: 'Получить промокод по названию',
+  })
+  @ApiOkResponse({
+    description: 'Промокод успешно получен',
+    type: [Promocode],
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @Get('promocode')
+  async findOneByCode(@Query('code') code: string): Promise<Promocode> {
+    return this.promocodesService.findOneByCode(code);
+  }
+
+  @ApiOperation({
+    summary: 'Использовать промокод 1 раз',
+  })
+  @ApiOkResponse({
+    description: 'Промокод успешно обновлен',
+    type: [Promocode],
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @Patch('promocode')
+  async updateByCode(@Query('code') code: string): Promise<Promocode> {
+    return this.promocodesService.updateByCode(code);
   }
 
   @ApiOperation({

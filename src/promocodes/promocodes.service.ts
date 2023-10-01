@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -21,16 +23,20 @@ export class PromocodesService {
         ...createPromocodeDto,
       });
       return await promocode.save();
-    } catch (err) {
-      if (err.code === 11000) {
+    } catch (error) {
+      if (error.code === 11000) {
         throw new ConflictException('Такой промокод уже существует');
       }
+      throw error;
     }
   }
 
   async findAll(): Promise<Promocode[]> {
     try {
-      const promocodes = await this.promocodes.find().exec();
+      const promocodes = await this.promocodes.find();
+      if (promocodes.length === 0) {
+        throw new NotFoundException();
+      }
       return promocodes;
     } catch (error) {
       throw new NotFoundException('Нет ни одного промокода');
@@ -58,6 +64,45 @@ export class PromocodesService {
       return promocode;
     } catch (error) {
       throw new Error('Что-то пошло не так');
+    }
+  }
+
+  async findOneByCode(code: string): Promise<Promocode> {
+    try {
+      const promocode = await this.promocodes.findOne({ code: code }).exec();
+      if (!promocode) {
+        throw new NotFoundException('Промокода с таким названием нет');
+      }
+      return promocode;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateByCode(code: string) {
+    try {
+      const promocodeToCheck = await this.findOneByCode(code);
+
+      if (!promocodeToCheck) {
+        throw new NotFoundException('Промокод не найден');
+      }
+
+      if (
+        promocodeToCheck.activationCount >= promocodeToCheck.maxActivationCount
+      ) {
+        throw new HttpException('Промокод исчерпан', HttpStatus.BAD_REQUEST);
+      }
+
+      const promocode = await this.promocodes.findOneAndUpdate(
+        { code: code },
+        {
+          $inc: { activationCount: 1 },
+        },
+        { new: true },
+      );
+      return promocode;
+    } catch (error) {
+      throw error;
     }
   }
 
