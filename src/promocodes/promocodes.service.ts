@@ -82,7 +82,7 @@ export class PromocodesService {
   async updateByCode(code: string) {
     try {
       const promocodeToCheck = await this.findOneByCode(code);
-
+      const curDate = new Date();
       if (!promocodeToCheck) {
         throw new NotFoundException('Промокод не найден');
       }
@@ -90,9 +90,18 @@ export class PromocodesService {
       if (
         promocodeToCheck.activationCount >= promocodeToCheck.maxActivationCount
       ) {
-        throw new HttpException('Промокод исчерпан', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Количество активаций исчерпано',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
+      if (promocodeToCheck.actionPeriod < curDate) {
+        throw new HttpException(
+          'Промокод не действителен',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
       const promocode = await this.promocodes.findOneAndUpdate(
         { code: code },
         {
