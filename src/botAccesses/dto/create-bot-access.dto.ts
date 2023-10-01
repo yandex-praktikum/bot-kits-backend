@@ -1,4 +1,4 @@
-import {  IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { defaultPermission, TPermission } from '../types/types';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -13,7 +13,7 @@ export class CreateBotAccessDto {
 
   @ApiProperty({
     description: `уровень доступа`,
-    example: defaultPermission
+    example: defaultPermission,
   })
   @IsNotEmpty()
   permission: TPermission;
