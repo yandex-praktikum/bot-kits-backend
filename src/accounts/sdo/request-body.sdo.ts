@@ -5,14 +5,14 @@ import {
   createNestedObject,
 } from 'src/utils/apiPropertyFactory';
 
-const credentialsDescription: IFieldDescription[] = [
+const credentialsDescription: IFieldDescription = createNestedObject([
   createField('email', 'test@mail.ru', 'string'),
-];
+]);
 
 const accountDescription: IFieldDescription[] = [
   createField('type', 'local', 'string'),
   createField('role', 'user', 'string'),
-  { ...createNestedObject(credentialsDescription), key: 'credentials' },
+  { ...credentialsDescription, key: 'credentials' },
 ];
 
 export const AccountUpdateRequestBody = new ApiPropertyFactory(

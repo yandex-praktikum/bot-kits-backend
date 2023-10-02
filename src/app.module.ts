@@ -5,7 +5,6 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-//controllers
 import { AuthController } from './auth/auth.controller';
 
 import { ProfilesModule } from './profiles/profiles.module';
@@ -27,6 +26,7 @@ import { HttpModule } from '@nestjs/axios';
 import { NotificationModule } from './notifications/notifications.module';
 import { BlacklistTokensModule } from './blacklistTokens/blacklistTokens.module';
 
+//app.module.ts
 @Module({
   imports: [
     ConfigModule.forRoot({

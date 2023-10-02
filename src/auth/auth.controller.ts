@@ -13,10 +13,9 @@ import {
   ApiNotFoundResponse,
   ApiConflictResponse,
 } from '@nestjs/swagger';
-import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
+import { ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService, ITokens } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
-import { HttpService } from '@nestjs/axios';
 import { CombinedDto } from './dto/combined.dto';
 import TypeAccount from 'src/accounts/types/type-account';
 import { GoogleGuard } from './guards/google.guard';
@@ -25,6 +24,7 @@ import {
   ResetPasswordRequestBody,
   SigninRequestBody,
   SignupRequestBody,
+  yandexAuthRequestBody,
 } from './sdo/request-body.sdo';
 import {
   ResetPasswordResponseBodyNotFound,
@@ -46,7 +46,6 @@ interface RequestProfile extends Request {
 @Controller()
 export class AuthController {
   constructor(
-    private httpService: HttpService,
     private authService: AuthService,
     private readonly authDtoPipe: AuthDtoPipe,
   ) {}
@@ -118,6 +117,9 @@ export class AuthController {
   @Post('yandex/exchange')
   @ApiOperation({
     summary: 'Авторизация через Yandex',
+  })
+  @ApiBody({
+    type: yandexAuthRequestBody,
   })
   @ApiCreatedResponse({
     description: 'Успешная регистрация',

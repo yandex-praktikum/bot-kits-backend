@@ -38,7 +38,7 @@ class Credentials {
   refreshToken: string;
 }
 
-@Schema(baseSchemaOptions) //--Отключит поле __v для всех документов--//
+@Schema(baseSchemaOptions)
 export class Account extends Document {
   @IsEnum(TypeAccount)
   @Prop({

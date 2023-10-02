@@ -1,13 +1,11 @@
-import { profile } from 'console';
-////scr/profiles/profiles.service.ts
-import { Injectable } from '@nestjs/common';
+//scr/profiles/profiles.service.ts
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { Profile } from './schema/profile.schema';
 import { Account } from 'src/accounts/schema/account.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import TypeAccount from 'src/accounts/types/type-account';
 
 @Injectable()
 export class ProfilesService {
@@ -15,12 +13,12 @@ export class ProfilesService {
     @InjectModel(Profile.name) private profile: Model<Profile>,
     @InjectModel(Account.name) private account: Model<Account>,
   ) {}
-
+  //profiles.service.ts
   async create(createProfileDto: CreateProfileDto) {
     const profileNew = new this.profile(createProfileDto);
     return profileNew.save();
   }
-  //profiles.service.ts
+
   async findOne(id: string | number): Promise<Profile> {
     const profile = await this.profile.findById(id).exec();
     return profile;
@@ -32,14 +30,20 @@ export class ProfilesService {
   }
 
   async findById(id: string): Promise<Profile> {
-    const profile = await (
-      await this.profile.findById(id)
-    ).populate('accounts');
+    const objectId = new Types.ObjectId(id);
+    const foundProfile = await this.profile.findById(objectId);
+
+    if (!foundProfile) {
+      throw new NotFoundException(`Profile with ID ${id} not found`);
+    }
+
+    const profile = await foundProfile.populate('accounts');
     profile.accounts.forEach((account) => {
       if (account.credentials) {
         delete account.credentials.password;
       }
     });
+
     return profile;
   }
 

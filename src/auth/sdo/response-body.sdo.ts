@@ -16,25 +16,21 @@ const credentialsDescription: IFieldDescription = createNestedObject([
   ),
 ]);
 
-const accountsDescription: IFieldDescription = createNestedObject([
-  createField('_id', '650b396ed4201e5ca499f3b5', 'string'),
-  createField('type', 'local', 'string'),
-  createField('role', 'user', 'string'),
-  { ...credentialsDescription, key: 'credentials' },
-  createField('profile', '650b396dd4201e5ca499f3b3', 'string'),
-]);
-
-const profileDescription: IFieldDescription[] = [
+const profileDescription: IFieldDescription = createNestedObject([
   createField('_id', '650b396dd4201e5ca499f3b3', 'string'),
   createField('username', 'test', 'string'),
   createField('phone', '+79999999999', 'string'),
   createField('avatar', 'https://i.pravatar.cc/300', 'string'),
   createField('balance', 0, 'number'),
-  {
-    key: 'accounts',
-    example: [accountsDescription.example],
-    type: 'array',
-  },
+]);
+
+const accountsDescription: IFieldDescription[] = [
+  createField('_id', '650b396ed4201e5ca499f3b5', 'string'),
+  createField('type', 'local', 'string'),
+  createField('role', 'user', 'string'),
+  { ...credentialsDescription, key: 'credentials' },
+  { ...profileDescription, key: 'profile' },
+  createField('success', true, 'boolean'),
 ];
 
 const badRequestSigninDescription: IFieldDescription[] = [
@@ -116,7 +112,7 @@ const badRequestResetPasswordDescription: IFieldDescription[] = [
 ];
 
 export const SigninResponseBodyOK = new ApiPropertyFactory(
-  profileDescription,
+  accountsDescription,
 ).generate('SigninResponseBodyOK');
 
 export const SigninResponseBodyNotOK = new ApiPropertyFactory(

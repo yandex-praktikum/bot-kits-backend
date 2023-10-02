@@ -94,6 +94,12 @@ paths:
       operationId: AuthController_exchangeCode
       summary: Авторизация через Yandex
       parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/yandexAuthRequestBody'
       responses:
         '201':
           description: Успешная регистрация
@@ -156,32 +162,6 @@ paths:
                 $ref: '#/components/schemas/ResetPasswordResponseBodyNotFound'
       tags: *ref_0
   /profiles:
-    post:
-      operationId: ProfilesController_create
-      summary: Создать новый профиль
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateProfileDto'
-      responses:
-        '201':
-          description: Профиль успешно создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Profile'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-      tags: &ref_1
-        - profiles
-      security: &ref_2
-        - &ref_3
-          bearer: []
     get:
       operationId: ProfilesController_findAll
       summary: Получить все профили
@@ -194,13 +174,16 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Profile'
+                  $ref: '#/components/schemas/UserProfileResponseBodyOK'
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_1
-      security: *ref_2
+      tags: &ref_1
+        - profiles
+      security: &ref_3
+        - &ref_2
+          bearer: []
   /profiles/me:
     get:
       operationId: ProfilesController_findProfileByToken
@@ -214,14 +197,18 @@ paths:
             type: string
       responses:
         '200':
-          description: ''
+          description: Профиль успешно получен
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/UserProfileResponseBodyOK'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
       tags: *ref_1
       security:
-        - *ref_3
+        - *ref_2
         - bearer: []
   /profiles/{id}:
     get:
@@ -241,13 +228,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/UserProfileResponseBodyOK'
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_2
+      security: *ref_3
     patch:
       operationId: ProfilesController_update
       summary: Обновить данные профиля по id
@@ -271,7 +258,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/UserProfileResponseBodyOK'
         '400':
           description: Неверный запрос
         '403':
@@ -279,7 +266,7 @@ paths:
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_2
+      security: *ref_3
     delete:
       operationId: ProfilesController_remove
       summary: Удалить профиль по id
@@ -297,13 +284,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/UserProfileResponseBodyOK'
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_2
+      security: *ref_3
   /profiles/{id}/accounts:
     get:
       operationId: ProfilesController_findAccountByProfileId
@@ -324,13 +311,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Account'
+                  $ref: '#/components/schemas/SingleAccountResponseBodyOK'
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_2
+      security: *ref_3
   /tariffs:
     get:
       operationId: TariffsController_findAll
@@ -1665,32 +1652,33 @@ components:
       properties:
         _id:
           type: string
-          example: 650b396dd4201e5ca499f3b3
-        username:
+          example: 650b396ed4201e5ca499f3b5
+        type:
           type: string
-          example: test
-        phone:
+          example: local
+        role:
           type: string
-          example: '+79999999999'
-        avatar:
-          type: string
-          example: https://i.pravatar.cc/300
-        balance:
-          type: number
-          example: 0
-        accounts:
-          type: array
+          example: user
+        credentials:
+          type: object
           example:
-            - _id: 650b396ed4201e5ca499f3b5
-              type: local
-              role: user
-              credentials:
-                email: test@mail.ru
-                accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-                refreshToken: eyJhbGciOiJIUzI1NiIsInR5cPCI6IkpXVCJ9
-              profile: 650b396dd4201e5ca499f3b3
+            email: test@mail.ru
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+            refreshToken: eyJhbGciOiJIUzI1NiIsInR5cPCI6IkpXVCJ9
+        profile:
+          type: object
+          example:
+            _id: 650b396dd4201e5ca499f3b3
+            username: test
+            phone: '+79999999999'
+            avatar: https://i.pravatar.cc/300
+            balance: 0
+        success:
+          type: boolean
+          example: true
       required:
-        - accounts
+        - credentials
+        - profile
     SigninResponseBodyNotOK:
       type: object
       properties:
@@ -1780,6 +1768,15 @@ components:
           type: number
           example: 401
           description: HTTP-статус код
+    yandexAuthRequestBody:
+      type: object
+      properties:
+        codeAuth:
+          type: string
+          example: '432532'
+          description: Код авторизации yandex
+      required:
+        - codeAuth
     ResetPasswordRequestBody:
       type: object
       properties:
@@ -1811,58 +1808,69 @@ components:
           type: number
           example: 404
           description: HTTP-статус код
-    Account:
-      type: object
-      properties: {}
-    CreateProfileDto:
+    UserProfileResponseBodyOK:
       type: object
       properties:
+        _id:
+          type: string
+          example: 65196b9715b55bd51b039144
+          description: ' '
         username:
           type: string
-          minLength: 2
-          maxLength: 30
-          example: Ivan Ivanov
+          example: test
+          description: ' '
         phone:
           type: string
-          example: '+79501364578'
+          example: '+79999999999'
+          description: ' '
         avatar:
           type: string
           example: https://i.pravatar.cc/300
+          description: ' '
         balance:
           type: number
-          example: 1400
+          example: 0
+          description: ' '
         accounts:
           type: array
-          items:
-            $ref: '#/components/schemas/Account'
+          example:
+            - 65196b9715b55bd51b039144
+        success:
+          type: boolean
+          example: true
       required:
-        - username
-        - phone
-    Profile:
-      type: object
-      properties:
-        username:
-          type: string
-          example: Ivan Ivanov
-        phone:
-          type: string
-          example: '+79501364578'
-        avatar:
-          type: string
-          example: https://i.pravatar.cc/300
-        balance:
-          type: number
-          example: 1400
-        accounts:
-          type: array
-          items:
-            type: string
-      required:
+        - _id
         - username
         - phone
         - avatar
         - balance
         - accounts
+    SingleAccountResponseBodyOK:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 6516ab8f2c612e8cce53e45f
+        type:
+          type: string
+          example: local
+        role:
+          type: string
+          example: user
+        credentials:
+          type: object
+          example:
+            email: test@mail.ru
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+            refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        profile:
+          type: string
+          example: 6516ab8f2c612e8cce53e45d
+        success:
+          type: boolean
+          example: true
+      required:
+        - credentials
     UpdateProfileDto:
       type: object
       properties:
@@ -1918,32 +1926,6 @@ components:
       required:
         - name
         - price
-    SingleAccountResponseBodyOK:
-      type: object
-      properties:
-        _id:
-          type: string
-          example: 6516ab8f2c612e8cce53e45f
-        type:
-          type: string
-          example: local
-        role:
-          type: string
-          example: user
-        credentials:
-          type: object
-          example:
-            email: test@mail.ru
-            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-            refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-        profile:
-          type: string
-          example: 6516ab8f2c612e8cce53e45d
-        success:
-          type: boolean
-          example: true
-      required:
-        - credentials
     AccountUpdateRequestBody:
       type: object
       properties:
@@ -1974,6 +1956,31 @@ components:
       required:
         - botId
         - permission
+    Profile:
+      type: object
+      properties:
+        username:
+          type: string
+          example: Ivan Ivanov
+        phone:
+          type: string
+          example: '+79501364578'
+        avatar:
+          type: string
+          example: https://i.pravatar.cc/300
+        balance:
+          type: number
+          example: 1400
+        accounts:
+          type: array
+          items:
+            type: string
+      required:
+        - username
+        - phone
+        - avatar
+        - balance
+        - accounts
     Messenger:
       type: object
       properties:
@@ -2381,7 +2388,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-30T09:48:41.984Z
+          example: 2023-10-02T17:58:24.589Z
       required:
         - status
         - cardMask
@@ -2392,7 +2399,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-30T09:48:41.987Z
+          example: 2023-10-02T17:58:24.591Z
         amount:
           type: number
           example: 1000
