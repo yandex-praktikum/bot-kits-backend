@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Bot, BotDocument } from './schema/bots.schema';
+import {Bot, BotDocument} from './schema/bots.schema';
 import { Model } from 'mongoose';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
@@ -76,12 +76,12 @@ export class BotsService {
     id: string,
     copyBotDto: CopyBotDto,
   ): Promise<Bot> {
-    const { icon, botName, botSettings } = await this.findOne(id);
+    const { icon, title, settings } = await this.findOne(id);
     return await this.create(profile, {
       icon,
-      botName,
+      title,
       messenger: copyBotDto.messenger,
-      botSettings,
+      settings,
     });
   }
 

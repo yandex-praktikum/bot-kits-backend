@@ -1,9 +1,9 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
-import mongoose, { HydratedDocument, Document } from 'mongoose';
-import { IsString } from 'class-validator';
-import { Profile } from '../../profiles/schema/profile.schema';
-import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
+import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
+import {ApiProperty} from '@nestjs/swagger';
+import mongoose, {Document, HydratedDocument} from 'mongoose';
+import {IsString} from 'class-validator';
+import {Profile} from '../../profiles/schema/profile.schema';
+import {baseSchemaOptions} from 'src/utils/baseSchemaOptions';
 
 export type BotDocument = HydratedDocument<Bot>;
 
@@ -12,9 +12,9 @@ export class Messenger {
   @IsString()
   name: string;
 
-  @ApiProperty({ example: 'vk.com/club1245321223' })
-  @IsString()
-  page?: string;
+  @ApiProperty({ example: ['vk.com/club1245321223'] })
+  @Prop([String])
+  pages?: string[];
 
   @ApiProperty({ example: '1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo' })
   @IsString()
@@ -27,12 +27,19 @@ export class Messenger {
 
 @Schema(baseSchemaOptions)
 export class Bot extends Document {
+  @ApiProperty({ example: false })
+  @Prop({
+    default: false,
+    required: true,
+  })
+  isTemplate: boolean;
+
   @ApiProperty({
     example:
       'https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png',
   })
   @Prop()
-  icon: string;
+  icon?: string;
 
   @ApiProperty({
     example: 'Бот Автоответчик',
@@ -42,10 +49,22 @@ export class Bot extends Document {
     minlength: 2,
     maxlength: 30,
   })
-  botName: string;
+  title: string;
+
+  @ApiProperty({ example: 'Бот для создания заказов' })
+  @Prop({ default: 'none' })
+  description: string;
+
+  @ApiProperty({ example: ['Создание заказов', 'Редактирование заказов'] })
+  @Prop([String])
+  features: string[];
 
   @ApiProperty()
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Profile' })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Profile',
+    required: true
+  })
   profile: Profile;
 
   @ApiProperty({
@@ -62,9 +81,14 @@ export class Bot extends Document {
   })
   messenger: Messenger;
 
-  @ApiProperty()
-  @Prop({ type: {} })
-  botSettings: object;
+  @ApiProperty({
+    example: {
+      Приветствие: 'Я бот-автоответчик',
+      Инлайн_кнопка: 'Текст кнопки',
+    },
+  })
+  @Prop({ type: Object })
+  settings: object;
 }
 
 export const BotSchema = SchemaFactory.createForClass(Bot);
