@@ -967,6 +967,51 @@ paths:
           description: Отказ в доступе
       tags: *ref_12
       security: *ref_13
+  /promocodes/promocode:
+    get:
+      operationId: PromocodesController_findOneByCode
+      summary: Получить промокод по названию
+      parameters:
+        - name: code
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Промокод успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Отказ в доступе
+      tags: *ref_12
+      security: *ref_13
+    patch:
+      operationId: PromocodesController_updateByCode
+      summary: Использовать промокод 1 раз
+      parameters:
+        - name: code
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Промокод успешно обновлен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Отказ в доступе
+      tags: *ref_12
+      security: *ref_13
   /promocodes/{id}:
     get:
       operationId: PromocodesController_findOne
@@ -2318,17 +2363,22 @@ components:
           example: '2023-09-10T16:07:34.285Z'
         activationCount:
           type: number
-          minimum: 1
+          minimum: 0
           example: 2
         maxActivationCount:
           type: number
           minimum: 1
           example: 10
+        amount:
+          type: number
+          minimum: 1
+          example: 1500
       required:
         - code
         - actionPeriod
         - activationCount
         - maxActivationCount
+        - amount
     Promocode:
       type: object
       properties:
@@ -2345,11 +2395,15 @@ components:
         maxActivationCount:
           type: number
           example: 10
+        amount:
+          type: number
+          example: 1500
       required:
         - code
         - actionPeriod
         - activationCount
         - maxActivationCount
+        - amount
     UpdatePromocodeDto:
       type: object
       properties:
@@ -2362,12 +2416,16 @@ components:
           example: '2024-12-10T00:00:00.285Z'
         activationCount:
           type: number
-          minimum: 1
+          minimum: 0
           example: 2
         maxActivationCount:
           type: number
           minimum: 1
           example: 10
+        amount:
+          type: number
+          minimum: 1
+          example: 1500
     CreateBotDto:
       type: object
       properties:
