@@ -28,6 +28,8 @@ import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import { ShareBotDto } from './dto/share-bot.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
 import {BotCreateRequestBody} from "./sdo/request-body.sdo";
+import { TypeCommands } from "./types/typeCommands";
+import { botCommands } from "./dto/constants/botCommands";
 
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
@@ -46,8 +48,12 @@ export class BotsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  findMy(@Req() req): Promise<Bot[] | null> {
-    return this.botsService.findAllByUser(req.user.id);
+  async findMy(@Req() req): Promise<{ bots: Bot[], commands: TypeCommands[] }> {
+    const bots = await this.botsService.findAllByUser(req.user.id);
+    return {
+      bots: bots,
+      commands: botCommands
+    }
   }
 
   @Post()

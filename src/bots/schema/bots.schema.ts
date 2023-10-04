@@ -4,6 +4,7 @@ import mongoose, {Document, HydratedDocument} from 'mongoose';
 import {IsArray, IsNotEmpty, IsOptional, IsString} from 'class-validator';
 import {Profile} from '../../profiles/schema/profile.schema';
 import {baseSchemaOptions} from 'src/utils/baseSchemaOptions';
+import {TypeCommands} from "../types/typeCommands";
 
 export type BotDocument = HydratedDocument<Bot>;
 
