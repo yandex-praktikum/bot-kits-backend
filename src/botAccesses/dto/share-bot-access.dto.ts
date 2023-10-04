@@ -13,7 +13,7 @@ export class ShareBotAccessDto {
 
   @ApiProperty({
     description: 'уровень доступа',
-    example: defaultPermission
+    example: defaultPermission,
   })
   @IsNotEmpty()
   permission: TPermission;

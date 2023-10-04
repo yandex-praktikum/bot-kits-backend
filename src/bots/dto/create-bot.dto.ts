@@ -32,5 +32,5 @@ export class CreateBotDto {
 
   @ApiProperty()
   @IsObject()
-  botSettings: {};
+  botSettings: object;
 }

@@ -13,7 +13,7 @@ export class ValidationDtoPipe extends ValidationPipe {
 
   customExceptionFactory(errors: ValidationError[]): BadRequestException {
     const formattedErrors = errors.reduce((acc, error) => {
-      Object.entries(error.constraints || {}).forEach(([key, message]) => {
+      Object.entries(error.constraints || {}).forEach(([message]) => {
         acc.push(message);
       });
 

@@ -40,7 +40,9 @@ export class AccountService {
   }
 
   async findAll(): Promise<Account[]> {
-    return await this.accountModel.find().populate('profile').exec();
+    return await this.accountModel
+      .find({}, { 'credentials.password': 0 })
+      .exec();
   }
 
   async findOne(id: string): Promise<Account> {
@@ -51,14 +53,16 @@ export class AccountService {
     id: string,
     updateAccountDto: UpdateAccountDto,
   ): Promise<Account> {
-    return await this.accountModel
-      .findByIdAndUpdate(id, updateAccountDto, { new: true })
-      .populate('profile');
+    return await this.accountModel.findByIdAndUpdate(id, updateAccountDto, {
+      new: true,
+      fields: { 'credentials.password': 0 },
+    });
+    //.populate('profile');
   }
   //account.service.ts
   async findByEmail(email: string): Promise<Account | null> {
     return await this.accountModel
-      .findOne({ 'credentials.email': email })
+      .findOne({ 'credentials.email': email }, { 'credentials.password': 0 })
       .populate('profile');
   }
 
