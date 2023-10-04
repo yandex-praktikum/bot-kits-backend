@@ -20,6 +20,10 @@ export class Promocode extends Document {
   @ApiProperty({ example: 10 })
   @Prop({ required: true, isInteger: true })
   maxActivationCount: number;
+
+  @ApiProperty({ example: 1500 })
+  @Prop({ required: true, isInteger: true })
+  amount: number;
 }
 
 export const PromocodeSchema = SchemaFactory.createForClass(Promocode);

@@ -13,7 +13,7 @@ import { ProfilesService } from 'src/profiles/profiles.service';
 import { AccountService } from 'src/accounts/accounts.service';
 import TypeAccount from 'src/accounts/types/type-account';
 import { AuthDto } from './dto/auth.dto';
-import Role from 'src/accounts/types/role';
+//import Role from 'src/accounts/types/role';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { Account } from 'src/accounts/schema/account.schema';
@@ -97,7 +97,7 @@ export class AuthService {
   async registration(
     authDto: AuthDto,
     provider: TypeAccount = TypeAccount.LOCAL,
-    role: Role = Role.USER,
+    //role: Role = Role.USER,
   ): Promise<Account> {
     const { profileData, accountData } = authDto;
     const email = accountData.credentials.email;

@@ -6,6 +6,7 @@ import { CombinedDto } from '../dto/combined.dto';
 //auth-dto.pipe.ts
 @Injectable()
 export class AuthDtoPipe implements PipeTransform {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   transform(value: CombinedDto, metadata: ArgumentMetadata): AuthDto {
     const enrichedProfile = {
       phone: value.phone,
