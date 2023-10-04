@@ -25,7 +25,6 @@ async function bootstrap() {
     .addTag('auth', 'Авторизация пользователей')
     .addTag('accounts', 'Аккаунты пользователей')
     .addTag('profiles', 'Профили пользователей')
-    .addTag('botTemplates', 'Шаблоны ботов')
     .addTag('bots', 'Боты')
     .addTag('botAccesses', 'Управление доступами к ботам')
     .addTag('platforms', 'Подключаемые платформы')
