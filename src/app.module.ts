@@ -22,7 +22,6 @@ import { databaseConfig } from './configs/database.config';
 import { BotsModule } from './bots/bots.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
-import { BotTemplatesModule } from './botTemplates/bot-templates.module';
 import { HttpModule } from '@nestjs/axios';
 import { NotificationModule } from './notifications/notifications.module';
 import { BlacklistTokensModule } from './blacklistTokens/blacklistTokens.module';
@@ -42,7 +41,6 @@ import { BlacklistTokensModule } from './blacklistTokens/blacklistTokens.module'
     PlatformModule,
     PromocodesModule,
     BotsModule,
-    BotTemplatesModule,
     SubscriptionsModule,
     PaymentsModule,
     HttpModule,

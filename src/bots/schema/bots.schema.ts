@@ -53,15 +53,13 @@ export class Bot extends Document {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Profile',
-    required: true
   })
-  profile: Profile;
+  profile?: Profile;
 
   @Prop({
-    required: true,
     type: Messenger,
   })
-  messenger: Messenger;
+  messenger?: Messenger;
 
   @ApiProperty({
     example: {
@@ -70,7 +68,7 @@ export class Bot extends Document {
     },
   })
   @Prop({ type: Object })
-  settings: object;
+  settings?: object;
 }
 
 export const BotSchema = SchemaFactory.createForClass(Bot);

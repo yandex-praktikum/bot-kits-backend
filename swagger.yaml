@@ -1051,11 +1051,11 @@ paths:
   /bots:
     get:
       operationId: BotsController_findMy
-      summary: Список ботов пользователя
+      summary: Получить ботов пользователя
       parameters: []
       responses:
         '200':
-          description: Список ботов пользователя получен
+          description: Запрос выполнен успешно
           content:
             application/json:
               schema:
@@ -1079,7 +1079,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateBotDto'
+              $ref: '#/components/schemas/BotCreateRequestBody'
       responses:
         '201':
           description: Новый бот создан
@@ -1134,11 +1134,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                botName:
-                  type: string
-                  example: Салон красоты
+              $ref: '#/components/schemas/BotCreateRequestBody'
       responses:
         '200':
           description: Имя бота обновлено
@@ -1242,106 +1238,6 @@ paths:
           description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
-  /botTemplates:
-    get:
-      operationId: BotTemplatesController_findAll
-      summary: Список шаблонов ботов
-      parameters: []
-      responses:
-        '200':
-          description: Шаблоны ботов успешно получены
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BotTemplate'
-        '403':
-          description: Отказ в доступе
-      tags: &ref_16
-        - botTemplates
-      security: &ref_17
-        - bearer: []
-    post:
-      operationId: BotTemplatesController_create
-      summary: Создать шаблон бота
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateBotTemplateDto'
-      responses:
-        '201':
-          description: Шаблон бота успешно создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BotTemplate'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-      tags: *ref_16
-      security: *ref_17
-  /botTemplates/{id}:
-    get:
-      operationId: BotTemplatesController_findOne
-      summary: Получить шаблон бота по id
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор шаблона бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Шаблон бота успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BotTemplate'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_16
-      security: *ref_17
-    patch:
-      operationId: BotTemplatesController_update
-      summary: Изменить шаблон бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор шаблона бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateBotTemplateDto'
-      responses:
-        '200':
-          description: Шаблон бота успешно изменен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BotTemplate'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_16
-      security: *ref_17
   /subscriptions:
     get:
       operationId: SubscriptionsController_subscriptionAndPayments
@@ -1378,9 +1274,9 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: &ref_18
+      tags: &ref_16
         - subscriptions
-      security: &ref_19
+      security: &ref_17
         - bearer: []
   /subscriptions/activate:
     post:
@@ -1410,8 +1306,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_18
-      security: *ref_19
+      tags: *ref_16
+      security: *ref_17
   /subscriptions/{id}:
     post:
       operationId: SubscriptionsController_createSubscription
@@ -1450,8 +1346,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_18
-      security: *ref_19
+      tags: *ref_16
+      security: *ref_17
   /payments:
     get:
       operationId: PaymentsController_userPayments
@@ -1468,9 +1364,9 @@ paths:
                   $ref: '#/components/schemas/Payment'
         '403':
           description: Отказ в доступе
-      tags: &ref_20
+      tags: &ref_18
         - payments
-      security: &ref_21
+      security: &ref_19
         - bearer: []
     post:
       operationId: PaymentsController_create
@@ -1493,8 +1389,8 @@ paths:
           description: Неверный запрос
         '403':
           description: Отказ в доступе
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_18
+      security: *ref_19
   /payments/{id}:
     delete:
       operationId: PaymentsController_delete
@@ -1514,8 +1410,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_18
+      security: *ref_19
     patch:
       operationId: PaymentsController_update
       summary: Обновить данные финансовой операции
@@ -1546,8 +1442,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_18
+      security: *ref_19
   /notification:
     post:
       operationId: NotificationController_create
@@ -1570,9 +1466,9 @@ paths:
           description: Неверный запрос
         '403':
           description: Отказ в доступе
-      tags: &ref_22
+      tags: &ref_20
         - notification
-      security: &ref_23
+      security: &ref_21
         - bearer: []
     get:
       operationId: NotificationController_getAll
@@ -1589,8 +1485,8 @@ paths:
                   $ref: '#/components/schemas/Notification'
         '403':
           description: Отказ в доступе
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_20
+      security: *ref_21
   /notification/{id}:
     get:
       operationId: NotificationController_findOne
@@ -1614,8 +1510,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_20
+      security: *ref_21
     delete:
       operationId: NotificationController_remove
       summary: Удалить уведомление
@@ -1638,8 +1534,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_20
+      security: *ref_21
     patch:
       operationId: NotificationController_update
       summary: Изменить уведомление
@@ -1670,8 +1566,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_20
+      security: *ref_21
 info:
   title: API BotKits
   description: Ручки для команды frontend
@@ -1684,8 +1580,6 @@ tags:
     description: Аккаунты пользователей
   - name: profiles
     description: Профили пользователей
-  - name: botTemplates
-    description: Шаблоны ботов
   - name: bots
     description: Боты
   - name: botAccesses
@@ -2088,59 +1982,21 @@ components:
         permission:
           type: object
           description: уровень доступа
-          example: &ref_24
+          example: &ref_22
             voronki: viewer
       required:
         - botId
         - permission
-    Messenger:
-      type: object
-      properties:
-        name:
-          type: string
-          example: VK
-        page:
-          type: string
-          example: vk.com/club1245321223
-        accessKey:
-          type: string
-          example: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
-        url:
-          type: string
-          example: some_url
-      required:
-        - name
-        - page
-        - accessKey
-        - url
     Bot:
       type: object
       properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        botName:
-          type: string
-          example: Бот Автоответчик
-        profile:
-          $ref: '#/components/schemas/Profile'
-        messenger:
-          example:
-            name: VK
-            page: vk.com/club1245321223
-            accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
-            url: some_url
-          allOf:
-            - $ref: '#/components/schemas/Messenger'
-        botSettings:
+        settings:
           type: object
+          example:
+            Приветствие: Я бот-автоответчик
+            Инлайн_кнопка: Текст кнопки
       required:
-        - icon
-        - botName
-        - profile
-        - messenger
-        - botSettings
+        - settings
     Permission:
       type: object
       properties:
@@ -2232,7 +2088,7 @@ components:
         permission:
           type: object
           description: уровень доступа
-          example: *ref_24
+          example: *ref_22
       required:
         - email
         - permission
@@ -2368,25 +2224,51 @@ components:
           type: number
           minimum: 1
           example: 10
-    CreateBotDto:
+    BotCreateRequestBody:
       type: object
       properties:
+        isTemplate:
+          type: boolean
+          example: 'false'
+          description: ''
         icon:
           type: string
           example: >-
             https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        botName:
+        title:
           type: string
-          example: Бот Автоответчик
+          example: Создание заказов
+          description: ''
+        description:
+          type: string
+          example: Бот для создания заказов
+        features:
+          type: array
+          example:
+            - Создание заказов
+            - Редактирование заказов
         messenger:
-          $ref: '#/components/schemas/Messenger'
-        botSettings:
           type: object
+          example:
+            name: VK
+            pages:
+              - vk.com/club1245321223
+            accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
+            url: www.some-url.com
+        settings:
+          type: object
+          example:
+            settings:
+              Приветствие: Я бот-автоответчик
+              Инлайн_кнопка: Текст кнопки
       required:
-        - icon
-        - botName
+        - isTemplate
+        - title
         - messenger
-        - botSettings
+        - settings
+    Messenger:
+      type: object
+      properties: {}
     CopyBotDto:
       type: object
       properties:
@@ -2403,89 +2285,6 @@ components:
           example: test@test.ru
       required:
         - email
-    BotTemplate:
-      type: object
-      properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        title:
-          type: string
-          example: Доставка еды
-        description:
-          type: string
-          example: Бот для создания заказов
-        features:
-          example:
-            - Создание заказов
-            - Редактирование заказов
-          type: array
-          items:
-            type: string
-        settings:
-          type: object
-          example:
-            Приветствие: Я бот для создания заказов
-            Инлайн_кнопка: Текст кнопки
-      required:
-        - icon
-        - title
-        - description
-        - features
-        - settings
-    CreateBotTemplateDto:
-      type: object
-      properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        title:
-          type: string
-          example: Доставка еды
-        description:
-          type: string
-          example: Бот для создания заказов
-        features:
-          example:
-            - Создание заказов
-            - Редактирование заказов
-          type: array
-          items:
-            type: string
-        settings:
-          type: object
-          example:
-            Приветствие: Я бот для создания заказов
-            Инлайн_кнопка: Текст кнопки
-      required:
-        - title
-    UpdateBotTemplateDto:
-      type: object
-      properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        title:
-          type: string
-          example: Доставка еды
-        description:
-          type: string
-          example: Бот для создания заказов
-        features:
-          example:
-            - Создание заказов
-            - Редактирование заказов
-          type: array
-          items:
-            type: string
-        settings:
-          type: object
-          example:
-            Приветствие: Я бот для создания заказов
-            Инлайн_кнопка: Текст кнопки
     Subscription:
       type: object
       properties:
@@ -2499,7 +2298,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-30T15:31:17.580Z
+          example: 2023-10-04T09:23:09.739Z
       required:
         - status
         - cardMask
@@ -2510,7 +2309,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-30T15:31:17.582Z
+          example: 2023-10-04T09:23:09.740Z
         amount:
           type: number
           example: 1000
