@@ -24,7 +24,7 @@ import {
   ResetPasswordRequestBody,
   SigninRequestBody,
   SignupRequestBody,
-  yandexAuthRequestBody,
+  CodeFlowAuthRequestBody,
 } from './sdo/request-body.sdo';
 import {
   ResetPasswordResponseBodyNotFound,
@@ -119,13 +119,13 @@ export class AuthController {
     summary: 'Авторизация через Yandex',
   })
   @ApiBody({
-    type: yandexAuthRequestBody,
+    type: CodeFlowAuthRequestBody,
   })
   @ApiCreatedResponse({
     description: 'Успешная регистрация',
     type: SigninResponseBodyOK,
   })
-  async exchangeCode(@Body('codeAuth') codeAuth: string) {
+  async exchangeCodeYandex(@Body('codeAuth') codeAuth: string) {
     const userData = await this.authService.authYandex(codeAuth);
     const newAccount: CombinedDto = {
       email: userData.data.default_email,
@@ -139,6 +139,34 @@ export class AuthController {
       data: 'combinedDto',
     });
     return await this.authService.authSocial(authDto, TypeAccount.YANDEX);
+  }
+
+  @Post('mailru/exchange')
+  @ApiOperation({
+    summary: 'Авторизация через Mail',
+  })
+  @ApiBody({
+    type: CodeFlowAuthRequestBody,
+  })
+  @ApiCreatedResponse({
+    description: 'Успешная регистрация',
+    type: SigninResponseBodyOK,
+  })
+  async exchangeCodeMail(@Body('codeAuth') codeAuth: string) {
+    const userData = await this.authService.authMailru(codeAuth);
+
+    const newAccount: CombinedDto = {
+      email: userData.email,
+      password: '',
+      username: userData.nickname,
+      phone: '',
+      avatar: userData.image,
+    };
+    const authDto = this.authDtoPipe.transform(newAccount, {
+      type: 'body',
+      data: 'combinedDto',
+    });
+    return await this.authService.authSocial(authDto, TypeAccount.MAIL);
   }
 
   @UseGuards(VkontakteGuard)

@@ -91,7 +91,7 @@ paths:
       tags: *ref_0
   /yandex/exchange:
     post:
-      operationId: AuthController_exchangeCode
+      operationId: AuthController_exchangeCodeYandex
       summary: Авторизация через Yandex
       parameters: []
       requestBody:
@@ -99,7 +99,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/yandexAuthRequestBody'
+              $ref: '#/components/schemas/CodeFlowAuthRequestBody'
+      responses:
+        '201':
+          description: Успешная регистрация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SigninResponseBodyOK'
+      tags: *ref_0
+  /mailru/exchange:
+    post:
+      operationId: AuthController_exchangeCodeMail
+      summary: Авторизация через Mail
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeFlowAuthRequestBody'
       responses:
         '201':
           description: Успешная регистрация
@@ -1768,7 +1787,7 @@ components:
           type: number
           example: 401
           description: HTTP-статус код
-    yandexAuthRequestBody:
+    CodeFlowAuthRequestBody:
       type: object
       properties:
         codeAuth:
@@ -2388,7 +2407,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-10-02T17:58:24.589Z
+          example: 2023-10-04T15:13:02.431Z
       required:
         - status
         - cardMask
@@ -2399,7 +2418,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-10-02T17:58:24.591Z
+          example: 2023-10-04T15:13:02.433Z
         amount:
           type: number
           example: 1000

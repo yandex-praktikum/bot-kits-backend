@@ -36,13 +36,13 @@ const resetPasswordFields: IFieldDescription[] = [
   createField('email', 'test@mail.ru', 'string', 'Почта пользователя', true),
 ];
 
-const yandexCodeFields: IFieldDescription[] = [
+const CodeFields: IFieldDescription[] = [
   createField('codeAuth', '432532', 'string', 'Код авторизации yandex', true),
 ];
 
-export const yandexAuthRequestBody = new ApiPropertyFactory(
-  yandexCodeFields,
-).generate('yandexAuthRequestBody');
+export const CodeFlowAuthRequestBody = new ApiPropertyFactory(
+  CodeFields,
+).generate('CodeFlowAuthRequestBody');
 
 export const SigninRequestBody = new ApiPropertyFactory(signInFields).generate(
   'SignInRequestBody',
