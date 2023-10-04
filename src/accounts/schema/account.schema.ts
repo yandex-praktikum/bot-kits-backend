@@ -6,29 +6,41 @@ import Role from '../types/role';
 import { ApiProperty } from '@nestjs/swagger';
 import { Profile } from 'src/profiles/schema/profile.schema';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 export type AccountDocument = HydratedDocument<Account>;
 
 class Credentials {
-  @ApiProperty({ example: 'my@mail.ru' })
-  @Prop({ unique: true })
+  @IsEmail(
+    {},
+    { message: 'Email должен быть действительным адресом электронной почты' },
+  )
+  @IsNotEmpty({ message: 'Email не может быть пустым' })
   email: string;
 
-  @ApiProperty({ example: 'password123' })
+  @IsString()
+  @IsNotEmpty({ message: 'Password не может быть пустым' })
   password: string;
 
-  @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
-  @Prop()
+  @IsString()
+  @IsOptional()
   accessToken: string;
 
-  @ApiProperty({ example: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk' })
-  @Prop()
+  @IsOptional()
+  @IsString()
   refreshToken: string;
 }
 
-@Schema(baseSchemaOptions) //--Отключит поле __v для всех документов--//
+@Schema(baseSchemaOptions)
 export class Account extends Document {
-  @ApiProperty({ example: 'local' })
+  @IsEnum(TypeAccount)
   @Prop({
     required: true,
     enum: TypeAccount,
@@ -37,22 +49,14 @@ export class Account extends Document {
   })
   type: TypeAccount;
 
-  @ApiProperty({ example: 'admin' })
+  @IsNotEmpty()
   @Prop({ required: true, enum: Role, type: String })
   role: Role;
 
-  @ApiProperty({
-    example: {
-      email: 'my@mail.ru',
-      password: 'password123',
-      accessToken: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk',
-      refreshToken: 'dkskddksldlslsajsjsdsk,cmksjdksdjskjdk',
-    },
-  })
+  @ValidateNested()
   @Prop({ type: Credentials })
   credentials: Credentials;
 
-  @ApiProperty()
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Profile' })
   profile: Profile;
 }

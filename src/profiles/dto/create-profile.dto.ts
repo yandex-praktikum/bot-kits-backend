@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  ArrayNotEmpty,
   IsArray,
   IsNotEmpty,
   IsNumber,
@@ -30,12 +31,12 @@ export class CreateProfileDto {
   avatar?: string;
 
   @ApiProperty({ example: 1400 })
-  @IsNumber()
+  @IsNumber({}, { message: 'Баланс должен быть числом' })
   @IsOptional()
   balance?: number;
 
   @ApiProperty({ required: false })
   @IsArray()
-  @IsOptional()
+  @ArrayNotEmpty({ message: 'Аккаунтов не может быть 0' })
   accounts: Account[];
 }
