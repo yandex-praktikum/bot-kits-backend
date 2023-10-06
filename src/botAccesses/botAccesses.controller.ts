@@ -27,6 +27,8 @@ import {
   ApiBearerAuth,
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @ApiTags('botAccesses')
 @ApiBearerAuth()
@@ -62,6 +64,8 @@ export class BotAccessesController {
     type: [BotAccess],
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   findAll() {
     return this.botAccessesService.findAll();
   }

@@ -17,6 +17,8 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 import { SingleAccountResponseBodyOK } from './sdo/response-body.sdo';
 import { AccountUpdateRequestBody } from './sdo/request-body.sdo';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @UseGuards(JwtGuard)
 @ApiTags('accounts')
@@ -33,6 +35,8 @@ export class AccountController {
     type: [SingleAccountResponseBodyOK],
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   findAll(): Promise<Account[]> {
     return this.accountService.findAll();
   }
