@@ -47,6 +47,8 @@ export class PlatformController {
   @ApiOperation({
     summary: 'Создать новую платформу',
   })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Post()
   create(@Body() createPlatformDto: CreatePlatformDto): Promise<Platform> {
     return this.platformService.create(createPlatformDto);
@@ -60,8 +62,6 @@ export class PlatformController {
   @ApiOperation({
     summary: 'Получить все платформы',
   })
-  @UseGuards(RolesGuard)
-  @Roles('user')
   @Get()
   findAll(): Promise<Platform[]> {
     return this.platformService.findAll();
@@ -104,6 +104,8 @@ export class PlatformController {
   @ApiOperation({
     summary: 'Обновить данные о платформе по id',
   })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -126,6 +128,8 @@ export class PlatformController {
   @ApiOperation({
     summary: 'Удалить платформу по id',
   })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   remove(@Param('id') id: string): Promise<Platform> {
     return this.platformService.remove(id);

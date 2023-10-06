@@ -26,6 +26,8 @@ import {
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @ApiTags('tariffs')
 @ApiBearerAuth()
@@ -77,6 +79,8 @@ export class TariffsController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiConflictResponse({ description: 'Такой тариф уже существует' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Post()
   create(@Body() CreateTariffDto: CreateTariffDto) {
     return this.tariffsService.create(CreateTariffDto);
@@ -98,6 +102,8 @@ export class TariffsController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Patch(':id')
   updateTariff(
     @Param('id') id: string,
@@ -120,6 +126,8 @@ export class TariffsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   remove(@Param('id') id: string): Promise<Tariff> {
     return this.tariffsService.remove(id);

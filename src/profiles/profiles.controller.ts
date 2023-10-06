@@ -29,6 +29,8 @@ import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 import { Account } from 'src/accounts/schema/account.schema';
 import { UserProfileResponseBodyOK } from './sdo/response-body.sdo';
 import { SingleAccountResponseBodyOK } from 'src/accounts/sdo/response-body.sdo';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @UseGuards(JwtGuard)
 @ApiTags('profiles')
@@ -36,7 +38,6 @@ import { SingleAccountResponseBodyOK } from 'src/accounts/sdo/response-body.sdo'
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
-  @Get()
   @ApiOkResponse({
     description: 'Профили успешно получены',
     type: [UserProfileResponseBodyOK],
@@ -46,6 +47,9 @@ export class ProfilesController {
   @ApiOperation({
     summary: 'Получить все профили',
   })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @Get()
   findAll(): Promise<Profile[]> {
     return this.profilesService.findAll();
   }
@@ -71,7 +75,6 @@ export class ProfilesController {
     return await this.profilesService.findByToken(token);
   }
 
-  @Get(':id')
   @ApiOperation({
     summary: 'Получить профиль по id',
   })
@@ -86,6 +89,9 @@ export class ProfilesController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @Get(':id')
   async findOne(@Param('id') id: string): Promise<Profile> {
     const profile = await this.profilesService.findOne(id);
     if (!profile) throw new BadRequestException('Ресурс не найден');
