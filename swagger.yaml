@@ -153,6 +153,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
+  /telegram:
+    post:
+      operationId: AuthController_telegramCallback
+      parameters: []
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+      tags: *ref_0
   /reset-password:
     post:
       operationId: AuthController_resetPassword
@@ -1796,6 +1808,9 @@ components:
           description: Код авторизации yandex
       required:
         - codeAuth
+    Account:
+      type: object
+      properties: {}
     ResetPasswordRequestBody:
       type: object
       properties:
@@ -2007,8 +2022,10 @@ components:
           type: string
           example: VK
         page:
-          type: string
           example: vk.com/club1245321223
+          type: array
+          items:
+            type: string
         accessKey:
           type: string
           example: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
@@ -2407,7 +2424,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-10-04T15:13:02.431Z
+          example: 2023-10-06T09:45:03.225Z
       required:
         - status
         - cardMask
@@ -2418,7 +2435,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-10-04T15:13:02.433Z
+          example: 2023-10-06T09:45:03.228Z
         amount:
           type: number
           example: 1000

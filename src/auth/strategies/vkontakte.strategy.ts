@@ -11,7 +11,7 @@ export class VkontakteStrategy extends PassportStrategy(Strategy, 'vkontakte') {
       {
         clientID: '51757364 ',
         clientSecret: '1rcjBbrkhDYp9uI9OMLV',
-        callbackURL: 'http://localhost:3000/vkontakte/callback/',
+        callbackURL: 'http://localhost:3001/vkontakte/callback/',
         scope: ['profile', 'email'],
         profileFields: ['email'],
       },

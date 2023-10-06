@@ -1,4 +1,12 @@
-import { Controller, Post, UseGuards, Req, Body, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Req,
+  Body,
+  Get,
+  Redirect,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { LocalGuard } from './guards/localAuth.guard';
 import {
@@ -37,9 +45,15 @@ import {
 } from './sdo/response-body.sdo';
 import { VkontakteGuard } from './guards/vkontakte.guards';
 import { Account } from 'src/accounts/schema/account.schema';
+import { TelegramGuard } from './guards/telegram.guard';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
+}
+
+interface CommandDto {
+  chatId: number;
+  text: string;
 }
 
 @ApiTags('auth')
@@ -230,6 +244,24 @@ export class AuthController {
       data: 'combinedDto',
     });
     return this.authService.authSocial(authDto, TypeAccount.GOOGLE);
+  }
+
+  @UseGuards(TelegramGuard)
+  @Post('/telegram')
+  async telegramCallback(@Req() req: any) {
+    const { username } = req.user;
+    const newAccount: CombinedDto = {
+      email: 'telegram',
+      password: 'telegram',
+      username,
+      phone: 'telegram',
+      avatar: '',
+    };
+    const authDto = this.authDtoPipe.transform(newAccount, {
+      type: 'body',
+      data: 'combinedDto',
+    });
+    return this.authService.authSocial(authDto, TypeAccount.TELEGRAM);
   }
 
   @Post('reset-password')

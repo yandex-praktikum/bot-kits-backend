@@ -14,7 +14,7 @@ export class Messenger {
 
   @ApiProperty({ example: 'vk.com/club1245321223' })
   @IsString()
-  page?: string;
+  page?: [string];
 
   @ApiProperty({ example: '1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo' })
   @IsString()
