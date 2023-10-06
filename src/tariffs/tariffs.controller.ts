@@ -8,10 +8,6 @@ import {
   Patch,
   UseGuards,
 } from '@nestjs/common';
-import { TariffsService } from './tariffs.service';
-import { CreateTariffDto } from './dto/create-tariff.dto';
-import { Tariff } from './schema/tariff.schema';
-import { UpdateTariffDto } from './dto/update-tariff.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -25,7 +21,13 @@ import {
   ApiBearerAuth,
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
+
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
+
+import { TariffsService } from './tariffs.service';
+import { CreateTariffDto } from './dto/create-tariff.dto';
+import { UpdateTariffDto } from './dto/update-tariff.dto';
+import { Tariff } from './schema/tariff.schema';
 
 @ApiTags('tariffs')
 @ApiBearerAuth()
@@ -78,8 +80,8 @@ export class TariffsController {
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiConflictResponse({ description: 'Такой тариф уже существует' })
   @Post()
-  create(@Body() CreateTariffDto: CreateTariffDto) {
-    return this.tariffsService.create(CreateTariffDto);
+  create(@Body() createTariffDto: CreateTariffDto) {
+    return this.tariffsService.create(createTariffDto);
   }
 
   @ApiOperation({
@@ -101,9 +103,9 @@ export class TariffsController {
   @Patch(':id')
   updateTariff(
     @Param('id') id: string,
-    @Body() UpdateTariffDto: UpdateTariffDto,
+    @Body() updateTariffDto: UpdateTariffDto,
   ) {
-    return this.tariffsService.updateTariff(id, UpdateTariffDto);
+    return this.tariffsService.updateTariff(id, updateTariffDto);
   }
 
   @ApiOperation({

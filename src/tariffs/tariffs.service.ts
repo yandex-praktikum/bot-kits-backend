@@ -5,20 +5,18 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+
 import { CreateTariffDto } from './dto/create-tariff.dto';
-import { Tariff } from './schema/tariff.schema';
 import { UpdateTariffDto } from './dto/update-tariff.dto';
+import { Tariff } from './schema/tariff.schema';
 
 @Injectable()
 export class TariffsService {
   constructor(@InjectModel(Tariff.name) private tariff: Model<Tariff>) {}
 
-  async create(CreateTariffDto: CreateTariffDto): Promise<Tariff> {
+  async create(createTariffDto: CreateTariffDto): Promise<Tariff> {
     try {
-      const tariff = await this.tariff.create({
-        ...CreateTariffDto,
-      });
-      return await tariff.save();
+      return await this.tariff.create(createTariffDto);
     } catch (err) {
       if (err.code === 11000) {
         throw new ConflictException('Такой тариф уже существует');
@@ -28,7 +26,8 @@ export class TariffsService {
 
   async findOne(id: string): Promise<Tariff> {
     try {
-      const tariff = await this.tariff.findById({ _id: id }).exec();
+      const tariff = await this.tariff.findById(id).exec();
+      if (!tariff) throw new NotFoundException('Тарифа с таким id нет');
       return tariff;
     } catch (error) {
       throw new NotFoundException('Тарифа с таким id нет');
@@ -38,9 +37,11 @@ export class TariffsService {
   async findAll(): Promise<Tariff[]> {
     try {
       const tariffs = await this.tariff.find().exec();
+      if (tariffs.length === 0)
+        throw new NotFoundException('Нет ни одного тарифа');
       return tariffs;
     } catch (error) {
-      throw new NotFoundException('Нет ни одного тарифа');
+      throw new NotFoundException('Что-то пошло не так');
     }
   }
 
@@ -55,7 +56,7 @@ export class TariffsService {
       );
       return tariff;
     } catch (error) {
-      throw new Error('Что-то пошло не так');
+      throw new NotFoundException('Тарифа с таким id нет');
     }
   }
 
@@ -63,10 +64,8 @@ export class TariffsService {
     try {
       const tariff = await this.tariff.findByIdAndDelete(id).exec();
       if (!tariff) {
-        // Сразу после удаления тариф будет null, проверяем при повторном запросе на удаление
         throw new NotFoundException('Тариф не найден');
       }
-
       return tariff;
     } catch (error) {
       throw new NotFoundException('Тарифа с таким названием нет');
