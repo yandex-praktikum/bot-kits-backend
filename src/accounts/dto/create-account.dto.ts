@@ -12,7 +12,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import TypeAccount from '../types/type-account';
 import Role from '../types/role';
 import { Types } from 'mongoose';
-//create-account.dto.ts
+
 class Credentials {
   @IsEmail(
     {},

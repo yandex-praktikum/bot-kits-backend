@@ -6,9 +6,11 @@ import {
 } from './schema/notifications.schema';
 import { NotificationController } from './notifications.controller';
 import { NotificationService } from './notifications.service';
+import { ProfilesModule } from 'src/profiles/profiles.module';
 
 @Module({
   imports: [
+    ProfilesModule,
     MongooseModule.forFeature([
       {
         name: Notification.name,
