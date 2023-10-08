@@ -10,9 +10,8 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export class ProfilesService {
   constructor(
     @InjectModel(Profile.name) private profile: Model<Profile>,
-    @InjectModel(Account.name) private account: Model<Account>
-  ) {
-  }
+    @InjectModel(Account.name) private account: Model<Account>,
+  ) {}
 
   //profiles.service.ts
   async create(createProfileDto: CreateProfileDto) {

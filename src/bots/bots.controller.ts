@@ -27,26 +27,41 @@ import { CreateBotDto } from './dto/create-bot.dto';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import { ShareBotDto } from './dto/share-bot.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
+import { BotCreateRequestBody } from './sdo/request-body.sdo';
 
-@ApiTags('bots')
-@ApiBearerAuth()
 @UseGuards(JwtGuard)
+@ApiBearerAuth()
+@ApiTags('bots')
 @Controller('bots')
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
 
   @Get()
   @ApiOperation({
-    summary: 'Список ботов пользователя',
+    summary: 'Получить ботов пользователя',
   })
   @ApiOkResponse({
-    description: 'Список ботов пользователя получен',
+    description: 'Запрос выполнен успешно',
     type: [Bot],
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  findMy(@Req() req): Promise<Bot[] | null> {
-    return this.botsService.findAllByUser(req.user.id);
+  async findMy(@Req() req): Promise<Bot[]> {
+    return await this.botsService.findAllByUser(req.user.id);
+  }
+
+  @Get('templates')
+  @ApiOperation({
+    summary: 'Получить ботов пользователя',
+  })
+  @ApiOkResponse({
+    description: 'Запрос выполнен успешно',
+    type: [Bot],
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  async findTemplates(): Promise<Bot[]> {
+    return await this.botsService.findAllTemplates();
   }
 
   @Post()
@@ -59,7 +74,7 @@ export class BotsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  @ApiBody({ type: CreateBotDto })
+  @ApiBody({ type: BotCreateRequestBody })
   create(@Req() req, @Body() createBotDto: CreateBotDto): Promise<Bot> {
     return this.botsService.create(req.user.id, createBotDto);
   }
@@ -114,17 +129,7 @@ export class BotsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        botName: {
-          type: 'string',
-          example: 'Салон красоты',
-        },
-      },
-    },
-  })
+  @ApiBody({ type: BotCreateRequestBody })
   @ApiParam({
     name: 'id',
     description: 'Идентификатор бота',
@@ -133,7 +138,7 @@ export class BotsController {
   update(
     @Req() req,
     @Param('id') id: string,
-    @Body() body: { botName: 'string' },
+    @Body() body: { title: 'string' },
   ): Promise<Bot> {
     return this.botsService.update(req.user.id, id, body);
   }

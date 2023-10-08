@@ -44,6 +44,10 @@ export class BotsService {
     return await this.botModel.find().exec();
   }
 
+  async findAllTemplates(): Promise<Bot[]> {
+    return await this.botModel.find({ type: 'template' }).exec();
+  }
+
   async update(
     userId: string,
     id: string,
@@ -76,12 +80,12 @@ export class BotsService {
     id: string,
     copyBotDto: CopyBotDto,
   ): Promise<Bot> {
-    const { icon, botName, botSettings } = await this.findOne(id);
+    const { icon, title, settings } = await this.findOne(id);
     return await this.create(profile, {
       icon,
-      botName,
+      title,
       messenger: copyBotDto.messenger,
-      botSettings,
+      settings,
     });
   }
 
