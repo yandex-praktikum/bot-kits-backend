@@ -22,7 +22,7 @@ export interface ITokens {
   accessToken: string;
   refreshToken: string;
 }
-
+//auth.service.ts
 @Injectable()
 export class AuthService {
   constructor(
@@ -205,6 +205,39 @@ export class AuthService {
     } catch (error) {
       throw new HttpException(
         'Ошибка в процессе авторизации через Яндекс',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async authMailru(codeAuth: string) {
+    const CLIENT_ID = this.configService.get('MAILRU_APP_ID');
+    const CLIENT_SECRET = this.configService.get('MAILRU_APP_SECRET');
+    const TOKEN_URL = 'https://oauth.mail.ru/token';
+    const USER_INFO_URL = 'https://oauth.mail.ru/userinfo';
+    // Кодирование CLIENT_ID и CLIENT_SECRET для Basic Authorization
+    const authString = `${CLIENT_ID}:${CLIENT_SECRET}`;
+    const encodedAuthString = Buffer.from(authString).toString('base64');
+    try {
+      const tokenResponse = await axios.post(
+        TOKEN_URL,
+        `grant_type=authorization_code&code=${codeAuth}&redirect_uri=http://localhost:3000/signin`,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${encodedAuthString}`,
+          },
+        },
+      );
+      const accessToken = tokenResponse.data.access_token;
+      // Получение информации о пользователе с использованием токена доступа
+      const userDataResponse = await axios.get(
+        `${USER_INFO_URL}?access_token=${accessToken}`,
+      );
+      return userDataResponse.data;
+    } catch (error) {
+      throw new HttpException(
+        'Ошибка в процессе авторизации через Mail.ru',
         HttpStatus.BAD_REQUEST,
       );
     }

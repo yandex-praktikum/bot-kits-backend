@@ -3,5 +3,4 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm i --no-fund --no-audit
 RUN npm i -g @nestjs/cli
-EXPOSE 3000
 CMD nest start --watch

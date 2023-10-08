@@ -91,9 +91,34 @@ paths:
       tags: *ref_0
   /yandex/exchange:
     post:
-      operationId: AuthController_exchangeCode
+      operationId: AuthController_exchangeCodeYandex
       summary: Авторизация через Yandex
       parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeFlowAuthRequestBody'
+      responses:
+        '201':
+          description: Успешная регистрация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SigninResponseBodyOK'
+      tags: *ref_0
+  /mailru/exchange:
+    post:
+      operationId: AuthController_exchangeCodeMail
+      summary: Авторизация через Mail
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeFlowAuthRequestBody'
       responses:
         '201':
           description: Успешная регистрация
@@ -113,65 +138,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  username:
-                    type: string
-                    description: Имя пользователя
-                    example: test
-                  phone:
-                    type: string
-                    description: Номер телефона
-                    example: '+79999999999'
-                  avatar:
-                    type: string
-                    description: URL аватара
-                    example: https://i.pravatar.cc/300
-                  balance:
-                    type: number
-                    description: Баланс
-                    example: 0
-                  accounts:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          description: Тип аккаунта
-                          example: vk
-                        role:
-                          type: string
-                          description: Роль
-                          example: user
-                        credentials:
-                          type: object
-                          properties:
-                            email:
-                              type: string
-                              description: Email
-                              example: test@mail.ru
-                            accessToken:
-                              type: string
-                              description: AccessToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                            refreshToken:
-                              type: string
-                              description: RefreshToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                        profile:
-                          type: string
-                          description: 'Идентификатор профиля '
-                          example: 650b396dd4201e5ca499f3b3
-                        _id:
-                          type: string
-                          description: Идентификатор аккаунта
-                          example: 650b396dd4201e5ca499f3b3
-                    description: Список аккаунтов
-                  _id:
-                    type: string
-                    description: Идентификатор профиля
-                    example: 650b396dd4201e5ca499f3b3
+                $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
   /google:
     get:
@@ -185,6 +152,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SigninResponseBodyOK'
+      tags: *ref_0
+  /telegram:
+    post:
+      operationId: AuthController_telegramCallback
+      parameters: []
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
       tags: *ref_0
   /reset-password:
     post:
@@ -214,32 +193,6 @@ paths:
                 $ref: '#/components/schemas/ResetPasswordResponseBodyNotFound'
       tags: *ref_0
   /profiles:
-    post:
-      operationId: ProfilesController_create
-      summary: Создать новый профиль
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateProfileDto'
-      responses:
-        '201':
-          description: Профиль успешно создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Profile'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-      tags: &ref_1
-        - profiles
-      security: &ref_2
-        - &ref_3
-          bearer: []
     get:
       operationId: ProfilesController_findAll
       summary: Получить все профили
@@ -252,13 +205,16 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Profile'
+                  $ref: '#/components/schemas/UserProfileResponseBodyOK'
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_1
-      security: *ref_2
+      tags: &ref_1
+        - profiles
+      security: &ref_3
+        - &ref_2
+          bearer: []
   /profiles/me:
     get:
       operationId: ProfilesController_findProfileByToken
@@ -272,14 +228,18 @@ paths:
             type: string
       responses:
         '200':
-          description: ''
+          description: Профиль успешно получен
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/UserProfileResponseBodyOK'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
       tags: *ref_1
       security:
-        - *ref_3
+        - *ref_2
         - bearer: []
   /profiles/{id}:
     get:
@@ -299,13 +259,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/UserProfileResponseBodyOK'
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_2
+      security: *ref_3
     patch:
       operationId: ProfilesController_update
       summary: Обновить данные профиля по id
@@ -329,7 +289,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/UserProfileResponseBodyOK'
         '400':
           description: Неверный запрос
         '403':
@@ -337,7 +297,7 @@ paths:
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_2
+      security: *ref_3
     delete:
       operationId: ProfilesController_remove
       summary: Удалить профиль по id
@@ -355,13 +315,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/UserProfileResponseBodyOK'
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_2
+      security: *ref_3
   /profiles/{id}/accounts:
     get:
       operationId: ProfilesController_findAccountByProfileId
@@ -382,13 +342,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Account'
+                  $ref: '#/components/schemas/SingleAccountResponseBodyOK'
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_2
+      security: *ref_3
   /tariffs:
     get:
       operationId: TariffsController_findAll
@@ -520,12 +480,6 @@ paths:
       operationId: AccountController_findAll
       summary: Получить все аккаунты
       parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateAccountDto'
       responses:
         '200':
           description: Запрос выполнен успешно
@@ -534,7 +488,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Account'
+                  $ref: '#/components/schemas/SingleAccountResponseBodyOK'
         '403':
           description: Отказ в доступе
       tags: &ref_6
@@ -558,14 +512,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateAccountDto'
+              $ref: '#/components/schemas/AccountUpdateRequestBody'
       responses:
         '200':
           description: Аккаунт успешно обновлен
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: '#/components/schemas/SingleAccountResponseBodyOK'
         '400':
           description: Неверный запрос
         '403':
@@ -967,6 +921,51 @@ paths:
           description: Отказ в доступе
       tags: *ref_12
       security: *ref_13
+  /promocodes/promocode:
+    get:
+      operationId: PromocodesController_findOneByCode
+      summary: Получить промокод по названию
+      parameters:
+        - name: code
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Промокод успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Отказ в доступе
+      tags: *ref_12
+      security: *ref_13
+    patch:
+      operationId: PromocodesController_updateByCode
+      summary: Использовать промокод 1 раз
+      parameters:
+        - name: code
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Промокод успешно обновлен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Отказ в доступе
+      tags: *ref_12
+      security: *ref_13
   /promocodes/{id}:
     get:
       operationId: PromocodesController_findOne
@@ -1091,6 +1090,26 @@ paths:
           description: Неверный запрос
         '403':
           description: Отказ в доступе
+      tags: *ref_14
+      security: *ref_15
+  /bots/templates:
+    get:
+      operationId: BotsController_findTemplates
+      summary: Получить ботов пользователя
+      parameters: []
+      responses:
+        '200':
+          description: Запрос выполнен успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bot'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
   /bots/{id}:
@@ -1623,32 +1642,33 @@ components:
       properties:
         _id:
           type: string
-          example: 650b396dd4201e5ca499f3b3
-        username:
+          example: 650b396ed4201e5ca499f3b5
+        type:
           type: string
-          example: test
-        phone:
+          example: local
+        role:
           type: string
-          example: '+79999999999'
-        avatar:
-          type: string
-          example: https://i.pravatar.cc/300
-        balance:
-          type: number
-          example: 0
-        accounts:
-          type: array
+          example: user
+        credentials:
+          type: object
           example:
-            - _id: 650b396ed4201e5ca499f3b5
-              type: local
-              role: user
-              credentials:
-                email: test@mail.ru
-                accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-                refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-              profile: 650b396dd4201e5ca499f3b3
+            email: test@mail.ru
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+            refreshToken: eyJhbGciOiJIUzI1NiIsInR5cPCI6IkpXVCJ9
+        profile:
+          type: object
+          example:
+            _id: 650b396dd4201e5ca499f3b3
+            username: test
+            phone: '+79999999999'
+            avatar: https://i.pravatar.cc/300
+            balance: 0
+        success:
+          type: boolean
+          example: true
       required:
-        - accounts
+        - credentials
+        - profile
     SigninResponseBodyNotOK:
       type: object
       properties:
@@ -1738,6 +1758,18 @@ components:
           type: number
           example: 401
           description: HTTP-статус код
+    CodeFlowAuthRequestBody:
+      type: object
+      properties:
+        codeAuth:
+          type: string
+          example: '432532'
+          description: Код авторизации yandex
+      required:
+        - codeAuth
+    Account:
+      type: object
+      properties: {}
     ResetPasswordRequestBody:
       type: object
       properties:
@@ -1769,116 +1801,72 @@ components:
           type: number
           example: 404
           description: HTTP-статус код
-    Credentials:
+    UserProfileResponseBodyOK:
       type: object
       properties:
-        email:
+        _id:
           type: string
-          example: my@mail.ru
-        password:
-          type: string
-          example: password123
-        accessToken:
-          type: string
-          example: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
-        refreshToken:
-          type: string
-          example: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
-      required:
-        - email
-        - password
-        - accessToken
-        - refreshToken
-    Profile:
-      type: object
-      properties:
+          example: 65196b9715b55bd51b039144
+          description: ' '
         username:
           type: string
-          example: Ivan Ivanov
+          example: test
+          description: ' '
         phone:
           type: string
-          example: '+79501364578'
+          example: '+79999999999'
+          description: ' '
         avatar:
           type: string
           example: https://i.pravatar.cc/300
+          description: ' '
         balance:
           type: number
-          example: 1400
+          example: 0
+          description: ' '
         accounts:
           type: array
-          items:
-            type: string
+          example:
+            - 65196b9715b55bd51b039144
+        success:
+          type: boolean
+          example: true
       required:
+        - _id
         - username
         - phone
         - avatar
         - balance
         - accounts
-    Account:
+    SingleAccountResponseBodyOK:
       type: object
       properties:
+        _id:
+          type: string
+          example: 6516ab8f2c612e8cce53e45f
         type:
           type: string
           example: local
         role:
           type: string
-          example: admin
+          example: user
         credentials:
+          type: object
           example:
-            email: my@mail.ru
-            password: password123
-            accessToken: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
-            refreshToken: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
-          allOf:
-            - $ref: '#/components/schemas/Credentials'
+            email: test@mail.ru
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+            refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
         profile:
-          $ref: '#/components/schemas/Profile'
+          type: string
+          example: 6516ab8f2c612e8cce53e45d
+        success:
+          type: boolean
+          example: true
       required:
-        - type
-        - role
         - credentials
-        - profile
-    CreateProfileDto:
-      type: object
-      properties:
-        username:
-          type: string
-          minLength: 2
-          maxLength: 30
-          example: Ivan Ivanov
-        phone:
-          type: string
-          example: '+79501364578'
-        avatar:
-          type: string
-          example: https://i.pravatar.cc/300
-        balance:
-          type: number
-          example: 1400
-        accounts:
-          type: array
-          items:
-            $ref: '#/components/schemas/Account'
-      required:
-        - username
-        - phone
     UpdateProfileDto:
       type: object
-      properties:
-        username:
-          type: string
-          minLength: 2
-          maxLength: 30
-          example: Ivan Ivanov
-        phone:
-          type: string
-          example: '+79501364578'
-        avatar:
-          type: string
-          example: https://i.pravatar.cc/300
-        balance:
-          type: number
-          example: 1400
+      properties: {}
     Tariff:
       type: object
       properties:
@@ -1906,72 +1894,22 @@ components:
         - price
     UpdateTariffDto:
       type: object
-      properties:
-        name:
-          type: string
-          example: Новый старт!
-        price:
-          type: number
-          minimum: 1
-          example: 490
-      required:
-        - name
-        - price
-    CreateAccountDto:
+      properties: {}
+    AccountUpdateRequestBody:
       type: object
       properties:
         type:
-          enum:
-            - local
-            - google
-            - yandex
-            - mail
-            - vk
-            - ok
-            - facebook
-            - telegram
           type: string
           example: local
         role:
-          enum:
-            - user
-            - admin
-            - superAdmin
           type: string
           example: user
         credentials:
-          $ref: '#/components/schemas/Credentials'
-        profile:
           type: object
-          example: 64f9ac26edb84d7ebf6281d0
+          example:
+            email: test@mail.ru
       required:
-        - type
-        - role
-        - profile
-    UpdateAccountDto:
-      type: object
-      properties:
-        type:
-          enum:
-            - local
-            - google
-            - yandex
-            - mail
-            - vk
-            - ok
-            - facebook
-            - telegram
-          type: string
-          example: local
-        role:
-          enum:
-            - user
-            - admin
-            - superAdmin
-          type: string
-          example: admin
-        credentials:
-          $ref: '#/components/schemas/Credentials'
+        - credentials
     CreateBotAccessDto:
       type: object
       properties:
@@ -1987,16 +1925,34 @@ components:
       required:
         - botId
         - permission
-    Bot:
+    Profile:
       type: object
       properties:
-        settings:
-          type: object
-          example:
-            Приветствие: Я бот-автоответчик
-            Инлайн_кнопка: Текст кнопки
+        username:
+          type: string
+          example: Ivan Ivanov
+        phone:
+          type: string
+          example: '+79501364578'
+        avatar:
+          type: string
+          example: https://i.pravatar.cc/300
+        balance:
+          type: number
+          example: 1400
+        accounts:
+          type: array
+          items:
+            type: string
       required:
-        - settings
+        - username
+        - phone
+        - avatar
+        - balance
+        - accounts
+    Bot:
+      type: object
+      properties: {}
     Permission:
       type: object
       properties:
@@ -2130,38 +2086,10 @@ components:
         - formFields
     Platform:
       type: object
-      properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        title:
-          type: string
-          example: VK
-        formFields:
-          example:
-            name: true
-            pages: true
-            accessKey: false
-            url: true
-          allOf:
-            - $ref: '#/components/schemas/FormFields'
-      required:
-        - icon
-        - title
-        - formFields
+      properties: {}
     UpdatePlatformDto:
       type: object
-      properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        title:
-          type: string
-          example: VK
-        formFields:
-          $ref: '#/components/schemas/FormFields'
+      properties: {}
     CreatePromocodeDto:
       type: object
       properties:
@@ -2174,17 +2102,22 @@ components:
           example: '2023-09-10T16:07:34.285Z'
         activationCount:
           type: number
-          minimum: 1
+          minimum: 0
           example: 2
         maxActivationCount:
           type: number
           minimum: 1
           example: 10
+        amount:
+          type: number
+          minimum: 1
+          example: 1500
       required:
         - code
         - actionPeriod
         - activationCount
         - maxActivationCount
+        - amount
     Promocode:
       type: object
       properties:
@@ -2201,29 +2134,18 @@ components:
         maxActivationCount:
           type: number
           example: 10
+        amount:
+          type: number
+          example: 1500
       required:
         - code
         - actionPeriod
         - activationCount
         - maxActivationCount
+        - amount
     UpdatePromocodeDto:
       type: object
-      properties:
-        code:
-          type: string
-          example: PROMO100
-        actionPeriod:
-          format: date-time
-          type: string
-          example: '2024-12-10T00:00:00.285Z'
-        activationCount:
-          type: number
-          minimum: 1
-          example: 2
-        maxActivationCount:
-          type: number
-          minimum: 1
-          example: 10
+      properties: {}
     BotCreateRequestBody:
       type: object
       properties:
@@ -2298,7 +2220,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-10-04T09:23:09.739Z
+          example: 2023-10-08T14:00:55.094Z
       required:
         - status
         - cardMask
@@ -2309,7 +2231,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-10-04T09:23:09.740Z
+          example: 2023-10-08T14:00:55.099Z
         amount:
           type: number
           example: 1000

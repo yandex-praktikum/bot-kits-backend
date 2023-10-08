@@ -1,10 +1,10 @@
-import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
-import {ApiProperty} from '@nestjs/swagger';
-import mongoose, {Document, HydratedDocument} from 'mongoose';
-import {IsArray, IsNotEmpty, IsOptional, IsString} from 'class-validator';
-import {Profile} from '../../profiles/schema/profile.schema';
-import {baseSchemaOptions} from 'src/utils/baseSchemaOptions';
-import {TypeCommands} from "../types/typeCommands";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
+import mongoose, { Document, HydratedDocument } from 'mongoose';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Profile } from '../../profiles/schema/profile.schema';
+import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
+import { TypeCommands, botCommands } from '../dto/constants/botCommands';
 
 export type BotDocument = HydratedDocument<Bot>;
 
@@ -29,10 +29,10 @@ export class Messenger {
 @Schema(baseSchemaOptions)
 export class Bot extends Document {
   @Prop({
-    default: false,
     required: true,
+    enum: ['template', 'custom'],
   })
-  isTemplate: boolean;
+  type: 'template' | 'custom';
 
   @Prop()
   icon?: string;
@@ -56,19 +56,18 @@ export class Bot extends Document {
   })
   profile?: Profile;
 
-  @Prop({
-    type: Messenger,
-  })
-  messenger?: Messenger;
+  @Prop([Messenger])
+  messengers: Messenger[];
 
-  @ApiProperty({
-    example: {
-      Приветствие: 'Я бот-автоответчик',
-      Инлайн_кнопка: 'Текст кнопки',
-    },
-  })
   @Prop({ type: Object })
   settings?: object;
+
+  @Prop({
+    type: [String],
+    enum: Object.values(TypeCommands),
+    default: botCommands,
+  })
+  commands: TypeCommands[];
 }
 
 export const BotSchema = SchemaFactory.createForClass(Bot);

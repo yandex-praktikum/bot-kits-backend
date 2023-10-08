@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {IsObject, IsOptional, IsString, IsUrl} from 'class-validator';
+import { IsObject, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class UpdateBotDto {
   @ApiProperty({

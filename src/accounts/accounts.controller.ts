@@ -13,9 +13,12 @@ import {
 
 import { AccountService } from './accounts.service';
 import { Account } from './schema/account.schema';
-import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
+import { SingleAccountResponseBodyOK } from './sdo/response-body.sdo';
+import { AccountUpdateRequestBody } from './sdo/request-body.sdo';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @UseGuards(JwtGuard)
 @ApiTags('accounts')
@@ -23,29 +26,30 @@ import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 @Controller('accounts')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
-
-  @ApiBody({ type: CreateAccountDto })
-  @ApiOkResponse({
-    description: 'Запрос выполнен успешно',
-    type: [Account],
-  })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @Get()
   @ApiOperation({
     summary: 'Получить все аккаунты',
   })
-  @Get()
+  @ApiOkResponse({
+    description: 'Запрос выполнен успешно',
+    type: [SingleAccountResponseBodyOK],
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   findAll(): Promise<Account[]> {
     return this.accountService.findAll();
   }
 
+  @Patch(':id')
   @ApiOkResponse({
     description: 'Аккаунт успешно обновлен',
-    type: Account,
+    type: SingleAccountResponseBodyOK,
   })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  @ApiBody({ type: UpdateAccountDto })
+  @ApiBody({ type: AccountUpdateRequestBody })
   @ApiParam({
     name: 'id',
     description: 'Индификатор аккаунта',
@@ -54,7 +58,6 @@ export class AccountController {
   @ApiOperation({
     summary: 'Обновить данные аккаунта по id',
   })
-  @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updateAccountDto: UpdateAccountDto,

@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import {Bot, BotDocument} from './schema/bots.schema';
+import { Bot, BotDocument } from './schema/bots.schema';
 import { Model } from 'mongoose';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
@@ -42,6 +42,10 @@ export class BotsService {
 
   async findAll(): Promise<Bot[]> {
     return await this.botModel.find().exec();
+  }
+
+  async findAllTemplates(): Promise<Bot[]> {
+    return await this.botModel.find({ type: 'template' }).exec();
   }
 
   async update(

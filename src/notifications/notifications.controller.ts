@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { NotificationService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -23,6 +24,8 @@ import {
   ApiNotFoundResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @ApiTags('notification')
 @ApiBearerAuth()
@@ -58,6 +61,8 @@ export class NotificationController {
     type: [Notification],
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Get()
   getAll() {
     return this.notificationService.findAll();
@@ -79,6 +84,8 @@ export class NotificationController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Notification> {
     return this.notificationService.findbyId(id);
@@ -100,6 +107,8 @@ export class NotificationController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   remove(@Param('id') id: string): Promise<Notification> {
     return this.notificationService.remove(id);
@@ -126,6 +135,8 @@ export class NotificationController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Patch(':id')
   update(
     @Body() updateNotificationDto: UpdateNotificationDto,

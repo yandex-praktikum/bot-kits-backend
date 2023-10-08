@@ -1,16 +1,18 @@
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import { ConfigService } from '@nestjs/config';
 import { ValidationDtoPipe } from './auth/pipe/validation-dto.pipe';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get('APP_PORT');
   app.useGlobalPipes(new ValidationDtoPipe());
+  app.use(helmet());
   app.enableCors({
     origin: configService.get('ALLOW_URL'),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
