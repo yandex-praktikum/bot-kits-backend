@@ -24,6 +24,24 @@ async function initializeDatabase(configService: ConfigService) {
     // Получаем доступ к базе данных 'admin' (обычно используется для административных команд)
     const adminDb = client.db('admin');
 
+    // try {
+    //   // Инициализация репликационного набора
+    //   const result = await adminDb.command({
+    //     replSetInitiate: {
+    //       _id: 'rs0',
+    //       members: [
+    //         {
+    //           _id: 0,
+    //           host: `${configService.get('DB_HOST')}:${configService.get('DB_PORT')}`,
+    //         },
+    //       ],
+    //     },
+    //   });
+    //   console.log('Replica set initiated:', result);
+    // } catch (error) {
+    //   console.error('Error initiating replica set:', error);
+    // }
+
     // Запрашиваем информацию о пользователях базы данных
     const result = await adminDb.command({ usersInfo: 1 });
 
