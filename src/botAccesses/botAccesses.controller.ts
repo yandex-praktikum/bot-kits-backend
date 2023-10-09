@@ -29,6 +29,7 @@ import {
 } from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { TJwtRequest } from 'src/types/jwtRequest';
 
 @ApiTags('botAccesses')
 @ApiBearerAuth()
@@ -51,10 +52,10 @@ export class BotAccessesController {
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: CreateBotAccessDto })
   create(
-    @Req() req,
+    @Req() { user }: TJwtRequest,
     @Body() createBotAccess: CreateBotAccessDto,
   ): Promise<BotAccess> {
-    return this.botAccessesService.create(req.user.id, createBotAccess);
+    return this.botAccessesService.create(user.id, createBotAccess);
   }
 
   @Get()
@@ -111,12 +112,12 @@ export class BotAccessesController {
     example: '64f81ba37571bfaac18a857f',
   })
   update(
-    @Req() req,
+    @Req() { user }: TJwtRequest,
     @Param('id') botAccessId: string,
     @Body() updateBotAccessDto: UpdateBotAccessDto,
   ) {
     return this.botAccessesService.updateAccess(
-      req.user.id,
+      user.id,
       botAccessId,
       updateBotAccessDto,
     );
@@ -137,8 +138,8 @@ export class BotAccessesController {
     description: 'Идентификатор botAccessId',
     example: '64f81ba37571bfaac18a857f',
   })
-  delete(@Req() req, @Param('id') botAccessId: string) {
-    return this.botAccessesService.delete(req.user.id, botAccessId);
+  delete(@Req() { user }: TJwtRequest, @Param('id') botAccessId: string) {
+    return this.botAccessesService.delete(user.id, botAccessId);
   }
 
   @Get(':userId/:botId')
@@ -191,12 +192,12 @@ export class BotAccessesController {
     example: '64f81ba37571bfaac18a857f',
   })
   shareAccess(
-    @Req() req,
+    @Req() { user }: TJwtRequest,
     @Param('botId') botId: string,
     @Body() shareBotAccessDto: ShareBotAccessDto,
   ) {
     return this.botAccessesService.shareAccess(
-      req.user.id,
+      user.id,
       botId,
       shareBotAccessDto,
     );
