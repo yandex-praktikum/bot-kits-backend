@@ -116,7 +116,9 @@ const databaseOptions = (
     'DB_PASSWORD',
   )}@${configService.get('DB_HOST')}:${configService.get(
     'DB_PORT',
-  )}/${configService.get('DB_NAME')}?authSource=admin`,
+  )}/${configService.get(
+    'DB_NAME',
+  )}?authSource=admin&replicaSet=${configService.get('DB_REPLICATION_SET')}`,
 });
 
 export const databaseConfig = (): MongooseModuleAsyncOptions => ({

@@ -17,6 +17,8 @@ import { AuthDto } from './dto/auth.dto';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { Account } from 'src/accounts/schema/account.schema';
+import { InjectConnection } from '@nestjs/mongoose';
+import * as mongoose from 'mongoose';
 
 export interface ITokens {
   accessToken: string;
@@ -31,6 +33,7 @@ export class AuthService {
     private accountService: AccountService,
     private hashService: HashService,
     private readonly configService: ConfigService,
+    @InjectConnection() private readonly connection: mongoose.Connection,
   ) {}
 
   private async getTokens(profileId): Promise<ITokens> {
@@ -97,46 +100,64 @@ export class AuthService {
   async registration(
     authDto: AuthDto,
     provider: TypeAccount = TypeAccount.LOCAL,
-    //role: Role = Role.USER,
   ): Promise<Account> {
     const { profileData, accountData } = authDto;
     const email = accountData.credentials.email;
     accountData.type = provider;
     let profile;
 
-    const existsAccountByTypeAndEmail =
-      await this.accountService.findByEmailAndType(email, provider);
+    const session = await this.connection.startSession();
+    session.startTransaction();
 
-    if (existsAccountByTypeAndEmail) {
-      throw new ConflictException('Аккаунт уже существует');
+    try {
+      const existsAccountByTypeAndEmail =
+        await this.accountService.findByEmailAndType(email, provider, session);
+
+      if (existsAccountByTypeAndEmail) {
+        throw new ConflictException('Аккаунт уже существует');
+      }
+
+      const existsAccount = await this.accountService.findByEmail(
+        email,
+        session,
+      );
+
+      if (!existsAccount) {
+        //--Создаем новый профиль--//
+        profile = await this.profilesService.create(profileData, session);
+      } else {
+        profile = await this.profilesService.findByEmail(email, session);
+      }
+
+      //--Создаем новый аккаунт--//
+      const newAccount = await this.accountService.create(
+        accountData,
+        profile._id,
+        session,
+      );
+
+      const tokens = await this.getTokens(profile._id);
+
+      accountData.credentials.accessToken = tokens.accessToken;
+      accountData.credentials.refreshToken = tokens.refreshToken;
+
+      await this.accountService.update(newAccount._id, accountData, session);
+
+      profile.accounts.push(newAccount);
+      await profile.save({ session });
+
+      await session.commitTransaction();
+
+      return await this.accountService.findByIdAndProvider(
+        profile._id,
+        provider,
+      );
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-
-    const existsAccount = await this.accountService.findByEmail(email);
-
-    if (!existsAccount) {
-      //--Создаем новый профиль--//
-      profile = await this.profilesService.create(profileData);
-    } else {
-      profile = await this.profilesService.findByEmail(email);
-    }
-
-    //--Создаем новый аккаунт--//
-    const newAccount = await this.accountService.create(
-      accountData,
-      profile._id,
-    );
-
-    const tokens = await this.getTokens(profile._id);
-
-    accountData.credentials.accessToken = tokens.accessToken;
-    accountData.credentials.refreshToken = tokens.refreshToken;
-
-    await this.accountService.update(newAccount._id, accountData);
-
-    profile.accounts.push(newAccount);
-    await profile.save();
-
-    return await this.accountService.findByIdAndProvider(profile._id, provider);
   }
 
   async sendPasswordResetEmail(email) {
