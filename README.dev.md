@@ -58,7 +58,7 @@ replication:
 Для того чтобы перезапустить MongoDB  с новыми настройками введите, если ошибок и сообщений нет - перезагрузите устройство.
 ```
 mongod --config "путь\до\вашего\mongod.conf"
-#Пример notepad "C:\Program Files\MongoDB\Server\4.4\mongod.conf"
+#Пример notepad "C:\Program Files\MongoDB\Server\4.4\mongod.conf" --install
 ```
 Далее зайдите в MongoDB shell для этого в терминале введите 
 ```
