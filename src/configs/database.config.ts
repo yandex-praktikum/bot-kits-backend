@@ -5,12 +5,13 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { MongoClient } from 'mongodb';
 import { botTemplates } from 'src/bots/dto/constants/botTemplates';
+import { platforms } from 'src/platforms/dto/constants/templates';
 
 /**
  * Инициализирует базу данных: создает пользователя и шаблонные боты, если они отсутствуют.
  * @param configService - сервис для доступа к конфигурации приложения.
  */
-async function initializeDatabase(configService: ConfigService) {
+async function initializeDatabase(configService: ConfigService): Promise<void> {
   // Формирование строки подключения к базе данных
   const uri = `mongodb://${configService.get('DB_HOST')}:${configService.get(
     'DB_PORT',
@@ -50,10 +51,10 @@ async function initializeDatabase(configService: ConfigService) {
       console.log('User already exists.');
     }
 
-    // Получаем доступ к нашей целевой базе данных
-    const botsDb = client.db(`${configService.get('DB_NAME')}`);
+    // Получаем доступ к целевой базе данных
+    const currentDb = client.db(`${configService.get('DB_NAME')}`);
     // Получаем коллекцию 'bots'
-    const botsCollection = botsDb.collection('bots');
+    const botsCollection = currentDb.collection('bots');
 
     // Запрашиваем количество шаблонных ботов в коллекции
     const templateBotsCount = await botsCollection.countDocuments({
@@ -61,7 +62,7 @@ async function initializeDatabase(configService: ConfigService) {
     });
 
     // Если в коллекции меньше 12 шаблонных ботов или их вообще нет, создаем недостающие
-    if (templateBotsCount < 12 || !templateBotsCount) {
+    if (!templateBotsCount) {
       console.log('Creating template bots...');
 
       // Создаем шаблонные боты
@@ -70,6 +71,33 @@ async function initializeDatabase(configService: ConfigService) {
       console.log('Template bots created successfully.');
     } else {
       console.log('All template bots already exist.');
+    }
+
+    // Получаем коллекцию 'platforms'
+    const platformsCollection = currentDb.collection('platforms');
+
+    // Запрашиваем количество платформ в коллекции
+    const platformsCount = await platformsCollection.countDocuments();
+
+    // Если в коллекции нет платформ или их количество меньше ожидаемого, создаем недостающие
+    if (platformsCount < platforms.length) {
+      console.log('Creating platforms...');
+
+      // Получаем список существующих платформ
+      const existingPlatforms = await platformsCollection.find().toArray();
+      const existingPlatformTitles = existingPlatforms.map((p) => p.title);
+
+      // Фильтруем список платформ, чтобы добавить только те, которых еще нет в базе данных
+      const platformsToAdd = platforms.filter(
+        (platform) => !existingPlatformTitles.includes(platform.title),
+      );
+
+      // Создаем платформы
+      await platformsCollection.insertMany(platformsToAdd);
+
+      console.log('Platforms created successfully.');
+    } else {
+      console.log('All platforms already exist.');
     }
   } catch (error) {
     // Ловим и выводим любые ошибки

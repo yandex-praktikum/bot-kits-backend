@@ -74,9 +74,8 @@ export class BotsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  //@ApiBody({ type: BotCreateRequestBody })
+  @ApiBody({ type: BotCreateRequestBody })
   create(@Req() req, @Body() createBotDto: CreateBotDto): Promise<Bot> {
-    console.log(createBotDto);
     return this.botsService.create(req.user.id, createBotDto);
   }
 
