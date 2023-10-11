@@ -10,7 +10,7 @@ import { botTemplates } from 'src/bots/dto/constants/botTemplates';
  * Инициализирует базу данных: создает пользователя и шаблонные боты, если они отсутствуют.
  * @param configService - сервис для доступа к конфигурации приложения.
  */
-async function initializeDatabase(configService: ConfigService) {
+async function initializeDatabase(configService: ConfigService): Promise<void> {
   // Формирование строки подключения к базе данных
   const uri = `mongodb://${configService.get('DB_HOST')}:${configService.get(
     'DB_PORT',
@@ -23,24 +23,6 @@ async function initializeDatabase(configService: ConfigService) {
 
     // Получаем доступ к базе данных 'admin' (обычно используется для административных команд)
     const adminDb = client.db('admin');
-
-    // try {
-    //   // Инициализация репликационного набора
-    //   const result = await adminDb.command({
-    //     replSetInitiate: {
-    //       _id: 'rs0',
-    //       members: [
-    //         {
-    //           _id: 0,
-    //           host: `${configService.get('DB_HOST')}:${configService.get('DB_PORT')}`,
-    //         },
-    //       ],
-    //     },
-    //   });
-    //   console.log('Replica set initiated:', result);
-    // } catch (error) {
-    //   console.error('Error initiating replica set:', error);
-    // }
 
     // Запрашиваем информацию о пользователях базы данных
     const result = await adminDb.command({ usersInfo: 1 });
@@ -68,10 +50,10 @@ async function initializeDatabase(configService: ConfigService) {
       console.log('User already exists.');
     }
 
-    // Получаем доступ к нашей целевой базе данных
-    const botsDb = client.db(`${configService.get('DB_NAME')}`);
+    // Получаем доступ к целевой базе данных
+    const currentDb = client.db(`${configService.get('DB_NAME')}`);
     // Получаем коллекцию 'bots'
-    const botsCollection = botsDb.collection('bots');
+    const botsCollection = currentDb.collection('bots');
 
     // Запрашиваем количество шаблонных ботов в коллекции
     const templateBotsCount = await botsCollection.countDocuments({
@@ -79,7 +61,7 @@ async function initializeDatabase(configService: ConfigService) {
     });
 
     // Если в коллекции меньше 12 шаблонных ботов или их вообще нет, создаем недостающие
-    if (templateBotsCount < 12 || !templateBotsCount) {
+    if (!templateBotsCount) {
       console.log('Creating template bots...');
 
       // Создаем шаблонные боты
@@ -106,7 +88,9 @@ const databaseOptions = (
     'DB_PASSWORD',
   )}@${configService.get('DB_HOST')}:${configService.get(
     'DB_PORT',
-  )}/${configService.get('DB_NAME')}?authSource=admin`,
+  )}/${configService.get(
+    'DB_NAME',
+  )}?authSource=admin&replicaSet=${configService.get('DB_REPLICATION_SET')}`,
 });
 
 export const databaseConfig = (): MongooseModuleAsyncOptions => ({
