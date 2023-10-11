@@ -30,7 +30,7 @@ import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 
-@UseGuards(JwtGuard)
+// @UseGuards(JwtGuard)
 @ApiTags('platforms')
 @ApiBearerAuth()
 @Controller('platforms')
@@ -47,8 +47,8 @@ export class PlatformController {
   @ApiOperation({
     summary: 'Создать новую платформу',
   })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  // @UseGuards(RolesGuard)
+  // @Roles('admin')
   @Post()
   create(@Body() createPlatformDto: CreatePlatformDto): Promise<Platform> {
     return this.platformService.create(createPlatformDto);
@@ -83,9 +83,7 @@ export class PlatformController {
   })
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Platform> {
-    const platform = await this.platformService.findOne(id);
-    if (!platform) throw new BadRequestException('Ресурс не найден');
-    return platform;
+    return await this.platformService.findOne(id);
   }
 
   @ApiOkResponse({
@@ -104,8 +102,8 @@ export class PlatformController {
   @ApiOperation({
     summary: 'Обновить данные о платформе по id',
   })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  // @UseGuards(RolesGuard)
+  // @Roles('admin')
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -128,8 +126,8 @@ export class PlatformController {
   @ApiOperation({
     summary: 'Удалить платформу по id',
   })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  // @UseGuards(RolesGuard)
+  // @Roles('admin')
   @Delete(':id')
   remove(@Param('id') id: string): Promise<Platform> {
     return this.platformService.remove(id);

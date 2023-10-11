@@ -29,7 +29,7 @@ export class Platform {
   @Prop({ required: true })
   icon: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   title: string;
 
   @Prop({ required: true, type: FormFields })
