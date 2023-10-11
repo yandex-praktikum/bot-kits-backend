@@ -75,19 +75,19 @@ export class BotsService {
     return await this.botModel.findByIdAndRemove(id).exec();
   }
 
-  async copy(
-    profile: string,
-    id: string,
-    copyBotDto: CopyBotDto,
-  ): Promise<Bot> {
-    const { icon, title, settings } = await this.findOne(id);
-    return await this.create(profile, {
-      icon,
-      title,
-      messenger: copyBotDto.messenger,
-      settings,
-    });
-  }
+  // async copy(
+  //   profile: string,
+  //   id: string,
+  //   copyBotDto: CopyBotDto,
+  // ): Promise<Bot> {
+  //   const { icon, title, settings } = await this.findOne(id);
+  //   return await this.create(profile, {
+  //     icon,
+  //     title,
+  //     messenger: copyBotDto.messenger,
+  //     settings,
+  //   });
+  // }
 
   async share(
     profile: string,

@@ -1078,7 +1078,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BotCreateRequestBody'
+              $ref: '#/components/schemas/CreateBotDto'
       responses:
         '201':
           description: Новый бот создан
@@ -1185,39 +1185,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
-  /bots/{id}/copy:
-    post:
-      operationId: BotsController_copy
-      summary: Копирование бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CopyBotDto'
-      responses:
-        '201':
-          description: Бот скопирован
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '400':
-          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
@@ -2146,6 +2113,44 @@ components:
     UpdatePromocodeDto:
       type: object
       properties: {}
+    Messenger:
+      type: object
+      properties: {}
+    CreateBotDto:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        title:
+          type: string
+          example: Бот Автоответчик
+        description:
+          type: string
+          example: Бот для создания заказов
+        messengers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Messenger'
+        features:
+          example:
+            - Создание заказов
+            - Редактирование заказов
+          type: array
+          items:
+            type: string
+        settings:
+          type: object
+          example:
+            Приветствие: Я бот для создания заказов
+            Инлайн_кнопка: Текст кнопки
+        type:
+          type: string
+      required:
+        - title
+        - messengers
+        - type
     BotCreateRequestBody:
       type: object
       properties:
@@ -2188,16 +2193,6 @@ components:
         - title
         - messenger
         - settings
-    Messenger:
-      type: object
-      properties: {}
-    CopyBotDto:
-      type: object
-      properties:
-        messenger:
-          $ref: '#/components/schemas/Messenger'
-      required:
-        - messenger
     ShareBotDto:
       type: object
       properties:
@@ -2220,7 +2215,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-10-08T14:00:55.094Z
+          example: 2023-10-11T08:38:11.696Z
       required:
         - status
         - cardMask
@@ -2231,7 +2226,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-10-08T14:00:55.099Z
+          example: 2023-10-11T08:38:11.700Z
         amount:
           type: number
           example: 1000
