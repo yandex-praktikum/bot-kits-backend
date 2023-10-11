@@ -98,26 +98,26 @@ export class BotsController {
     return this.botsService.remove(req.user.id, id);
   }
 
-  @Post(':id/copy')
-  @ApiOperation({
-    summary: 'Копирование бота',
-  })
-  @ApiCreatedResponse({
-    description: 'Бот скопирован',
-    type: Bot,
-  })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  @ApiBody({ type: CopyBotDto })
-  @ApiParam({
-    name: 'id',
-    description: 'Идентификатор бота',
-    example: '64f81ba37571bfaac18a857f',
-  })
-  copy(@Req() req, @Param('id') id: string, @Body() copyBotDto: CopyBotDto) {
-    return this.botsService.copy(req.user.id, id, copyBotDto);
-  }
+  // @Post(':id/copy')
+  // @ApiOperation({
+  //   summary: 'Копирование бота',
+  // })
+  // @ApiCreatedResponse({
+  //   description: 'Бот скопирован',
+  //   type: Bot,
+  // })
+  // @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  // @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  // @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  // @ApiBody({ type: CopyBotDto })
+  // @ApiParam({
+  //   name: 'id',
+  //   description: 'Идентификатор бота',
+  //   example: '64f81ba37571bfaac18a857f',
+  // })
+  // copy(@Req() req, @Param('id') id: string, @Body() copyBotDto: CopyBotDto) {
+  //   return this.botsService.copy(req.user.id, id, copyBotDto);
+  // }
 
   @Patch(':id')
   @ApiOperation({

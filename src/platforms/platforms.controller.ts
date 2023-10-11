@@ -83,9 +83,7 @@ export class PlatformController {
   })
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Platform> {
-    const platform = await this.platformService.findOne(id);
-    if (!platform) throw new BadRequestException('Ресурс не найден');
-    return platform;
+    return await this.platformService.findOne(id);
   }
 
   @ApiOkResponse({

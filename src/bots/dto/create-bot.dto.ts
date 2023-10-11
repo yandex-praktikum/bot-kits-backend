@@ -11,6 +11,9 @@ import { Messenger } from '../schema/bots.schema';
 import { Type } from 'class-transformer';
 
 export class CreateBotDto {
+  @IsString()
+  type: string;
+
   @ApiProperty({
     example:
       'https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png',
@@ -34,7 +37,7 @@ export class CreateBotDto {
   @ApiProperty()
   @Type(() => Messenger)
   @ValidateNested()
-  messenger: Messenger;
+  messengers: Messenger[];
 
   @IsOptional()
   @ApiProperty({ example: ['Создание заказов', 'Редактирование заказов'] })

@@ -5,6 +5,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { MongoClient } from 'mongodb';
 import { botTemplates } from 'src/bots/dto/constants/botTemplates';
+import { platforms } from 'src/platforms/dto/constants/templates';
 
 /**
  * Инициализирует базу данных: создает пользователя и шаблонные боты, если они отсутствуют.
@@ -70,6 +71,33 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
       console.log('Template bots created successfully.');
     } else {
       console.log('All template bots already exist.');
+    }
+
+    // Получаем коллекцию 'platforms'
+    const platformsCollection = currentDb.collection('platforms');
+
+    // Запрашиваем количество платформ в коллекции
+    const platformsCount = await platformsCollection.countDocuments();
+
+    // Если в коллекции нет платформ или их количество меньше ожидаемого, создаем недостающие
+    if (platformsCount < platforms.length) {
+      console.log('Creating platforms...');
+
+      // Получаем список существующих платформ
+      const existingPlatforms = await platformsCollection.find().toArray();
+      const existingPlatformTitles = existingPlatforms.map((p) => p.title);
+
+      // Фильтруем список платформ, чтобы добавить только те, которых еще нет в базе данных
+      const platformsToAdd = platforms.filter(
+        (platform) => !existingPlatformTitles.includes(platform.title),
+      );
+
+      // Создаем платформы
+      await platformsCollection.insertMany(platformsToAdd);
+
+      console.log('Platforms created successfully.');
+    } else {
+      console.log('All platforms already exist.');
     }
   } catch (error) {
     // Ловим и выводим любые ошибки
