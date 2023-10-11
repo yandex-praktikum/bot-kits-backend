@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Post,
-  UseGuards,
-  Req,
-  Body,
-  Get,
-  Redirect,
-} from '@nestjs/common';
+import { Controller, Post, UseGuards, Req, Body, Get } from '@nestjs/common';
 import { Request } from 'express';
 import { LocalGuard } from './guards/localAuth.guard';
 import {
@@ -49,11 +41,6 @@ import { TelegramGuard } from './guards/telegram.guard';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
-}
-
-interface CommandDto {
-  chatId: number;
-  text: string;
 }
 
 @ApiTags('auth')
