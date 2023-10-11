@@ -40,9 +40,6 @@ export class Permission implements TPermission {
 @Schema(baseSchemaOptions)
 export class BotAccess extends Document {
   @ApiProperty({ example: '64ff89e7faea577804940275' })
-  _id: string;
-
-  @ApiProperty({ example: '64ff89e7faea577804940275' })
   @Prop({
     type: Types.ObjectId,
     ref: 'Profile',
@@ -65,12 +62,6 @@ export class BotAccess extends Document {
   })
   @ValidateNested()
   permission: Permission;
-
-  @ApiProperty({ example: '2023-09-12T15:29:12.117Z' })
-  createdAt: Date;
-
-  @ApiProperty({ example: '2023-09-12T15:29:12.117Z' })
-  updatedAt: Date;
 }
 
 export const BotAccessSchema = SchemaFactory.createForClass(BotAccess);
