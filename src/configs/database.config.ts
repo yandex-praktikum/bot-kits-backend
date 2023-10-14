@@ -108,7 +108,6 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
   }
 }
 
-//database.config.ts
 const databaseOptions = (
   configService: ConfigService,
 ): MongooseModuleOptions => ({
