@@ -33,9 +33,9 @@ export class BotsService {
       permission: fullPermission,
     });
 
-    if (bot.title === createBotDto.title) {
-      throw new ConflictException('Бот с таким именем уже существует');
-    }
+    // if (bot.title === createBotDto.title) {
+    //   throw new ConflictException('Бот с таким именем уже существует');
+    // }
 
     return bot;
   }

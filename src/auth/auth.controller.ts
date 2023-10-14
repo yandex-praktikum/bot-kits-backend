@@ -208,7 +208,7 @@ export class AuthController {
       data: 'combinedDto',
     });
     const result = await this.authService.authSocial(authDto, TypeAccount.VK);
-    res.cookie('vkontakte-auth', JSON.stringify(result));
+    res.cookie('auth', JSON.stringify(result));
     return res.redirect('http://localhost:3000/signin');
   }
 
@@ -244,7 +244,7 @@ export class AuthController {
       authDto,
       TypeAccount.GOOGLE,
     );
-    res.cookie('google-auth', JSON.stringify(result));
+    res.cookie('auth', JSON.stringify(result));
     return res.redirect('http://localhost:3000/signin');
   }
 

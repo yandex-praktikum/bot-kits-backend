@@ -27,6 +27,10 @@ services:
       - db_config:/data/configdb
     networks:
       - back
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    healthcheck:
+      test: mongosh --eval "rs.initiate()"
+      start_period: 5s
 
 networks:
   back:
