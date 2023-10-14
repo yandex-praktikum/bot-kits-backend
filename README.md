@@ -2,9 +2,138 @@
 
 Данный проект является полноценным веб-сервисом, состоящий из back- **и front- **частей для удобного создания \*\*пользователями собственных ботов.
 
+# Запуск проекта
+### Предварительная настройка
+
+Для запуска необходимы Node.js старше 16.x, MongoDB страше 4.x.
+Для запуска в Docker, убедитесь, что у вас есть два .env файла:
+
+- .env (или .env.dev для разработки)
+- .env.docker (для запуска проекта в docker в dev режиме)
+
+Примеры значений переменных можно увидеть в .env.example.
+
+```yaml
+# Для работы приложения
+NODE_ENV=your_env_mode                         # Режим работы приложения (например, prod, dev и т. д.)
+APP_PORT=your_app_port                         # Порт, на котором будет слушать ваше nestjs-приложение.
+JWT_SECRET=your_jwt_secret                     # Секретный ключ для JWT (JSON Web Tokens).
+JWT_EXPIRES=your_jwt_lifetime                  # Время жизни JWT. (например 1d)
+ALLOW_URL=your_allowed_url                     # Разрешенный URL политикой CORS
+THROTTLE_TIME_WINDOW_SECONDS=your_time_window  # Окно времени для управления частотой запросов (например 1).
+THROTTLE_REQUESTS_LIMIT=your_requests_limit    # Лимит запросов в окне времени для управления частотой (например 1000).
+
+# Для dockercompose
+PORT_CONTAINER=your_container_port             # Порт внутри Docker-контейнера, на который будет проброшен APP_PORT.
+MONGO_PORT=your_mongo_port                     # Порт MongoDB внутри Docker-контейнера.
+
+# Для базы данных
+DB_PORT=your_db_port                           # Порт для вашей базы данных MongoDB.
+DB_USERNAME=your_db_username                   # Имя пользователя для вашей базы данных.
+DB_PASSWORD=your_db_password                   # Пароль для вашей базы данных.
+DB_HOST=your_db_host                           # Хост базы данных. Когда используется контейнер, он обычно называется именем службы в docker-compose, например 'mongo' или 'db'.
+DB_NAME=your_db_name                           # Название вашей базы данных в MongoDB.
+DB_REPLICATION_SET=your_replication_set        # Набор репликаций для MongoDB (например rs01).
+MONGO_INITDB_ROOT_USERNAME=your_db_username    # Для запуска через контейнер в dev режиме должно совпадать с DB_USERNAME
+MONGO_INITDB_ROOT_PASSWORD=your_db_password    # Для запуска через контейнер в dev режиме должно совпадать с DB_PASSWORD
+
+# Для OAuth
+YANDEX_APP_ID=""                               # Идентификатор приложения для Yandex OAuth.
+YANDEX_APP_SECRET=""                           # Секретный ключ приложения для Yandex OAuth.
+GOOGLE_APP_ID=""                               # Идентификатор клиента для Google OAuth.
+GOOGLE_APP_SECRET=""                           # Секретный ключ клиента для Google OAuth.
+VK_APP_ID=""                                   # Идентификатор клиента для VK OAuth.
+VK_APP_SECRET=""                               # Секретный ключ клиента для VK OAuth.
+MAILRU_APP_ID=""                               # Идентификатор приложения для Mail.Ru OAuth.
+MAILRU_APP_SECRET=""                           # Секретный ключ приложения для Mail.Ru OAuth.
+TELEGRAM_BOT_TOKEN=""                          # Токен для Telegram Bot.
+TELEGRAM_APP_ID=""                             # Идентификатор приложения для Telegram OAuth.
+TELEGRAM_APP_HASH=""                           # Хэш приложения для Telegram OAuth.
+
+```
+###Запуск в режиме разработки
+__Через NPM__ - это запустит ваш проект в attached режиме. Это значит, что вы будете видеть стандартный вывод (STDOUT) и стандартный вывод ошибок (STDERR) контейнера в вашем терминале в реальном времени.
+```
+npm run start:dev:docker
+```
+__Через Docker Compose__
+```
+docker-compose -f docker-compose-dev.yml up --env-file .env.dev --env-file .env.db -d
+```
+Это запустит ваш проект в фоновом режиме.
+
+В обоих случаях будут запущены контейнеры с бэкендом и базой данных.
+
+__Локально через NPM__ - позволит вести видеть изменения в реальном времени и работать с локальной БД
+```
+npm run start:dev
+```
+###Запуск в режиме production
+```
+docker-compose -f docker-compose.yml --env-file .env up -d
+```
+
+## Для того чтобы увидеть документацию Swagger
+```
+<url>:<порт на котором запущен сервер>/api/docs 
+#Пример http://127.0.0.1:3001/api/docs
+```
+
+## [Notion](https://www.notion.so/BotKits-14-web-195fad87a50d4ad58a4e5d6fb5ea4e25) проекта и его функциональности
+
+## Ссылка на репозиторий [Frontend]({https://github.com/MrStnr21/botkits-14-frontend})
+
+## Команда backend части проекта 14 когорты
+
+- [Семен Чехов](https://github.com/JustSimon01)
+- [Екатерина Осипова](https://github.com/kur0yuki)
+- [Анастасия Разживина](https://github.com/Virshinia)
+- [Антон Помазков](https://github.com/pomazkovanton)
+- [Анна Силина](https://github.com/annasilina)
+- [Иван Антипенко](https://github.com/Ivan-Antipenko)
+- [Наталья Беликова](https://github.com/pblHbKa)
+- [Евгений Русаков](https://github.com/Shoomec74)
+
+
 # Описание технической задачи
 
 (тут url на тз)
+
+## MongoDb работает с транзакциями, поэтому необходимо установить набор реплик
+__Шаг 1:__ Найдите файл конфигурации MongoDB на вашем устройстве. Обычно он называется __mongod.conf.__
+
+__Шаг 2:__ Добавьте следующие строки в ваш файл конфигурации:
+```
+replication:
+  replSetName: "rs0"  # имя набора реплик
+```
+__Шаг 3:__ Сохраните и закройте файл конфигурации.
+
+__Шаг 4:__ Перезапустите MongoDB с обновленной конфигурацией. В зависимости от вашей операционной системы выполните одну из следующих команд в терминале:
+- Windows:
+```
+mongod --config "путь\до\вашего\mongod.conf" --install
+```
+- MacOS:
+```
+brew services start mongodb-community --config=/путь/до/вашего/mongod.conf
+```
+__Шаг 5:__ Откройте MongoDB shell, выполнив следующую команду в терминале:
+```
+mongo
+```
+__Шаг 6:__ После успешного подключения инициализируйте репликацию, введя следующую команду в MongoDB shell:
+```
+rs.initiate()
+```
+__Шаг 7:__ Проверьте статус репликации, введя следующую команду в MongoDB shell:
+```
+rs.status()
+```
+__Шаг 8:__ В файле с переменными среды (env) вашего проекта добавьте следующую строку:
+```
+DB_REPLICATION_SET=name replication set
+```
 
 # API сервиса
 
@@ -2125,58 +2254,3 @@ id: 64f81ba37571bfaac18a857f
 ```yaml
 { 'message': 'string' }
 ```
-
-# Запуск проекта
-
-Для запуска необходимы Node.js старше 19.x, MongoDB страше 4.x.
-Также необходимо указать параметры в .env файле, пример находится в .env.example
-
-```yaml
-# Для работы приложения
-APP_PORT=8000                   # Порт, на котором будет слушать ваше nestjs-приложение.
-JWT_SECRET=some_top_secret      # Секретный ключ для JWT (JSON Web Tokens).
-JWT_EXPIRES=1d                  # Время жизни JWT. Здесь оно установлено на 1 день.
-DB_PORT=27017                   # Порт для вашей базы данных MongoDB.
-DB_USERNAME=root                # Имя пользователя для вашей базы данных.
-DB_PASSWORD=root                # Пароль для вашей базы данных.
-ALLOW_URL=http://localhost:8081 # Разрешенный URL политикой CORS
-
-# Для dockercompose
-PORT_CONTAINER=3000             # Порт внутри Docker-контейнера, на который будет проброшен APP_PORT.
-MONGO_PORT=27017                # Порт MongoDB внутри Docker-контейнера.
-DB_HOST=localhost               # Хост базы данных. Когда используется контейнер, он обычно называется именем службы в docker-compose, например 'mongo' или 'db'.
-DB_NAME=bot_kit                 # Название вашей базы данных в MongoDB.
-
-# Для OAuth
-YANDEX_APP_ID=""                # Идентификатор приложения для Yandex OAuth.
-YANDEX_APP_SECRET=""            # Секретный ключ приложения для Yandex OAuth.
-GOOGLE_APP_ID=""                # Идентификатор клиента для Google OAuth.
-GOOGLE_APP_SECRET=""            # Секретный ключ клиента для Google OAuth.
-VK_APP_ID=""                    # Идентификатор клиента для VK OAuth.
-VK_APP_SECRET=""                # Секретный ключ клиента для VK OAuth.
-```
-
-## Для того чтобы увидеть документацию Swagger
-
-```
-http://127.0.0.1:3000/api/docs
-```
-
-## Описание проекта и его функциональности
-
-(https://www.notion.so/BotKits-14-web-195fad87a50d4ad58a4e5d6fb5ea4e25)
-
-## Команда backend части проекта
-
-- [Семен Чехов](https://github.com/JustSimon01)
-- [Екатерина Осипова](https://github.com/kur0yuki)
-- [Анастасия Разживина](https://github.com/Virshinia)
-- [Антон Помазков](https://github.com/pomazkovanton)
-- [Анна Силина](https://github.com/annasilina)
-- [Иван Антипенко](https://github.com/Ivan-Antipenko)
-- [Наталья Беликова](https://github.com/pblHbKa)
-- [Евгений Русаков](https://github.com/Shoomec74)
-
-## Ссылка на репозиторий фронтенда
-
-git@github.com:MrStnr21/botkits-14-frontend.git
