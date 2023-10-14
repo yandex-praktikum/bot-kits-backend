@@ -13,9 +13,11 @@ import { platforms } from 'src/platforms/dto/constants/templates';
  */
 async function initializeDatabase(configService: ConfigService): Promise<void> {
   // Формирование строки подключения к базе данных
-  const uri = `mongodb://${configService.get('DB_HOST')}:${configService.get(
-    'DB_PORT',
-  )}/`;
+  const uri = `mongodb://${configService.get(
+    'DB_USERNAME',
+  )}:${configService.get('DB_PASSWORD')}@${configService.get(
+    'DB_HOST',
+  )}:${configService.get('DB_PORT')}/`;
   const client = new MongoClient(uri);
 
   try {
@@ -108,7 +110,6 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
   }
 }
 
-//database.config.ts
 const databaseOptions = (
   configService: ConfigService,
 ): MongooseModuleOptions => ({
