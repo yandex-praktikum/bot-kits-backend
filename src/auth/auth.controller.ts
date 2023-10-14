@@ -1,4 +1,12 @@
-import { Controller, Post, UseGuards, Req, Body, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Req,
+  Body,
+  Get,
+  Res,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { LocalGuard } from './guards/localAuth.guard';
 import {
@@ -185,7 +193,7 @@ export class AuthController {
   @ApiExcludeEndpoint(true)
   @UseGuards(VkontakteGuard)
   @Get('vkontakte/callback')
-  async vkontakteCallback(@Req() req: any) {
+  async vkontakteCallback(@Req() req: any, @Res() res: any) {
     const { email, username, avatar } = req.user.profile;
     const newAccount: CombinedDto = {
       email,
@@ -199,7 +207,9 @@ export class AuthController {
       type: 'body',
       data: 'combinedDto',
     });
-    return this.authService.authSocial(authDto, TypeAccount.VK);
+    const result = await this.authService.authSocial(authDto, TypeAccount.VK);
+    res.cookie('vkontakte-auth', JSON.stringify(result));
+    return res.redirect('http://localhost:3000/signin');
   }
 
   @UseGuards(GoogleGuard)
@@ -217,7 +227,7 @@ export class AuthController {
   @ApiExcludeEndpoint(true)
   @UseGuards(GoogleGuard)
   @Get('google/callback')
-  async googleCallback(@Req() req: any) {
+  async googleCallback(@Req() req: any, @Res() res: any) {
     const { email, username, avatar } = req.user;
     const newAccount: CombinedDto = {
       email,
@@ -230,7 +240,12 @@ export class AuthController {
       type: 'body',
       data: 'combinedDto',
     });
-    return this.authService.authSocial(authDto, TypeAccount.GOOGLE);
+    const result = await this.authService.authSocial(
+      authDto,
+      TypeAccount.GOOGLE,
+    );
+    res.cookie('google-auth', JSON.stringify(result));
+    return res.redirect('http://localhost:3000/signin');
   }
 
   @UseGuards(TelegramGuard)

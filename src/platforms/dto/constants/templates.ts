@@ -31,8 +31,8 @@ export const platforms = [
     formFields: formFieldsExampleSocialNetworks,
   },
   {
-    icon: 'odnokassniki',
-    title: 'Odnokassniki',
+    icon: 'odnoklassniki',
+    title: 'Odnoklassniki',
     formFields: formFieldsExampleSocialNetworks,
   },
   {

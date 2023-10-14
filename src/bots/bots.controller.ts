@@ -26,7 +26,6 @@ import { Bot } from './schema/bots.schema';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import { ShareBotDto } from './dto/share-bot.dto';
-import { CopyBotDto } from './dto/copy-bot.dto';
 import { BotCreateRequestBody } from './sdo/request-body.sdo';
 
 @UseGuards(JwtGuard)
