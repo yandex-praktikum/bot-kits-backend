@@ -3,6 +3,8 @@ import {
   Injectable,
   UnauthorizedException,
   NotFoundException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from '../hash/hash.service';
@@ -11,7 +13,12 @@ import { ProfilesService } from 'src/profiles/profiles.service';
 import { AccountService } from 'src/accounts/accounts.service';
 import TypeAccount from 'src/accounts/types/type-account';
 import { AuthDto } from './dto/auth.dto';
-import Role from 'src/accounts/types/role';
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
+import { Account } from 'src/accounts/schema/account.schema';
+import { InjectConnection } from '@nestjs/mongoose';
+import * as mongoose from 'mongoose';
+import { randomBytes } from 'crypto';
 
 export interface ITokens {
   accessToken: string;
@@ -25,23 +32,43 @@ export class AuthService {
     private profilesService: ProfilesService,
     private accountService: AccountService,
     private hashService: HashService,
+    private readonly configService: ConfigService,
+    @InjectConnection() private readonly connection: mongoose.Connection,
   ) {}
 
   private async getTokens(profileId): Promise<ITokens> {
-    const payload = { sub: profileId };
-    const accessToken = this.jwtService.sign(payload);
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const basePayload = { sub: profileId };
+
+    const accessTokenPayload = {
+      ...basePayload,
+      jti: randomBytes(16).toString('hex'), // добавляем случайный идентификатор JWT
+      type: 'access',
+    };
+
+    const refreshTokenPayload = {
+      ...basePayload,
+      jti: randomBytes(16).toString('hex'), // добавляем случайный идентификатор JWT
+      type: 'refresh',
+    };
+
+    const accessToken = this.jwtService.sign(accessTokenPayload);
+    const refreshToken = this.jwtService.sign(refreshTokenPayload, {
+      expiresIn: '7d',
+    });
+
     return { accessToken, refreshToken };
   }
 
-  async auth(profile: ProfileDocument): Promise<Profile> {
+  async auth(profile: ProfileDocument): Promise<Account> {
     const tokens = await this.getTokens(profile._id);
     const authProfile = await this.accountService.saveRefreshToken(
       profile._id,
       tokens,
     );
-    const findProfile = await this.profilesService.findById(authProfile._id);
-    return findProfile;
+    return await this.accountService.findByIdAndProvider(
+      authProfile._id,
+      TypeAccount.LOCAL,
+    );
   }
 
   async validatePassword(
@@ -89,51 +116,64 @@ export class AuthService {
   async registration(
     authDto: AuthDto,
     provider: TypeAccount = TypeAccount.LOCAL,
-    role: Role = Role.USER,
-  ): Promise<Profile> {
+  ): Promise<Account> {
     const { profileData, accountData } = authDto;
     const email = accountData.credentials.email;
     accountData.type = provider;
     let profile;
 
-    const existsAccountByTypeAndEmail =
-      await this.accountService.findByEmailAndType(email, provider);
+    const session = await this.connection.startSession();
+    session.startTransaction();
 
-    if (existsAccountByTypeAndEmail) {
-      throw new ConflictException('Аккаунт уже существует');
+    try {
+      const existsAccountByTypeAndEmail =
+        await this.accountService.findByEmailAndType(email, provider, session);
+
+      if (existsAccountByTypeAndEmail) {
+        throw new ConflictException('Аккаунт уже существует');
+      }
+
+      const existsAccount = await this.accountService.findByEmail(
+        email,
+        session,
+      );
+
+      if (!existsAccount) {
+        //--Создаем новый профиль--//
+        profile = await this.profilesService.create(profileData, session);
+      } else {
+        profile = await this.profilesService.findByEmail(email, session);
+      }
+
+      //--Создаем новый аккаунт--//
+      const newAccount = await this.accountService.create(
+        accountData,
+        profile._id,
+        session,
+      );
+
+      const tokens = await this.getTokens(profile._id);
+
+      accountData.credentials.accessToken = tokens.accessToken;
+      accountData.credentials.refreshToken = tokens.refreshToken;
+
+      await this.accountService.update(newAccount._id, accountData, session);
+
+      profile.accounts.push(newAccount);
+      await profile.save({ session });
+
+      await session.commitTransaction();
+
+      return await this.accountService.findByIdAndProvider(
+        profile._id,
+        provider,
+      );
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-
-    const existsAccount = await this.accountService.findByEmail(email);
-
-    if (!existsAccount) {
-      //--Создаем новый профиль--//
-      profile = await this.profilesService.create(profileData);
-    } else {
-      profile = await this.profilesService.findByEmail(email);
-    }
-
-    //--Создаем новый аккаунт--//
-    const newAccount = await this.accountService.create(
-      accountData,
-      profile._id,
-    );
-
-    const tokens = await this.getTokens(profile._id);
-
-    accountData.credentials.accessToken = tokens.accessToken;
-    accountData.credentials.refreshToken = tokens.refreshToken;
-
-    await this.accountService.update(newAccount._id, accountData);
-
-    profile.accounts.push(newAccount);
-    await profile.save();
-
-    const returnProfile = await this.profilesService.findById(profile._id);
-    returnProfile.accounts.map((account) => {
-      delete account.credentials.password;
-    });
-
-    return returnProfile;
   }
 
   async sendPasswordResetEmail(email) {
@@ -157,15 +197,88 @@ export class AuthService {
         user.profile._id,
       );
 
-      return await this.accountService.update(user._id, {
+      await this.accountService.update(user._id, {
         credentials: {
           email: user.credentials.email,
           refreshToken,
           accessToken,
         },
       });
+
+      return this.accountService.findByIdAndProvider(
+        user.profile._id,
+        typeAccount,
+      );
     }
 
     return await this.registration(dataLogin, typeAccount);
+  }
+
+  async authYandex(codeAuth: string) {
+    const CLIENT_ID = this.configService.get('YANDEX_APP_ID');
+    const CLIENT_SECRET = this.configService.get('YANDEX_APP_SECRET');
+    const TOKEN_URL = this.configService.get('YANDEX_TOKEN_URL');
+    const USER_INFO_URL = this.configService.get('YANDEX_USER_INFO_URL');
+
+    try {
+      const tokenResponse = await axios.post(
+        TOKEN_URL,
+        `grant_type=authorization_code&code=${codeAuth}`,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${Buffer.from(
+              `${CLIENT_ID}:${CLIENT_SECRET}`,
+            ).toString('base64')}`,
+          },
+        },
+      );
+      const accessToken = tokenResponse.data.access_token;
+
+      const userDataResponse = await axios.get(
+        `${USER_INFO_URL}&oauth_token=${accessToken}`,
+      );
+      return userDataResponse;
+    } catch (error) {
+      throw new HttpException(
+        'Ошибка в процессе авторизации через Яндекс',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async authMailru(codeAuth: string) {
+    const CLIENT_ID = this.configService.get('MAILRU_APP_ID');
+    const CLIENT_SECRET = this.configService.get('MAILRU_APP_SECRET');
+    const TOKEN_URL = this.configService.get('MAILRU_TOKEN_URL');
+    const USER_INFO_URL = this.configService.get('MAILRU_USER_INFO_URL');
+    // Кодирование CLIENT_ID и CLIENT_SECRET для Basic Authorization
+    const authString = `${CLIENT_ID}:${CLIENT_SECRET}`;
+    const encodedAuthString = Buffer.from(authString).toString('base64');
+    try {
+      const tokenResponse = await axios.post(
+        TOKEN_URL,
+        `grant_type=authorization_code&code=${codeAuth}&redirect_uri=${this.configService.get(
+          'MAILRU_REDIRECT_URL',
+        )}`,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${encodedAuthString}`,
+          },
+        },
+      );
+      const accessToken = tokenResponse.data.access_token;
+      // Получение информации о пользователе с использованием токена доступа
+      const userDataResponse = await axios.get(
+        `${USER_INFO_URL}?access_token=${accessToken}`,
+      );
+      return userDataResponse.data;
+    } catch (error) {
+      throw new HttpException(
+        'Ошибка в процессе авторизации через Mail.ru',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

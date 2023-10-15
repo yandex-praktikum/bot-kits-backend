@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types, UpdateQuery } from 'mongoose';
+import mongoose, { Model, Types, UpdateQuery } from 'mongoose';
 
 import { Account, AccountDocument } from './schema/account.schema';
 import { CreateAccountDto } from './dto/create-account.dto';
@@ -20,16 +20,22 @@ export class AccountService {
     private readonly hashServise: HashService,
   ) {}
 
-  async create(account: CreateAccountDto, profile: Types.ObjectId) {
+  async create(
+    account: CreateAccountDto,
+    profile: Types.ObjectId,
+    session?: mongoose.ClientSession,
+  ): Promise<Account> {
     const hashedPassword = await this.hashServise.getHash(
       account.credentials.password,
     );
     account.credentials.password = hashedPassword;
     account.profile = profile._id;
     try {
-      const accountNew = await this.accountModel.create(account);
-      await accountNew.save();
-      return accountNew;
+      const accountNew = new this.accountModel(account);
+      if (session) {
+        return await accountNew.save({ session: session });
+      }
+      return await accountNew.save();
     } catch (err) {
       if (err.code === 11000) {
         throw new ConflictException(
@@ -40,7 +46,9 @@ export class AccountService {
   }
 
   async findAll(): Promise<Account[]> {
-    return await this.accountModel.find().populate('profile').exec();
+    return await this.accountModel
+      .find({}, { 'credentials.password': 0 })
+      .exec();
   }
 
   async findOne(id: string): Promise<Account> {
@@ -50,28 +58,54 @@ export class AccountService {
   async update(
     id: string,
     updateAccountDto: UpdateAccountDto,
+    session?: mongoose.ClientSession,
   ): Promise<Account> {
     return await this.accountModel
-      .findByIdAndUpdate(id, updateAccountDto, { new: true })
-      .populate('profile');
+      .findByIdAndUpdate(id, updateAccountDto, {
+        new: true,
+        fields: { 'credentials.password': 0 },
+      })
+      .session(session);
+    //.populate('profile');
   }
   //account.service.ts
-  async findByEmail(email: string): Promise<Account | null> {
+  async findByEmail(
+    email: string,
+    session?: mongoose.ClientSession,
+  ): Promise<Account | null> {
     return await this.accountModel
-      .findOne({ 'credentials.email': email })
+      .findOne({ 'credentials.email': email }, { 'credentials.password': 0 })
+      .session(session)
       .populate('profile');
   }
 
   async findByEmailAndType(
     email: string,
     typeAccount: TypeAccount,
+    session?: mongoose.ClientSession,
   ): Promise<Account | null> {
     return await this.accountModel
       .findOne({
         'credentials.email': email,
         type: typeAccount,
       })
+      .session(session)
       .populate('profile');
+  }
+
+  async findByIdAndProvider(
+    id: Types.ObjectId,
+    provider: TypeAccount,
+  ): Promise<Account> {
+    const account: Account = await this.accountModel
+      .findOne({
+        profile: id,
+        type: provider,
+      })
+      .populate('profile');
+    delete account.credentials.password;
+    account.profile.accounts = undefined;
+    return account;
   }
 
   async findAndDeleteRefreshToken(refreshToken: string) {

@@ -3,10 +3,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Profile } from 'src/profiles/schema/profile.schema';
 import { Tariff } from 'src/tariffs/schema/tariff.schema';
+import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 
 export type SubscriptionDocument = HydratedDocument<Subscription>;
 
-@Schema({ timestamps: true })
+@Schema(baseSchemaOptions)
 export class Subscription {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,

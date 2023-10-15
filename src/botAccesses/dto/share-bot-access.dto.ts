@@ -1,6 +1,7 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
-import { defaultPermission, TPermission } from '../types/types';
 import { ApiProperty } from '@nestjs/swagger';
+
+import { defaultPermission, TPermission } from '../types/types';
 
 export class ShareBotAccessDto {
   @ApiProperty({
@@ -13,7 +14,7 @@ export class ShareBotAccessDto {
 
   @ApiProperty({
     description: 'уровень доступа',
-    example: defaultPermission
+    example: defaultPermission,
   })
   @IsNotEmpty()
   permission: TPermission;

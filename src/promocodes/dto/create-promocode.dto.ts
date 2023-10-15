@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator';
+import {
+  IsDateString,
+  IsInt,
+  IsNotEmpty,
+  IsPositive,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class CreatePromocodeDto {
   @ApiProperty({ example: 'PROMO50' })
@@ -9,12 +16,13 @@ export class CreatePromocodeDto {
 
   @ApiProperty({ example: '2023-09-10T16:07:34.285Z' })
   @IsNotEmpty()
+  @IsDateString()
   actionPeriod: Date;
 
   @ApiProperty({ example: 2 })
   @IsNotEmpty()
   @IsInt()
-  @IsPositive()
+  @Min(0)
   activationCount: number;
 
   @ApiProperty({ example: 10 })
@@ -22,4 +30,10 @@ export class CreatePromocodeDto {
   @IsInt()
   @IsPositive()
   maxActivationCount: number;
+
+  @ApiProperty({ example: 1500 })
+  @IsNotEmpty()
+  @IsInt()
+  @IsPositive()
+  amount: number;
 }

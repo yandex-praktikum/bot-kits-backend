@@ -21,99 +21,20 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  example: test@mail.ru
-                password:
-                  type: string
-                  example: '123'
+              $ref: '#/components/schemas/SignInRequestBody'
       responses:
         '201':
           description: Успешный вход в систему
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  _id:
-                    type: string
-                    description: Идентификатор
-                    example: 650b396dd4201e5ca499f3b3
-                  username:
-                    type: string
-                    description: Имя пользователя
-                    example: test
-                  phone:
-                    type: string
-                    description: Номер телефона
-                    example: '+79999999999'
-                  avatar:
-                    type: string
-                    description: URL аватара
-                    example: https://i.pravatar.cc/300
-                  balance:
-                    type: number
-                    description: Баланс
-                    example: 0
-                  accounts:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                          description: Идентификатор аккаунта
-                          example: 650b396ed4201e5ca499f3b5
-                        type:
-                          type: string
-                          description: Тип аккаунта
-                          example: local
-                        role:
-                          type: string
-                          description: Роль аккаунта
-                          example: user
-                        credentials:
-                          type: object
-                          properties:
-                            email:
-                              type: string
-                              description: Email
-                              example: test@mail.ru
-                            accessToken:
-                              type: string
-                              description: AccessToken
-                              example: >-
-                                eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTBiMzk2ZGQ0MjAxZTVjYTQ5OWYzYjMiLCJpYXQiOjE2OTUyMzQ0MTQsImV4cCI6MTY5NTMyMDgxNH0.1GIu8iWeg8iWF-i5iynAhelc7kO3ouj09boZHjqn5HE
-                            refreshToken:
-                              type: string
-                              description: RefreshToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                        profile:
-                          type: string
-                          description: Идентификатор профиля
-                          example: 650b396dd4201e5ca499f3b3
-                    description: Список аккаунтов
+                $ref: '#/components/schemas/SigninResponseBodyOK'
         '401':
           description: Неверное имя пользователя или пароль
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Неверное имя пользователя или пароль
-                    description: Сообщение об ошибке
-                  error:
-                    type: string
-                    example: Unauthorized
-                    description: Тип ошибки
-                  statusCode:
-                    type: number
-                    example: '401'
-                    description: HTTP-статус код
+                $ref: '#/components/schemas/SigninResponseBodyNotOK'
       tags: &ref_0
         - auth
   /signup:
@@ -126,85 +47,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                password:
-                  type: string
-                  example: '123'
-                email:
-                  type: string
-                  example: test@mail.ru
-                phone:
-                  type: string
-                  example: '+79999999999'
-                username:
-                  type: string
-                  example: test
+              $ref: '#/components/schemas/SignUpRequestBody'
       responses:
         '201':
           description: Успешная регистрация
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  username:
-                    type: string
-                    description: Имя пользователя
-                    example: test
-                  phone:
-                    type: string
-                    description: Номер телефона
-                    example: '+79999999999'
-                  avatar:
-                    type: string
-                    description: URL аватара
-                    example: https://i.pravatar.cc/300
-                  balance:
-                    type: number
-                    description: Баланс
-                    example: 0
-                  accounts:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          description: Тип аккаунта
-                          example: local
-                        role:
-                          type: string
-                          description: Роль
-                          example: user
-                        credentials:
-                          type: object
-                          properties:
-                            email:
-                              type: string
-                              description: Email
-                              example: test@mail.ru
-                            accessToken:
-                              type: string
-                              description: AccessToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                            refreshToken:
-                              type: string
-                              description: RefreshToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                        profile:
-                          type: string
-                          description: 'Идентификатор профиля '
-                          example: 650b396dd4201e5ca499f3b3
-                        _id:
-                          type: string
-                          description: Идентификатор аккаунта
-                          example: 650b396dd4201e5ca499f3b3
-                    description: Список аккаунтов
-                  _id:
-                    type: string
-                    description: Идентификатор профиля
-                    example: 650b396dd4201e5ca499f3b3
+                $ref: '#/components/schemas/SigninResponseBodyOK'
         '400':
           description: Некорректные данные
         '409':
@@ -212,20 +62,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Аккаунт уже существует
-                    description: Сообщение об ошибке
-                  error:
-                    type: string
-                    example: Conflict
-                    description: Тип ошибки
-                  statusCode:
-                    type: number
-                    example: '409'
-                    description: HTTP-статус код
+                $ref: '#/components/schemas/SignupResponseBodyNotOK'
       tags: *ref_0
   /refresh-token:
     post:
@@ -237,51 +74,63 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                refreshToken:
-                  type: string
-                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
+              $ref: '#/components/schemas/RefreshRequestBody'
       responses:
         '201':
           description: accessToken успешно обновлен
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  accessToken:
-                    type: string
-                    description: accessToken по умолчанию действует 1 день
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                  refreshToken:
-                    type: string
-                    description: refreshToken по умолчанию действует 7 дней
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
+                $ref: '#/components/schemas/refreshTokenResponseBodyOK'
         '401':
           description: Невалидный refreshToken
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Невалидный refreshToken
-                    description: Сообщение об ошибке
-                  error:
-                    type: string
-                    example: Unauthorized
-                    description: Тип ошибки
-                  statusCode:
-                    type: number
-                    example: '401'
-                    description: HTTP-статус код
+                $ref: '#/components/schemas/refreshTokenResponseBodyNotOK'
       tags: *ref_0
-  /yandex:
-    get:
-      operationId: AuthController_yandexAuth
+  /yandex/exchange:
+    post:
+      operationId: AuthController_exchangeCodeYandex
       summary: Авторизация через Yandex
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeFlowAuthRequestBody'
+      responses:
+        '201':
+          description: Успешная регистрация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SigninResponseBodyOK'
+      tags: *ref_0
+  /mailru/exchange:
+    post:
+      operationId: AuthController_exchangeCodeMail
+      summary: Авторизация через Mail
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeFlowAuthRequestBody'
+      responses:
+        '201':
+          description: Успешная регистрация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SigninResponseBodyOK'
+      tags: *ref_0
+  /vkontakte:
+    get:
+      operationId: AuthController_vkontakteAuth
+      summary: Авторизация через Вконтакте
       parameters: []
       responses:
         '200':
@@ -289,65 +138,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  username:
-                    type: string
-                    description: Имя пользователя
-                    example: test
-                  phone:
-                    type: string
-                    description: Номер телефона
-                    example: '+79999999999'
-                  avatar:
-                    type: string
-                    description: URL аватара
-                    example: https://i.pravatar.cc/300
-                  balance:
-                    type: number
-                    description: Баланс
-                    example: 0
-                  accounts:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          description: Тип аккаунта
-                          example: local
-                        role:
-                          type: string
-                          description: Роль
-                          example: user
-                        credentials:
-                          type: object
-                          properties:
-                            email:
-                              type: string
-                              description: Email
-                              example: test@mail.ru
-                            accessToken:
-                              type: string
-                              description: AccessToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                            refreshToken:
-                              type: string
-                              description: RefreshToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                        profile:
-                          type: string
-                          description: 'Идентификатор профиля '
-                          example: 650b396dd4201e5ca499f3b3
-                        _id:
-                          type: string
-                          description: Идентификатор аккаунта
-                          example: 650b396dd4201e5ca499f3b3
-                    description: Список аккаунтов
-                  _id:
-                    type: string
-                    description: Идентификатор профиля
-                    example: 650b396dd4201e5ca499f3b3
+                $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
   /google:
     get:
@@ -360,65 +151,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  username:
-                    type: string
-                    description: Имя пользователя
-                    example: test
-                  phone:
-                    type: string
-                    description: Номер телефона
-                    example: '+79999999999'
-                  avatar:
-                    type: string
-                    description: URL аватара
-                    example: https://i.pravatar.cc/300
-                  balance:
-                    type: number
-                    description: Баланс
-                    example: 0
-                  accounts:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          description: Тип аккаунта
-                          example: local
-                        role:
-                          type: string
-                          description: Роль
-                          example: user
-                        credentials:
-                          type: object
-                          properties:
-                            email:
-                              type: string
-                              description: Email
-                              example: test@mail.ru
-                            accessToken:
-                              type: string
-                              description: AccessToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                            refreshToken:
-                              type: string
-                              description: RefreshToken
-                              example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp
-                        profile:
-                          type: string
-                          description: 'Идентификатор профиля '
-                          example: 650b396dd4201e5ca499f3b3
-                        _id:
-                          type: string
-                          description: Идентификатор аккаунта
-                          example: 650b396dd4201e5ca499f3b3
-                    description: Список аккаунтов
-                  _id:
-                    type: string
-                    description: Идентификатор профиля
-                    example: 650b396dd4201e5ca499f3b3
+                $ref: '#/components/schemas/SigninResponseBodyOK'
+      tags: *ref_0
+  /telegram:
+    post:
+      operationId: AuthController_telegramCallback
+      parameters: []
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
       tags: *ref_0
   /reset-password:
     post:
@@ -430,26 +175,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  description: Email пользователя
-                  example: test@mail.ru
+              $ref: '#/components/schemas/ResetPasswordRequestBody'
       responses:
         '201':
           description: Ссылка для сброса пароля отправлена на указанный Email
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: >-
-                      Ссылка на сброс пароля отправлена на ваш email:
-                      test@mail.ru
-                    description: Email пользователя
+                $ref: '#/components/schemas/ResetPasswordResponseBodyOK'
         '400':
           description: Некорректные данные
         '404':
@@ -457,48 +190,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Пользователь с указанным Email не найден
-                    description: Сообщение об ошибке
-                  error:
-                    type: string
-                    example: Not Found
-                    description: Тип ошибки
-                  statusCode:
-                    type: number
-                    example: '404'
-                    description: HTTP-статус код
+                $ref: '#/components/schemas/ResetPasswordResponseBodyNotFound'
       tags: *ref_0
   /profiles:
-    post:
-      operationId: ProfilesController_create
-      summary: Создать новый профиль
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateProfileDto'
-      responses:
-        '201':
-          description: Профиль успешно создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Profile'
-        '403':
-          description: Отказ в доступе
-        '422':
-          description: Неверный запрос
-      tags: &ref_1
-        - profiles
-      security: &ref_2
-        - &ref_3
-          bearer: []
     get:
       operationId: ProfilesController_findAll
       summary: Получить все профили
@@ -511,13 +205,16 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Profile'
+                  $ref: '#/components/schemas/UserProfileResponseBodyOK'
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_1
-      security: *ref_2
+      tags: &ref_1
+        - profiles
+      security: &ref_3
+        - &ref_2
+          bearer: []
   /profiles/me:
     get:
       operationId: ProfilesController_findProfileByToken
@@ -531,14 +228,18 @@ paths:
             type: string
       responses:
         '200':
-          description: ''
+          description: Профиль успешно получен
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/UserProfileResponseBodyOK'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
       tags: *ref_1
       security:
-        - *ref_3
+        - *ref_2
         - bearer: []
   /profiles/{id}:
     get:
@@ -558,13 +259,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/UserProfileResponseBodyOK'
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_2
+      security: *ref_3
     patch:
       operationId: ProfilesController_update
       summary: Обновить данные профиля по id
@@ -588,15 +289,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/UserProfileResponseBodyOK'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_1
-      security: *ref_2
+      security: *ref_3
     delete:
       operationId: ProfilesController_remove
       summary: Удалить профиль по id
@@ -614,13 +315,40 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/UserProfileResponseBodyOK'
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_2
+      security: *ref_3
+  /profiles/{id}/accounts:
+    get:
+      operationId: ProfilesController_findAccountByProfileId
+      summary: Получить все аккаунты пользователя по id профиля
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор профиля
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Аккаунты профиля успешно получены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SingleAccountResponseBodyOK'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_1
+      security: *ref_3
   /tariffs:
     get:
       operationId: TariffsController_findAll
@@ -658,12 +386,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tariff'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '409':
           description: Такой тариф уже существует
-        '422':
-          description: Неверный запрос
       tags: *ref_4
       security: *ref_5
   /tariffs/{id}:
@@ -715,12 +443,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tariff'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_4
       security: *ref_5
     delete:
@@ -752,12 +480,6 @@ paths:
       operationId: AccountController_findAll
       summary: Получить все аккаунты
       parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateAccountDto'
       responses:
         '200':
           description: Запрос выполнен успешно
@@ -766,7 +488,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Account'
+                  $ref: '#/components/schemas/SingleAccountResponseBodyOK'
         '403':
           description: Отказ в доступе
       tags: &ref_6
@@ -790,20 +512,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateAccountDto'
+              $ref: '#/components/schemas/AccountUpdateRequestBody'
       responses:
         '200':
           description: Аккаунт успешно обновлен
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: '#/components/schemas/SingleAccountResponseBodyOK'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_6
       security: *ref_7
   /logout:
@@ -819,8 +541,6 @@ paths:
             type: string
       responses:
         '200':
-          description: ''
-        '201':
           description: Пользователь успешно разлогинен
           content:
             application/json:
@@ -855,10 +575,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BotAccess'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
-        '422':
-          description: Неверный запрос
       tags: &ref_8
         - botAccesses
       security: &ref_9
@@ -933,12 +653,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BotAccess'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_8
       security: *ref_9
     delete:
@@ -1026,12 +746,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BotAccess'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_8
       security: *ref_9
   /platforms:
@@ -1052,10 +772,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Platform'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
-        '422':
-          description: Неверный запрос
       tags: &ref_10
         - platforms
       security: &ref_11
@@ -1126,12 +846,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Platform'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_10
       security: *ref_11
     delete:
@@ -1201,6 +921,51 @@ paths:
           description: Отказ в доступе
       tags: *ref_12
       security: *ref_13
+  /promocodes/promocode:
+    get:
+      operationId: PromocodesController_findOneByCode
+      summary: Получить промокод по названию
+      parameters:
+        - name: code
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Промокод успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Отказ в доступе
+      tags: *ref_12
+      security: *ref_13
+    patch:
+      operationId: PromocodesController_updateByCode
+      summary: Использовать промокод 1 раз
+      parameters:
+        - name: code
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Промокод успешно обновлен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Отказ в доступе
+      tags: *ref_12
+      security: *ref_13
   /promocodes/{id}:
     get:
       operationId: PromocodesController_findOne
@@ -1250,12 +1015,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promocode'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_12
       security: *ref_13
     delete:
@@ -1285,11 +1050,11 @@ paths:
   /bots:
     get:
       operationId: BotsController_findMy
-      summary: Список ботов пользователя
+      summary: Получить ботов пользователя
       parameters: []
       responses:
         '200':
-          description: Список ботов пользователя получен
+          description: Запрос выполнен успешно
           content:
             application/json:
               schema:
@@ -1313,7 +1078,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateBotDto'
+              $ref: '#/components/schemas/BotCreateRequestBody'
       responses:
         '201':
           description: Новый бот создан
@@ -1321,10 +1086,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
-        '422':
-          description: Неверный запрос
+      tags: *ref_14
+      security: *ref_15
+  /bots/templates:
+    get:
+      operationId: BotsController_findTemplates
+      summary: Получить ботов пользователя
+      parameters: []
+      responses:
+        '200':
+          description: Запрос выполнен успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bot'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
   /bots/{id}:
@@ -1368,11 +1153,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                botName:
-                  type: string
-                  example: Салон красоты
+              $ref: '#/components/schemas/BotCreateRequestBody'
       responses:
         '200':
           description: Имя бота обновлено
@@ -1410,39 +1191,6 @@ paths:
           description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
-  /bots/{id}/copy:
-    post:
-      operationId: BotsController_copy
-      summary: Копирование бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CopyBotDto'
-      responses:
-        '201':
-          description: Бот скопирован
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-        '422':
-          description: Неверный запрос
-      tags: *ref_14
-      security: *ref_15
   /bots/{id}/share:
     post:
       operationId: BotsController_share
@@ -1468,114 +1216,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
       tags: *ref_14
       security: *ref_15
-  /botTemplates:
-    get:
-      operationId: BotTemplatesController_findAll
-      summary: Список шаблонов ботов
-      parameters: []
-      responses:
-        '200':
-          description: Шаблоны ботов успешно получены
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BotTemplate'
-        '403':
-          description: Отказ в доступе
-      tags: &ref_16
-        - botTemplates
-      security: &ref_17
-        - bearer: []
-    post:
-      operationId: BotTemplatesController_create
-      summary: Создать шаблон бота
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateBotTemplateDto'
-      responses:
-        '201':
-          description: Шаблон бота успешно создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BotTemplate'
-        '403':
-          description: Отказ в доступе
-        '422':
-          description: Неверный запрос
-      tags: *ref_16
-      security: *ref_17
-  /botTemplates/{id}:
-    get:
-      operationId: BotTemplatesController_findOne
-      summary: Получить шаблон бота по id
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор шаблона бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Шаблон бота успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BotTemplate'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_16
-      security: *ref_17
-    patch:
-      operationId: BotTemplatesController_update
-      summary: Изменить шаблон бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор шаблона бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateBotTemplateDto'
-      responses:
-        '200':
-          description: Шаблон бота успешно изменен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BotTemplate'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-        '422':
-          description: Неверный запрос
-      tags: *ref_16
-      security: *ref_17
   /subscriptions:
     get:
       operationId: SubscriptionsController_subscriptionAndPayments
@@ -1612,9 +1260,9 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: &ref_18
+      tags: &ref_16
         - subscriptions
-      security: &ref_19
+      security: &ref_17
         - bearer: []
   /subscriptions/activate:
     post:
@@ -1638,14 +1286,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subscription'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
-      tags: *ref_18
-      security: *ref_19
+      tags: *ref_16
+      security: *ref_17
   /subscriptions/{id}:
     post:
       operationId: SubscriptionsController_createSubscription
@@ -1678,14 +1326,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subscription'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
-      tags: *ref_18
-      security: *ref_19
+      tags: *ref_16
+      security: *ref_17
   /payments:
     get:
       operationId: PaymentsController_userPayments
@@ -1702,9 +1350,9 @@ paths:
                   $ref: '#/components/schemas/Payment'
         '403':
           description: Отказ в доступе
-      tags: &ref_20
+      tags: &ref_18
         - payments
-      security: &ref_21
+      security: &ref_19
         - bearer: []
     post:
       operationId: PaymentsController_create
@@ -1723,12 +1371,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Payment'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
-        '422':
-          description: Неверный запрос
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_18
+      security: *ref_19
   /payments/{id}:
     delete:
       operationId: PaymentsController_delete
@@ -1748,8 +1396,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_18
+      security: *ref_19
     patch:
       operationId: PaymentsController_update
       summary: Обновить данные финансовой операции
@@ -1774,14 +1422,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Payment'
+        '400':
+          description: Неверный запрос
         '403':
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-        '422':
-          description: Неверный запрос
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_18
+      security: *ref_19
   /notification:
     post:
       operationId: NotificationController_create
@@ -1804,9 +1452,9 @@ paths:
           description: Неверный запрос
         '403':
           description: Отказ в доступе
-      tags: &ref_22
+      tags: &ref_20
         - notification
-      security: &ref_23
+      security: &ref_21
         - bearer: []
     get:
       operationId: NotificationController_getAll
@@ -1823,8 +1471,8 @@ paths:
                   $ref: '#/components/schemas/Notification'
         '403':
           description: Отказ в доступе
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_20
+      security: *ref_21
   /notification/{id}:
     get:
       operationId: NotificationController_findOne
@@ -1848,8 +1496,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_20
+      security: *ref_21
     delete:
       operationId: NotificationController_remove
       summary: Удалить уведомление
@@ -1872,8 +1520,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_20
+      security: *ref_21
     patch:
       operationId: NotificationController_update
       summary: Изменить уведомление
@@ -1904,8 +1552,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_20
+      security: *ref_21
 info:
   title: API BotKits
   description: Ручки для команды frontend
@@ -1918,8 +1566,6 @@ tags:
     description: Аккаунты пользователей
   - name: profiles
     description: Профили пользователей
-  - name: botTemplates
-    description: Шаблоны ботов
   - name: bots
     description: Боты
   - name: botAccesses
@@ -1944,116 +1590,250 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
-    Credentials:
+    SignInRequestBody:
       type: object
       properties:
         email:
           type: string
-          example: my@mail.ru
+          example: test@mail.ru
+          description: Почта пользователя
         password:
           type: string
-          example: password123
-        accessToken:
-          type: string
-          example: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
-        refreshToken:
-          type: string
-          example: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
+          example: '123'
+          description: Пароль пользователя
       required:
         - email
         - password
-        - accessToken
-        - refreshToken
-    Profile:
+    SigninResponseBodyOK:
       type: object
       properties:
-        username:
+        _id:
           type: string
-          example: Ivan Ivanov
-        phone:
-          type: string
-          example: '+79501364578'
-        avatar:
-          type: string
-          example: https://i.pravatar.cc/300
-        balance:
-          type: number
-          example: 1400
-        accounts:
-          type: array
-          items:
-            type: string
-      required:
-        - username
-        - phone
-        - avatar
-        - balance
-        - accounts
-    Account:
-      type: object
-      properties:
+          example: 650b396ed4201e5ca499f3b5
         type:
           type: string
           example: local
         role:
           type: string
-          example: admin
+          example: user
         credentials:
+          type: object
           example:
-            email: my@mail.ru
-            password: password123
-            accessToken: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
-            refreshToken: dkskddksldlslsajsjsdsk,cmksjdksdjskjdk
-          allOf:
-            - $ref: '#/components/schemas/Credentials'
+            email: test@mail.ru
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+            refreshToken: eyJhbGciOiJIUzI1NiIsInR5cPCI6IkpXVCJ9
         profile:
-          $ref: '#/components/schemas/Profile'
+          type: object
+          example:
+            _id: 650b396dd4201e5ca499f3b3
+            username: test
+            phone: '+79999999999'
+            avatar: https://i.pravatar.cc/300
+            balance: 0
+        success:
+          type: boolean
+          example: true
       required:
-        - type
-        - role
         - credentials
         - profile
-    CreateProfileDto:
+    SigninResponseBodyNotOK:
       type: object
       properties:
-        username:
+        message:
           type: string
-          minLength: 2
-          maxLength: 30
-          example: Ivan Ivanov
+          example: Неверное имя пользователя или пароль
+          description: Сообщение об ошибке
+        error:
+          type: string
+          example: Unauthorized
+          description: Тип ошибки
+        statusCode:
+          type: number
+          example: 401
+          description: HTTP-статус код
+    SignUpRequestBody:
+      type: object
+      properties:
+        password:
+          type: string
+          example: '123'
+          description: Пароль пользователя
+        email:
+          type: string
+          example: test@mail.ru
+          description: Email пользователя
         phone:
           type: string
-          example: '+79501364578'
+          example: '+79999999999'
+          description: Телефонный номер пользователя
+        username:
+          type: string
+          example: test
+          description: Имя пользователя
+      required:
+        - password
+        - email
+        - phone
+        - username
+    SignupResponseBodyNotOK:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Аккаунт уже существует
+          description: Сообщение об ошибке
+        error:
+          type: string
+          example: Conflict
+          description: Тип ошибки
+        statusCode:
+          type: number
+          example: 409
+          description: HTTP-статус код
+    RefreshRequestBody:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+          description: Выданный рефреш токен
+      required:
+        - refreshToken
+    refreshTokenResponseBodyOK:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+          description: accessToken по умолчанию действует 1 день
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+          description: refreshToken по умолчанию действует 7 день
+    refreshTokenResponseBodyNotOK:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Невалидный refreshToken
+          description: Сообщение об ошибке
+        error:
+          type: string
+          example: Unauthorized
+          description: Тип ошибки
+        statusCode:
+          type: number
+          example: 401
+          description: HTTP-статус код
+    CodeFlowAuthRequestBody:
+      type: object
+      properties:
+        codeAuth:
+          type: string
+          example: '432532'
+          description: Код авторизации yandex
+      required:
+        - codeAuth
+    Account:
+      type: object
+      properties: {}
+    ResetPasswordRequestBody:
+      type: object
+      properties:
+        email:
+          type: string
+          example: test@mail.ru
+          description: Почта пользователя
+      required:
+        - email
+    ResetPasswordResponseBodyOK:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Ссылка на сброс пароля отправлена на ваш email: test@mail.ru'
+          description: Сообщение об успешном сбросе пароля
+    ResetPasswordResponseBodyNotFound:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Пользователь с указанным Email не найден
+          description: Сообщение об ошибке
+        error:
+          type: string
+          example: Not Found
+          description: Тип ошибки
+        statusCode:
+          type: number
+          example: 404
+          description: HTTP-статус код
+    UserProfileResponseBodyOK:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 65196b9715b55bd51b039144
+          description: ' '
+        username:
+          type: string
+          example: test
+          description: ' '
+        phone:
+          type: string
+          example: '+79999999999'
+          description: ' '
         avatar:
           type: string
           example: https://i.pravatar.cc/300
+          description: ' '
         balance:
           type: number
-          example: 1400
+          example: 0
+          description: ' '
         accounts:
           type: array
-          items:
-            $ref: '#/components/schemas/Account'
+          example:
+            - 65196b9715b55bd51b039144
+        success:
+          type: boolean
+          example: true
       required:
+        - _id
         - username
         - phone
-    UpdateProfileDto:
+        - avatar
+        - balance
+        - accounts
+    SingleAccountResponseBodyOK:
       type: object
       properties:
-        username:
+        _id:
           type: string
-          minLength: 2
-          maxLength: 30
-          example: Ivan Ivanov
-        phone:
+          example: 6516ab8f2c612e8cce53e45f
+        type:
           type: string
-          example: '+79501364578'
-        avatar:
+          example: local
+        role:
           type: string
-          example: https://i.pravatar.cc/300
-        balance:
-          type: number
-          example: 1400
+          example: user
+        credentials:
+          type: object
+          example:
+            email: test@mail.ru
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+            refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        profile:
+          type: string
+          example: 6516ab8f2c612e8cce53e45d
+        success:
+          type: boolean
+          example: true
+      required:
+        - credentials
+    UpdateProfileDto:
+      type: object
+      properties: {}
     Tariff:
       type: object
       properties:
@@ -2081,72 +1861,22 @@ components:
         - price
     UpdateTariffDto:
       type: object
-      properties:
-        name:
-          type: string
-          example: Новый старт!
-        price:
-          type: number
-          minimum: 1
-          example: 490
-      required:
-        - name
-        - price
-    CreateAccountDto:
+      properties: {}
+    AccountUpdateRequestBody:
       type: object
       properties:
         type:
-          enum:
-            - local
-            - google
-            - yandex
-            - mail
-            - vk
-            - ok
-            - facebook
-            - telegram
           type: string
           example: local
         role:
-          enum:
-            - user
-            - admin
-            - superAdmin
           type: string
           example: user
         credentials:
-          $ref: '#/components/schemas/Credentials'
-        profile:
           type: object
-          example: 64f9ac26edb84d7ebf6281d0
+          example:
+            email: test@mail.ru
       required:
-        - type
-        - role
-        - profile
-    UpdateAccountDto:
-      type: object
-      properties:
-        type:
-          enum:
-            - local
-            - google
-            - yandex
-            - mail
-            - vk
-            - ok
-            - facebook
-            - telegram
-          type: string
-          example: local
-        role:
-          enum:
-            - user
-            - admin
-            - superAdmin
-          type: string
-          example: admin
-        credentials:
-          $ref: '#/components/schemas/Credentials'
+        - credentials
     CreateBotAccessDto:
       type: object
       properties:
@@ -2157,59 +1887,39 @@ components:
         permission:
           type: object
           description: уровень доступа
-          example: &ref_24
+          example: &ref_22
             voronki: viewer
       required:
         - botId
         - permission
-    Messenger:
+    Profile:
       type: object
       properties:
-        name:
+        username:
           type: string
-          example: VK
-        page:
+          example: Ivan Ivanov
+        phone:
           type: string
-          example: vk.com/club1245321223
-        accessKey:
+          example: '+79501364578'
+        avatar:
           type: string
-          example: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
-        url:
-          type: string
-          example: some_url
+          example: https://i.pravatar.cc/300
+        balance:
+          type: number
+          example: 1400
+        accounts:
+          type: array
+          items:
+            type: string
       required:
-        - name
-        - page
-        - accessKey
-        - url
+        - username
+        - phone
+        - avatar
+        - balance
+        - accounts
     Bot:
       type: object
-      properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        botName:
-          type: string
-          example: Бот Автоответчик
-        profile:
-          $ref: '#/components/schemas/Profile'
-        messenger:
-          example:
-            name: VK
-            page: vk.com/club1245321223
-            accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
-            url: some_url
-          allOf:
-            - $ref: '#/components/schemas/Messenger'
-        botSettings:
-          type: object
-      required:
-        - icon
-        - botName
-        - profile
-        - messenger
-        - botSettings
+      properties: {}
     Permission:
       type: object
       properties:
@@ -2245,9 +1955,6 @@ components:
     BotAccess:
       type: object
       properties:
-        _id:
-          type: string
-          example: 64ff89e7faea577804940275
         userId:
           example: 64ff89e7faea577804940275
           allOf:
@@ -2267,21 +1974,10 @@ components:
             mini_landing: editor
           allOf:
             - $ref: '#/components/schemas/Permission'
-        createdAt:
-          format: date-time
-          type: string
-          example: '2023-09-12T15:29:12.117Z'
-        updatedAt:
-          format: date-time
-          type: string
-          example: '2023-09-12T15:29:12.117Z'
       required:
-        - _id
         - userId
         - botId
         - permission
-        - createdAt
-        - updatedAt
     UpdateBotAccessDto:
       type: object
       properties:
@@ -2301,7 +1997,7 @@ components:
         permission:
           type: object
           description: уровень доступа
-          example: *ref_24
+          example: *ref_22
       required:
         - email
         - permission
@@ -2343,38 +2039,10 @@ components:
         - formFields
     Platform:
       type: object
-      properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        title:
-          type: string
-          example: VK
-        formFields:
-          example:
-            name: true
-            pages: true
-            accessKey: false
-            url: true
-          allOf:
-            - $ref: '#/components/schemas/FormFields'
-      required:
-        - icon
-        - title
-        - formFields
+      properties: {}
     UpdatePlatformDto:
       type: object
-      properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        title:
-          type: string
-          example: VK
-        formFields:
-          $ref: '#/components/schemas/FormFields'
+      properties: {}
     CreatePromocodeDto:
       type: object
       properties:
@@ -2387,17 +2055,22 @@ components:
           example: '2023-09-10T16:07:34.285Z'
         activationCount:
           type: number
-          minimum: 1
+          minimum: 0
           example: 2
         maxActivationCount:
           type: number
           minimum: 1
           example: 10
+        amount:
+          type: number
+          minimum: 1
+          example: 1500
       required:
         - code
         - actionPeriod
         - activationCount
         - maxActivationCount
+        - amount
     Promocode:
       type: object
       properties:
@@ -2414,56 +2087,60 @@ components:
         maxActivationCount:
           type: number
           example: 10
+        amount:
+          type: number
+          example: 1500
       required:
         - code
         - actionPeriod
         - activationCount
         - maxActivationCount
+        - amount
     UpdatePromocodeDto:
       type: object
-      properties:
-        code:
-          type: string
-          example: PROMO100
-        actionPeriod:
-          format: date-time
-          type: string
-          example: '2024-12-10T00:00:00.285Z'
-        activationCount:
-          type: number
-          minimum: 1
-          example: 2
-        maxActivationCount:
-          type: number
-          minimum: 1
-          example: 10
-    CreateBotDto:
+      properties: {}
+    BotCreateRequestBody:
       type: object
       properties:
+        isTemplate:
+          type: boolean
+          example: 'false'
+          description: ''
         icon:
           type: string
           example: >-
             https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        botName:
+        title:
           type: string
-          example: Бот Автоответчик
+          example: Создание заказов
+          description: ''
+        description:
+          type: string
+          example: Бот для создания заказов
+        features:
+          type: array
+          example:
+            - Создание заказов
+            - Редактирование заказов
         messenger:
-          $ref: '#/components/schemas/Messenger'
-        botSettings:
           type: object
-          properties: {}
+          example:
+            name: VK
+            pages:
+              - vk.com/club1245321223
+            accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
+            url: www.some-url.com
+        settings:
+          type: object
+          example:
+            settings:
+              Приветствие: Я бот-автоответчик
+              Инлайн_кнопка: Текст кнопки
       required:
-        - icon
-        - botName
+        - isTemplate
+        - title
         - messenger
-        - botSettings
-    CopyBotDto:
-      type: object
-      properties:
-        messenger:
-          $ref: '#/components/schemas/Messenger'
-      required:
-        - messenger
+        - settings
     ShareBotDto:
       type: object
       properties:
@@ -2473,89 +2150,6 @@ components:
           example: test@test.ru
       required:
         - email
-    BotTemplate:
-      type: object
-      properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        title:
-          type: string
-          example: Доставка еды
-        description:
-          type: string
-          example: Бот для создания заказов
-        features:
-          example:
-            - Создание заказов
-            - Редактирование заказов
-          type: array
-          items:
-            type: string
-        settings:
-          type: object
-          example:
-            Приветствие: Я бот для создания заказов
-            Инлайн_кнопка: Текст кнопки
-      required:
-        - icon
-        - title
-        - description
-        - features
-        - settings
-    CreateBotTemplateDto:
-      type: object
-      properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        title:
-          type: string
-          example: Доставка еды
-        description:
-          type: string
-          example: Бот для создания заказов
-        features:
-          example:
-            - Создание заказов
-            - Редактирование заказов
-          type: array
-          items:
-            type: string
-        settings:
-          type: object
-          example:
-            Приветствие: Я бот для создания заказов
-            Инлайн_кнопка: Текст кнопки
-      required:
-        - title
-    UpdateBotTemplateDto:
-      type: object
-      properties:
-        icon:
-          type: string
-          example: >-
-            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
-        title:
-          type: string
-          example: Доставка еды
-        description:
-          type: string
-          example: Бот для создания заказов
-        features:
-          example:
-            - Создание заказов
-            - Редактирование заказов
-          type: array
-          items:
-            type: string
-        settings:
-          type: object
-          example:
-            Приветствие: Я бот для создания заказов
-            Инлайн_кнопка: Текст кнопки
     Subscription:
       type: object
       properties:
@@ -2569,7 +2163,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-09-21T17:44:10.851Z
+          example: 2023-10-15T09:02:55.897Z
       required:
         - status
         - cardMask
@@ -2580,7 +2174,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-09-21T17:44:10.853Z
+          example: 2023-10-15T09:02:55.899Z
         amount:
           type: number
           example: 1000

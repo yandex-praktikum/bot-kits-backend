@@ -8,10 +8,6 @@ import {
   Patch,
   UseGuards,
 } from '@nestjs/common';
-import { TariffsService } from './tariffs.service';
-import { CreateTariffDto } from './dto/create-tariff.dto';
-import { Tariff } from './schema/tariff.schema';
-import { UpdateTariffDto } from './dto/update-tariff.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -22,10 +18,18 @@ import {
   ApiCreatedResponse,
   ApiConflictResponse,
   ApiParam,
-  ApiUnprocessableEntityResponse,
   ApiBearerAuth,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
+
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+
+import { TariffsService } from './tariffs.service';
+import { CreateTariffDto } from './dto/create-tariff.dto';
+import { UpdateTariffDto } from './dto/update-tariff.dto';
+import { Tariff } from './schema/tariff.schema';
 
 @ApiTags('tariffs')
 @ApiBearerAuth()
@@ -75,11 +79,13 @@ export class TariffsController {
     type: Tariff,
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiConflictResponse({ description: 'Такой тариф уже существует' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Post()
-  create(@Body() CreateTariffDto: CreateTariffDto) {
-    return this.tariffsService.create(CreateTariffDto);
+  create(@Body() createTariffDto: CreateTariffDto) {
+    return this.tariffsService.create(createTariffDto);
   }
 
   @ApiOperation({
@@ -97,13 +103,15 @@ export class TariffsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Patch(':id')
   updateTariff(
     @Param('id') id: string,
-    @Body() UpdateTariffDto: UpdateTariffDto,
+    @Body() updateTariffDto: UpdateTariffDto,
   ) {
-    return this.tariffsService.updateTariff(id, UpdateTariffDto);
+    return this.tariffsService.updateTariff(id, updateTariffDto);
   }
 
   @ApiOperation({
@@ -120,6 +128,8 @@ export class TariffsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   remove(@Param('id') id: string): Promise<Tariff> {
     return this.tariffsService.remove(id);

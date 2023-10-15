@@ -6,51 +6,59 @@ import {
   Body,
   Get,
   Res,
-  Query,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { LocalGuard } from './guards/localAuth.guard';
 import {
   ApiTags,
   ApiOperation,
   ApiBody,
-  ApiResponse,
-  ApiOkResponse,
   ApiExcludeEndpoint,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiConflictResponse,
 } from '@nestjs/swagger';
-import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
+import { ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService, ITokens } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
-import { YandexGuard } from './guards/yandex.guards';
-import { HttpService } from '@nestjs/axios';
-import { mergeMap } from 'rxjs';
 import { CombinedDto } from './dto/combined.dto';
 import TypeAccount from 'src/accounts/types/type-account';
 import { GoogleGuard } from './guards/google.guard';
+import {
+  RefreshTokenRequestBody,
+  ResetPasswordRequestBody,
+  SigninRequestBody,
+  SignupRequestBody,
+  CodeFlowAuthRequestBody,
+} from './sdo/request-body.sdo';
+import {
+  ResetPasswordResponseBodyNotFound,
+  ResetPasswordResponseBodyOK,
+  SigninResponseBodyNotOK,
+  SigninResponseBodyOK,
+  SignupResponseBodyNotOK,
+  refreshTokenResponseBodyNotOK,
+  refreshTokenResponseBodyOK,
+} from './sdo/response-body.sdo';
+import { VkontakteGuard } from './guards/vkontakte.guards';
+import { Account } from 'src/accounts/schema/account.schema';
+import { TelegramGuard } from './guards/telegram.guard';
+import { ConfigService } from '@nestjs/config';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
-}
-
-interface IYandexUser {
-  id: string;
-  displayName: string;
-  email: string;
-  picture: string;
-  accessToken: string;
-}
-
-interface IRequestYandexUser extends Request {
-  user: IYandexUser;
 }
 
 @ApiTags('auth')
 @Controller()
 export class AuthController {
   constructor(
-    private httpService: HttpService,
     private authService: AuthService,
     private readonly authDtoPipe: AuthDtoPipe,
+    private readonly configService: ConfigService,
   ) {}
 
   @UseGuards(LocalGuard)
@@ -58,249 +66,32 @@ export class AuthController {
   @ApiOperation({
     summary: 'Войти в систему',
   })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: { type: 'string', example: 'test@mail.ru' },
-        password: { type: 'string', example: '123' },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 201,
+  @ApiBody({ type: SigninRequestBody })
+  @ApiCreatedResponse({
     description: 'Успешный вход в систему',
-    schema: {
-      type: 'object',
-      properties: {
-        _id: {
-          type: 'string',
-          description: 'Идентификатор',
-          example: '650b396dd4201e5ca499f3b3',
-        },
-        username: {
-          type: 'string',
-          description: 'Имя пользователя',
-          example: 'test',
-        },
-        phone: {
-          type: 'string',
-          description: 'Номер телефона',
-          example: '+79999999999',
-        },
-        avatar: {
-          type: 'string',
-          description: 'URL аватара',
-          example: 'https://i.pravatar.cc/300',
-        },
-        balance: {
-          type: 'number',
-          description: 'Баланс',
-          example: 0,
-        },
-        accounts: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              _id: {
-                type: 'string',
-                description: 'Идентификатор аккаунта',
-                example: '650b396ed4201e5ca499f3b5',
-              },
-              type: {
-                type: 'string',
-                description: 'Тип аккаунта',
-                example: 'local',
-              },
-              role: {
-                type: 'string',
-                description: 'Роль аккаунта',
-                example: 'user',
-              },
-              credentials: {
-                type: 'object',
-                properties: {
-                  email: {
-                    type: 'string',
-                    description: 'Email',
-                    example: 'test@mail.ru',
-                  },
-                  accessToken: {
-                    type: 'string',
-                    description: 'AccessToken',
-                    example:
-                      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTBiMzk2ZGQ0MjAxZTVjYTQ5OWYzYjMiLCJpYXQiOjE2OTUyMzQ0MTQsImV4cCI6MTY5NTMyMDgxNH0.1GIu8iWeg8iWF-i5iynAhelc7kO3ouj09boZHjqn5HE',
-                  },
-                  refreshToken: {
-                    type: 'string',
-                    description: 'RefreshToken',
-                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
-                  },
-                },
-              },
-              profile: {
-                type: 'string',
-                description: 'Идентификатор профиля',
-                example: '650b396dd4201e5ca499f3b3',
-              },
-            },
-          },
-          description: 'Список аккаунтов',
-        },
-      },
-    },
+    type: SigninResponseBodyOK,
   })
-  @ApiResponse({
-    status: 401,
+  @ApiUnauthorizedResponse({
     description: 'Неверное имя пользователя или пароль',
-    schema: {
-      type: 'object',
-      properties: {
-        message: {
-          type: 'string',
-          example: 'Неверное имя пользователя или пароль',
-          description: 'Сообщение об ошибке',
-        },
-        error: {
-          type: 'string',
-          example: 'Unauthorized',
-          description: 'Тип ошибки',
-        },
-        statusCode: {
-          type: 'number',
-          example: '401',
-          description: 'HTTP-статус код',
-        },
-      },
-    },
+    type: SigninResponseBodyNotOK,
   })
-  async signin(@Req() req: RequestProfile): Promise<Profile> {
+  async signin(@Req() req: RequestProfile): Promise<Account> {
     return this.authService.auth(req.user);
   }
 
   @Post('signup')
   @ApiOperation({ summary: 'Регистрация' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        password: { type: 'string', example: '123' },
-        email: { type: 'string', example: 'test@mail.ru' },
-        phone: { type: 'string', example: '+79999999999' },
-        username: { type: 'string', example: 'test' },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 201,
+  @ApiBody({ type: SignupRequestBody })
+  @ApiCreatedResponse({
     description: 'Успешная регистрация',
-    schema: {
-      type: 'object',
-      properties: {
-        username: {
-          type: 'string',
-          description: 'Имя пользователя',
-          example: 'test',
-        },
-        phone: {
-          type: 'string',
-          description: 'Номер телефона',
-          example: '+79999999999',
-        },
-        avatar: {
-          type: 'string',
-          description: 'URL аватара',
-          example: 'https://i.pravatar.cc/300',
-        },
-        balance: {
-          type: 'number',
-          description: 'Баланс',
-          example: 0,
-        },
-        accounts: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              type: {
-                type: 'string',
-                description: 'Тип аккаунта',
-                example: 'local',
-              },
-              role: {
-                type: 'string',
-                description: 'Роль',
-                example: 'user',
-              },
-              credentials: {
-                type: 'object',
-                properties: {
-                  email: {
-                    type: 'string',
-                    description: 'Email',
-                    example: 'test@mail.ru',
-                  },
-                  accessToken: {
-                    type: 'string',
-                    description: 'AccessToken',
-                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
-                  },
-                  refreshToken: {
-                    type: 'string',
-                    description: 'RefreshToken',
-                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
-                  },
-                },
-              },
-              profile: {
-                type: 'string',
-                description: 'Идентификатор профиля ',
-                example: '650b396dd4201e5ca499f3b3',
-              },
-              _id: {
-                type: 'string',
-                description: 'Идентификатор аккаунта',
-                example: '650b396dd4201e5ca499f3b3',
-              },
-            },
-          },
-          description: 'Список аккаунтов',
-        },
-        _id: {
-          type: 'string',
-          description: 'Идентификатор профиля',
-          example: '650b396dd4201e5ca499f3b3',
-        },
-      },
-    },
+    type: SigninResponseBodyOK,
   })
-  @ApiResponse({ status: 400, description: 'Некорректные данные' })
-  @ApiResponse({
-    status: 409,
+  @ApiBadRequestResponse({ description: 'Некорректные данные' })
+  @ApiConflictResponse({
     description: 'Аккаунт уже существует',
-    schema: {
-      type: 'object',
-      properties: {
-        message: {
-          type: 'string',
-          example: 'Аккаунт уже существует',
-          description: 'Сообщение об ошибке',
-        },
-        error: {
-          type: 'string',
-          example: 'Conflict',
-          description: 'Тип ошибки',
-        },
-        statusCode: {
-          type: 'number',
-          example: '409',
-          description: 'HTTP-статус код',
-        },
-      },
-    },
+    type: SignupResponseBodyNotOK,
   })
-  async signup(@Body() combinedDto: CombinedDto): Promise<Profile> {
+  async signup(@Body() combinedDto: CombinedDto): Promise<Account> {
     const newAccount: CombinedDto = {
       email: combinedDto.email,
       password: combinedDto.password,
@@ -319,59 +110,14 @@ export class AuthController {
   @ApiOperation({
     summary: 'Обновить токен',
   })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        refreshToken: {
-          type: 'string',
-          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 201,
+  @ApiBody({ type: RefreshTokenRequestBody })
+  @ApiCreatedResponse({
     description: 'accessToken успешно обновлен',
-    schema: {
-      type: 'object',
-      properties: {
-        accessToken: {
-          type: 'string',
-          description: 'accessToken по умолчанию действует 1 день',
-          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
-        },
-        refreshToken: {
-          type: 'string',
-          description: 'refreshToken по умолчанию действует 7 дней',
-          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
-        },
-      },
-    },
+    type: refreshTokenResponseBodyOK,
   })
-  @ApiResponse({
-    status: 401,
+  @ApiUnauthorizedResponse({
     description: 'Невалидный refreshToken',
-    schema: {
-      type: 'object',
-      properties: {
-        message: {
-          type: 'string',
-          example: 'Невалидный refreshToken',
-          description: 'Сообщение об ошибке',
-        },
-        error: {
-          type: 'string',
-          example: 'Unauthorized',
-          description: 'Тип ошибки',
-        },
-        statusCode: {
-          type: 'number',
-          example: '401',
-          description: 'HTTP-статус код',
-        },
-      },
-    },
+    type: refreshTokenResponseBodyNotOK,
   })
   async refreshToken(
     @Body('refreshToken') refreshToken: string,
@@ -379,225 +125,111 @@ export class AuthController {
     return this.authService.refreshToken(refreshToken);
   }
 
+  @Post('yandex/exchange')
   @ApiOperation({
     summary: 'Авторизация через Yandex',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Успешная регистрация',
-    schema: {
-      type: 'object',
-      properties: {
-        username: {
-          type: 'string',
-          description: 'Имя пользователя',
-          example: 'test',
-        },
-        phone: {
-          type: 'string',
-          description: 'Номер телефона',
-          example: '+79999999999',
-        },
-        avatar: {
-          type: 'string',
-          description: 'URL аватара',
-          example: 'https://i.pravatar.cc/300',
-        },
-        balance: {
-          type: 'number',
-          description: 'Баланс',
-          example: 0,
-        },
-        accounts: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              type: {
-                type: 'string',
-                description: 'Тип аккаунта',
-                example: 'local',
-              },
-              role: {
-                type: 'string',
-                description: 'Роль',
-                example: 'user',
-              },
-              credentials: {
-                type: 'object',
-                properties: {
-                  email: {
-                    type: 'string',
-                    description: 'Email',
-                    example: 'test@mail.ru',
-                  },
-                  accessToken: {
-                    type: 'string',
-                    description: 'AccessToken',
-                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
-                  },
-                  refreshToken: {
-                    type: 'string',
-                    description: 'RefreshToken',
-                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
-                  },
-                },
-              },
-              profile: {
-                type: 'string',
-                description: 'Идентификатор профиля ',
-                example: '650b396dd4201e5ca499f3b3',
-              },
-              _id: {
-                type: 'string',
-                description: 'Идентификатор аккаунта',
-                example: '650b396dd4201e5ca499f3b3',
-              },
-            },
-          },
-          description: 'Список аккаунтов',
-        },
-        _id: {
-          type: 'string',
-          description: 'Идентификатор профиля',
-          example: '650b396dd4201e5ca499f3b3',
-        },
-      },
-    },
+  @ApiBody({
+    type: CodeFlowAuthRequestBody,
   })
-  @UseGuards(YandexGuard)
-  @Get('yandex')
+  @ApiCreatedResponse({
+    description: 'Успешная регистрация',
+    type: SigninResponseBodyOK,
+  })
+  async exchangeCodeYandex(@Body('codeAuth') codeAuth: string) {
+    const userData = await this.authService.authYandex(codeAuth);
+    const newAccount: CombinedDto = {
+      email: userData.data.default_email,
+      password: '',
+      username: userData.data.real_name || userData.data.first_name,
+      phone: userData.data.default_phone.number,
+      avatar: '',
+    };
+    const authDto = this.authDtoPipe.transform(newAccount, {
+      type: 'body',
+      data: 'combinedDto',
+    });
+    return await this.authService.authSocial(authDto, TypeAccount.YANDEX);
+  }
+
+  @Post('mailru/exchange')
+  @ApiOperation({
+    summary: 'Авторизация через Mail',
+  })
+  @ApiBody({
+    type: CodeFlowAuthRequestBody,
+  })
+  @ApiCreatedResponse({
+    description: 'Успешная регистрация',
+    type: SigninResponseBodyOK,
+  })
+  async exchangeCodeMail(@Body('codeAuth') codeAuth: string) {
+    const userData = await this.authService.authMailru(codeAuth);
+
+    const newAccount: CombinedDto = {
+      email: userData.email,
+      password: '',
+      username: userData.nickname,
+      phone: ' ',
+      avatar: userData.image,
+    };
+    const authDto = this.authDtoPipe.transform(newAccount, {
+      type: 'body',
+      data: 'combinedDto',
+    });
+    return await this.authService.authSocial(authDto, TypeAccount.MAIL);
+  }
+
+  @UseGuards(VkontakteGuard)
+  @Get('vkontakte')
+  @ApiOperation({
+    summary: 'Авторизация через Вконтакте',
+  })
+  @ApiOkResponse({
+    description: 'Успешная регистрация',
+    type: SigninResponseBodyOK,
+  })
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  yandexAuth() {}
+  vkontakteAuth() {}
 
   @ApiExcludeEndpoint(true)
-  @UseGuards(YandexGuard)
-  @Get('yandex/callback')
-  async yandexCallback(@Req() req: IRequestYandexUser, @Res() res: Response) {
-    const token = req.user['accessToken'];
-    return res.redirect(
-      `https://botkits.nomoreparties.co/api/yandex/success?token=${token}`,
-    );
+  @UseGuards(VkontakteGuard)
+  @Get('vkontakte/callback')
+  async vkontakteCallback(@Req() req: any, @Res() res: any) {
+    const { email, username, avatar } = req.user.profile;
+    const newAccount: CombinedDto = {
+      email,
+      password: '',
+      username,
+      phone: ' ',
+      avatar,
+    };
+
+    const authDto = this.authDtoPipe.transform(newAccount, {
+      type: 'body',
+      data: 'combinedDto',
+    });
+    const result = await this.authService.authSocial(authDto, TypeAccount.VK);
+    res.cookie('auth', JSON.stringify(result));
+    return res.redirect(this.configService.get('VK_RES_REDIRECT_URL'));
   }
 
-  @ApiExcludeEndpoint(true)
-  @Get('yandex/success')
-  async yandexSuccess(@Query('token') token: string) {
-    return this.httpService
-      .get(`https://login.yandex.ru/info?format=json&oauth_token=${token}`)
-      .pipe(
-        mergeMap(({ data }) => {
-          const newAccount: CombinedDto = {
-            email: data.default_email,
-            password: '',
-            username: data.display_name,
-            phone: data.default_phone.number,
-            avatar: data.default_avatar_id,
-          };
-          const authDto = this.authDtoPipe.transform(newAccount, {
-            type: 'body',
-            data: 'combinedDto',
-          });
-          return this.authService.authSocial(authDto, TypeAccount.YANDEX);
-        }),
-      );
-  }
-
+  @UseGuards(GoogleGuard)
+  @Get('google')
   @ApiOperation({
     summary: 'Авторизация через Google',
   })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Успешная регистрация',
-    schema: {
-      type: 'object',
-      properties: {
-        username: {
-          type: 'string',
-          description: 'Имя пользователя',
-          example: 'test',
-        },
-        phone: {
-          type: 'string',
-          description: 'Номер телефона',
-          example: '+79999999999',
-        },
-        avatar: {
-          type: 'string',
-          description: 'URL аватара',
-          example: 'https://i.pravatar.cc/300',
-        },
-        balance: {
-          type: 'number',
-          description: 'Баланс',
-          example: 0,
-        },
-        accounts: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              type: {
-                type: 'string',
-                description: 'Тип аккаунта',
-                example: 'local',
-              },
-              role: {
-                type: 'string',
-                description: 'Роль',
-                example: 'user',
-              },
-              credentials: {
-                type: 'object',
-                properties: {
-                  email: {
-                    type: 'string',
-                    description: 'Email',
-                    example: 'test@mail.ru',
-                  },
-                  accessToken: {
-                    type: 'string',
-                    description: 'AccessToken',
-                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
-                  },
-                  refreshToken: {
-                    type: 'string',
-                    description: 'RefreshToken',
-                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp',
-                  },
-                },
-              },
-              profile: {
-                type: 'string',
-                description: 'Идентификатор профиля ',
-                example: '650b396dd4201e5ca499f3b3',
-              },
-              _id: {
-                type: 'string',
-                description: 'Идентификатор аккаунта',
-                example: '650b396dd4201e5ca499f3b3',
-              },
-            },
-          },
-          description: 'Список аккаунтов',
-        },
-        _id: {
-          type: 'string',
-          description: 'Идентификатор профиля',
-          example: '650b396dd4201e5ca499f3b3',
-        },
-      },
-    },
+    type: SigninResponseBodyOK,
   })
-  @UseGuards(GoogleGuard)
-  @Get('google')
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   googleAuth() {}
 
   @ApiExcludeEndpoint(true)
   @UseGuards(GoogleGuard)
   @Get('google/callback')
-  async googleCallback(@Req() req: any) {
+  async googleCallback(@Req() req: any, @Res() res: any) {
     const { email, username, avatar } = req.user;
     const newAccount: CombinedDto = {
       email,
@@ -610,7 +242,30 @@ export class AuthController {
       type: 'body',
       data: 'combinedDto',
     });
-    return this.authService.authSocial(authDto, TypeAccount.GOOGLE);
+    const result = await this.authService.authSocial(
+      authDto,
+      TypeAccount.GOOGLE,
+    );
+    res.cookie('auth', JSON.stringify(result));
+    return res.redirect(this.configService.get('GOOGLE_RES_REDIRECT_URL'));
+  }
+
+  @UseGuards(TelegramGuard)
+  @Post('/telegram')
+  async telegramCallback(@Req() req: any) {
+    const { username } = req.user;
+    const newAccount: CombinedDto = {
+      email: 'telegram',
+      password: 'telegram',
+      username,
+      phone: 'telegram',
+      avatar: '',
+    };
+    const authDto = this.authDtoPipe.transform(newAccount, {
+      type: 'body',
+      data: 'combinedDto',
+    });
+    return this.authService.authSocial(authDto, TypeAccount.TELEGRAM);
   }
 
   @Post('reset-password')
@@ -618,58 +273,17 @@ export class AuthController {
     summary: 'Сброс пароля',
   })
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: {
-          type: 'string',
-          description: 'Email пользователя',
-          example: 'test@mail.ru',
-        },
-      },
-    },
+    type: ResetPasswordRequestBody,
   })
-  @ApiResponse({
-    status: 201,
-    schema: {
-      type: 'object',
-      properties: {
-        message: {
-          type: 'string',
-          example:
-            'Ссылка на сброс пароля отправлена на ваш email: test@mail.ru',
-          description: 'Email пользователя',
-        },
-      },
-    },
+  @ApiCreatedResponse({
+    type: ResetPasswordResponseBodyOK,
     description: 'Ссылка для сброса пароля отправлена на указанный Email',
   })
-  @ApiResponse({
-    status: 400,
+  @ApiBadRequestResponse({
     description: 'Некорректные данные',
   })
-  @ApiResponse({
-    status: 404,
-    schema: {
-      type: 'object',
-      properties: {
-        message: {
-          type: 'string',
-          example: 'Пользователь с указанным Email не найден',
-          description: 'Сообщение об ошибке',
-        },
-        error: {
-          type: 'string',
-          example: 'Not Found',
-          description: 'Тип ошибки',
-        },
-        statusCode: {
-          type: 'number',
-          example: '404',
-          description: 'HTTP-статус код',
-        },
-      },
-    },
+  @ApiNotFoundResponse({
+    type: ResetPasswordResponseBodyNotFound,
     description: 'Пользователь с указанным Email не найден',
   })
   async resetPassword(@Body('email') email: string) {

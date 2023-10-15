@@ -12,6 +12,7 @@ import {
 import { PaymentsService } from './payments.service';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
@@ -21,11 +22,12 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
-  ApiUnprocessableEntityResponse,
   OmitType,
 } from '@nestjs/swagger';
 import { Payment } from './schema/payment.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @ApiTags('payments')
 @ApiBearerAuth()
@@ -57,7 +59,7 @@ export class PaymentsController {
     type: Payment,
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @Post()
   create(
     @Req() req,
@@ -80,6 +82,8 @@ export class PaymentsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   delete(@Req() req, @Param('id') id: string) {
     this.paymentsService.delete(id);
@@ -100,7 +104,9 @@ export class PaymentsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Patch(':id')
   update(
     @Req() req,

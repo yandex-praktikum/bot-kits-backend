@@ -1,13 +1,21 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Bot, BotDocument } from './schema/bots.schema';
 import { Model } from 'mongoose';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
 import { BotAccessesService } from '../botAccesses/botAccesses.service';
-import { defaultPermission, fullPermission, LEVEL_ACCESS } from '../botAccesses/types/types';
+import {
+  defaultPermission,
+  fullPermission,
+  LEVEL_ACCESS,
+} from '../botAccesses/types/types';
 
 @Injectable()
 export class BotsService {
@@ -25,6 +33,10 @@ export class BotsService {
       permission: fullPermission,
     });
 
+    // if (bot.title === createBotDto.title) {
+    //   throw new ConflictException('Бот с таким именем уже существует');
+    // }
+
     return bot;
   }
 
@@ -38,6 +50,10 @@ export class BotsService {
 
   async findAll(): Promise<Bot[]> {
     return await this.botModel.find().exec();
+  }
+
+  async findAllTemplates(): Promise<Bot[]> {
+    return await this.botModel.find({ type: 'template' }).exec();
   }
 
   async update(
@@ -57,26 +73,29 @@ export class BotsService {
   }
 
   async remove(userId: string, id: string): Promise<Bot> {
-    const hasFullAccess = await this.botAccessesService.hasFullAccess(userId, id);
+    const hasFullAccess = await this.botAccessesService.hasFullAccess(
+      userId,
+      id,
+    );
     if (!hasFullAccess) {
       throw new ForbiddenException('Недостаточно прав для удаления бота');
     }
     return await this.botModel.findByIdAndRemove(id).exec();
   }
 
-  async copy(
-    profile: string,
-    id: string,
-    copyBotDto: CopyBotDto,
-  ): Promise<Bot> {
-    const { icon, botName, botSettings } = await this.findOne(id);
-    return await this.create(profile, {
-      icon,
-      botName,
-      messenger: copyBotDto.messenger,
-      botSettings,
-    });
-  }
+  // async copy(
+  //   profile: string,
+  //   id: string,
+  //   copyBotDto: CopyBotDto,
+  // ): Promise<Bot> {
+  //   const { icon, title, settings } = await this.findOne(id);
+  //   return await this.create(profile, {
+  //     icon,
+  //     title,
+  //     messenger: copyBotDto.messenger,
+  //     settings,
+  //   });
+  // }
 
   async share(
     profile: string,

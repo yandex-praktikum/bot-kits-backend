@@ -17,36 +17,50 @@ import {
   ApiTags,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
-  ApiUnprocessableEntityResponse,
   ApiParam,
   ApiBearerAuth,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { BotsService } from './bots.service';
 import { Bot } from './schema/bots.schema';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import { ShareBotDto } from './dto/share-bot.dto';
-import { CopyBotDto } from './dto/copy-bot.dto';
+import { BotCreateRequestBody } from './sdo/request-body.sdo';
 
-@ApiTags('bots')
-@ApiBearerAuth()
 @UseGuards(JwtGuard)
+@ApiBearerAuth()
+@ApiTags('bots')
 @Controller('bots')
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
 
   @Get()
   @ApiOperation({
-    summary: 'Список ботов пользователя',
+    summary: 'Получить ботов пользователя',
   })
   @ApiOkResponse({
-    description: 'Список ботов пользователя получен',
+    description: 'Запрос выполнен успешно',
     type: [Bot],
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  findMy(@Req() req): Promise<Bot[] | null> {
-    return this.botsService.findAllByUser(req.user.id);
+  async findMy(@Req() req): Promise<Bot[]> {
+    return await this.botsService.findAllByUser(req.user.id);
+  }
+
+  @Get('templates')
+  @ApiOperation({
+    summary: 'Получить ботов пользователя',
+  })
+  @ApiOkResponse({
+    description: 'Запрос выполнен успешно',
+    type: [Bot],
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  async findTemplates(): Promise<Bot[]> {
+    return await this.botsService.findAllTemplates();
   }
 
   @Post()
@@ -58,8 +72,8 @@ export class BotsController {
     type: Bot,
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
-  @ApiBody({ type: CreateBotDto })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  @ApiBody({ type: BotCreateRequestBody })
   create(@Req() req, @Body() createBotDto: CreateBotDto): Promise<Bot> {
     return this.botsService.create(req.user.id, createBotDto);
   }
@@ -83,26 +97,26 @@ export class BotsController {
     return this.botsService.remove(req.user.id, id);
   }
 
-  @Post(':id/copy')
-  @ApiOperation({
-    summary: 'Копирование бота',
-  })
-  @ApiCreatedResponse({
-    description: 'Бот скопирован',
-    type: Bot,
-  })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
-  @ApiBody({ type: CopyBotDto })
-  @ApiParam({
-    name: 'id',
-    description: 'Идентификатор бота',
-    example: '64f81ba37571bfaac18a857f',
-  })
-  copy(@Req() req, @Param('id') id: string, @Body() copyBotDto: CopyBotDto) {
-    return this.botsService.copy(req.user.id, id, copyBotDto);
-  }
+  // @Post(':id/copy')
+  // @ApiOperation({
+  //   summary: 'Копирование бота',
+  // })
+  // @ApiCreatedResponse({
+  //   description: 'Бот скопирован',
+  //   type: Bot,
+  // })
+  // @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  // @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  // @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  // @ApiBody({ type: CopyBotDto })
+  // @ApiParam({
+  //   name: 'id',
+  //   description: 'Идентификатор бота',
+  //   example: '64f81ba37571bfaac18a857f',
+  // })
+  // copy(@Req() req, @Param('id') id: string, @Body() copyBotDto: CopyBotDto) {
+  //   return this.botsService.copy(req.user.id, id, copyBotDto);
+  // }
 
   @Patch(':id')
   @ApiOperation({
@@ -114,17 +128,7 @@ export class BotsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        botName: {
-          type: 'string',
-          example: 'Салон красоты',
-        },
-      },
-    },
-  })
+  @ApiBody({ type: BotCreateRequestBody })
   @ApiParam({
     name: 'id',
     description: 'Идентификатор бота',
@@ -133,7 +137,7 @@ export class BotsController {
   update(
     @Req() req,
     @Param('id') id: string,
-    @Body() body: { botName: 'string' },
+    @Body() body: { title: 'string' },
   ): Promise<Bot> {
     return this.botsService.update(req.user.id, id, body);
   }
@@ -168,7 +172,7 @@ export class BotsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: ShareBotDto })
   @ApiParam({
     name: 'id',

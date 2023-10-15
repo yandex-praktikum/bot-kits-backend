@@ -1,7 +1,6 @@
-////scr/profiles/profiles.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { Profile } from './schema/profile.schema';
 import { Account } from 'src/accounts/schema/account.schema';
@@ -14,32 +13,56 @@ export class ProfilesService {
     @InjectModel(Account.name) private account: Model<Account>,
   ) {}
 
-  async create(createProfileDto: CreateProfileDto) {
+  async create(
+    createProfileDto: CreateProfileDto,
+    session?: mongoose.ClientSession,
+  ): Promise<Profile | null> {
     const profileNew = new this.profile(createProfileDto);
-    return profileNew.save();
+    if (session) {
+      return await profileNew.save({ session: session });
+    }
+    return await profileNew.save();
   }
-  //profiles.service.ts
+
   async findOne(id: string | number): Promise<Profile> {
     const profile = await this.profile.findById(id).exec();
     return profile;
   }
 
-  async findById(id: Types.ObjectId): Promise<Profile> {
-    const profile = await (
-      await this.profile.findById(id)
-    ).populate('accounts');
+  async findAccountsById(id: string): Promise<Account[]> {
+    const profile = await this.findById(id);
+    return profile.accounts;
+  }
+
+  async findById(id: string): Promise<Profile> {
+    const objectId = new Types.ObjectId(id);
+    const foundProfile = await this.profile.findById(objectId);
+
+    if (!foundProfile) {
+      throw new NotFoundException(`Profile with ID ${id} not found`);
+    }
+
+    const profile = await foundProfile.populate('accounts');
     profile.accounts.forEach((account) => {
       if (account.credentials) {
         delete account.credentials.password;
       }
     });
+
     return profile;
   }
 
-  async findByEmail(email: string): Promise<Profile | null> {
-    const account = await this.account.findOne({ 'credentials.email': email });
+  async findByEmail(
+    email: string,
+    session?: mongoose.ClientSession,
+  ): Promise<Profile | null> {
+    const account = await this.account
+      .findOne({ 'credentials.email': email })
+      .session(session);
     if (account) {
-      const profile = await this.profile.findById(account.profile);
+      const profile = await this.profile
+        .findById(account.profile)
+        .session(session);
       if (profile) {
         return profile;
       }

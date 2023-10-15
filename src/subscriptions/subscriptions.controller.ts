@@ -10,6 +10,7 @@ import {
 import { SubscriptionsService } from './subscriptions.service';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
@@ -19,7 +20,6 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
-  ApiUnprocessableEntityResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
 import { Subscription } from './schema/subscription.schema';
@@ -73,7 +73,7 @@ export class SubscriptionsController {
     type: Subscription,
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Post('activate')
   activateSubscription(
@@ -107,7 +107,7 @@ export class SubscriptionsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiUnprocessableEntityResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @Post(':id')
   createSubscription(
     @Req() req,
