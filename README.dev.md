@@ -1,17 +1,34 @@
 # Запуск проекта
 
-Для запуска в докер необходимо добавить два .env файла:
-- .env(.dev) с конфигурацией приложения
+Для запуска необходимы Node.js старше 16.x, MongoDB страше 4.x.
+Для запуска в Docker, убедитесь, что у вас есть два .env файла:
 
-Примеры заполнения можно увидеть в .env.example
+- .env (или .env.dev для разработки)
+- .env.docker (для запуска проекта в docker в dev режиме)
 
-Запуск проекта в dev режиме происходит в двух вариантах:
-- ```npm run start:dev:docker``` в attached режиме
-- ```docker-compose -f docker-compose-dev.yml up --env-file .env.dev --env-file .env.db -d``` фоново
+Примеры значений переменных можно увидеть в .env.example.
 
-В обоих случаях поднимаются контейнеры с самим бэком + бд.
+##Запуск в режиме разработки
+__Через NPM__ - это запустит ваш проект в attached режиме. Это значит, что вы будете видеть стандартный вывод (STDOUT) и стандартный вывод ошибок (STDERR) контейнера в вашем терминале в реальном времени.
+```
+npm run start:dev:docker
+```
+__Через Docker Compose__
+```
+docker-compose -f docker-compose-dev.yml up --env-file .env.dev --env-file .env.db -d
+```
+Это запустит ваш проект в фоновом режиме.
 
-Запуск production ```docker-compose -f docker-compose.yml --env-file .env --env-file .env.db up -d ```
+В обоих случаях будут запущены контейнеры с бэкендом и базой данных.
+
+__Локально через NPM__ - позволит вести видеть изменения в реальном времени и работать с локальной БД
+```
+npm run start:dev
+```
+##Запуск в режиме production
+```
+docker-compose -f docker-compose.yml --env-file .env up -d
+```
 ***
 ## Для того чтобы увидеть документацию Swagger
 ```

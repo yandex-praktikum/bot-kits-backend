@@ -13,18 +13,18 @@ import { ProfilesService } from 'src/profiles/profiles.service';
 import { AccountService } from 'src/accounts/accounts.service';
 import TypeAccount from 'src/accounts/types/type-account';
 import { AuthDto } from './dto/auth.dto';
-//import Role from 'src/accounts/types/role';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { Account } from 'src/accounts/schema/account.schema';
 import { InjectConnection } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { randomBytes } from 'crypto';
 
 export interface ITokens {
   accessToken: string;
   refreshToken: string;
 }
-//auth.service.ts
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -37,9 +37,25 @@ export class AuthService {
   ) {}
 
   private async getTokens(profileId): Promise<ITokens> {
-    const payload = { sub: profileId };
-    const accessToken = this.jwtService.sign(payload);
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const basePayload = { sub: profileId };
+
+    const accessTokenPayload = {
+      ...basePayload,
+      jti: randomBytes(16).toString('hex'), // добавляем случайный идентификатор JWT
+      type: 'access',
+    };
+
+    const refreshTokenPayload = {
+      ...basePayload,
+      jti: randomBytes(16).toString('hex'), // добавляем случайный идентификатор JWT
+      type: 'refresh',
+    };
+
+    const accessToken = this.jwtService.sign(accessTokenPayload);
+    const refreshToken = this.jwtService.sign(refreshTokenPayload, {
+      expiresIn: '7d',
+    });
+
     return { accessToken, refreshToken };
   }
 
@@ -201,8 +217,8 @@ export class AuthService {
   async authYandex(codeAuth: string) {
     const CLIENT_ID = this.configService.get('YANDEX_APP_ID');
     const CLIENT_SECRET = this.configService.get('YANDEX_APP_SECRET');
-    const TOKEN_URL = 'https://oauth.yandex.ru/token';
-    const USER_INFO_URL = 'https://login.yandex.ru/info?format=json';
+    const TOKEN_URL = this.configService.get('YANDEX_TOKEN_URL');
+    const USER_INFO_URL = this.configService.get('YANDEX_USER_INFO_URL');
 
     try {
       const tokenResponse = await axios.post(
@@ -234,15 +250,17 @@ export class AuthService {
   async authMailru(codeAuth: string) {
     const CLIENT_ID = this.configService.get('MAILRU_APP_ID');
     const CLIENT_SECRET = this.configService.get('MAILRU_APP_SECRET');
-    const TOKEN_URL = 'https://oauth.mail.ru/token';
-    const USER_INFO_URL = 'https://oauth.mail.ru/userinfo';
+    const TOKEN_URL = this.configService.get('MAILRU_TOKEN_URL');
+    const USER_INFO_URL = this.configService.get('MAILRU_USER_INFO_URL');
     // Кодирование CLIENT_ID и CLIENT_SECRET для Basic Authorization
     const authString = `${CLIENT_ID}:${CLIENT_SECRET}`;
     const encodedAuthString = Buffer.from(authString).toString('base64');
     try {
       const tokenResponse = await axios.post(
         TOKEN_URL,
-        `grant_type=authorization_code&code=${codeAuth}&redirect_uri=http://localhost:3000/signin`,
+        `grant_type=authorization_code&code=${codeAuth}&redirect_uri=${this.configService.get(
+          'MAILRU_REDIRECT_URL',
+        )}`,
         {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

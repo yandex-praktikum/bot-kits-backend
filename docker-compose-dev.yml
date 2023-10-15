@@ -19,7 +19,7 @@ services:
     container_name: 'mongo'
     image: mongo:5
     restart: always
-    command: ["--replSet", "rs0", "--bind_ip_all"]
+    command: ["--replSet", "${DB_REPLICATION_SET:-rs01}", "--bind_ip_all"]
     networks:
       - mongo-network
     healthcheck:

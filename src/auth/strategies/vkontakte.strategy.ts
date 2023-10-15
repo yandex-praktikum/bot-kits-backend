@@ -9,9 +9,9 @@ export class VkontakteStrategy extends PassportStrategy(Strategy, 'vkontakte') {
   constructor(private readonly configService: ConfigService) {
     super(
       {
-        clientID: '51757364 ',
-        clientSecret: '1rcjBbrkhDYp9uI9OMLV',
-        callbackURL: 'http://localhost:3001/vkontakte/callback/',
+        clientID: configService.get('VK_APP_ID'),
+        clientSecret: configService.get('VK_APP_SECRET'),
+        callbackURL: configService.get('VK_CALLBACK_URL'),
         scope: ['profile', 'email'],
         profileFields: ['email'],
       },

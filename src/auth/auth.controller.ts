@@ -46,6 +46,7 @@ import {
 import { VkontakteGuard } from './guards/vkontakte.guards';
 import { Account } from 'src/accounts/schema/account.schema';
 import { TelegramGuard } from './guards/telegram.guard';
+import { ConfigService } from '@nestjs/config';
 
 interface RequestProfile extends Request {
   user: ProfileDocument;
@@ -57,6 +58,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private readonly authDtoPipe: AuthDtoPipe,
+    private readonly configService: ConfigService,
   ) {}
 
   @UseGuards(LocalGuard)
@@ -168,7 +170,7 @@ export class AuthController {
       email: userData.email,
       password: '',
       username: userData.nickname,
-      phone: '',
+      phone: ' ',
       avatar: userData.image,
     };
     const authDto = this.authDtoPipe.transform(newAccount, {
@@ -209,7 +211,7 @@ export class AuthController {
     });
     const result = await this.authService.authSocial(authDto, TypeAccount.VK);
     res.cookie('auth', JSON.stringify(result));
-    return res.redirect('http://localhost:3000/signin');
+    return res.redirect(this.configService.get('VK_RES_REDIRECT_URL'));
   }
 
   @UseGuards(GoogleGuard)
@@ -245,7 +247,7 @@ export class AuthController {
       TypeAccount.GOOGLE,
     );
     res.cookie('auth', JSON.stringify(result));
-    return res.redirect('http://localhost:3000/signin');
+    return res.redirect(this.configService.get('GOOGLE_RES_REDIRECT_URL'));
   }
 
   @UseGuards(TelegramGuard)
