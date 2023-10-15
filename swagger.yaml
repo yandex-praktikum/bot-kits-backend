@@ -1,6 +1,6 @@
 openapi: 3.0.0
 paths:
-  /:
+  /api/api:
     get:
       operationId: AppController_getHello
       parameters: []
@@ -11,7 +11,7 @@ paths:
             application/json:
               schema:
                 type: string
-  /signin:
+  /api/signin:
     post:
       operationId: AuthController_signin
       summary: Войти в систему
@@ -37,7 +37,7 @@ paths:
                 $ref: '#/components/schemas/SigninResponseBodyNotOK'
       tags: &ref_0
         - auth
-  /signup:
+  /api/signup:
     post:
       operationId: AuthController_signup
       summary: Регистрация
@@ -64,7 +64,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SignupResponseBodyNotOK'
       tags: *ref_0
-  /refresh-token:
+  /api/refresh-token:
     post:
       operationId: AuthController_refreshToken
       summary: Обновить токен
@@ -89,7 +89,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/refreshTokenResponseBodyNotOK'
       tags: *ref_0
-  /yandex/exchange:
+  /api/yandex/exchange:
     post:
       operationId: AuthController_exchangeCodeYandex
       summary: Авторизация через Yandex
@@ -108,7 +108,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
-  /mailru/exchange:
+  /api/mailru/exchange:
     post:
       operationId: AuthController_exchangeCodeMail
       summary: Авторизация через Mail
@@ -127,7 +127,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
-  /vkontakte:
+  /api/vkontakte:
     get:
       operationId: AuthController_vkontakteAuth
       summary: Авторизация через Вконтакте
@@ -140,7 +140,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
-  /google:
+  /api/google:
     get:
       operationId: AuthController_googleAuth
       summary: Авторизация через Google
@@ -153,7 +153,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
-  /telegram:
+  /api/telegram:
     post:
       operationId: AuthController_telegramCallback
       parameters: []
@@ -165,7 +165,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Account'
       tags: *ref_0
-  /reset-password:
+  /api/reset-password:
     post:
       operationId: AuthController_resetPassword
       summary: Сброс пароля
@@ -192,7 +192,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResetPasswordResponseBodyNotFound'
       tags: *ref_0
-  /profiles:
+  /api/profiles:
     get:
       operationId: ProfilesController_findAll
       summary: Получить все профили
@@ -215,7 +215,7 @@ paths:
       security: &ref_3
         - &ref_2
           bearer: []
-  /profiles/me:
+  /api/profiles/me:
     get:
       operationId: ProfilesController_findProfileByToken
       summary: Получить текущий профиль
@@ -241,7 +241,7 @@ paths:
       security:
         - *ref_2
         - bearer: []
-  /profiles/{id}:
+  /api/profiles/{id}:
     get:
       operationId: ProfilesController_findOne
       summary: Получить профиль по id
@@ -322,7 +322,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_1
       security: *ref_3
-  /profiles/{id}/accounts:
+  /api/profiles/{id}/accounts:
     get:
       operationId: ProfilesController_findAccountByProfileId
       summary: Получить все аккаунты пользователя по id профиля
@@ -349,7 +349,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_1
       security: *ref_3
-  /tariffs:
+  /api/tariffs:
     get:
       operationId: TariffsController_findAll
       summary: Получить все тарифы
@@ -394,7 +394,7 @@ paths:
           description: Такой тариф уже существует
       tags: *ref_4
       security: *ref_5
-  /tariffs/{id}:
+  /api/tariffs/{id}:
     get:
       operationId: TariffsController_findOne
       summary: Получить тариф по id
@@ -475,7 +475,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_4
       security: *ref_5
-  /accounts:
+  /api/accounts:
     get:
       operationId: AccountController_findAll
       summary: Получить все аккаунты
@@ -495,7 +495,7 @@ paths:
         - accounts
       security: &ref_7
         - bearer: []
-  /accounts/{id}:
+  /api/accounts/{id}:
     patch:
       operationId: AccountController_update
       summary: Обновить данные аккаунта по id
@@ -528,7 +528,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_6
       security: *ref_7
-  /logout:
+  /api/logout:
     get:
       operationId: BlacklistTokensController_addToken
       summary: Разлогинить пользователя
@@ -554,7 +554,7 @@ paths:
         - logout
       security:
         - bearer: []
-  /bot-accesses:
+  /api/bot-accesses:
     post:
       operationId: BotAccessesController_create
       summary: Создает доступ
@@ -600,7 +600,7 @@ paths:
           description: Отказ в доступе
       tags: *ref_8
       security: *ref_9
-  /bot-accesses/{id}:
+  /api/bot-accesses/{id}:
     get:
       operationId: BotAccessesController_findOne
       summary: Найти доступ по ID
@@ -685,7 +685,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_8
       security: *ref_9
-  /bot-accesses/{userId}/{botId}:
+  /api/bot-accesses/{userId}/{botId}:
     get:
       operationId: BotAccessesController_getPermission
       summary: Получить доступ
@@ -718,7 +718,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_8
       security: *ref_9
-  /bot-accesses/{botId}:
+  /api/bot-accesses/{botId}:
     post:
       operationId: BotAccessesController_shareAccess
       summary: Поделиться доступом
@@ -754,7 +754,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_8
       security: *ref_9
-  /platforms:
+  /api/platforms:
     post:
       operationId: PlatformController_create
       summary: Создать новую платформу
@@ -797,7 +797,7 @@ paths:
           description: Отказ в доступе
       tags: *ref_10
       security: *ref_11
-  /platforms/{id}:
+  /api/platforms/{id}:
     get:
       operationId: PlatformController_findOne
       summary: Получить платформу по id
@@ -878,7 +878,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_10
       security: *ref_11
-  /promocodes:
+  /api/promocodes:
     post:
       operationId: PromocodesController_create
       summary: Добавить новый промокод
@@ -921,7 +921,7 @@ paths:
           description: Отказ в доступе
       tags: *ref_12
       security: *ref_13
-  /promocodes/promocode:
+  /api/promocodes/promocode:
     get:
       operationId: PromocodesController_findOneByCode
       summary: Получить промокод по названию
@@ -966,7 +966,7 @@ paths:
           description: Отказ в доступе
       tags: *ref_12
       security: *ref_13
-  /promocodes/{id}:
+  /api/promocodes/{id}:
     get:
       operationId: PromocodesController_findOne
       summary: Получить промокод по id
@@ -1047,7 +1047,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_12
       security: *ref_13
-  /bots:
+  /api/bots:
     get:
       operationId: BotsController_findMy
       summary: Получить ботов пользователя
@@ -1092,7 +1092,7 @@ paths:
           description: Отказ в доступе
       tags: *ref_14
       security: *ref_15
-  /bots/templates:
+  /api/bots/templates:
     get:
       operationId: BotsController_findTemplates
       summary: Получить ботов пользователя
@@ -1112,7 +1112,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
-  /bots/{id}:
+  /api/bots/{id}:
     delete:
       operationId: BotsController_remove
       summary: Удаление бота
@@ -1191,7 +1191,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
-  /bots/{id}/share:
+  /api/bots/{id}/share:
     post:
       operationId: BotsController_share
       summary: Предоставить общий доступ к боту, первичный доступ при отправке email
@@ -1224,7 +1224,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
-  /subscriptions:
+  /api/subscriptions:
     get:
       operationId: SubscriptionsController_subscriptionAndPayments
       summary: Данные страницы "Подписка и платежи"
@@ -1264,7 +1264,7 @@ paths:
         - subscriptions
       security: &ref_17
         - bearer: []
-  /subscriptions/activate:
+  /api/subscriptions/activate:
     post:
       operationId: SubscriptionsController_activateSubscription
       summary: Активировать(отменить) подписку
@@ -1294,7 +1294,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_16
       security: *ref_17
-  /subscriptions/{id}:
+  /api/subscriptions/{id}:
     post:
       operationId: SubscriptionsController_createSubscription
       summary: Оформить подписку
@@ -1334,7 +1334,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_16
       security: *ref_17
-  /payments:
+  /api/payments:
     get:
       operationId: PaymentsController_userPayments
       summary: История платежей
@@ -1377,7 +1377,7 @@ paths:
           description: Отказ в доступе
       tags: *ref_18
       security: *ref_19
-  /payments/{id}:
+  /api/payments/{id}:
     delete:
       operationId: PaymentsController_delete
       summary: Удалить финансовую операцию
@@ -1430,7 +1430,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_18
       security: *ref_19
-  /notification:
+  /api/notification:
     post:
       operationId: NotificationController_create
       summary: Создать уведомление
@@ -1473,7 +1473,7 @@ paths:
           description: Отказ в доступе
       tags: *ref_20
       security: *ref_21
-  /notification/{id}:
+  /api/notification/{id}:
     get:
       operationId: NotificationController_findOne
       summary: Получить уведомление по id
@@ -2163,7 +2163,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-10-15T09:02:55.897Z
+          example: 2023-10-15T09:12:18.729Z
       required:
         - status
         - cardMask
@@ -2174,7 +2174,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-10-15T09:02:55.899Z
+          example: 2023-10-15T09:12:18.731Z
         amount:
           type: number
           example: 1000
