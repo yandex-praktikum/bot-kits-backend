@@ -15,9 +15,9 @@ export class TelegaStrategy extends PassportStrategy(
         botToken: configService.get('TELEGRAM_BOT_TOKEN'),
         passReqToCallback: true,
       },
-      (req, user, done) => {
+      async (req, user, done) => {
         req.user = user;
-        if (this.validate(user)) {
+        if (await this.validate(user)) {
           return done(null, user);
         } else {
           throw new UnauthorizedException();
