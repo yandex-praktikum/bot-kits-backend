@@ -27,7 +27,7 @@ export class BlacklistTokensService {
     const decodedToken: any = decode(token);
 
     //--Проверяем, существует ли поле exp в декодированном токене--//
-    if (!decodedToken || !decodedToken.exp) {
+    if (!decodedToken?.exp) {
       throw new BadRequestException('Невалидный токен');
     }
 
