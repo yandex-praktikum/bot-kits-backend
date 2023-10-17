@@ -26,7 +26,7 @@ export class TelegaStrategy extends PassportStrategy(
     );
   }
 
-  async validate(query: any): Promise<any> {
+  async validate(query: any): Promise<boolean> {
     const { id, first_name, username, auth_date, hash } = query;
     const botToken = this.configService.get('TELEGRAM_BOT_TOKEN'); // замените на свой токен бота
     const dataCheckString = `auth_date=${auth_date}\nfirst_name=${first_name}\nid=${id}\nusername=${username}`;
