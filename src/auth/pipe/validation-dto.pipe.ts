@@ -37,7 +37,7 @@ export class ValidationDtoPipe extends ValidationPipe {
         });
       }
 
-      if (error.children && error.children.length) {
+      if (error?.children?.length) {
         formattedErrors.push(...this.formatNestedErrors(error.children));
       }
     }

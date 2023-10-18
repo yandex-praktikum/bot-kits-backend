@@ -1,15 +1,10 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Bot, BotDocument } from './schema/bots.schema';
 import { Model } from 'mongoose';
-import {
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
-import { CopyBotDto } from './dto/copy-bot.dto';
 import { BotAccessesService } from '../botAccesses/botAccesses.service';
 import {
   defaultPermission,
