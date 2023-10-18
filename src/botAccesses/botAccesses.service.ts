@@ -75,7 +75,7 @@ export class BotAccessesService {
 
   async isThereAnyAccess(userId, botId): Promise<boolean> {
     const botAccess = await this.findOneByUserAndBotIds(userId, botId);
-    return botAccess ? true : false;
+    return !!botAccess;
   }
 
   async updateAccess(

@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { MongoServerError } from 'mongodb';
 import { CreatePromocodeDto } from './dto/create-promocode.dto';
 import { UpdatePromocodeDto } from './dto/update-promocode.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -24,10 +25,11 @@ export class PromocodesService {
       });
       return await promocode.save();
     } catch (error) {
-      if (error.code === 11000) {
+      if (error instanceof MongoServerError && error.code === 11000) {
         throw new ConflictException('Такой промокод уже существует');
       }
-      throw error;
+      //500й код
+      throw new Error('Что-то пошло не так');
     }
   }
 
@@ -35,11 +37,13 @@ export class PromocodesService {
     try {
       const promocodes = await this.promocodes.find();
       if (promocodes.length === 0) {
-        throw new NotFoundException();
+        throw new NotFoundException('Нет ни одного промокода');
       }
       return promocodes;
     } catch (error) {
-      throw new NotFoundException('Нет ни одного промокода');
+      if (error instanceof NotFoundException) throw error;
+      //500й код
+      throw new Error('Что-то пошло не так');
     }
   }
 
@@ -48,7 +52,11 @@ export class PromocodesService {
       const promocode = await this.promocodes.findById({ _id: id }).exec();
       return promocode;
     } catch (error) {
-      throw new NotFoundException('Промокода с таким id нет');
+      if (~error.message.indexOf('Cast to ObjectId failed')) {
+        throw new NotFoundException('Промокода с таким id нет');
+      }
+      //500й код
+      throw new Error('Что-то пошло не так');
     }
   }
 
@@ -63,6 +71,10 @@ export class PromocodesService {
       );
       return promocode;
     } catch (error) {
+      if (~error.message.indexOf('Cast to ObjectId failed')) {
+        throw new NotFoundException('Промокода с таким id нет');
+      }
+      //500й код
       throw new Error('Что-то пошло не так');
     }
   }
@@ -70,12 +82,15 @@ export class PromocodesService {
   async findOneByCode(code: string): Promise<Promocode> {
     try {
       const promocode = await this.promocodes.findOne({ code: code }).exec();
+      //по умолчанию findOne возвращает null, а не ошибку
       if (!promocode) {
         throw new NotFoundException('Промокода с таким названием нет');
       }
       return promocode;
     } catch (error) {
-      throw error;
+      if (error instanceof NotFoundException) throw error;
+      //500й код
+      throw new Error('Что-то пошло не так');
     }
   }
 
@@ -111,7 +126,10 @@ export class PromocodesService {
       );
       return promocode;
     } catch (error) {
-      throw error;
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof HttpException) throw error;
+      //500й код
+      throw new Error('Что-то пошло не так');
     }
   }
 
@@ -125,7 +143,9 @@ export class PromocodesService {
 
       return promocode;
     } catch (error) {
-      throw new NotFoundException('Промокода с таким id нет');
+      if (error instanceof NotFoundException) throw error;
+      //500й код
+      throw new Error('Что-то пошло не так');
     }
   }
 }
