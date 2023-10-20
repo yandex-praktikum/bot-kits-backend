@@ -1,0 +1,6 @@
+{
+  "**/*.{ts,tsx}": [
+    "prettier --config .prettierrc --write",
+    "eslint  --fix"
+  ]
+}
