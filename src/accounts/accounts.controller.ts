@@ -27,14 +27,6 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
   @Get()
-  @ApiOperation({
-    summary: 'Получить все аккаунты',
-  })
-  @ApiOkResponse({
-    description: 'Запрос выполнен успешно',
-    type: [SingleAccountResponseBodyOK],
-  })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @UseGuards(RolesGuard)
   @Roles('admin')
   findAll(): Promise<Account[]> {

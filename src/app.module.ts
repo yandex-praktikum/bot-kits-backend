@@ -27,6 +27,7 @@ import { HttpModule } from '@nestjs/axios';
 import { NotificationModule } from './notifications/notifications.module';
 import { BlacklistTokensModule } from './blacklistTokens/blacklistTokens.module';
 import { throttlerConfig } from './configs/throttler.config';
+import { ChatsModule } from './chats/chats.module';
 
 //app.module.ts
 @Module({
@@ -50,6 +51,7 @@ import { throttlerConfig } from './configs/throttler.config';
     HttpModule,
     NotificationModule,
     BlacklistTokensModule,
+    ChatsModule,
   ],
   controllers: [AppController, AuthController],
   providers: [
