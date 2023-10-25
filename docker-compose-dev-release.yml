@@ -1,4 +1,4 @@
-#docker-compose
+#docker-compose-dev-release
 version: "3.9"
 
 services:

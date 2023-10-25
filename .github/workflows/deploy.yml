@@ -25,6 +25,13 @@ jobs:
         echo "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > private_key
         chmod 600 private_key
 
+    - name: Remove existing containers if they exist
+      run: |
+        if docker container ls -a | grep botkit-mongodb-dev-release; then
+        docker stop botkit-mongodb-dev-release
+        docker rm botkit-mongodb-dev-release
+        fi
+
     - name: Deploy to Server
       run: |
         ssh -i private_key -o StrictHostKeyChecking=no botkits@84.201.178.186 "cd /home/botkits/bot-kits-backend && git pull && sudo docker compose --file docker-compose-dev-release.yml down && sudo docker compose --file docker-compose-dev-release.yml up -d --build"
