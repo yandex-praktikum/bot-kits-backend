@@ -34,7 +34,7 @@ services:
       start_period: 5s
 
 networks:
-  back:
+  back-dev:
     driver: bridge
     internal: true
 
