@@ -13,14 +13,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Add host to known hosts
-      run: |
-        mkdir -p $HOME/.ssh
-        touch $HOME/.ssh/known_hosts
-        echo "84.201.178.186 $(ssh-keyscan -t rsa 84.201.178.186)" >> $HOME/.ssh/known_hosts
-
     - name: Deploy to Server
       run: |
-        ssh botkits@84.201.178.186 "cd /home/botkits/bot-kits-backend && git pull && docker-compose down && docker-compose up -d --build"
-      env:
-        PRIVATE_KEY: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+        ssh -o StrictHostKeyChecking=no botkits@84.201.178.186 "cd /home/botkits/bot-kits-backend && git pull && docker-compose down && docker-compose up -d --build"
+    env:
+      PRIVATE_KEY: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+    - name: Check SSH keyscan output
+      run: ssh-keyscan -t rsa 84.201.178.186
