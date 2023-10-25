@@ -15,7 +15,10 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Add server to SSH known hosts
-      run: echo "$(ssh-keyscan -t rsa 84.201.178.186)" >> ~/.ssh/known_hosts
+      run: |
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        echo "$(ssh-keyscan -t rsa 84.201.178.186)" >> ~/.ssh/known_hosts
 
     - name: Set up private key
       run: |
