@@ -15,7 +15,7 @@ services:
       - back-dev
       - default
 
-  mongo:
+  mongo-dev:
     container_name: 'botkit-mongodb-dev-release'
     image: mongo:latest
     restart: always
