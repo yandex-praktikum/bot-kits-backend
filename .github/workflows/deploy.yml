@@ -16,7 +16,8 @@ jobs:
     - name: Deploy to Server
       run: |
         ssh -o StrictHostKeyChecking=no botkits@84.201.178.186 "cd /home/botkits/bot-kits-backend && git pull && docker-compose down && docker-compose up -d --build"
-    env:
-      PRIVATE_KEY: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+      env:
+        PRIVATE_KEY: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+
     - name: Check SSH keyscan output
       run: ssh-keyscan -t rsa 84.201.178.186
