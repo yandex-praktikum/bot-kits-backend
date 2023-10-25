@@ -478,19 +478,16 @@ paths:
   /accounts:
     get:
       operationId: AccountController_findAll
-      summary: Получить все аккаунты
       parameters: []
       responses:
         '200':
-          description: Запрос выполнен успешно
+          description: ''
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SingleAccountResponseBodyOK'
-        '403':
-          description: Отказ в доступе
+                  $ref: '#/components/schemas/Account'
       tags: &ref_6
         - accounts
       security: &ref_7
@@ -1554,6 +1551,87 @@ paths:
           description: Ресурс не найден
       tags: *ref_20
       security: *ref_21
+  /chats:
+    post:
+      operationId: ChatsController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+    get:
+      operationId: ChatsController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chat'
+  /chats/{id}:
+    get:
+      operationId: ChatsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+    patch:
+      operationId: ChatsController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateChatDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+    delete:
+      operationId: ChatsController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
 info:
   title: API BotKits
   description: Ручки для команды frontend
@@ -2163,7 +2241,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-10-15T09:02:55.897Z
+          example: 2023-10-23T16:16:41.536Z
       required:
         - status
         - cardMask
@@ -2174,7 +2252,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-10-15T09:02:55.899Z
+          example: 2023-10-23T16:16:41.538Z
         amount:
           type: number
           example: 1000
@@ -2304,3 +2382,28 @@ components:
         isReceived:
           type: boolean
           example: false
+    CreateChatDto:
+      type: object
+      properties:
+        message:
+          type: string
+        sender:
+          type: object
+        recipient:
+          type: string
+      required:
+        - message
+        - sender
+        - recipient
+    Chat:
+      type: object
+      properties: {}
+    UpdateChatDto:
+      type: object
+      properties:
+        message:
+          type: string
+        sender:
+          type: object
+        recipient:
+          type: string
