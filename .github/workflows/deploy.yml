@@ -8,16 +8,20 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-20.04
+    timeout-minutes: 15  # Установка тайм-аута для джоба
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Add server to SSH known hosts
+      run: echo "$(ssh-keyscan -t rsa 84.201.178.186)" >> ~/.ssh/known_hosts
+
+    - name: Set up private key
+      run: |
+        echo "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > private_key
+        chmod 600 private_key
+
     - name: Deploy to Server
       run: |
-        ssh -o StrictHostKeyChecking=no botkits@84.201.178.186 "cd /home/botkits/bot-kits-backend && git pull && docker-compose down && docker-compose up -d --build"
-      env:
-        PRIVATE_KEY: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
-
-    - name: Check SSH keyscan output
-      run: ssh-keyscan -t rsa 84.201.178.186
+        ssh -i private_key -o StrictHostKeyChecking=no botkits@84.201.178.186 "cd /home/botkits/bot-kits-backend && git pull && docker-compose down && docker-compose up -d --build"
