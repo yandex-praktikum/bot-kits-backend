@@ -13,6 +13,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Add host to known hosts
+      run: |
+        echo "84.201.178.186 $(ssh-keyscan -t rsa 84.201.178.186)" >> $HOME/.ssh/known_hosts
+
     - name: Deploy to Server
       run: |
         ssh botkits@84.201.178.186 "cd /home/botkits/bot-kits-backend && git pull && docker-compose down && docker-compose up -d --build"
