@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Payment, PaymentDocument } from './schema/payment.schema';
 import { Model } from 'mongoose';
@@ -13,14 +17,21 @@ export class PaymentsService {
   ) {}
 
   async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
-    return await this.paymentModel.create({
-      ...createPaymentDto,
-    });
+    return await this.paymentModel.create(createPaymentDto);
   }
 
   async delete(id: string) {
     //Не проверяем принадлежность операции пользователю, поскольку метод для администрирования, а не фронта
-    return await this.paymentModel.findByIdAndRemove(id).exec();
+    let deletedPayment;
+    try {
+      deletedPayment = await this.paymentModel.findByIdAndRemove(id).exec();
+    } catch {
+      throw new BadRequestException('не валидный id');
+    }
+    if (!deletedPayment) {
+      throw new NotFoundException('платеж не найден');
+    }
+    return deletedPayment;
   }
 
   async findOne(id: string): Promise<Payment> {
@@ -40,7 +51,17 @@ export class PaymentsService {
     updatePaymentDto: CreatePaymentDto,
   ): Promise<Payment> {
     //Не проверяем принадлежность операции пользователю, поскольку метод для администрирования, а не фронта
-    await this.paymentModel.findByIdAndUpdate(id, updatePaymentDto);
-    return this.findOne(id);
+    const updatedPayment = await this.paymentModel.findByIdAndUpdate(
+      id,
+      updatePaymentDto,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+    if (!updatedPayment) {
+      throw new NotFoundException('платеж не найден');
+    }
+    return updatedPayment;
   }
 }
