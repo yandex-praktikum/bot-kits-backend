@@ -1,0 +1,43 @@
+#docker-compose-dev-release
+version: "3.9"
+
+services:
+  backend:
+    container_name: 'botkit-backend-dev-release'
+    build:
+      context: .
+    ports:
+      - "${PORT_CONTAINER:-3000}:${APP_PORT:-3000}"
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - back-dev
+      - default
+
+  mongo-dev:
+    container_name: 'botkit-mongodb-dev-release'
+    image: mongo:latest
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "27017:${MONGO_PORT:-27017}"
+    volumes:
+      - db_data:/data/db
+      - db_config:/data/configdb
+    networks:
+      - back-dev
+    command: ["--replSet", "${DB_REPLICATION_SET:-rs01}", "--bind_ip_all"]
+    healthcheck:
+      test: mongosh --eval "rs.initiate()"
+      start_period: 5s
+
+networks:
+  back-dev:
+    driver: bridge
+    internal: true
+
+volumes:
+  db_data:
+  db_config:

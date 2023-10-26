@@ -28,6 +28,8 @@ import { Payment } from './schema/payment.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
+import { Profile } from 'src/profiles/schema/profile.schema';
 
 @ApiTags('payments')
 @ApiBearerAuth()
@@ -62,10 +64,9 @@ export class PaymentsController {
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @Post()
   create(
-    @Req() req,
-    @Body() createPaymentDto: CreatePaymentDto,
+    @AuthUser() profile: Profile,
+    @Body() createPaymentDto: Omit<CreatePaymentDto, 'profile'>,
   ): Promise<Payment> {
-    const profile = req.user;
     return this.paymentsService.create({ ...createPaymentDto, profile });
   }
 
@@ -85,8 +86,8 @@ export class PaymentsController {
   @UseGuards(RolesGuard)
   @Roles('admin')
   @Delete(':id')
-  delete(@Req() req, @Param('id') id: string) {
-    this.paymentsService.delete(id);
+  delete(@Param('id') id: string) {
+    return this.paymentsService.delete(id);
   }
 
   @ApiOperation({
@@ -109,11 +110,10 @@ export class PaymentsController {
   @Roles('admin')
   @Patch(':id')
   update(
-    @Req() req,
+    @AuthUser() profile: Profile,
     @Param('id') id: string,
-    @Body() updatePaymentDto: CreatePaymentDto,
+    @Body() updatePaymentDto: Omit<CreatePaymentDto, 'profie'>,
   ): Promise<Payment> {
-    const profile = req.user;
     return this.paymentsService.update(id, { ...updatePaymentDto, profile });
   }
 }

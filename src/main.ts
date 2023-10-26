@@ -9,6 +9,7 @@ import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('dev/api');
   const configService = app.get(ConfigService);
   const port = configService.get('APP_PORT');
   app.useGlobalPipes(new ValidationDtoPipe());
