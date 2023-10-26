@@ -7,6 +7,7 @@ import { AccountController } from './accounts.controller';
 import { Account, AccountSchema } from './schema/account.schema';
 import { HashModule } from 'src/hash/hash.module';
 import { ProfilesModule } from 'src/profiles/profiles.module';
+import { AccountsRepository } from './accountsRepository';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { ProfilesModule } from 'src/profiles/profiles.module';
     ProfilesModule,
   ],
   controllers: [AccountController],
-  providers: [AccountService],
+  providers: [AccountService, AccountsRepository],
   exports: [AccountService],
 })
 export class AccountModule {}
