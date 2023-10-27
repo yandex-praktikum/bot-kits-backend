@@ -10,16 +10,16 @@ import { PaymentsRepository } from './payments.repository';
 
 @Injectable()
 export class PaymentsService {
-  constructor(private readonly dbQuery: PaymentsRepository) {}
+  constructor(private readonly paymentsRepository: PaymentsRepository) {}
 
   async create(createPaymentDto: CreatePaymentDto) {
-    return this.dbQuery.create(createPaymentDto);
+    return this.paymentsRepository.create(createPaymentDto);
   }
 
   async delete(id: string) {
     let deletedPayment: Payment;
     try {
-      deletedPayment = await this.dbQuery.delete(id);
+      deletedPayment = await this.paymentsRepository.delete(id);
     } catch {
       throw new BadRequestException('не валидный id');
     }
@@ -30,21 +30,24 @@ export class PaymentsService {
   }
 
   async findOne(id: string) {
-    return this.dbQuery.findOne(id);
+    return this.paymentsRepository.findOne(id);
   }
 
   async findAll() {
-    return this.dbQuery.findAll();
+    return this.paymentsRepository.findAll();
   }
 
   async findUsersAll(profile: Profile) {
-    return this.dbQuery.findUsersAll(profile);
+    return this.paymentsRepository.findUsersAll(profile);
   }
 
   async update(id: string, updatePaymentDto: CreatePaymentDto) {
     let updatedPayment: Payment;
     try {
-      updatedPayment = await this.dbQuery.update(id, updatePaymentDto);
+      updatedPayment = await this.paymentsRepository.update(
+        id,
+        updatePaymentDto,
+      );
     } catch {
       throw new BadRequestException('не валидный id');
     }
