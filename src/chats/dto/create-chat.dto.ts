@@ -12,5 +12,5 @@ export class CreateChatDto {
 
   @IsNotEmpty()
   @IsString()
-  recipient: string;
+  recipient: Types.ObjectId | string;
 }

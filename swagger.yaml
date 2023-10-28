@@ -2241,7 +2241,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-10-27T23:14:53.391Z
+          example: 2023-10-28T15:43:20.387Z
       required:
         - status
         - cardMask
@@ -2252,7 +2252,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-10-27T23:14:53.393Z
+          example: 2023-10-28T15:43:20.390Z
         amount:
           type: number
           example: 1000
@@ -2390,7 +2390,7 @@ components:
         sender:
           type: object
         recipient:
-          type: string
+          type: object
       required:
         - message
         - sender
@@ -2406,4 +2406,4 @@ components:
         sender:
           type: object
         recipient:
-          type: string
+          type: object
