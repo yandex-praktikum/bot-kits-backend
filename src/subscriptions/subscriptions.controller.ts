@@ -24,6 +24,7 @@ import {
 } from '@nestjs/swagger';
 import { Subscription } from './schema/subscription.schema';
 import { Payment } from 'src/payments/schema/payment.schema';
+import { ActivateSubscriptionDTO } from './dto/activate-subscription.dto';
 
 @ApiTags('subscriptions')
 @ApiBearerAuth()
@@ -61,12 +62,7 @@ export class SubscriptionsController {
     summary: 'Активировать(отменить) подписку',
   })
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        status: { type: 'boolean', example: true },
-      },
-    },
+    type: ActivateSubscriptionDTO,
   })
   @ApiCreatedResponse({
     description: 'Подписка активирована',
@@ -78,10 +74,13 @@ export class SubscriptionsController {
   @Post('activate')
   activateSubscription(
     @Req() req,
-    @Body() body: { status: boolean },
+    @Body() activateSubscription: ActivateSubscriptionDTO,
   ): Promise<Subscription> {
     const user = req.user;
-    return this.subscriptionsService.activateSubscription(user, body.status);
+    return this.subscriptionsService.activateSubscription(
+      user,
+      activateSubscription.status,
+    );
   }
 
   @ApiOperation({
