@@ -7,7 +7,7 @@ import { AccountController } from './accounts.controller';
 import { Account, AccountSchema } from './schema/account.schema';
 import { HashModule } from 'src/hash/hash.module';
 import { ProfilesModule } from 'src/profiles/profiles.module';
-import { AccountsRepository } from './accountsRepository';
+import { AccountsRepository } from './accounts.repository';
 
 @Module({
   imports: [
