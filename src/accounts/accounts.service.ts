@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Account } from './schema/account.schema';
-import { AccountsRepository } from './accountsRepository';
+import { AccountsRepository } from './accounts.repository';
 
 @Injectable()
 export class AccountService {
