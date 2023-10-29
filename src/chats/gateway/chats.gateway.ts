@@ -30,7 +30,7 @@ export class ChatGateway implements NestGateway {
   }
 
   handleDisconnect(socket: any) {
-    console.log('Disconnect');
+    console.log('Disconnect', socket.id);
   }
 
   @Bind(MessageBody(), ConnectedSocket())
