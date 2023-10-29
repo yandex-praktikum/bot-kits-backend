@@ -4,7 +4,7 @@ import { AccountsRepository } from './accountsRepository';
 
 @Injectable()
 export class AccountService {
-  constructor(private dbQuery: AccountsRepository) {}
+  constructor(private readonly dbQuery: AccountsRepository) {}
 
   async create(account, profile, session?): Promise<Account> {
     return this.dbQuery.create(account, profile, session);
