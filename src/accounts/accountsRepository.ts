@@ -1,4 +1,8 @@
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, Types, UpdateQuery } from 'mongoose';
 import { ITokens } from 'src/auth/auth.service';
@@ -8,6 +12,7 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { Account, AccountDocument } from './schema/account.schema';
 import TypeAccount from './types/type-account';
 
+@Injectable()
 export class AccountsRepository {
   constructor(
     @InjectModel(Account.name) private accountModel: Model<AccountDocument>,
