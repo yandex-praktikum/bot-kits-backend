@@ -6,6 +6,7 @@ import {
   BlacklistTokensSchema,
 } from './schema/blacklistTokens.schema';
 import { BlacklistTokensController } from './blacklistTokens.controller';
+import { BlacklistTokensRepository } from './blacklistTokens.repository';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { BlacklistTokensController } from './blacklistTokens.controller';
     ]),
   ],
   controllers: [BlacklistTokensController],
-  providers: [BlacklistTokensService],
+  providers: [BlacklistTokensService, BlacklistTokensRepository],
   exports: [BlacklistTokensService],
 })
 export class BlacklistTokensModule {}
