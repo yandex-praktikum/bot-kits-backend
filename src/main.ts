@@ -4,15 +4,15 @@ import { AppModule } from './app.module';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import { ConfigService } from '@nestjs/config';
-import { ValidationDtoPipe } from './auth/pipe/validation-dto.pipe';
 import helmet from 'helmet';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('dev/api');
   const configService = app.get(ConfigService);
   const port = configService.get('APP_PORT');
-  app.useGlobalPipes(new ValidationDtoPipe());
+  app.useGlobalPipes(new ValidationPipe());
   app.use(helmet());
   app.enableCors({
     origin: configService.get('ALLOW_URL'),

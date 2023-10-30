@@ -112,11 +112,11 @@ export class SubscriptionsController {
   createSubscription(
     @Req() req,
     @Body() body: { cardMask: string; debitDate: string },
-    @Param('id') id: string,
+    @Param('id') tariffID: string,
   ): Promise<Subscription> {
     const profile = req.user;
     return this.subscriptionsService.create({
-      tariffId: id,
+      tariffId: tariffID,
       cardMask: body.cardMask,
       debitDate: new Date(body.debitDate),
       profile,
