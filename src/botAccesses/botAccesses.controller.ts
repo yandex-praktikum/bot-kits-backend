@@ -51,7 +51,7 @@ export class BotAccessesController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: CreateBotAccessDto })
-  create(
+  createBotAccesses(
     @Req() { user }: TJwtRequest,
     @Body() createBotAccess: CreateBotAccessDto,
   ): Promise<BotAccess> {
@@ -67,7 +67,7 @@ export class BotAccessesController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @UseGuards(RolesGuard)
   @Roles('admin')
-  findAll() {
+  findAllBotAccesses() {
     return this.botAccessesService.findAll();
   }
 
@@ -88,7 +88,7 @@ export class BotAccessesController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  findOne(@Param('id') id: string) {
+  findBotAccessesToId(@Param('id') id: string) {
     return this.botAccessesService.findOne(id);
   }
 
@@ -111,7 +111,7 @@ export class BotAccessesController {
     description: 'Идентификатор botAccessId',
     example: '64f81ba37571bfaac18a857f',
   })
-  update(
+  updateBotAccesses(
     @Req() { user }: TJwtRequest,
     @Param('id') botAccessId: string,
     @Body() updateBotAccessDto: UpdateBotAccessDto,
@@ -138,7 +138,10 @@ export class BotAccessesController {
     description: 'Идентификатор botAccessId',
     example: '64f81ba37571bfaac18a857f',
   })
-  delete(@Req() { user }: TJwtRequest, @Param('id') botAccessId: string) {
+  deleteBotAccesses(
+    @Req() { user }: TJwtRequest,
+    @Param('id') botAccessId: string,
+  ) {
     return this.botAccessesService.delete(user.id, botAccessId);
   }
 

@@ -47,7 +47,7 @@ export class TariffsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @Get()
-  findAll() {
+  findAllTariffs() {
     return this.tariffsService.findAll();
   }
 
@@ -66,7 +66,7 @@ export class TariffsController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findTariffToId(@Param('id') id: string) {
     return this.tariffsService.findOne(id);
   }
 
@@ -84,7 +84,7 @@ export class TariffsController {
   @UseGuards(RolesGuard)
   @Roles('admin')
   @Post()
-  create(@Body() createTariffDto: CreateTariffDto) {
+  createTariff(@Body() createTariffDto: CreateTariffDto) {
     return this.tariffsService.create(createTariffDto);
   }
 
@@ -131,7 +131,7 @@ export class TariffsController {
   @UseGuards(RolesGuard)
   @Roles('admin')
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<Tariff> {
+  removeTariff(@Param('id') id: string): Promise<Tariff> {
     return this.tariffsService.remove(id);
   }
 }

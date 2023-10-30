@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { MongoClient } from 'mongodb';
 import { botTemplates } from 'src/bots/dto/constants/botTemplates';
 import { platforms } from 'src/platforms/dto/constants/templates';
+import { tariffsTemplates } from 'src/tariffs/dto/constants/tariffsTemplates';
 
 /**
  * Инициализирует базу данных: создает пользователя и шаблонные боты, если они отсутствуют.
@@ -98,6 +99,32 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
       console.log('Platforms created successfully.');
     } else {
       console.log('All platforms already exist.');
+    }
+
+    // Получаем коллекцию 'platforms'
+    const tariffsCollection = currentDb.collection('tariff');
+
+    // Запрашиваем количество платформ в коллекции
+    const tariffsCount = await tariffsCollection.countDocuments();
+
+    if (tariffsCount < tariffsTemplates.length) {
+      console.log('Creating tariffs...');
+
+      // Получаем список существующих платформ
+      const existingTariffs = await tariffsCollection.find().toArray();
+      const existingTariffName = existingTariffs.map((p) => p.name);
+
+      // Фильтруем список платформ, чтобы добавить только те, которых еще нет в базе данных
+      const tariffsToAdd = tariffsTemplates.filter(
+        (tariff) => !existingTariffName.includes(tariff.name),
+      );
+
+      // Создаем платформы
+      await tariffsCollection.insertMany(tariffsToAdd);
+
+      console.log('Tariffs created successfully.');
+    } else {
+      console.log('All tariffs already exist.');
     }
   } catch (error) {
     // Ловим и выводим любые ошибки

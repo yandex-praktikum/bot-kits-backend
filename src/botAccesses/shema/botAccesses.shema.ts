@@ -1,5 +1,5 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, HydratedDocument, Types } from 'mongoose';
 import { Bot } from '../../bots/schema/bots.schema';
 import { Profile } from '../../profiles/schema/profile.schema';
 import { fullPermission, LEVEL_ACCESS, TPermission } from '../types/types';
@@ -36,6 +36,8 @@ export class Permission implements TPermission {
   @IsEnum(LEVEL_ACCESS)
   mini_landing?: LEVEL_ACCESS;
 }
+
+export type BotAccessDocument = HydratedDocument<BotAccess>;
 
 @Schema(baseSchemaOptions)
 export class BotAccess extends Document {

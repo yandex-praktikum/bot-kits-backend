@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Account } from './schema/account.schema';
-import { AccountsRepository } from './accountsRepository';
+import { AccountsRepository } from './accounts.repository';
 
 @Injectable()
 export class AccountService {
-  constructor(private dbQuery: AccountsRepository) {}
+  constructor(private readonly dbQuery: AccountsRepository) {}
 
   async create(account, profile, session?): Promise<Account> {
     return this.dbQuery.create(account, profile, session);

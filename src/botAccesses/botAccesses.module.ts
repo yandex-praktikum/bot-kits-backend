@@ -4,6 +4,7 @@ import { BotAccessesController } from './botAccesses.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BotAccess, BotAccessSchema } from './shema/botAccesses.shema';
 import { ProfilesModule } from '../profiles/profiles.module';
+import { BotAccessesRepository } from './botAccesses.repository';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { ProfilesModule } from '../profiles/profiles.module';
     ProfilesModule,
   ],
   controllers: [BotAccessesController],
-  providers: [BotAccessesService],
+  providers: [BotAccessesService, BotAccessesRepository],
   exports: [BotAccessesService],
 })
 export class BotAccessesModule {}

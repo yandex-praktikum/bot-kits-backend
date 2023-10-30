@@ -4,6 +4,7 @@ import { TariffsController } from './tariffs.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Tariff, TariffSchema } from './schema/tariff.schema';
 import { ProfilesModule } from 'src/profiles/profiles.module';
+import { TariffsRepository } from './tariffs.repository';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { ProfilesModule } from 'src/profiles/profiles.module';
     MongooseModule.forFeature([{ name: Tariff.name, schema: TariffSchema }]),
   ],
   controllers: [TariffsController],
-  providers: [TariffsService],
+  providers: [TariffsService, TariffsRepository],
   exports: [TariffsService],
 })
 export class TariffsModule {}
