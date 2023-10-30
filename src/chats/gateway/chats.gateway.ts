@@ -35,7 +35,7 @@ export class ChatGateway implements NestGateway {
 
   @Bind(MessageBody(), ConnectedSocket())
   @SubscribeMessage('chat')
-  createChat(chat: Chat, sender: any, client: Socket) {
+  async createChat(chat: Chat, sender: any, client: Socket) {
     console.log('New Chat', chat);
     this.chatServise.create(chat);
     sender.emit('newChat', chat);
