@@ -114,7 +114,7 @@ export class ProfilesController {
     summary: 'Получить все аккаунты пользователя по id профиля',
   })
   async findAccountByProfileId(@Param('id') id: string): Promise<Account[]> {
-    return await this.profilesService.findAccountsById(id);
+    return await this.profilesService.findAccountsByProfileId(id);
   }
 
   @Patch(':id')
