@@ -4,6 +4,7 @@ import { PromocodesController } from './promocodes.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Promocode, PromocodeSchema } from './schema/promocode.schema';
 import { ProfilesModule } from 'src/profiles/profiles.module';
+import { PromocodesRepository } from './promocodes.repository';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { ProfilesModule } from 'src/profiles/profiles.module';
     ]),
   ],
   controllers: [PromocodesController],
-  providers: [PromocodesService],
+  providers: [PromocodesService, PromocodesRepository],
   exports: [PromocodesService],
 })
 export class PromocodesModule {}
