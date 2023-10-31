@@ -477,7 +477,7 @@ paths:
       security: *ref_5
   /dev/api/accounts:
     get:
-      operationId: AccountController_findAll
+      operationId: AccountsController_findAll
       parameters: []
       responses:
         '200':
@@ -494,7 +494,7 @@ paths:
         - bearer: []
   /dev/api/accounts/{id}:
     patch:
-      operationId: AccountController_update
+      operationId: AccountsController_update
       summary: Обновить данные аккаунта по id
       parameters:
         - name: id
@@ -2271,7 +2271,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-10-30T16:52:41.334Z
+          example: 2023-10-31T10:20:52.606Z
       required:
         - status
         - cardMask
@@ -2282,7 +2282,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-10-30T16:52:41.335Z
+          example: 2023-10-31T10:20:52.635Z
         amount:
           type: number
           example: 1000
