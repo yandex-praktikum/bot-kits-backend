@@ -4,6 +4,7 @@ import { Bot, BotSchema } from './schema/bots.schema';
 import { BotsController } from './bots.controller';
 import { BotsService } from './bots.service';
 import { BotAccessesModule } from '../botAccesses/botAccesses.module';
+import { BotsRepository } from './bots.repository';
 
 @Module({
   imports: [
@@ -11,6 +12,6 @@ import { BotAccessesModule } from '../botAccesses/botAccesses.module';
     BotAccessesModule,
   ],
   controllers: [BotsController],
-  providers: [BotsService],
+  providers: [BotsService, BotsRepository],
 })
 export class BotsModule {}
