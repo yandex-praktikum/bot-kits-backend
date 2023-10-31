@@ -23,6 +23,14 @@ export class SubscriptionsService {
     @InjectModel(Tariff.name) private tariffModel: Model<Tariff>,
   ) {}
 
+  async findOne(id: number): Promise<Subscription> {
+    return this.subscriptionModel.findById(id).exec();
+  }
+
+  async findAll(): Promise<Subscription[]> {
+    return await this.subscriptionModel.find().exec();
+  }
+
   async subscriptionAndPayments(profile: Profile): Promise<object> {
     const subscription = await this.subscriptionModel.findOne({ profile });
     const payment = await this.paymentModel.find({ profile });
@@ -46,10 +54,18 @@ export class SubscriptionsService {
     return dataObject;
   }
 
-  async activateSubscription(profile: Profile, status: boolean) {
+  async findSubscriptionByProfile(profile: Profile) {
     const subscription = await this.subscriptionModel
       .findOne({ profile: profile })
       .exec();
+    if (!subscription) {
+      throw new NotFoundException('Не найдена подписка пользователя');
+    }
+    return subscription;
+  }
+
+  async activateSubscription(profile: Profile, status: boolean) {
+    const subscription = await this.findSubscriptionByProfile(profile);
     if (!subscription) {
       throw new NotFoundException('Не найдена подписка пользователя');
     }
@@ -60,9 +76,9 @@ export class SubscriptionsService {
   async create(
     createSubscriptionDto: CreateSubscriptionDto,
   ): Promise<Subscription> {
-    const subscription = await this.subscriptionModel
-      .findOne({ profile: createSubscriptionDto.profile })
-      .exec();
+    const subscription = await this.findSubscriptionByProfile(
+      createSubscriptionDto.profile,
+    );
     const tariff = await this.tariffModel
       .findById(createSubscriptionDto.tariffId)
       .exec();
@@ -81,13 +97,5 @@ export class SubscriptionsService {
 
   async delete(id: number) {
     return await this.subscriptionModel.findByIdAndRemove(id).exec();
-  }
-
-  async findOne(id: number): Promise<Subscription> {
-    return this.subscriptionModel.findById(id).exec();
-  }
-
-  async findAll(): Promise<Subscription[]> {
-    return await this.subscriptionModel.find().exec();
   }
 }
