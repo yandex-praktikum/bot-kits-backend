@@ -17,7 +17,7 @@ import { PlatformModule } from './platforms/platforms.module';
 
 import { PromocodesModule } from './promocodes/promocodes.module';
 
-import { AccountModule } from './accounts/accounts.module';
+import { AccountsModule } from './accounts/accounts.module';
 import { databaseConfig } from './configs/database.config';
 
 import { BotsModule } from './bots/bots.module';
@@ -40,7 +40,7 @@ import { ChatsModule } from './chats/chats.module';
     MongooseModule.forRootAsync(databaseConfig()),
     ProfilesModule,
     TariffsModule,
-    AccountModule,
+    AccountsModule,
     AuthModule,
     BotAccessesModule,
     PlatformModule,

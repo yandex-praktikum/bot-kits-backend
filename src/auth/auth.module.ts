@@ -8,7 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Profile, ProfileSchema } from 'src/profiles/schema/profile.schema';
 import { Account, AccountSchema } from 'src/accounts/schema/account.schema';
 import { ProfilesModule } from 'src/profiles/profiles.module';
-import { AccountModule } from 'src/accounts/accounts.module';
+import { AccountsModule } from 'src/accounts/accounts.module';
 import { HashModule } from 'src/hash/hash.module';
 import { jwtOptions } from 'src/configs/jwt.config';
 import { STRTAGIES } from './strategies';
@@ -21,7 +21,7 @@ import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.modul
   imports: [
     HttpModule,
     ProfilesModule,
-    AccountModule,
+    AccountsModule,
     HashModule,
     PassportModule,
     ConfigModule,

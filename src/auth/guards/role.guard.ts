@@ -6,7 +6,7 @@ import { ProfilesService } from 'src/profiles/profiles.service';
 export class RolesGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private readonly profileService: ProfilesService,
+    private readonly profilesService: ProfilesService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -15,7 +15,7 @@ export class RolesGuard implements CanActivate {
 
     if (request?.user) {
       const { id } = request.user;
-      const user = await this.profileService.findById(id);
+      const user = await this.profilesService.findById(id);
       const userRole = user.accounts[0].role;
       return roles.includes(userRole);
     }
