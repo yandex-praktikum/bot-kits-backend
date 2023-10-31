@@ -54,8 +54,7 @@ export class SubscriptionsService {
       throw new NotFoundException('Не найдена подписка пользователя');
     }
     subscription.status = status;
-    await subscription.save();
-    return subscription;
+    return await subscription.save();
   }
 
   async create(
