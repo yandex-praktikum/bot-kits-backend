@@ -1,12 +1,7 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsObject, IsString } from 'class-validator';
-import { Profile } from 'src/profiles/schema/profile.schema';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateSubscriptionDto {
-  @IsNotEmpty()
-  @IsString()
-  tariffId: string;
-
   @IsNotEmpty()
   @IsString()
   cardMask: string;
@@ -14,8 +9,4 @@ export class CreateSubscriptionDto {
   @IsNotEmpty()
   @Type(() => Date)
   debitDate: Date;
-
-  @IsNotEmpty()
-  @IsObject()
-  profile: Profile;
 }

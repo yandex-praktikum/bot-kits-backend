@@ -1,7 +1,7 @@
 import {
   Injectable,
   NotFoundException,
-  UnprocessableEntityException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
@@ -59,24 +59,26 @@ export class SubscriptionsService {
   }
 
   async create(
+    tariffId: string,
+    userId: string,
     createSubscriptionDto: CreateSubscriptionDto,
   ): Promise<Subscription> {
     const subscription = await this.subscriptionModel
-      .findOne({ profile: createSubscriptionDto.profile })
+      .findOne({ profile: userId })
       .exec();
-    const tariff = await this.tariffModel
-      .findById(createSubscriptionDto.tariffId)
-      .exec();
+
+    const tariff = await this.tariffModel.findById(tariffId).exec();
     if (!tariff) {
-      throw new UnprocessableEntityException('Неверный идентификатор тарифа');
+      throw new NotFoundException('Неверный идентификатор тарифа');
     }
     if (subscription) {
-      await this.subscriptionModel.findByIdAndRemove(subscription.id).exec();
+      throw new BadRequestException('Подписка уже существует');
     }
     return await this.subscriptionModel.create({
       ...createSubscriptionDto,
-      tariff,
+      tariff: tariffId,
       status: true,
+      profile: userId,
     });
   }
 
