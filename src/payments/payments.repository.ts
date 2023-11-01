@@ -1,17 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UsePipes, ValidationPipe } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Payment, PaymentDocument } from './schema/payment.schema';
 import { Model } from 'mongoose';
 import { Profile } from '../profiles/schema/profile.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 
+//payments.repository.ts
+export abstract class RepositoryPort {
+  abstract create(data: CreatePaymentDto): Promise<Payment>;
+  abstract delete(data: string): Promise<Payment>;
+  abstract findOne(data: string): Promise<Payment>;
+  abstract findAll(): Promise<Payment[]>;
+  abstract findUsersAll(data: Profile): Promise<Payment[]>;
+  abstract update(id: string, data: CreatePaymentDto): Promise<Payment>;
+}
+
 @Injectable()
-export class PaymentsRepository {
+export class PaymentsRepository extends RepositoryPort {
   constructor(
     @InjectModel(Payment.name)
     private paymentModel: Model<PaymentDocument>,
-  ) {}
-
+  ) {
+    super();
+  }
   async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
     return await this.paymentModel.create(createPaymentDto);
   }

@@ -6,14 +6,19 @@ import {
 import { Payment } from './schema/payment.schema';
 import { Profile } from '../profiles/schema/profile.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
-import { PaymentsRepository } from './payments.repository';
+import { RepositoryPort } from './payments.repository';
 
+//payments.service.ts
 @Injectable()
 export class PaymentsService {
-  constructor(private readonly paymentsRepository: PaymentsRepository) {}
+  constructor(private readonly paymentsRepository: RepositoryPort) {}
 
   async create(createPaymentDto: CreatePaymentDto) {
-    return this.paymentsRepository.create(createPaymentDto);
+    try {
+      return await this.paymentsRepository.create(createPaymentDto);
+    } catch (error: unknown) {
+      throw error;
+    }
   }
 
   async delete(id: string) {

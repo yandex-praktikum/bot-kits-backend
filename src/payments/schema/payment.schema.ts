@@ -10,7 +10,7 @@ export type PaymentDocument = HydratedDocument<Payment>;
 @Schema(baseSchemaOptions)
 export class Payment {
   @ApiProperty({ example: new Date() })
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   date: Date;
 
   @ApiProperty({ example: 1000 })
@@ -32,7 +32,6 @@ export class Payment {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Profile',
-    required: true,
   })
   profile: Profile;
 }
