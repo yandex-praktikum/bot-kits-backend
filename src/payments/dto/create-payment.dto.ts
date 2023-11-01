@@ -1,9 +1,11 @@
 import {
   IsBoolean,
+  IsDate,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsObject,
+  IsOptional,
   IsString,
 } from 'class-validator';
 import TypeOperation from '../types/type-operation';
@@ -14,6 +16,7 @@ import { Type } from 'class-transformer';
 export class CreatePaymentDto {
   @ApiProperty({ example: '2023-01-03' })
   @Type(() => Date)
+  @IsDate()
   @IsNotEmpty()
   date: Date;
 
@@ -34,7 +37,8 @@ export class CreatePaymentDto {
 
   @IsNotEmpty()
   @IsObject()
-  profile: Profile;
+  @IsOptional()
+  profile?: Profile;
 
   @ApiProperty({ example: 'Пополнение счета' })
   @IsString()

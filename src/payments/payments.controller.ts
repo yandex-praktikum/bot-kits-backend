@@ -65,9 +65,17 @@ export class PaymentsController {
   @Post()
   create(
     @AuthUser() profile: Profile,
-    @Body() createPaymentDto: Omit<CreatePaymentDto, 'profile'>,
+    @Body() createPaymentDto: CreatePaymentDto,
   ): Promise<Payment> {
-    return this.paymentsService.create({ ...createPaymentDto, profile });
+    try {
+      const data = this.paymentsService.create({
+        ...createPaymentDto,
+        profile,
+      });
+      return data;
+    } catch (error) {
+      throw error;
+    }
   }
 
   @ApiOperation({
