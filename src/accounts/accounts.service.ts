@@ -3,7 +3,7 @@ import { Account } from './schema/account.schema';
 import { AccountsRepository } from './accounts.repository';
 
 @Injectable()
-export class AccountService {
+export class AccountsService {
   constructor(private readonly dbQuery: AccountsRepository) {}
 
   async create(account, profile, session?): Promise<Account> {

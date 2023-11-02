@@ -10,52 +10,34 @@ import {
 } from './schema/subscription.schema';
 import { Model } from 'mongoose';
 import { Profile } from '../profiles/schema/profile.schema';
+import { Injectable } from '@nestjs/common';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
-import { Payment } from '../payments/schema/payment.schema';
-import { Tariff } from 'src/tariffs/schema/tariff.schema';
+import { Subscription } from './schema/subscription.schema';
+import { SubscriptionsRepository } from './subscriptions.repository';
+import { Profile } from 'src/profiles/schema/profile.schema';
 
 @Injectable()
 export class SubscriptionsService {
-  constructor(
-    @InjectModel(Subscription.name)
-    private subscriptionModel: Model<SubscriptionDocument>,
-    @InjectModel(Payment.name) private paymentModel: Model<Payment>,
-    @InjectModel(Tariff.name) private tariffModel: Model<Tariff>,
-  ) {}
+  constructor(private readonly dbQuery: SubscriptionsRepository) {}
 
-  async subscriptionAndPayments(profile: Profile): Promise<object> {
-    const subscription = await this.subscriptionModel.findOne({ profile });
-    const payment = await this.paymentModel.find({ profile });
-    const dataObject = {
-      tariff: '',
-      status: false,
-      cardMask: '',
-      debitDate: new Date(),
-      balance: profile.balance,
-      payments: payment,
-    };
-    if (subscription) {
-      const tariff = await this.tariffModel
-        .findById(subscription.tariff)
-        .exec();
-      dataObject.tariff = tariff.name;
-      dataObject.status = subscription.status;
-      dataObject.cardMask = subscription.cardMask;
-      dataObject.debitDate = subscription.debitDate;
-    }
-    return dataObject;
+  async findOne(id: number): Promise<Subscription> {
+    return await this.dbQuery.findOne(id);
+  }
+
+  async findAll(): Promise<Subscription[]> {
+    return await this.dbQuery.findAll();
+  }
+
+  async findSubscriptionByProfile(profile: Profile) {
+    return await this.dbQuery.findSubscriptionByProfile(profile);
+  }
+
+  async subscriptionAndPayments(profile: Profile) {
+    return await this.dbQuery.subscriptionAndPayments(profile);
   }
 
   async activateSubscription(profile: Profile, status: boolean) {
-    const subscription = await this.subscriptionModel
-      .findOne({ profile: profile })
-      .exec();
-    if (!subscription) {
-      throw new NotFoundException('Не найдена подписка пользователя');
-    }
-    subscription.status = status;
-    await subscription.save();
-    return subscription;
+    return await this.dbQuery.activateSubscription(profile, status);
   }
 
   async create(
@@ -63,6 +45,7 @@ export class SubscriptionsService {
     userId: string,
     createSubscriptionDto: CreateSubscriptionDto,
   ): Promise<Subscription> {
+
     const subscription = await this.subscriptionModel
       .findOne({ profile: userId })
       .exec();
@@ -80,17 +63,10 @@ export class SubscriptionsService {
       status: true,
       profile: userId,
     });
+    return await this.dbQuery.create(createSubscriptionDto);
   }
 
   async delete(id: number) {
-    return await this.subscriptionModel.findByIdAndRemove(id).exec();
-  }
-
-  async findOne(id: number): Promise<Subscription> {
-    return this.subscriptionModel.findById(id).exec();
-  }
-
-  async findAll(): Promise<Subscription[]> {
-    return await this.subscriptionModel.find().exec();
+    return await this.dbQuery.delete(id);
   }
 }

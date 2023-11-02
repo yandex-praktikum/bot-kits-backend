@@ -26,6 +26,8 @@ import { Subscription } from './schema/subscription.schema';
 import { Payment } from 'src/payments/schema/payment.schema';
 import { TJwtRequest } from '../types/jwtRequest';
 import { CreateSubscriptionDto } from '../subscriptions/dto/create-subscription.dto';
+import { ActivateSubscriptionDTO } from './dto/activate-subscription.dto';
+
 @ApiTags('subscriptions')
 @ApiBearerAuth()
 @UseGuards(JwtGuard)
@@ -61,12 +63,7 @@ export class SubscriptionsController {
     summary: 'Активировать(отменить) подписку',
   })
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        status: { type: 'boolean', example: true },
-      },
-    },
+    type: ActivateSubscriptionDTO,
   })
   @ApiCreatedResponse({
     description: 'Подписка активирована',
@@ -78,11 +75,11 @@ export class SubscriptionsController {
   @Post('activate')
   activateSubscription(
     @Req() req: TJwtRequest,
-    @Body() body: { status: boolean },
+    @Body() activateSubscription: ActivateSubscriptionDTO,
   ): Promise<Subscription> {
     return this.subscriptionsService.activateSubscription(
       req.user,
-      body.status,
+      activateSubscription.status,
     );
   }
 

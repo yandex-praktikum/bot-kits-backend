@@ -37,3 +37,4 @@ _*.js
 #custom ignore
 .env*
 !.env.example
+docker-compose-dev-local.yml

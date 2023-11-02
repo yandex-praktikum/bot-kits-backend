@@ -4,15 +4,27 @@ import { AppModule } from './app.module';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import { ConfigService } from '@nestjs/config';
-import { ValidationDtoPipe } from './auth/pipe/validation-dto.pipe';
 import helmet from 'helmet';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
+
+//--событие, которое перехватывает необработанные исключения. Затем мы регистрируем ошибку на консоли--//
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('dev/api');
   const configService = app.get(ConfigService);
   const port = configService.get('APP_PORT');
-  app.useGlobalPipes(new ValidationDtoPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      exceptionFactory: (errors) => new BadRequestException(errors),
+    }),
+  );
   app.use(helmet());
   app.enableCors({
     origin: configService.get('ALLOW_URL'),

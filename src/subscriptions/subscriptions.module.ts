@@ -6,6 +6,7 @@ import { Subscription, SubscriptionSchema } from './schema/subscription.schema';
 import { Profile, ProfileSchema } from '../profiles/schema/profile.schema';
 import { Payment, PaymentSchema } from '../payments/schema/payment.schema';
 import { Tariff, TariffSchema } from 'src/tariffs/schema/tariff.schema';
+import { SubscriptionsRepository } from './subscriptions.repository';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { Tariff, TariffSchema } from 'src/tariffs/schema/tariff.schema';
     ]),
   ],
   controllers: [SubscriptionsController],
-  providers: [SubscriptionsService],
+  providers: [SubscriptionsRepository, SubscriptionsService],
   exports: [SubscriptionsService],
 })
 export class SubscriptionsModule {}

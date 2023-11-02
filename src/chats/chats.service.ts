@@ -14,6 +14,26 @@ export class ChatsService {
     return await chat.save();
   }
 
+  async findChatsForUser(userId: string): Promise<Chat[]> {
+    return this.chatModel
+      .find({
+        $or: [{ sender: userId }, { recipient: userId }],
+      })
+      .exec();
+  }
+
+  async findChatHistory(user1Id: string, user2Id: string): Promise<Chat[]> {
+    return this.chatModel
+      .find({
+        $or: [
+          { sender: user1Id, recipient: user2Id },
+          { sender: user2Id, recipient: user1Id },
+        ],
+      })
+      .sort({ createdAt: 1 })
+      .exec();
+  }
+
   async findAll(): Promise<Chat[]> {
     return await this.chatModel.find();
   }

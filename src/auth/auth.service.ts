@@ -10,7 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { HashService } from '../hash/hash.service';
 import { Profile, ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { ProfilesService } from 'src/profiles/profiles.service';
-import { AccountService } from 'src/accounts/accounts.service';
+import { AccountsService } from 'src/accounts/accounts.service';
 import TypeAccount from 'src/accounts/types/type-account';
 import { AuthDto } from './dto/auth.dto';
 import { ConfigService } from '@nestjs/config';
@@ -30,7 +30,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private profilesService: ProfilesService,
-    private accountService: AccountService,
+    private accountsService: AccountsService,
     private hashService: HashService,
     private readonly configService: ConfigService,
     @InjectConnection() private readonly connection: mongoose.Connection,
@@ -61,11 +61,11 @@ export class AuthService {
 
   async auth(profile: ProfileDocument): Promise<Account> {
     const tokens = await this.getTokens(profile._id);
-    const authProfile = await this.accountService.saveRefreshToken(
+    const authProfile = await this.accountsService.saveRefreshToken(
       profile._id,
       tokens,
     );
-    return await this.accountService.findByIdAndProvider(
+    return await this.accountsService.findByIdAndProvider(
       authProfile._id,
       TypeAccount.LOCAL,
     );
@@ -75,7 +75,7 @@ export class AuthService {
     accountEmail: string,
     password: string,
   ): Promise<Profile> {
-    const account = await this.accountService.findByEmailAndType(
+    const account = await this.accountsService.findByEmailAndType(
       accountEmail,
       TypeAccount.LOCAL,
     );
@@ -96,7 +96,7 @@ export class AuthService {
 
   async refreshToken(oldRefreshToken: string): Promise<ITokens> {
     //--Проверяем, есть ли oldRefreshToken в базе данных и удаляем его--//
-    const account = await this.accountService.findAndDeleteRefreshToken(
+    const account = await this.accountsService.findAndDeleteRefreshToken(
       oldRefreshToken,
     );
 
@@ -108,7 +108,7 @@ export class AuthService {
     const tokens = await this.getTokens(account.profile);
 
     //--Обновляем refreshToken в базе данных--//
-    await this.accountService.saveRefreshToken(account.profile._id, tokens);
+    await this.accountsService.saveRefreshToken(account.profile._id, tokens);
 
     return tokens;
   }
@@ -127,13 +127,13 @@ export class AuthService {
 
     try {
       const existsAccountByTypeAndEmail =
-        await this.accountService.findByEmailAndType(email, provider, session);
+        await this.accountsService.findByEmailAndType(email, provider, session);
 
       if (existsAccountByTypeAndEmail) {
         throw new ConflictException('Аккаунт уже существует');
       }
 
-      const existsAccount = await this.accountService.findByEmail(
+      const existsAccount = await this.accountsService.findByEmail(
         email,
         session,
       );
@@ -146,7 +146,7 @@ export class AuthService {
       }
 
       //--Создаем новый аккаунт--//
-      const newAccount = await this.accountService.create(
+      const newAccount = await this.accountsService.create(
         accountData,
         profile._id,
         session,
@@ -157,14 +157,14 @@ export class AuthService {
       accountData.credentials.accessToken = tokens.accessToken;
       accountData.credentials.refreshToken = tokens.refreshToken;
 
-      await this.accountService.update(newAccount._id, accountData, session);
+      await this.accountsService.update(newAccount._id, accountData, session);
 
       profile.accounts.push(newAccount);
       await profile.save({ session });
 
       await session.commitTransaction();
 
-      return await this.accountService.findByIdAndProvider(
+      return await this.accountsService.findByIdAndProvider(
         profile._id,
         provider,
       );
@@ -187,7 +187,7 @@ export class AuthService {
   }
 
   async authSocial(dataLogin: AuthDto, typeAccount: TypeAccount) {
-    const user = await this.accountService.findByEmailAndType(
+    const user = await this.accountsService.findByEmailAndType(
       dataLogin.accountData.credentials.email,
       typeAccount,
     );
@@ -197,7 +197,7 @@ export class AuthService {
         user.profile._id,
       );
 
-      await this.accountService.update(user._id, {
+      await this.accountsService.update(user._id, {
         credentials: {
           email: user.credentials.email,
           refreshToken,
@@ -205,7 +205,7 @@ export class AuthService {
         },
       });
 
-      return this.accountService.findByIdAndProvider(
+      return this.accountsService.findByIdAndProvider(
         user.profile._id,
         typeAccount,
       );

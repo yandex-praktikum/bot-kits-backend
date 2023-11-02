@@ -7,6 +7,7 @@ import {
 import { NotificationController } from './notifications.controller';
 import { NotificationService } from './notifications.service';
 import { ProfilesModule } from 'src/profiles/profiles.module';
+import { NotificationRepository } from './notifications.repository';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { ProfilesModule } from 'src/profiles/profiles.module';
 
   controllers: [NotificationController],
 
-  providers: [NotificationService],
+  providers: [NotificationService, NotificationRepository],
 
   exports: [NotificationService],
 })

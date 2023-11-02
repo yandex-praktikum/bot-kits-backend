@@ -5,7 +5,7 @@ import { PaymentsController } from './payments.controller';
 import { Payment, PaymentSchema } from './schema/payment.schema';
 import { Profile, ProfileSchema } from 'src/profiles/schema/profile.schema';
 import { ProfilesModule } from 'src/profiles/profiles.module';
-import { PaymentsRepository } from './payments.repository';
+import { PaymentsRepository, RepositoryPort } from './payments.repository';
 
 @Module({
   imports: [
@@ -16,7 +16,14 @@ import { PaymentsRepository } from './payments.repository';
     ]),
   ],
   controllers: [PaymentsController],
-  providers: [PaymentsService, PaymentsRepository],
+  providers: [
+    PaymentsService,
+    PaymentsRepository,
+    {
+      provide: RepositoryPort,
+      useClass: PaymentsRepository,
+    },
+  ],
   exports: [PaymentsService],
 })
 export class PaymentsModule {}
