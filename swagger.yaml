@@ -1271,11 +1271,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                status:
-                  type: boolean
-                  example: true
+              $ref: '#/components/schemas/ActivateSubscriptionDTO'
       responses:
         '201':
           description: Подписка активирована
@@ -2258,6 +2254,14 @@ components:
           example: test@test.ru
       required:
         - email
+    ActivateSubscriptionDTO:
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: true
+      required:
+        - status
     Subscription:
       type: object
       properties:
@@ -2271,7 +2275,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-10-31T14:46:52.401Z
+          example: 2023-11-01T21:05:08.331Z
       required:
         - status
         - cardMask
@@ -2282,7 +2286,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-10-31T14:46:52.402Z
+          example: 2023-11-01T21:05:08.336Z
         amount:
           type: number
           example: 1000
