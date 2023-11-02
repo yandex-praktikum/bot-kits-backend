@@ -1,20 +1,8 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import {
-  Subscription,
-  SubscriptionDocument,
-} from './schema/subscription.schema';
-import { Model } from 'mongoose';
-import { Profile } from '../profiles/schema/profile.schema';
 import { Injectable } from '@nestjs/common';
-import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { Subscription } from './schema/subscription.schema';
+import { Profile } from '../profiles/schema/profile.schema';
+import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { SubscriptionsRepository } from './subscriptions.repository';
-import { Profile } from 'src/profiles/schema/profile.schema';
 
 @Injectable()
 export class SubscriptionsService {
@@ -45,25 +33,7 @@ export class SubscriptionsService {
     userId: string,
     createSubscriptionDto: CreateSubscriptionDto,
   ): Promise<Subscription> {
-
-    const subscription = await this.subscriptionModel
-      .findOne({ profile: userId })
-      .exec();
-
-    const tariff = await this.tariffModel.findById(tariffId).exec();
-    if (!tariff) {
-      throw new NotFoundException('Неверный идентификатор тарифа');
-    }
-    if (subscription) {
-      throw new BadRequestException('Подписка уже существует');
-    }
-    return await this.subscriptionModel.create({
-      ...createSubscriptionDto,
-      tariff: tariffId,
-      status: true,
-      profile: userId,
-    });
-    return await this.dbQuery.create(createSubscriptionDto);
+    return await this.dbQuery.create(createSubscriptionDto, tariffId, userId);
   }
 
   async delete(id: number) {
