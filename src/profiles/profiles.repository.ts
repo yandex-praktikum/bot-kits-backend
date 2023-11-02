@@ -72,6 +72,10 @@ export class ProfilesRepository {
     return await this.profileModel.find().exec();
   }
 
+  async findByPartnerRef(ref: string): Promise<Profile | null> {
+    return await this.profileModel.findOne({ partner_ref: ref });
+  }
+
   async update(
     id: string,
     updateProfileDto: UpdateProfileDto,
