@@ -102,7 +102,7 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
     }
 
     // Получаем коллекцию 'platforms'
-    const tariffsCollection = currentDb.collection('tariff');
+    const tariffsCollection = currentDb.collection('tariffs');
 
     // Запрашиваем количество платформ в коллекции
     const tariffsCount = await tariffsCollection.countDocuments();

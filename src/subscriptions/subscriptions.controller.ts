@@ -24,6 +24,8 @@ import {
 } from '@nestjs/swagger';
 import { Subscription } from './schema/subscription.schema';
 import { Payment } from 'src/payments/schema/payment.schema';
+import { TJwtRequest } from '../types/jwtRequest';
+import { CreateSubscriptionDto } from '../subscriptions/dto/create-subscription.dto';
 import { ActivateSubscriptionDTO } from './dto/activate-subscription.dto';
 
 @ApiTags('subscriptions')
@@ -53,9 +55,8 @@ export class SubscriptionsController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Get()
-  subscriptionAndPayments(@Req() req): Promise<object> {
-    const user = req.user;
-    return this.subscriptionsService.subscriptionAndPayments(user);
+  subscriptionAndPayments(@Req() req: TJwtRequest): Promise<object> {
+    return this.subscriptionsService.subscriptionAndPayments(req.user);
   }
 
   @ApiOperation({
@@ -73,12 +74,11 @@ export class SubscriptionsController {
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @Post('activate')
   activateSubscription(
-    @Req() req,
+    @Req() req: TJwtRequest,
     @Body() activateSubscription: ActivateSubscriptionDTO,
   ): Promise<Subscription> {
-    const user = req.user;
     return this.subscriptionsService.activateSubscription(
-      user,
+      req.user,
       activateSubscription.status,
     );
   }
@@ -87,7 +87,7 @@ export class SubscriptionsController {
     summary: 'Оформить подписку',
   })
   @ApiParam({
-    name: 'id',
+    name: 'tariffId',
     description: 'Идентификатор тарифа',
     example: '64f81ba37571bfaac18a857f',
   })
@@ -107,18 +107,16 @@ export class SubscriptionsController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  @Post(':id')
+  @Post(':tariffId')
   createSubscription(
-    @Req() req,
-    @Body() body: { cardMask: string; debitDate: string },
-    @Param('id') tariffID: string,
+    @Req() { user }: TJwtRequest,
+    @Body() createSubscriptionDto: CreateSubscriptionDto,
+    @Param('tariffId') tariffId: string,
   ): Promise<Subscription> {
-    const profile = req.user;
-    return this.subscriptionsService.create({
-      tariffId: tariffID,
-      cardMask: body.cardMask,
-      debitDate: new Date(body.debitDate),
-      profile,
-    });
+    return this.subscriptionsService.create(
+      tariffId,
+      user.id,
+      createSubscriptionDto,
+    );
   }
 }
