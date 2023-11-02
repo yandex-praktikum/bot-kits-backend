@@ -16,6 +16,7 @@ import { GUARDS } from './guards';
 import { HttpModule } from '@nestjs/axios';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.module';
+import { PartnershipModule } from 'src/partnership/partnership.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.modul
     AccountsModule,
     HashModule,
     PassportModule,
+    PartnershipModule,
     ConfigModule,
     JwtModule.registerAsync(jwtOptions()),
     MongooseModule.forFeature([
