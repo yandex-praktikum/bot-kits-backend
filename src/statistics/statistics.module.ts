@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { StatisticsController } from './statistics.controller';
 import { StatisticsService } from './statistics.service';
 import { Statistics, StatisticsSchema } from './schema/statistics.schema';
+import { StatisticsRepository } from './statistics.repository';
 
 @Module({
   imports: [
@@ -11,6 +12,6 @@ import { Statistics, StatisticsSchema } from './schema/statistics.schema';
     ]),
   ],
   controllers: [StatisticsController],
-  providers: [StatisticsService],
+  providers: [StatisticsService, StatisticsRepository],
 })
 export class StatisticsModule {}
