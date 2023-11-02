@@ -28,12 +28,16 @@ async function bootstrap() {
     new SanitizePipe(),
   );
   app.use(helmet());
-  app.enableCors({
-    origin: configService.get('ALLOW_URL'),
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
-    credentials: true,
-  });
+  if (configService.get('NODE_ENV') === 'dev') {
+    app.enableCors();
+  } else {
+    app.enableCors({
+      origin: configService.get('ALLOW_URL'),
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+      credentials: true,
+    });
+  }
   // Создаем экземпляр билдера Swagger-документации
   const config = new DocumentBuilder()
     .setTitle('API BotKits')
