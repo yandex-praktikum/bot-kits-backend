@@ -55,6 +55,10 @@ export class ProfilesService {
     return await this.profilesRepository.findAll();
   }
 
+  async findPartnerRef(ref: string): Promise<Profile | null> {
+    return await this.profilesRepository.findByPartnerRef(ref);
+  }
+
   async update(
     id: string,
     updateProfileDto: UpdateProfileDto,

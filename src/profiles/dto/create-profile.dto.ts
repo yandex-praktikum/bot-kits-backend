@@ -39,4 +39,16 @@ export class CreateProfileDto {
   @IsArray()
   @ArrayNotEmpty({ message: 'Аккаунтов не может быть 0' })
   accounts: Account[];
+
+  @ApiProperty({ example: '0000000' })
+  @IsString()
+  partner_ref?: string;
+
+  @ApiProperty({ example: 0 })
+  @IsNumber()
+  visited_ref?: number;
+
+  @ApiProperty({ example: 0 })
+  @IsNumber()
+  registration_ref?: number;
 }

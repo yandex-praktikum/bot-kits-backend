@@ -19,6 +19,7 @@ import { Account } from 'src/accounts/schema/account.schema';
 import { InjectConnection } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { randomBytes } from 'crypto';
+import { PartnershipService } from 'src/partnership/partnership.service';
 
 export interface ITokens {
   accessToken: string;
@@ -30,6 +31,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private profilesService: ProfilesService,
+    private partnerShipService: PartnershipService,
     private accountsService: AccountsService,
     private hashService: HashService,
     private readonly configService: ConfigService,
@@ -116,6 +118,7 @@ export class AuthService {
   async registration(
     authDto: AuthDto,
     provider: TypeAccount = TypeAccount.LOCAL,
+    ref: string | null,
   ): Promise<Account> {
     const { profileData, accountData } = authDto;
     const email = accountData.credentials.email;
@@ -141,6 +144,8 @@ export class AuthService {
       if (!existsAccount) {
         //--Создаем новый профиль--//
         profile = await this.profilesService.create(profileData, session);
+        await this.partnerShipService.getPartnerRef(profile._id);
+        await this.partnerShipService.updateRegistration(ref);
       } else {
         profile = await this.profilesService.findByEmail(email, session);
       }
@@ -211,7 +216,7 @@ export class AuthService {
       );
     }
 
-    return await this.registration(dataLogin, typeAccount);
+    return await this.registration(dataLogin, typeAccount, null);
   }
 
   async authYandex(codeAuth: string) {
