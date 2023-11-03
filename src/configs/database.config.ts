@@ -7,7 +7,6 @@ import { MongoClient } from 'mongodb';
 import { botTemplates } from 'src/bots/dto/constants/botTemplates';
 import { platforms } from 'src/platforms/dto/constants/templates';
 import { tariffsTemplates } from 'src/tariffs/dto/constants/tariffsTemplates';
-import { statisticsTemplate } from 'src/statistics/dto/constants/templates';
 
 /**
  * Инициализирует базу данных: создает пользователя и шаблонные боты, если они отсутствуют.
@@ -73,26 +72,6 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
       console.log('Template bots created successfully.');
     } else {
       console.log('All template bots already exist.');
-    }
-
-    // Получаем коллекцию 'statistics'
-    const statsCollection = currentDb.collection('statistics');
-
-    // Запрашиваем наличие статистики
-    const templateStatisticsCount = await statsCollection.countDocuments({
-      type: 'template',
-    });
-
-    // Если в коллекции нет статистики, то добавляеем ее
-    if (!templateStatisticsCount) {
-      console.log('Creating template statistics...');
-
-      // Создаем статистику
-      await statsCollection.insertOne(statisticsTemplate);
-
-      console.log('Template statistics created successfully.');
-    } else {
-      console.log('All template statistics already exist.');
     }
 
     // Получаем коллекцию 'platforms'
