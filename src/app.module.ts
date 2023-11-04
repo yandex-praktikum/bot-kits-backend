@@ -22,6 +22,7 @@ import { databaseConfig } from './configs/database.config';
 
 import { BotsModule } from './bots/bots.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+
 import { StatisticsModule } from './statistics/statistics.module';
 import { PaymentsModule } from './payments/payments.module';
 import { HttpModule } from '@nestjs/axios';
