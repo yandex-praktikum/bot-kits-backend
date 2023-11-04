@@ -60,7 +60,6 @@ export class AuthController {
     private authService: AuthService,
     private readonly authDtoPipe: AuthDtoPipe,
     private readonly configService: ConfigService,
-    private ref: string,
   ) {}
 
   @UseGuards(LocalGuard)
