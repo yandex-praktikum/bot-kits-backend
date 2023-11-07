@@ -28,6 +28,7 @@ import { NotificationModule } from './notifications/notifications.module';
 import { BlacklistTokensModule } from './blacklistTokens/blacklistTokens.module';
 import { throttlerConfig } from './configs/throttler.config';
 import { ChatsModule } from './chats/chats.module';
+import { SharedAccessesModule } from './shared-accesses/shared-accesses.module';
 
 //app.module.ts
 @Module({
@@ -52,6 +53,7 @@ import { ChatsModule } from './chats/chats.module';
     NotificationModule,
     BlacklistTokensModule,
     ChatsModule,
+    SharedAccessesModule,
   ],
   controllers: [AppController, AuthController],
   providers: [

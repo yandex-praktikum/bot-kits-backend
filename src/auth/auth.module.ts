@@ -16,12 +16,14 @@ import { GUARDS } from './guards';
 import { HttpModule } from '@nestjs/axios';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.module';
+import { SharedAccessesModule } from 'src/shared-accesses/shared-accesses.module';
 
 @Module({
   imports: [
     HttpModule,
     ProfilesModule,
     AccountsModule,
+    SharedAccessesModule,
     HashModule,
     PassportModule,
     ConfigModule,
