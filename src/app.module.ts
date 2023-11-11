@@ -22,6 +22,8 @@ import { databaseConfig } from './configs/database.config';
 
 import { BotsModule } from './bots/bots.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+
+import { StatisticsModule } from './statistics/statistics.module';
 import { PaymentsModule } from './payments/payments.module';
 import { HttpModule } from '@nestjs/axios';
 import { NotificationModule } from './notifications/notifications.module';
@@ -29,6 +31,8 @@ import { BlacklistTokensModule } from './blacklistTokens/blacklistTokens.module'
 import { throttlerConfig } from './configs/throttler.config';
 import { ChatsModule } from './chats/chats.module';
 import { SharedAccessesModule } from './shared-accesses/shared-accesses.module';
+import { PartnershipModule } from './partnership/partnership.module';
+
 
 //app.module.ts
 @Module({
@@ -48,12 +52,14 @@ import { SharedAccessesModule } from './shared-accesses/shared-accesses.module';
     PromocodesModule,
     BotsModule,
     SubscriptionsModule,
+    StatisticsModule,
     PaymentsModule,
     HttpModule,
     NotificationModule,
     BlacklistTokensModule,
     ChatsModule,
     SharedAccessesModule,
+    PartnershipModule,
   ],
   controllers: [AppController, AuthController],
   providers: [

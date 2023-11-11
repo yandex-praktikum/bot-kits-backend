@@ -41,7 +41,12 @@ paths:
     post:
       operationId: AuthController_signup
       summary: Регистрация
-      parameters: []
+      parameters:
+        - name: ref
+          required: true
+          in: query
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -525,6 +530,18 @@ paths:
           description: Ресурс не найден
       tags: *ref_6
       security: *ref_7
+  /dev/api/partnership/partner:
+    get:
+      operationId: PartnershipController_redirectToPage
+      parameters:
+        - name: ref
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
   /dev/api/logout:
     get:
       operationId: BlacklistTokensController_addToken
@@ -1287,12 +1304,12 @@ paths:
           description: Ресурс не найден
       tags: *ref_16
       security: *ref_17
-  /dev/api/subscriptions/{id}:
+  /dev/api/subscriptions/{tariffId}:
     post:
       operationId: SubscriptionsController_createSubscription
       summary: Оформить подписку
       parameters:
-        - name: id
+        - name: tariffId
           required: true
           in: path
           description: Идентификатор тарифа
@@ -1327,6 +1344,19 @@ paths:
           description: Ресурс не найден
       tags: *ref_16
       security: *ref_17
+  /dev/api/statistics:
+    get:
+      operationId: StatisticsController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Statistics'
   /dev/api/payments:
     get:
       operationId: PaymentsController_userPayments
@@ -2011,6 +2041,15 @@ components:
         balance:
           type: number
           example: 1400
+        partner_ref:
+          type: string
+          example: '0000000'
+        visited_ref:
+          type: number
+          example: 0
+        registration_ref:
+          type: number
+          example: 0
         accounts:
           type: array
           items:
@@ -2020,6 +2059,9 @@ components:
         - phone
         - avatar
         - balance
+        - partner_ref
+        - visited_ref
+        - registration_ref
         - accounts
     Bot:
       type: object
@@ -2275,18 +2317,21 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-11-01T21:05:08.331Z
+          example: 2023-11-04T19:20:43.808Z
       required:
         - status
         - cardMask
         - debitDate
+    Statistics:
+      type: object
+      properties: {}
     Payment:
       type: object
       properties:
         date:
           format: date-time
           type: string
-          example: 2023-11-01T21:05:08.336Z
+          example: 2023-11-04T19:20:43.811Z
         amount:
           type: number
           example: 1000

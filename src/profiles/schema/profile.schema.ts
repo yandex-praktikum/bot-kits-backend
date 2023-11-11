@@ -27,6 +27,17 @@ export class Profile extends Document {
   @Prop({ default: 0 })
   balance: number;
 
+  @ApiProperty({ example: '0000000' })
+  partner_ref: string;
+
+  @ApiProperty({ example: 0 })
+  @Prop({ default: 0 })
+  visited_ref: number;
+
+  @ApiProperty({ example: 0 })
+  @Prop({ default: 0 })
+  registration_ref: number;
+
   @ApiProperty()
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],

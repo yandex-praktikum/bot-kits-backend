@@ -6,6 +6,7 @@ import * as yaml from 'js-yaml';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { SanitizePipe } from './utils/pipe/sanitize.pipe';
 
 //--событие, которое перехватывает необработанные исключения. Затем мы регистрируем ошибку на консоли--//
 process.on('unhandledRejection', (reason, promise) => {
@@ -24,14 +25,19 @@ async function bootstrap() {
       transform: true,
       exceptionFactory: (errors) => new BadRequestException(errors),
     }),
+    new SanitizePipe(),
   );
   app.use(helmet());
-  app.enableCors({
-    origin: configService.get('ALLOW_URL'),
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
-    credentials: true,
-  });
+  if (configService.get('NODE_ENV') === 'dev') {
+    app.enableCors();
+  } else {
+    app.enableCors({
+      origin: configService.get('ALLOW_URL'),
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+      credentials: true,
+    });
+  }
   // Создаем экземпляр билдера Swagger-документации
   const config = new DocumentBuilder()
     .setTitle('API BotKits')

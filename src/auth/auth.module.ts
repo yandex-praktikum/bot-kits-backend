@@ -17,6 +17,7 @@ import { HttpModule } from '@nestjs/axios';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.module';
 import { SharedAccessesModule } from 'src/shared-accesses/shared-accesses.module';
+import { PartnershipModule } from 'src/partnership/partnership.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SharedAccessesModule } from 'src/shared-accesses/shared-accesses.module
     SharedAccessesModule,
     HashModule,
     PassportModule,
+    PartnershipModule,
     ConfigModule,
     JwtModule.registerAsync(jwtOptions()),
     MongooseModule.forFeature([

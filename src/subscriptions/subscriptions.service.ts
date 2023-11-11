@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { Subscription } from './schema/subscription.schema';
+import { Profile } from '../profiles/schema/profile.schema';
+import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { SubscriptionsRepository } from './subscriptions.repository';
-import { Profile } from 'src/profiles/schema/profile.schema';
 
 @Injectable()
 export class SubscriptionsService {
@@ -29,9 +29,11 @@ export class SubscriptionsService {
   }
 
   async create(
+    tariffId: string,
+    userId: string,
     createSubscriptionDto: CreateSubscriptionDto,
   ): Promise<Subscription> {
-    return await this.dbQuery.create(createSubscriptionDto);
+    return await this.dbQuery.create(createSubscriptionDto, tariffId, userId);
   }
 
   async delete(id: number) {

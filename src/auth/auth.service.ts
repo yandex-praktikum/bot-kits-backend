@@ -20,6 +20,8 @@ import { InjectConnection } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { randomBytes } from 'crypto';
 import { SharedAccessesService } from 'src/shared-accesses/shared-accesses.service';
+import { PartnershipService } from 'src/partnership/partnership.service';
+
 
 export interface ITokens {
   accessToken: string;
@@ -31,6 +33,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private profilesService: ProfilesService,
+    private partnerShipService: PartnershipService,
     private accountsService: AccountsService,
     private sharedAccessService: SharedAccessesService,
     private hashService: HashService,
@@ -118,6 +121,7 @@ export class AuthService {
   async registration(
     authDto: AuthDto,
     provider: TypeAccount = TypeAccount.LOCAL,
+    ref: string | null,
   ): Promise<Account> {
     const { profileData, accountData } = authDto;
     const email = accountData.credentials.email;
@@ -152,6 +156,8 @@ export class AuthService {
           session,
         );
         profile.sharedAccess = sharedAccess._id;
+        await this.partnerShipService.getPartnerRef(profile._id);
+        await this.partnerShipService.updateRegistration(ref);
       } else {
         profile = await this.profilesService.findByEmail(email, session);
       }
@@ -222,7 +228,7 @@ export class AuthService {
       );
     }
 
-    return await this.registration(dataLogin, typeAccount);
+    return await this.registration(dataLogin, typeAccount, null);
   }
 
   async authYandex(codeAuth: string) {

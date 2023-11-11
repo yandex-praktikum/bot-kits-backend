@@ -7,7 +7,7 @@ import { MongoClient } from 'mongodb';
 import { botTemplates } from 'src/bots/dto/constants/botTemplates';
 import { platforms } from 'src/platforms/dto/constants/templates';
 import { tariffsTemplates } from 'src/tariffs/dto/constants/tariffsTemplates';
-
+import { statisticsTemplate } from 'src/statistics/dto/constants/templates';
 /**
  * Инициализирует базу данных: создает пользователя и шаблонные боты, если они отсутствуют.
  * @param configService - сервис для доступа к конфигурации приложения.
@@ -102,7 +102,7 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
     }
 
     // Получаем коллекцию 'platforms'
-    const tariffsCollection = currentDb.collection('tariff');
+    const tariffsCollection = currentDb.collection('tariffs');
 
     // Запрашиваем количество платформ в коллекции
     const tariffsCount = await tariffsCollection.countDocuments();
