@@ -530,18 +530,6 @@ paths:
           description: Ресурс не найден
       tags: *ref_6
       security: *ref_7
-  /dev/api/partnership/partner:
-    get:
-      operationId: PartnershipController_redirectToPage
-      parameters:
-        - name: ref
-          required: true
-          in: query
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
   /dev/api/logout:
     get:
       operationId: BlacklistTokensController_addToken
@@ -568,6 +556,18 @@ paths:
         - logout
       security:
         - bearer: []
+  /dev/api/partnership/partner:
+    get:
+      operationId: PartnershipController_redirectToPage
+      parameters:
+        - name: ref
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
   /dev/api/bot-accesses:
     post:
       operationId: BotAccessesController_createBotAccesses
@@ -2317,7 +2317,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-11-04T19:20:43.808Z
+          example: 2023-11-11T22:07:02.280Z
       required:
         - status
         - cardMask
@@ -2331,7 +2331,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-11-04T19:20:43.811Z
+          example: 2023-11-11T22:07:02.282Z
         amount:
           type: number
           example: 1000

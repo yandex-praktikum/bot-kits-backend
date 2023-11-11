@@ -46,6 +46,8 @@ export class CreateProfileDto {
   sharedAccess?: Types.ObjectId | string;
 
   @ApiProperty({ example: '0000000' })
+  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   partner_ref?: string;
 

@@ -28,6 +28,7 @@ export class Profile extends Document {
   balance: number;
 
   @ApiProperty({ example: '0000000' })
+  @Prop()
   partner_ref: string;
 
   @ApiProperty({ example: 0 })
