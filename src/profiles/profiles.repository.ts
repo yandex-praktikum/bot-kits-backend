@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { ClientSession, Model } from 'mongoose';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { Profile } from './schema/profile.schema';
 import { Account } from 'src/accounts/schema/account.schema';
@@ -79,10 +79,13 @@ export class ProfilesRepository {
   async update(
     id: string,
     updateProfileDto: UpdateProfileDto,
+    session?: ClientSession,
   ): Promise<Profile> {
-    return await this.profileModel.findByIdAndUpdate(id, updateProfileDto, {
-      new: true,
-    });
+    return await this.profileModel
+      .findByIdAndUpdate(id, updateProfileDto, {
+        new: true,
+      })
+      .session(session);
   }
 
   async remove(id: string): Promise<Profile> {

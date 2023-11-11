@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import mongoose from 'mongoose';
+import mongoose, { ClientSession } from 'mongoose';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { Profile } from './schema/profile.schema';
 import { Account } from 'src/accounts/schema/account.schema';
@@ -62,8 +62,9 @@ export class ProfilesService {
   async update(
     id: string,
     updateProfileDto: UpdateProfileDto,
+    session?: ClientSession,
   ): Promise<Profile> {
-    return await this.profilesRepository.update(id, updateProfileDto);
+    return await this.profilesRepository.update(id, updateProfileDto, session);
   }
 
   async remove(id: string): Promise<Profile> {

@@ -22,7 +22,6 @@ import { randomBytes } from 'crypto';
 import { SharedAccessesService } from 'src/shared-accesses/shared-accesses.service';
 import { PartnershipService } from 'src/partnership/partnership.service';
 
-
 export interface ITokens {
   accessToken: string;
   refreshToken: string;
@@ -120,33 +119,48 @@ export class AuthService {
 
   async registration(
     authDto: AuthDto,
-    provider: TypeAccount = TypeAccount.LOCAL,
-    ref: string | null,
+    typeAccount: TypeAccount = TypeAccount.LOCAL, // Тип аккаунта, по умолчанию LOCAL
+    ref?: string, // Реферальная ссылка, может быть null
   ): Promise<Account> {
+    // Возвращает Promise, который разрешается в Account
+    // Деструктуризация данных профиля и аккаунта из DTO
     const { profileData, accountData } = authDto;
+    // Извлечение email из данных аккаунта
     const email = accountData.credentials.email;
-    accountData.type = provider;
+    // Установка типа аккаунта в accountData
+    accountData.type = typeAccount;
+
     let profile;
 
+    // Запуск сессии MongoDB для транзакций
     const session = await this.connection.startSession();
+    // Начало транзакции
     session.startTransaction();
 
     try {
+      // Поиск существующего аккаунта по email и типу аккаунта
       const existsAccountByTypeAndEmail =
-        await this.accountsService.findByEmailAndType(email, provider, session);
+        await this.accountsService.findByEmailAndType(
+          email,
+          typeAccount,
+          session,
+        );
 
+      // Если аккаунт найден, выбросить исключение
       if (existsAccountByTypeAndEmail) {
         throw new ConflictException('Аккаунт уже существует');
       }
 
+      // Поиск существующего аккаунта только по email
       const existsAccount = await this.accountsService.findByEmail(
         email,
         session,
       );
 
+      // Если аккаунт не существует, создать новый профиль
       if (!existsAccount) {
-        //--Создаем новый профиль--//
         profile = await this.profilesService.create(profileData, session);
+        // Создание записи о доступе
         const sharedAccess = await this.sharedAccessService.create(
           {
             username: profileData.username,
@@ -155,40 +169,54 @@ export class AuthService {
           },
           session,
         );
+        // Связывание профиля с sharedAccess
         profile.sharedAccess = sharedAccess._id;
-        await this.partnerShipService.getPartnerRef(profile._id);
+        // Генерация и обновление реферальной ссылки
+        await this.partnerShipService.getPartnerRef(profile._id, session);
         await this.partnerShipService.updateRegistration(ref);
       } else {
+        // Если аккаунт существует, получить профиль по email
         profile = await this.profilesService.findByEmail(email, session);
       }
 
-      //--Создаем новый аккаунт--//
+      // Создание нового аккаунта пользователя
       const newAccount = await this.accountsService.create(
         accountData,
         profile._id,
         session,
       );
 
+      // Получение токенов доступа для аккаунта
       const tokens = await this.getTokens(profile._id);
 
+      // Установка токенов доступа в данные аккаунта
       accountData.credentials.accessToken = tokens.accessToken;
       accountData.credentials.refreshToken = tokens.refreshToken;
 
+      // Обновление данных нового аккаунта
       await this.accountsService.update(newAccount._id, accountData, session);
 
+      // Добавление нового аккаунта в список аккаунтов профиля
       profile.accounts.push(newAccount);
+
+      // Сохранение профиля с учетом транзакции
       await profile.save({ session });
 
+      // Фиксация транзакции в базе данных
       await session.commitTransaction();
 
+      // Возвращение информации о созданном аккаунте
       return await this.accountsService.findByIdAndProvider(
         profile._id,
-        provider,
+        typeAccount,
       );
     } catch (error) {
+      // В случае ошибки отменить транзакцию
       await session.abortTransaction();
+      // Перебросить исключение дальше
       throw error;
     } finally {
+      // Завершение сессии вне зависимости от результата
       session.endSession();
     }
   }
