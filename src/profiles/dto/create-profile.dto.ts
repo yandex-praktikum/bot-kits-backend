@@ -9,6 +9,7 @@ import {
   IsUrl,
   Length,
 } from 'class-validator';
+import { Types } from 'mongoose';
 import { Account } from 'src/accounts/schema/account.schema';
 //create-profile.dto.ts
 export class CreateProfileDto {
@@ -39,6 +40,10 @@ export class CreateProfileDto {
   @IsArray()
   @ArrayNotEmpty({ message: 'Аккаунтов не может быть 0' })
   accounts: Account[];
+
+  @IsOptional()
+  @ApiProperty({ example: '64f9ac26edb84d7ebf6281d0' })
+  sharedAccess?: Types.ObjectId | string;
 
   @ApiProperty({ example: '0000000' })
   @IsString()

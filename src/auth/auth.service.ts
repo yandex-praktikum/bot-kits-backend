@@ -19,7 +19,9 @@ import { Account } from 'src/accounts/schema/account.schema';
 import { InjectConnection } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { randomBytes } from 'crypto';
+import { SharedAccessesService } from 'src/shared-accesses/shared-accesses.service';
 import { PartnershipService } from 'src/partnership/partnership.service';
+
 
 export interface ITokens {
   accessToken: string;
@@ -33,6 +35,7 @@ export class AuthService {
     private profilesService: ProfilesService,
     private partnerShipService: PartnershipService,
     private accountsService: AccountsService,
+    private sharedAccessService: SharedAccessesService,
     private hashService: HashService,
     private readonly configService: ConfigService,
     @InjectConnection() private readonly connection: mongoose.Connection,
@@ -144,6 +147,15 @@ export class AuthService {
       if (!existsAccount) {
         //--Создаем новый профиль--//
         profile = await this.profilesService.create(profileData, session);
+        const sharedAccess = await this.sharedAccessService.create(
+          {
+            username: profileData.username,
+            email: accountData.credentials.email,
+            profile: profile._id,
+          },
+          session,
+        );
+        profile.sharedAccess = sharedAccess._id;
         await this.partnerShipService.getPartnerRef(profile._id);
         await this.partnerShipService.updateRegistration(ref);
       } else {
