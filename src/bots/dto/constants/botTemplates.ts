@@ -12,6 +12,9 @@ export const botTemplates = [
     features: [],
     settings: {},
     commands: botCommands,
+    price: 1000,
+    content: [{}],
+    isToPublish: true,
   },
   {
     type: 'template',
@@ -23,6 +26,9 @@ export const botTemplates = [
     features: [],
     settings: {},
     commands: botCommands,
+    price: 1000,
+    content: [{}],
+    isToPublish: true,
   },
   {
     type: 'template',
@@ -34,6 +40,9 @@ export const botTemplates = [
     features: [],
     settings: {},
     commands: botCommands,
+    price: 1000,
+    content: [{}],
+    isToPublish: true,
   },
   {
     type: 'template',
@@ -45,6 +54,9 @@ export const botTemplates = [
     features: [],
     settings: {},
     commands: botCommands,
+    price: 1000,
+    content: [{}],
+    isToPublish: true,
   },
   {
     type: 'template',
@@ -56,6 +68,9 @@ export const botTemplates = [
     features: [],
     settings: {},
     commands: botCommands,
+    price: 1000,
+    content: [{}],
+    isToPublish: true,
   },
   {
     type: 'template',
@@ -67,6 +82,9 @@ export const botTemplates = [
     features: [],
     settings: {},
     commands: botCommands,
+    price: 1000,
+    content: [{}],
+    isToPublish: true,
   },
   {
     type: 'template',
@@ -78,6 +96,9 @@ export const botTemplates = [
     features: [],
     settings: {},
     commands: botCommands,
+    price: 1000,
+    content: [{}],
+    isToPublish: true,
   },
   {
     type: 'template',
@@ -89,6 +110,9 @@ export const botTemplates = [
     features: [],
     settings: {},
     commands: botCommands,
+    price: 1000,
+    content: [{}],
+    isToPublish: true,
   },
   {
     type: 'template',
@@ -100,6 +124,9 @@ export const botTemplates = [
     features: [],
     settings: {},
     commands: botCommands,
+    price: 1000,
+    content: [{}],
+    isToPublish: true,
   },
   {
     type: 'template',
@@ -111,6 +138,9 @@ export const botTemplates = [
     features: [],
     settings: {},
     commands: botCommands,
+    price: 1000,
+    content: [{}],
+    isToPublish: true,
   },
   {
     type: 'template',
@@ -122,6 +152,9 @@ export const botTemplates = [
     features: [],
     settings: {},
     commands: botCommands,
+    price: 1000,
+    content: [{}],
+    isToPublish: true,
   },
   {
     type: 'template',
@@ -133,5 +166,8 @@ export const botTemplates = [
     features: [],
     settings: {},
     commands: botCommands,
+    price: 1000,
+    content: [{}],
+    isToPublish: true,
   },
 ];

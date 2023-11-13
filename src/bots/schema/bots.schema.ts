@@ -67,6 +67,15 @@ export class Bot extends Document {
     default: botCommands,
   })
   commands: TypeCommands[];
+
+  @Prop({ default: 0 })
+  price?: number;
+
+  @Prop({ type: [Object] })
+  content?: [object];
+
+  @Prop({ default: true })
+  isToPublish?: boolean;
 }
 
 export const BotSchema = SchemaFactory.createForClass(Bot);
