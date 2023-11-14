@@ -13,7 +13,10 @@ import { Server, Socket } from 'socket.io';
 import { WSGuard } from 'src/auth/guards/ws.guards';
 
 @UseGuards(WSGuard)
-@WebSocketGateway({ port: 3001, namespace: '/chats' })
+@WebSocketGateway({
+  port: process.env.WS_PORT,
+  namespace: '/chats',
+})
 export class ChatGateway implements NestGateway {
   @WebSocketServer() server;
   constructor(private chatServise: ChatsService, private wsGuard: WSGuard) {}

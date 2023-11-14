@@ -13,7 +13,7 @@ import { NestGateway } from '@nestjs/websockets/interfaces/nest-gateway.interfac
 import { Server, Socket } from 'socket.io';
 
 @UseGuards(WSGuard)
-@WebSocketGateway({ port: 3001, namespace: '/sharedaccesses' })
+@WebSocketGateway({ port: process.env.WS_PORT, namespace: '/sharedaccesses' })
 export class SharedAccessesGateway implements NestGateway {
   @WebSocketServer() server: Server;
   constructor(private readonly sharedAccessesService: SharedAccessesService) {}

@@ -12,7 +12,7 @@ export class AuthDtoPipe implements PipeTransform {
       phone: value.phone,
       username: value.username,
       balance: 0,
-      avatar: 'https://i.pravatar.cc/300',
+      avatar: process.env.PROFILE_AVATAR,
       accounts: [],
     };
 
