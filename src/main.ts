@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { SanitizePipe } from './utils/pipe/sanitize.pipe';
+import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
 
 //--событие, которое перехватывает необработанные исключения. Затем мы регистрируем ошибку на консоли--//
 process.on('unhandledRejection', (reason, promise) => {
@@ -15,6 +16,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalFilters(new GlobalHTTPExceptionFilter());
   app.setGlobalPrefix('dev/api');
   const configService = app.get(ConfigService);
   const port = configService.get('APP_PORT');
