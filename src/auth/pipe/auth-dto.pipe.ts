@@ -3,16 +3,18 @@ import TypeAccount from '../../accounts/types/type-account';
 import Role from '../../accounts/types/role';
 import { AuthDto } from '../dto/auth.dto';
 import { CombinedDto } from '../dto/combined.dto';
+import { ConfigService } from '@nestjs/config';
 //auth-dto.pipe.ts
 @Injectable()
 export class AuthDtoPipe implements PipeTransform {
+  constructor(private configService: ConfigService) {}
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   transform(value: CombinedDto, metadata: ArgumentMetadata): AuthDto {
     const enrichedProfile = {
       phone: value.phone,
       username: value.username,
       balance: 0,
-      avatar: process.env.PROFILE_AVATAR,
+      avatar: this.configService.get('PROFILE_AVATAR'),
       accounts: [],
     };
 

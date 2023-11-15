@@ -11,15 +11,22 @@ import { Bind, UseGuards } from '@nestjs/common';
 import { Chat } from '../schema/chat.schema';
 import { Server, Socket } from 'socket.io';
 import { WSGuard } from 'src/auth/guards/ws.guards';
+import { ConfigService } from '@nestjs/config';
 
 @UseGuards(WSGuard)
 @WebSocketGateway({
-  port: process.env.WS_PORT,
   namespace: '/chats',
 })
 export class ChatGateway implements NestGateway {
   @WebSocketServer() server;
-  constructor(private chatServise: ChatsService, private wsGuard: WSGuard) {}
+  constructor(
+    private chatServise: ChatsService,
+    private wsGuard: WSGuard,
+    private configService: ConfigService,
+  ) {
+    const port = this.configService.get('WS_PORT');
+    this.server = new Server(port, { path: '/chats' });
+  }
 
   afterInit(server: Server) {
     console.log('Init');

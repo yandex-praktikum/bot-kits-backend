@@ -11,12 +11,19 @@ import { UseGuards } from '@nestjs/common';
 import { WSGuard } from 'src/auth/guards/ws.guards';
 import { NestGateway } from '@nestjs/websockets/interfaces/nest-gateway.interface';
 import { Server, Socket } from 'socket.io';
+import { ConfigService } from '@nestjs/config';
 
 @UseGuards(WSGuard)
-@WebSocketGateway({ port: process.env.WS_PORT, namespace: '/sharedaccesses' })
+@WebSocketGateway({ namespace: '/sharedaccesses' })
 export class SharedAccessesGateway implements NestGateway {
   @WebSocketServer() server: Server;
-  constructor(private readonly sharedAccessesService: SharedAccessesService) {}
+  constructor(
+    private readonly sharedAccessesService: SharedAccessesService,
+    private configService: ConfigService,
+  ) {
+    const port = this.configService.get('WS_PORT');
+    this.server = new Server(port, { path: '/sharedaccesses' });
+  }
 
   afterInit() {
     console.log('Init');
