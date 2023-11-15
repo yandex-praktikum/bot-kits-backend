@@ -33,7 +33,6 @@ import { ChatsModule } from './chats/chats.module';
 import { SharedAccessesModule } from './shared-accesses/shared-accesses.module';
 import { PartnershipModule } from './partnership/partnership.module';
 
-
 //app.module.ts
 @Module({
   imports: [
