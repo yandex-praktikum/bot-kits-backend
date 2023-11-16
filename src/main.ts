@@ -5,9 +5,10 @@ import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { SanitizePipe } from './utils/pipe/sanitize.pipe';
 import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
+import winston from 'winston';
 
 //--событие, которое перехватывает необработанные исключения. Затем мы регистрируем ошибку на консоли--//
 process.on('unhandledRejection', (reason, promise) => {
@@ -40,6 +41,7 @@ async function bootstrap() {
       credentials: true,
     });
   }
+
   // Создаем экземпляр билдера Swagger-документации
   const config = new DocumentBuilder()
     .setTitle('API BotKits')
