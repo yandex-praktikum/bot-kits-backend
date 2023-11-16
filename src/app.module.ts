@@ -33,7 +33,7 @@ import { ChatsModule } from './chats/chats.module';
 import { SharedAccessesModule } from './shared-accesses/shared-accesses.module';
 import { PartnershipModule } from './partnership/partnership.module';
 import { WinstonModule } from 'nest-winston';
-import winston from 'winston';
+import * as winston from 'winston';
 
 //app.module.ts
 @Module({
