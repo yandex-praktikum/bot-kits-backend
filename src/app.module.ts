@@ -32,6 +32,8 @@ import { throttlerConfig } from './configs/throttler.config';
 import { ChatsModule } from './chats/chats.module';
 import { SharedAccessesModule } from './shared-accesses/shared-accesses.module';
 import { PartnershipModule } from './partnership/partnership.module';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 
 //app.module.ts
 @Module({
@@ -59,6 +61,19 @@ import { PartnershipModule } from './partnership/partnership.module';
     ChatsModule,
     SharedAccessesModule,
     PartnershipModule,
+    WinstonModule.forRoot({
+      levels: {
+        critical_error: 0,
+        error: 1,
+        special_warning: 2,
+        another_log_level: 3,
+        info: 4,
+      },
+      transports: [
+        new winston.transports.Console({ format: winston.format.simple() }),
+        new winston.transports.File({ filename: 'error.log', level: 'error' }),
+      ],
+    }),
   ],
   controllers: [AppController, AuthController],
   providers: [
