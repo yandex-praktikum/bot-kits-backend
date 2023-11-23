@@ -8,7 +8,6 @@ import helmet from 'helmet';
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { SanitizePipe } from './utils/pipe/sanitize.pipe';
 import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
-import winston from 'winston';
 
 //--событие, которое перехватывает необработанные исключения. Затем мы регистрируем ошибку на консоли--//
 process.on('unhandledRejection', (reason, promise) => {
@@ -31,16 +30,13 @@ async function bootstrap() {
     new SanitizePipe(),
   );
   app.use(helmet());
-  if (configService.get('NODE_ENV') === 'dev') {
-    app.enableCors();
-  } else {
-    app.enableCors({
-      origin: configService.get('ALLOW_URL'),
-      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-      allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
-      credentials: true,
-    });
-  }
+
+  app.enableCors({
+    origin: configService.get('ALLOW_URL'),
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    credentials: true,
+  });
 
   // Создаем экземпляр билдера Swagger-документации
   const config = new DocumentBuilder()
