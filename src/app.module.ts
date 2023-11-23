@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -34,6 +34,7 @@ import { SharedAccessesModule } from './shared-accesses/shared-accesses.module';
 import { PartnershipModule } from './partnership/partnership.module';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
+import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
 
 //app.module.ts
 @Module({
@@ -81,6 +82,10 @@ import * as winston from 'winston';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: GlobalHTTPExceptionFilter,
     },
   ],
 })

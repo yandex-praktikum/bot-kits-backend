@@ -16,9 +16,8 @@ process.on('unhandledRejection', (reason, promise) => {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalFilters(new GlobalHTTPExceptionFilter());
-  app.setGlobalPrefix('dev/api');
   const configService = app.get(ConfigService);
+  app.setGlobalPrefix(configService.get('GLOBAL_PREFIX'));
   const port = configService.get('APP_PORT');
   app.useGlobalPipes(
     new ValidationPipe({
