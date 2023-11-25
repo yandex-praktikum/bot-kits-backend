@@ -4,7 +4,7 @@ import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Profile } from '../../profiles/schema/profile.schema';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 import { TypeCommands, botCommands } from '../dto/constants/botCommands';
-
+//bots.schema.ts
 export type BotDocument = HydratedDocument<Bot>;
 
 export class Messenger {
@@ -47,7 +47,7 @@ export class Bot extends Document {
   description?: string;
 
   @Prop([String])
-  features: string[];
+  features?: string[];
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -66,7 +66,7 @@ export class Bot extends Document {
     enum: Object.values(TypeCommands),
     default: botCommands,
   })
-  commands: TypeCommands[];
+  commands?: TypeCommands[];
 
   @Prop({ default: 0 })
   price?: number;
