@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { Messenger } from '../schema/bots.schema';
 import { Type } from 'class-transformer';
-
+//create-bot.dto.ts
 export class CreateBotDto {
   @IsString()
   type: string;
