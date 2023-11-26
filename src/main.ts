@@ -7,7 +7,6 @@ import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { SanitizePipe } from './utils/pipe/sanitize.pipe';
-import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
 import { LoggerFactory } from './utils/loggerFactory';
 
 //--событие, которое перехватывает необработанные исключения. --//
