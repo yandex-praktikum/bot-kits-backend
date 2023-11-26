@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { Messenger } from '../schema/bots.schema';
 import { Type } from 'class-transformer';
-
+//create-bot.dto.ts
 export class CreateBotDto {
   @IsString()
   type: string;
@@ -54,10 +54,6 @@ export class CreateBotDto {
     },
   })
   settings?: object;
-
-  @IsNumber()
-  @IsOptional()
-  price?: 1000;
 
   @IsOptional()
   content?: [object];

@@ -2318,6 +2318,7 @@ components:
           format: date-time
           type: string
           example: 2023-11-26T17:49:07.653Z
+
       required:
         - status
         - cardMask

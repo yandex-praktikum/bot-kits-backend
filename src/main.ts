@@ -10,6 +10,7 @@ import { SanitizePipe } from './utils/pipe/sanitize.pipe';
 import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
 import { LoggerFactory } from './utils/loggerFactory';
 
+
 //--событие, которое перехватывает необработанные исключения. --//
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
@@ -23,6 +24,7 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalHTTPExceptionFilter(Logger));
   app.setGlobalPrefix('dev/api');
   const configService = app.get(ConfigService);
+  app.setGlobalPrefix(configService.get('GLOBAL_PREFIX'));
   const port = configService.get('APP_PORT');
   app.useGlobalPipes(
     new ValidationPipe({
@@ -34,16 +36,13 @@ async function bootstrap() {
     new SanitizePipe(),
   );
   app.use(helmet());
-  if (configService.get('NODE_ENV') === 'dev') {
-    app.enableCors();
-  } else {
-    app.enableCors({
-      origin: configService.get('ALLOW_URL'),
-      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-      allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
-      credentials: true,
-    });
-  }
+
+  app.enableCors({
+    origin: configService.get('ALLOW_URL'),
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    credentials: true,
+  });
 
   // Создаем экземпляр билдера Swagger-документации
   const config = new DocumentBuilder()

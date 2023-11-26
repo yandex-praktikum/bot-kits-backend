@@ -31,7 +31,10 @@ services:
     command: ["--replSet", "${DB_REPLICATION_SET:-rs01}", "--bind_ip_all"]
     healthcheck:
       test: mongosh --eval "rs.initiate()"
-      start_period: 5s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
 networks:
   back-dev:
