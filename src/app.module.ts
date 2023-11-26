@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -61,19 +61,6 @@ import * as winston from 'winston';
     ChatsModule,
     SharedAccessesModule,
     PartnershipModule,
-    WinstonModule.forRoot({
-      levels: {
-        critical_error: 0,
-        error: 1,
-        special_warning: 2,
-        another_log_level: 3,
-        info: 4,
-      },
-      transports: [
-        new winston.transports.Console({ format: winston.format.simple() }),
-        new winston.transports.File({ filename: 'error.log', level: 'error' }),
-      ],
-    }),
   ],
   controllers: [AppController, AuthController],
   providers: [
@@ -82,6 +69,7 @@ import * as winston from 'winston';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    Logger,
   ],
 })
 export class AppModule {}
