@@ -55,10 +55,6 @@ export class CreateBotDto {
   })
   settings?: object;
 
-  @IsNumber()
-  @IsOptional()
-  price?: 1000;
-
   @IsOptional()
   content?: [object];
 

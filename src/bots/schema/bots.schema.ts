@@ -68,9 +68,6 @@ export class Bot extends Document {
   })
   commands?: TypeCommands[];
 
-  @Prop({ default: 0 })
-  price?: number;
-
   @Prop({ type: [Object] })
   content?: [object];
 

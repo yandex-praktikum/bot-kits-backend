@@ -18,7 +18,7 @@ import { ConfigService } from '@nestjs/config';
   namespace: '/chats',
 })
 export class ChatGateway implements NestGateway {
-  @WebSocketServer() server;
+  @WebSocketServer() server: Server;
   constructor(
     private chatServise: ChatsService,
     private wsGuard: WSGuard,
