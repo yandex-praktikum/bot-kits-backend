@@ -14,6 +14,9 @@ services:
     networks:
       - back-dev
       - default
+    depends_on:
+      mongo-dev:
+        condition: service_healthy
 
   mongo-dev:
     container_name: 'botkit-mongodb-dev-release'
