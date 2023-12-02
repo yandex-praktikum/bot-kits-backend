@@ -27,6 +27,9 @@ import { CreateBotDto } from './dto/create-bot.dto';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import { ShareBotDto } from './dto/share-bot.dto';
 import { BotCreateRequestBody } from './sdo/request-body.sdo';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UpdateBotDto } from './dto/update-bot.dto';
 
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
@@ -137,9 +140,9 @@ export class BotsController {
   update(
     @Req() req,
     @Param('id') id: string,
-    @Body() body: { title: 'string' },
+    @Body() updateBotDto: UpdateBotDto,
   ): Promise<Bot> {
-    return this.botsService.update(req.user.id, id, body);
+    return this.botsService.update(req.user.id, id, updateBotDto);
   }
 
   @Get(':id')
@@ -185,5 +188,20 @@ export class BotsController {
     @Body() shareBotDto: ShareBotDto,
   ): Promise<string> {
     return this.botsService.share(req.user.id, id, shareBotDto);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @Post('template')
+  @ApiOperation({
+    summary: 'Добавление шаблона бота админом',
+  })
+  @ApiOkResponse({
+    description: 'Созданный шаблон',
+    type: Bot,
+  })
+  @ApiBody({ type: CreateBotDto })
+  createTemplate(@Body() createBotDto: CreateBotDto) {
+    return this.botsService.addBotTemplate(createBotDto);
   }
 }

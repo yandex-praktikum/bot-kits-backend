@@ -57,7 +57,7 @@ import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
     HttpModule,
     NotificationModule,
     BlacklistTokensModule,
-    ChatsModule,
+    //ChatsModule,
     SharedAccessesModule,
     PartnershipModule,
   ],

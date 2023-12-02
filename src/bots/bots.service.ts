@@ -1,5 +1,5 @@
 import { Bot } from './schema/bots.schema';
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
@@ -10,7 +10,13 @@ export class BotsService {
   constructor(private dbQuery: BotsRepository) {}
 
   async create(profile, createBotDto: CreateBotDto): Promise<Bot> {
-    return await this.dbQuery.create(profile, createBotDto);
+    try {
+      return await this.dbQuery.create(profile, createBotDto);
+    } catch (e) {
+      if (e.code === 11000) {
+        throw new ConflictException('Бот с таким имененм уже существует');
+      }
+    }
   }
 
   async findOne(id: string): Promise<Bot> {
@@ -47,5 +53,15 @@ export class BotsService {
     shareBotDto: ShareBotDto,
   ): Promise<string> {
     return await this.dbQuery.share(profile, id, shareBotDto);
+  }
+
+  async addBotTemplate(createBotDto: CreateBotDto): Promise<Bot> {
+    try {
+      return await this.dbQuery.createTemplate(createBotDto);
+    } catch (e) {
+      if (e.code === 11000) {
+        throw new ConflictException('Шаблон с таким имененм уже существует');
+      }
+    }
   }
 }

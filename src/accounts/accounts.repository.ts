@@ -67,7 +67,7 @@ export class AccountsRepository {
       .session(session);
     //.populate('profile');
   }
-  //account.service.ts
+
   async findByEmail(
     email: string,
     session?: mongoose.ClientSession,

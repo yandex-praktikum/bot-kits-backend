@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { SanitizePipe } from './utils/pipe/sanitize.pipe';
+import { AppClusterService } from './appCluster/appCluster.service';
 import { LoggerFactory } from './utils/loggerFactory';
 
 //--событие, которое перехватывает необработанные исключения. --//
@@ -73,4 +74,4 @@ async function bootstrap() {
   await app.listen(port);
 }
 
-bootstrap();
+AppClusterService.clusterize(bootstrap, 1);
