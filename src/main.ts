@@ -8,14 +8,19 @@ import helmet from 'helmet';
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { SanitizePipe } from './utils/pipe/sanitize.pipe';
 import { AppClusterService } from './appCluster/appCluster.service';
+import { LoggerFactory } from './utils/loggerFactory';
 
-//--событие, которое перехватывает необработанные исключения. Затем мы регистрируем ошибку на консоли--//
+//--событие, которое перехватывает необработанные исключения. --//
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  Logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: LoggerFactory('Botkits Logger'),
+  });
+
   const configService = app.get(ConfigService);
   app.setGlobalPrefix(configService.get('GLOBAL_PREFIX'));
   const port = configService.get('APP_PORT');
