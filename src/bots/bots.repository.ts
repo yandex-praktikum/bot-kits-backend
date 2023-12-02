@@ -1,7 +1,11 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Bot, BotDocument } from './schema/bots.schema';
 import { Model } from 'mongoose';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
@@ -20,7 +24,7 @@ export class BotsRepository {
   ) {}
 
   async create(profile, createBotDto: CreateBotDto): Promise<Bot> {
-    const bot = await new this.botModel({ ...createBotDto, profile }).save();
+    const bot = await new this.botModel({ ...createBotDto, profile });
 
     // При создании бота, создаем доступ сразу с полным уровнем
     await this.botAccessesService.create(profile, {
@@ -28,11 +32,7 @@ export class BotsRepository {
       permission: fullPermission,
     });
 
-    // if (bot.title === createBotDto.title) {
-    //   throw new ConflictException('Бот с таким именем уже существует');
-    // }
-
-    return bot;
+    return bot.save();
   }
 
   async findOne(id: string): Promise<Bot> {
@@ -104,5 +104,11 @@ export class BotsRepository {
     });
 
     return 'Запрос на предоставление доступа отправлен';
+  }
+
+  async createTemplate(createBotDto: CreateBotDto): Promise<Bot> {
+    const bot = await new this.botModel(createBotDto).save();
+
+    return bot;
   }
 }

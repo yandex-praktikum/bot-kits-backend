@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { SanitizePipe } from './utils/pipe/sanitize.pipe';
-import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
+import { AppClusterService } from './appCluster/appCluster.service';
 
 //--событие, которое перехватывает необработанные исключения. Затем мы регистрируем ошибку на консоли--//
 process.on('unhandledRejection', (reason, promise) => {
@@ -69,4 +69,4 @@ async function bootstrap() {
   await app.listen(port);
 }
 
-bootstrap();
+AppClusterService.clusterize(bootstrap, 1);

@@ -57,7 +57,7 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(accessTokenPayload);
     const refreshToken = this.jwtService.sign(refreshTokenPayload, {
-      expiresIn: '7d',
+      expiresIn: this.configService.get('REFRESHTOKEN_EXPIRESIN'),
     });
 
     return { accessToken, refreshToken };

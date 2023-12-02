@@ -7,7 +7,8 @@ import { MongoClient } from 'mongodb';
 import { botTemplates } from 'src/bots/dto/constants/botTemplates';
 import { platforms } from 'src/platforms/dto/constants/templates';
 import { tariffsTemplates } from 'src/tariffs/dto/constants/tariffsTemplates';
-import { statisticsTemplate } from 'src/statistics/dto/constants/templates';
+import { getHash } from 'src/utils/utils';
+
 /**
  * Инициализирует базу данных: создает пользователя и шаблонные боты, если они отсутствуют.
  * @param configService - сервис для доступа к конфигурации приложения.
@@ -54,6 +55,61 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
 
     // Получаем доступ к целевой базе данных
     const currentDb = client.db(`${configService.get('DB_NAME')}`);
+
+    // Получаем доступ к коллекциям 'accounts' и 'profiles'
+    const accountsCollection = currentDb.collection('accounts');
+    const profilesCollection = currentDb.collection('profiles');
+
+    // Проверяем наличие профиля администратора
+    const adminProfile = await profilesCollection.findOne({
+      username: 'ADMIN',
+    });
+
+    if (!adminProfile) {
+      console.log('Creating admin profile and account...');
+
+      // Создаем профиль администратора
+      const adminProfileData = {
+        username: 'ADMIN',
+        phone: '+999999999',
+        avatar: 'https://i.pravatar.cc/300',
+        // accounts: [] - будет добавлено позже, после создания аккаунта
+      };
+
+      // Вставляем профиль в коллекцию 'profiles'
+      const profileResult = await profilesCollection.insertOne(
+        adminProfileData,
+      );
+
+      // Создаем учетную запись администратора
+      const adminAccountData = {
+        type: 'local',
+        role: 'admin',
+        credentials: {
+          email: configService.get('ADMIN_EMAIL'),
+          password: await getHash(configService.get('ADMIN_PASSWORD')),
+          accessToken: 'yourAccessToken',
+          refreshToken: 'yourRefreshToken',
+        },
+        profile: profileResult.insertedId,
+      };
+
+      // Вставляем учетную запись в коллекцию 'accounts'
+      const accountResult = await accountsCollection.insertOne(
+        adminAccountData,
+      );
+
+      // Обновляем профиль администратора, добавляя ID учетной записи в массив accounts
+      await profilesCollection.updateOne(
+        { _id: profileResult.insertedId },
+        { $push: { accounts: accountResult.insertedId } },
+      );
+
+      console.log('Admin profile and account created successfully.');
+    } else {
+      console.log('Admin profile already exists.');
+    }
+
     // Получаем коллекцию 'bots'
     const botsCollection = currentDb.collection('bots');
 

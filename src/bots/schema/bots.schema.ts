@@ -4,6 +4,7 @@ import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Profile } from '../../profiles/schema/profile.schema';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 import { TypeCommands, botCommands } from '../dto/constants/botCommands';
+import { TBuilderData } from './types/botBuilderTypes';
 //bots.schema.ts
 export type BotDocument = HydratedDocument<Bot>;
 
@@ -38,6 +39,7 @@ export class Bot extends Document {
 
   @Prop({
     required: true,
+    unique: true,
     minlength: 2,
     maxlength: 30,
   })
@@ -46,8 +48,8 @@ export class Bot extends Document {
   @Prop({ default: 'none' })
   description?: string;
 
-  @Prop([String])
-  features?: string[];
+  @Prop({ type: Object })
+  features?: TBuilderData;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,

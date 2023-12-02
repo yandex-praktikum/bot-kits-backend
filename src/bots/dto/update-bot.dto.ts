@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsObject, IsOptional, IsString, IsUrl } from 'class-validator';
+import { TBuilderData } from '../schema/types/botBuilderTypes';
 
 export class UpdateBotDto {
   @ApiProperty({
@@ -21,8 +22,8 @@ export class UpdateBotDto {
   description?: string;
 
   @IsOptional()
-  @ApiProperty({ example: ['Создание заказов', 'Редактирование заказов'] })
-  features?: string[];
+  @ApiProperty()
+  features?: TBuilderData;
 
   @ApiProperty()
   @IsObject()

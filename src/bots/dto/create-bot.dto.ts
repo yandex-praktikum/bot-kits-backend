@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsNotEmpty,
-  IsNumber,
   IsObject,
   IsOptional,
   IsString,
@@ -11,6 +10,8 @@ import {
 } from 'class-validator';
 import { Messenger } from '../schema/bots.schema';
 import { Type } from 'class-transformer';
+import { TBuilderData } from '../schema/types/botBuilderTypes';
+
 //create-bot.dto.ts
 export class CreateBotDto {
   @IsString()
@@ -42,8 +43,8 @@ export class CreateBotDto {
   messengers: Messenger[];
 
   @IsOptional()
-  @ApiProperty({ example: ['Создание заказов', 'Редактирование заказов'] })
-  features?: string[];
+  @ApiProperty()
+  features?: TBuilderData;
 
   @IsObject()
   @IsOptional()

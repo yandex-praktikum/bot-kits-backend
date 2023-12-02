@@ -1,113 +1,106 @@
+// ws.gateway.ts
 import {
-  ConnectedSocket,
-  MessageBody,
-  SubscribeMessage,
   WebSocketGateway,
+  SubscribeMessage,
+  MessageBody,
   WebSocketServer,
+  ConnectedSocket,
 } from '@nestjs/websockets';
-import { NestGateway } from '@nestjs/websockets/interfaces/nest-gateway.interface';
-import { ChatsService } from '../chats.service';
-import { Bind, UseGuards } from '@nestjs/common';
-import { Chat } from '../schema/chat.schema';
 import { Server, Socket } from 'socket.io';
+import { createAdapter } from 'socket.io-redis';
+import Redis from 'ioredis';
+import {
+  OnModuleInit,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import { Chat, ChatDocument } from '../schema/chat.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { WSGuard } from 'src/auth/guards/ws.guards';
-import { ConfigService } from '@nestjs/config';
 
+//chats.gateway.ts
 @UseGuards(WSGuard)
-@WebSocketGateway({
-  namespace: '/chats',
-})
-export class ChatGateway implements NestGateway {
-  @WebSocketServer() server: Server;
-  constructor(
-    private chatServise: ChatsService,
-    private wsGuard: WSGuard,
-    private configService: ConfigService,
+@WebSocketGateway()
+export class WsGateway implements OnModuleInit {
+  @WebSocketServer()
+  server: Server;
+  private redisClient: Redis;
+
+  constructor(@InjectModel(Chat.name) private chatModel: Model<ChatDocument>) {
+    this.redisClient = new Redis({ host: '127.0.0.1', port: 3003 });
+  }
+
+  async onModuleInit() {
+    const subClient = this.redisClient.duplicate();
+    this.server.adapter(
+      createAdapter({ pubClient: this.redisClient, subClient }),
+    );
+  }
+
+  async handleConnection(client: Socket) {
+    if (!client.handshake.headers.authorization) {
+      client.disconnect();
+      client.emit('error', 'Пользователь не авторизован');
+    }
+    const user = client.data.user;
+    if (!user) return;
+
+    const cacheKey = `chat_history_${user.id}`;
+    let chats = await this.redisClient.get(cacheKey);
+
+    if (!chats) {
+      const chatDocuments = await this.chatModel
+        .find({
+          $or: [{ sender: user.id }, { recipient: user.id }],
+        })
+        .exec();
+
+      // Сериализация результатов запроса в строку
+      chats = JSON.stringify(chatDocuments);
+      await this.redisClient.set(cacheKey, chats);
+    } else {
+      chats = JSON.parse(chats);
+    }
+
+    client.emit('chatHistory', chats);
+  }
+
+  @UsePipes(new ValidationPipe())
+  @SubscribeMessage('sendMessage')
+  async handleMessage(
+    client: Socket,
+    payload: { recipient: string; message: string; roomId: string },
+  ): Promise<void> {
+    const sender = client.data.user.id;
+    const newChat = new this.chatModel({
+      message: payload.message,
+      sender: sender,
+      recipient: payload.recipient,
+      roomId: payload.roomId, // определить логику для roomId
+      profile: sender,
+    });
+
+    await newChat.save();
+
+    // Обновляем кеш
+    const cacheKey = `chat_history_${sender}`;
+    const cachedChats = await this.redisClient.get(cacheKey);
+    const chats = cachedChats ? JSON.parse(cachedChats) : [];
+    chats.push(newChat);
+    await this.redisClient.set(cacheKey, JSON.stringify(chats));
+
+    // Отправляем сообщение получателю
+    this.server.to(payload.recipient).emit('newMessage', JSON.stringify(chats));
+  }
+
+  @SubscribeMessage('joinRoom')
+  handleJoinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() roomId: string,
   ) {
-    const port = this.configService.get('WS_PORT');
-    this.server = new Server(port, { path: '/chats' });
-  }
-
-  afterInit(server: Server) {
-    console.log('Init');
-  }
-
-  handleConnection(socket: any) {
-    if (!socket.handshake.headers.authorization) {
-      socket.disconnect();
-    }
-    console.log('Connect', socket.id);
-  }
-
-  handleDisconnect(socket: any) {
-    console.log('Disconnect', socket.id);
-  }
-
-  @Bind(MessageBody(), ConnectedSocket())
-  @SubscribeMessage('chat')
-  async createChat(chat: Chat, sender: any, client: Socket) {
-    console.log('New Chat', chat);
-    this.chatServise.create(chat);
-    sender.emit('newChat', chat);
-  }
-
-  @SubscribeMessage('getAllChats')
-  async getAllChats(client: Socket) {
-    try {
-      // Получаем информацию о пользователе из данных сокета
-      const user = client.data.user;
-
-      // Проверяем, существует ли информация о пользователе
-      if (!user) {
-        client.emit('authError', { message: 'Пользователь не найден' });
-        return;
-      }
-
-      // Получаем чаты для данного пользователя
-      const chats = await this.chatServise.findChatsForUser(user.id);
-
-      if (!chats) {
-        client.emit('Error', { message: 'У пользователя нет чатов' });
-        return;
-      }
-
-      //Найти Уникальных Отправителей
-      const uniqueSenders = Array.from(
-        new Set(chats.map((chat) => chat.sender)),
-      );
-      //Формирование Пар для Истории Сообщений
-      const chatPairs = [];
-
-      uniqueSenders.forEach((sender) => {
-        // Получаем всех уникальных получателей для каждого отправителя
-        const recipients = new Set(
-          chats
-            .filter((chat) => chat.sender === sender)
-            .map((chat) => chat.recipient),
-        );
-
-        recipients.forEach((recipient) => {
-          // Добавляем пару отправитель-получатель, если она ещё не была добавлена
-          if (
-            !chatPairs.some(
-              (pair) => pair.includes(sender) && pair.includes(recipient),
-            )
-          ) {
-            chatPairs.push([sender, recipient]);
-          }
-        });
-      });
-      for (const pair of chatPairs) {
-        const chatHistory = await this.chatServise.findChatHistory(
-          pair[0],
-          pair[1],
-        );
-        // Отправляем чаты клиенту
-        client.emit('chatsList', chatHistory);
-      }
-    } catch (error) {
-      console.error('Ошибка при получении чатов:', error);
-      client.emit('error', { message: 'Ошибка при получении чатов' });
-    }
+    client.join(roomId);
+    // Опционально: отправить историю сообщений или уведомление о новом пользователе в комнате
   }
 }

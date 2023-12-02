@@ -1238,6 +1238,32 @@ paths:
           description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
+  /dev/api/bots/template:
+    post:
+      operationId: BotsController_createTemplate
+      summary: Добавление шаблона бота админом
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBotDto'
+      responses:
+        '200':
+          description: Созданный шаблон
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+      tags: *ref_14
+      security: *ref_15
   /dev/api/subscriptions:
     get:
       operationId: SubscriptionsController_subscriptionAndPayments
@@ -1577,87 +1603,6 @@ paths:
           description: Ресурс не найден
       tags: *ref_20
       security: *ref_21
-  /dev/api/chats:
-    post:
-      operationId: ChatsController_create
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateChatDto'
-      responses:
-        '201':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-    get:
-      operationId: ChatsController_findAll
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Chat'
-  /dev/api/chats/{id}:
-    get:
-      operationId: ChatsController_findOne
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: string
-    patch:
-      operationId: ChatsController_update
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateChatDto'
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: string
-    delete:
-      operationId: ChatsController_remove
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: string
 info:
   title: API BotKits
   description: Ручки для команды frontend
@@ -2296,6 +2241,45 @@ components:
           example: test@test.ru
       required:
         - email
+    Messenger:
+      type: object
+      properties: {}
+    CreateBotDto:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        title:
+          type: string
+          example: Бот Автоответчик
+        description:
+          type: string
+          example: Бот для создания заказов
+        messengers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Messenger'
+        features:
+          type: object
+        settings:
+          type: object
+          example:
+            Приветствие: Я бот для создания заказов
+            Инлайн_кнопка: Текст кнопки
+        type:
+          type: string
+        content:
+          type: array
+          items:
+            type: string
+        isToPublish:
+          type: boolean
+      required:
+        - title
+        - messengers
+        - type
     ActivateSubscriptionDTO:
       type: object
       properties:
@@ -2317,7 +2301,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-11-25T08:48:25.189Z
+          example: 2023-12-02T13:23:01.302Z
       required:
         - status
         - cardMask
@@ -2331,7 +2315,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-11-25T08:48:25.193Z
+          example: 2023-12-02T13:23:01.304Z
         amount:
           type: number
           example: 1000
@@ -2461,28 +2445,3 @@ components:
         isReceived:
           type: boolean
           example: false
-    CreateChatDto:
-      type: object
-      properties:
-        message:
-          type: string
-        sender:
-          type: object
-        recipient:
-          type: object
-      required:
-        - message
-        - sender
-        - recipient
-    Chat:
-      type: object
-      properties: {}
-    UpdateChatDto:
-      type: object
-      properties:
-        message:
-          type: string
-        sender:
-          type: object
-        recipient:
-          type: object

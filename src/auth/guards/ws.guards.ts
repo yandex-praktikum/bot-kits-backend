@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ProfilesService } from 'src/profiles/profiles.service';
 import { BlacklistTokensService } from 'src/blacklistTokens/blacklistTokens.service';
 
+//ws.guards.ts
 @Injectable()
 export class WSGuard implements CanActivate {
   @WebSocketServer()

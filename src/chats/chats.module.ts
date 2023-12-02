@@ -3,7 +3,7 @@ import { ChatsService } from './chats.service';
 import { ChatsController } from './chats.controller';
 import { Chat, ChatSchema } from './schema/chat.schema';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ChatGateway } from './gateway/chats.gateway';
+import { WsGateway } from './gateway/chats.gateway';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { WSGuard } from 'src/auth/guards/ws.guards';
@@ -17,6 +17,6 @@ import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.modul
     BlacklistTokensModule,
   ],
   controllers: [ChatsController],
-  providers: [ChatGateway, ChatsService, ConfigService, JwtService, WSGuard],
+  providers: [WsGateway, ChatsService, ConfigService, JwtService, WSGuard],
 })
 export class ChatsModule {}
