@@ -24,6 +24,7 @@ export class BotsRepository {
   ) {}
 
   async create(profile, createBotDto: CreateBotDto): Promise<Bot> {
+    createBotDto.type = 'custom';
     const bot = await new this.botModel({ ...createBotDto, profile });
 
     // При создании бота, создаем доступ сразу с полным уровнем
@@ -107,6 +108,7 @@ export class BotsRepository {
   }
 
   async createTemplate(createBotDto: CreateBotDto): Promise<Bot> {
+    createBotDto.type = 'template';
     const bot = await new this.botModel(createBotDto).save();
 
     return bot;

@@ -15,7 +15,8 @@ import { TBuilderData } from '../schema/types/botBuilderTypes';
 //create-bot.dto.ts
 export class CreateBotDto {
   @IsString()
-  type: string;
+  @IsOptional()
+  type?: string;
 
   @ApiProperty({
     example:
