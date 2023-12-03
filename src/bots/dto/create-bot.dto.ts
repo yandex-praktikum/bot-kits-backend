@@ -39,9 +39,10 @@ export class CreateBotDto {
   description?: string;
 
   @ApiProperty()
+  @IsOptional()
   @Type(() => Messenger)
   @ValidateNested()
-  messengers: Messenger[];
+  messengers?: Messenger[];
 
   @IsOptional()
   @ApiProperty()

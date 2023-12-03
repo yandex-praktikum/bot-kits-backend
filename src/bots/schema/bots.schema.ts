@@ -58,7 +58,7 @@ export class Bot extends Document {
   profile?: Profile;
 
   @Prop([Messenger])
-  messengers: Messenger[];
+  messengers?: Messenger[];
 
   @Prop({ type: Object })
   settings?: object;
