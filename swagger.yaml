@@ -1264,7 +1264,7 @@ paths:
                 $ref: '#/components/schemas/Bot'
       tags: *ref_14
       security: *ref_15
-  /dev/api/bots/template{id}:
+  /dev/api/bots/template/{id}:
     patch:
       operationId: BotsController_updateTemplate
       summary: Обновление шаблона бота админом
@@ -2329,8 +2329,6 @@ components:
           type: object
         settings:
           type: object
-        isToPublish:
-          type: boolean
     ActivateSubscriptionDTO:
       type: object
       properties:
@@ -2352,7 +2350,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-05T06:04:25.305Z
+          example: 2023-12-05T07:31:42.846Z
       required:
         - status
         - cardMask
@@ -2366,7 +2364,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-05T06:04:25.309Z
+          example: 2023-12-05T07:31:42.848Z
         amount:
           type: number
           example: 1000
