@@ -69,7 +69,7 @@ async function bootstrap() {
 
   // первый аргумент - путь, по которому будет доступна
   // веб-страница с документацией Swagger
-  SwaggerModule.setup('/api/docs', app, document);
+  SwaggerModule.setup('dev/api/docs', app, document);
 
   await app.listen(port);
 }
