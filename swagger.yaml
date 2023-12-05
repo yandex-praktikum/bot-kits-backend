@@ -1109,7 +1109,7 @@ paths:
   /dev/api/bots/templates:
     get:
       operationId: BotsController_findTemplates
-      summary: Получить ботов пользователя
+      summary: Получить все шаблоны бота
       parameters: []
       responses:
         '200':
@@ -1153,7 +1153,7 @@ paths:
       security: *ref_15
     patch:
       operationId: BotsController_update
-      summary: Смена имени бота
+      summary: Обновить бота
       parameters:
         - name: id
           required: true
@@ -1248,7 +1248,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateBotDto'
+              $ref: '#/components/schemas/CreateTemplateDto'
       responses:
         '200':
           description: Созданный шаблон
@@ -1262,6 +1262,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
+      tags: *ref_14
+      security: *ref_15
+  /dev/api/bots/template{id}:
+    patch:
+      operationId: BotsController_updateTemplate
+      summary: Обновление шаблона бота админом
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateDto'
+      responses:
+        '200':
+          description: Обновленны шаблон бгота
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+      tags: *ref_14
+      security: *ref_15
+    delete:
+      operationId: BotsController_removeTemplate
+      summary: Удаление шаблона бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор шаблона
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Шаблон удален
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '404':
+          description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
   /dev/api/subscriptions:
@@ -2241,10 +2288,7 @@ components:
           example: test@test.ru
       required:
         - email
-    Messenger:
-      type: object
-      properties: {}
-    CreateBotDto:
+    CreateTemplateDto:
       type: object
       properties:
         icon:
@@ -2257,10 +2301,6 @@ components:
         description:
           type: string
           example: Бот для создания заказов
-        messengers:
-          type: array
-          items:
-            $ref: '#/components/schemas/Messenger'
         features:
           type: object
         settings:
@@ -2270,15 +2310,27 @@ components:
             Инлайн_кнопка: Текст кнопки
         type:
           type: string
-        content:
-          type: array
-          items:
-            type: string
-        isToPublish:
-          type: boolean
       required:
         - title
-        - messengers
+    UpdateTemplateDto:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        title:
+          type: string
+          example: Бот Автоответчик
+        description:
+          type: string
+          example: Бот для создания заказов
+        features:
+          type: object
+        settings:
+          type: object
+        isToPublish:
+          type: boolean
     ActivateSubscriptionDTO:
       type: object
       properties:
@@ -2300,7 +2352,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-02T14:48:27.922Z
+          example: 2023-12-05T05:22:14.827Z
       required:
         - status
         - cardMask
@@ -2314,7 +2366,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-02T14:48:27.925Z
+          example: 2023-12-05T05:22:14.828Z
         amount:
           type: number
           example: 1000

@@ -15,6 +15,8 @@ import {
   fullPermission,
   LEVEL_ACCESS,
 } from '../botAccesses/types/types';
+import { CreateTemplateDto } from './dto/create-template.dto';
+import { UpdateTemplateDto } from './dto/update-template.dto';
 
 @Injectable()
 export class BotsRepository {
@@ -107,10 +109,22 @@ export class BotsRepository {
     return 'Запрос на предоставление доступа отправлен';
   }
 
-  async createTemplate(createBotDto: CreateBotDto): Promise<Bot> {
-    createBotDto.type = 'template';
-    const bot = await new this.botModel(createBotDto).save();
+  async createTemplate(createTemplateDto: CreateTemplateDto): Promise<Bot> {
+    createTemplateDto.type = 'template';
+    const bot = await new this.botModel(createTemplateDto).save();
 
     return bot;
+  }
+
+  async updateTemplate(
+    templateId: string,
+    updateTemplateDto: UpdateTemplateDto,
+  ): Promise<Bot> {
+    await this.botModel.findByIdAndUpdate(templateId, updateTemplateDto).exec();
+    return this.findOne(templateId);
+  }
+
+  async removeTemplate(templateId: string): Promise<Bot> {
+    return await this.botModel.findByIdAndRemove(templateId).exec();
   }
 }
