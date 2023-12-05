@@ -14,7 +14,6 @@ export const botTemplates = [
     settings: {},
     commands: botCommands,
     price: 1000,
-    content: [{}],
     isToPublish: true,
   },
   {
@@ -28,7 +27,6 @@ export const botTemplates = [
     settings: {},
     commands: botCommands,
     price: 1000,
-    content: [{}],
     isToPublish: true,
   },
   {
@@ -42,7 +40,6 @@ export const botTemplates = [
     settings: {},
     commands: botCommands,
     price: 1000,
-    content: [{}],
     isToPublish: true,
   },
   {
@@ -56,7 +53,6 @@ export const botTemplates = [
     settings: {},
     commands: botCommands,
     price: 1000,
-    content: [{}],
     isToPublish: true,
   },
   {
@@ -70,7 +66,6 @@ export const botTemplates = [
     settings: {},
     commands: botCommands,
     price: 1000,
-    content: [{}],
     isToPublish: true,
   },
   {
@@ -84,7 +79,6 @@ export const botTemplates = [
     settings: {},
     commands: botCommands,
     price: 1000,
-    content: [{}],
     isToPublish: true,
   },
   {
@@ -98,7 +92,6 @@ export const botTemplates = [
     settings: {},
     commands: botCommands,
     price: 1000,
-    content: [{}],
     isToPublish: true,
   },
   {
@@ -112,7 +105,6 @@ export const botTemplates = [
     settings: {},
     commands: botCommands,
     price: 1000,
-    content: [{}],
     isToPublish: true,
   },
   {
@@ -126,7 +118,6 @@ export const botTemplates = [
     settings: {},
     commands: botCommands,
     price: 1000,
-    content: [{}],
     isToPublish: true,
   },
   {
@@ -140,7 +131,6 @@ export const botTemplates = [
     settings: {},
     commands: botCommands,
     price: 1000,
-    content: [{}],
     isToPublish: true,
   },
   {
@@ -154,7 +144,6 @@ export const botTemplates = [
     settings: {},
     commands: botCommands,
     price: 1000,
-    content: [{}],
     isToPublish: true,
   },
   {
@@ -168,7 +157,6 @@ export const botTemplates = [
     settings: {},
     commands: botCommands,
     price: 1000,
-    content: [{}],
     isToPublish: true,
   },
 ];

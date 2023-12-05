@@ -6,15 +6,6 @@ import { CreateTemplateDto } from './create-template.dto';
 
 //create-bot.dto.ts
 export class CreateBotDto extends CreateTemplateDto {
-  constructor(
-    data: Omit<CreateTemplateDto, 'isToPublish'> & {
-      messengers?: Messenger[];
-    },
-  ) {
-    super();
-    Object.assign(this, data);
-  }
-
   @ApiProperty()
   @IsOptional()
   @Type(() => Messenger)
