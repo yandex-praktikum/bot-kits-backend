@@ -7,5 +7,5 @@ export class CopyBotDto {
   @ApiProperty()
   @Type(() => Messenger)
   @ValidateNested()
-  messenger: Messenger;
+  messengers?: Messenger[];
 }

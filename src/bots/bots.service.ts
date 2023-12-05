@@ -4,6 +4,8 @@ import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
 import { BotsRepository } from './bots.repository';
+import { CreateTemplateDto } from './dto/create-template.dto';
+import { UpdateTemplateDto } from './dto/update-template.dto';
 
 @Injectable()
 export class BotsService {
@@ -37,10 +39,10 @@ export class BotsService {
 
   async update(
     userId: string,
-    id: string,
+    botId: string,
     updateBotDto: UpdateBotDto,
   ): Promise<Bot> {
-    return this.dbQuery.update(userId, id, updateBotDto);
+    return this.dbQuery.update(userId, botId, updateBotDto);
   }
 
   async remove(userId: string, id: string): Promise<Bot> {
@@ -55,13 +57,24 @@ export class BotsService {
     return await this.dbQuery.share(profile, id, shareBotDto);
   }
 
-  async addBotTemplate(createBotDto: CreateBotDto): Promise<Bot> {
+  async addBotTemplate(createTemplateDto: CreateTemplateDto): Promise<Bot> {
     try {
-      return await this.dbQuery.createTemplate(createBotDto);
+      return await this.dbQuery.createTemplate(createTemplateDto);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException('Шаблон с таким имененм уже существует');
       }
     }
+  }
+
+  async updateTemplate(
+    templateId: string,
+    updateTemplateDto: UpdateTemplateDto,
+  ): Promise<Bot> {
+    return this.dbQuery.updateTemplate(templateId, updateTemplateDto);
+  }
+
+  async removeTemplate(templateId: string): Promise<Bot> {
+    return await this.dbQuery.removeTemplate(templateId);
   }
 }

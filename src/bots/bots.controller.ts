@@ -30,6 +30,8 @@ import { BotCreateRequestBody } from './sdo/request-body.sdo';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UpdateBotDto } from './dto/update-bot.dto';
+import { CreateTemplateDto } from './dto/create-template.dto';
+import { UpdateTemplateDto } from './dto/update-template.dto';
 
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
@@ -54,7 +56,7 @@ export class BotsController {
 
   @Get('templates')
   @ApiOperation({
-    summary: 'Получить ботов пользователя',
+    summary: 'Получить все шаблоны бота',
   })
   @ApiOkResponse({
     description: 'Запрос выполнен успешно',
@@ -123,7 +125,7 @@ export class BotsController {
 
   @Patch(':id')
   @ApiOperation({
-    summary: 'Смена имени бота',
+    summary: 'Обновить бота',
   })
   @ApiOkResponse({
     description: 'Имя бота обновлено',
@@ -139,10 +141,10 @@ export class BotsController {
   })
   update(
     @Req() req,
-    @Param('id') id: string,
+    @Param('id') botId: string,
     @Body() updateBotDto: UpdateBotDto,
   ): Promise<Bot> {
-    return this.botsService.update(req.user.id, id, updateBotDto);
+    return this.botsService.update(req.user.id, botId, updateBotDto);
   }
 
   @Get(':id')
@@ -200,8 +202,46 @@ export class BotsController {
     description: 'Созданный шаблон',
     type: Bot,
   })
-  @ApiBody({ type: CreateBotDto })
-  createTemplate(@Body() createBotDto: CreateBotDto) {
-    return this.botsService.addBotTemplate(createBotDto);
+  @ApiBody({ type: CreateTemplateDto })
+  createTemplate(@Body() createTemplateDto: CreateTemplateDto) {
+    return this.botsService.addBotTemplate(createTemplateDto);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @Patch('template:id')
+  @ApiOperation({
+    summary: 'Обновление шаблона бота админом',
+  })
+  @ApiOkResponse({
+    description: 'Обновленны шаблон бгота',
+    type: Bot,
+  })
+  @ApiBody({ type: UpdateTemplateDto })
+  updateTemplate(
+    @Param('id') templateId: string,
+    @Body() updateTemplateDto: UpdateTemplateDto,
+  ) {
+    return this.botsService.updateTemplate(templateId, updateTemplateDto);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @Delete('template:id')
+  @ApiOperation({
+    summary: 'Удаление шаблона бота',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор шаблона',
+    example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiOkResponse({
+    description: 'Шаблон удален',
+    type: Bot,
+  })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  removeTemplate(@Param('id') templateId: string): Promise<Bot> {
+    return this.botsService.removeTemplate(templateId);
   }
 }
