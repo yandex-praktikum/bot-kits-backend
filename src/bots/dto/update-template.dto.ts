@@ -15,12 +15,14 @@ export class UpdateTemplateDto {
       'https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png',
   })
   @IsUrl()
+  @IsOptional()
   icon?: string;
 
   @ApiProperty({
     example: 'Бот Автоответчик',
   })
   @IsString()
+  @IsOptional()
   title?: string;
 
   @IsString()
@@ -34,9 +36,10 @@ export class UpdateTemplateDto {
 
   @ApiProperty()
   @IsObject()
+  @IsOptional()
   settings?: object;
 
   @IsBoolean()
   @IsOptional()
-  isToPublish?: boolean;
+  static isToPublish?: boolean;
 }
