@@ -1,46 +1,64 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Payment, PaymentDocument } from './schema/payment.schema';
-import { Model } from 'mongoose';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Payment } from './schema/payment.schema';
 import { Profile } from '../profiles/schema/profile.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
+import { RepositoryPort } from './payments.repository';
 
+//payments.service.ts
 @Injectable()
 export class PaymentsService {
-  constructor(
-    @InjectModel(Payment.name)
-    private paymentModel: Model<PaymentDocument>,
-  ) {}
+  constructor(private readonly paymentsRepository: RepositoryPort) {}
 
-  async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
-    return await this.paymentModel.create({
-      ...createPaymentDto,
-    });
+  async create(createPaymentDto: CreatePaymentDto) {
+    try {
+      return await this.paymentsRepository.create(createPaymentDto);
+    } catch (error: unknown) {
+      throw error;
+    }
   }
 
   async delete(id: string) {
-    //Не проверяем принадлежность операции пользователю, поскольку метод для администрирования, а не фронта
-    return await this.paymentModel.findByIdAndRemove(id).exec();
+    let deletedPayment: Payment;
+    try {
+      deletedPayment = await this.paymentsRepository.delete(id);
+    } catch {
+      throw new BadRequestException('не валидный id');
+    }
+    if (!deletedPayment) {
+      throw new NotFoundException('платеж не найден');
+    }
+    return deletedPayment;
   }
 
-  async findOne(id: string): Promise<Payment> {
-    return this.paymentModel.findById(id).exec();
+  async findOne(id: string) {
+    return this.paymentsRepository.findOne(id);
   }
 
-  async findAll(): Promise<Payment[]> {
-    return await this.paymentModel.find().exec();
+  async findAll() {
+    return this.paymentsRepository.findAll();
   }
 
-  async findUsersAll(profile: Profile): Promise<Payment[]> {
-    return await this.paymentModel.find({ profile }).exec();
+  async findUsersAll(profile: Profile) {
+    return this.paymentsRepository.findUsersAll(profile);
   }
 
-  async update(
-    id: string,
-    updatePaymentDto: CreatePaymentDto,
-  ): Promise<Payment> {
-    //Не проверяем принадлежность операции пользователю, поскольку метод для администрирования, а не фронта
-    await this.paymentModel.findByIdAndUpdate(id, updatePaymentDto);
-    return this.findOne(id);
+  async update(id: string, updatePaymentDto: CreatePaymentDto) {
+    let updatedPayment: Payment;
+    try {
+      updatedPayment = await this.paymentsRepository.update(
+        id,
+        updatePaymentDto,
+      );
+    } catch {
+      throw new BadRequestException('не валидный id');
+    }
+    if (!updatedPayment) {
+      throw new NotFoundException('платеж не найден');
+    }
+    return updatedPayment;
   }
 }

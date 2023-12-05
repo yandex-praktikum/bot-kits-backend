@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { Document, HydratedDocument } from 'mongoose';
 import { Account } from 'src/accounts/schema/account.schema';
+import { SharedAccess } from 'src/shared-accesses/schema/sharedAccess.schema';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 
 export type ProfileDocument = HydratedDocument<Profile>;
@@ -26,11 +27,26 @@ export class Profile extends Document {
   @Prop({ default: 0 })
   balance: number;
 
+  @ApiProperty({ example: '0000000' })
+  @Prop()
+  partner_ref: string;
+
+  @ApiProperty({ example: 0 })
+  @Prop({ default: 0 })
+  visited_ref: number;
+
+  @ApiProperty({ example: 0 })
+  @Prop({ default: 0 })
+  registration_ref: number;
+
   @ApiProperty()
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
   })
   accounts: Account[];
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'SharedAccess' })
+  sharedAccess: SharedAccess;
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);

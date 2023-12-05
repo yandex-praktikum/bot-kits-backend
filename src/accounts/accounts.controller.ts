@@ -11,7 +11,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { AccountService } from './accounts.service';
+import { AccountsService } from './accounts.service';
 import { Account } from './schema/account.schema';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
@@ -24,17 +24,9 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 @ApiTags('accounts')
 @ApiBearerAuth()
 @Controller('accounts')
-export class AccountController {
-  constructor(private readonly accountService: AccountService) {}
+export class AccountsController {
+  constructor(private readonly accountService: AccountsService) {}
   @Get()
-  @ApiOperation({
-    summary: 'Получить все аккаунты',
-  })
-  @ApiOkResponse({
-    description: 'Запрос выполнен успешно',
-    type: [SingleAccountResponseBodyOK],
-  })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @UseGuards(RolesGuard)
   @Roles('admin')
   findAll(): Promise<Account[]> {

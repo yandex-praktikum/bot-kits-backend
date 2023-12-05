@@ -1,101 +1,73 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, Types } from 'mongoose';
+import { Injectable } from '@nestjs/common';
+import mongoose, { ClientSession } from 'mongoose';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { Profile } from './schema/profile.schema';
 import { Account } from 'src/accounts/schema/account.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ProfilesRepository } from './profiles.repository';
 
 @Injectable()
 export class ProfilesService {
-  constructor(
-    @InjectModel(Profile.name) private profile: Model<Profile>,
-    @InjectModel(Account.name) private account: Model<Account>,
-  ) {}
+  constructor(private readonly profilesRepository: ProfilesRepository) {}
 
   async create(
     createProfileDto: CreateProfileDto,
     session?: mongoose.ClientSession,
   ): Promise<Profile | null> {
-    const profileNew = new this.profile(createProfileDto);
-    if (session) {
-      return await profileNew.save({ session: session });
-    }
-    return await profileNew.save();
+    return await this.profilesRepository.create(createProfileDto, session);
   }
 
   async findOne(id: string | number): Promise<Profile> {
-    const profile = await this.profile.findById(id).exec();
-    return profile;
-  }
-
-  async findAccountsById(id: string): Promise<Account[]> {
-    const profile = await this.findById(id);
-    return profile.accounts;
+    return await this.profilesRepository.findOne(id);
   }
 
   async findById(id: string): Promise<Profile> {
-    const objectId = new Types.ObjectId(id);
-    const foundProfile = await this.profile.findById(objectId);
+    return await this.profilesRepository.findById(id);
+  }
 
-    if (!foundProfile) {
-      throw new NotFoundException(`Profile with ID ${id} not found`);
-    }
-
-    const profile = await foundProfile.populate('accounts');
-    profile.accounts.forEach((account) => {
-      if (account.credentials) {
-        delete account.credentials.password;
-      }
-    });
-
-    return profile;
+  async findAccountsByProfileId(id: string): Promise<Account[]> {
+    return await this.profilesRepository.findAccountsByProfileId(id);
   }
 
   async findByEmail(
     email: string,
     session?: mongoose.ClientSession,
   ): Promise<Profile | null> {
-    const account = await this.account
-      .findOne({ 'credentials.email': email })
-      .session(session);
+    const account = await this.profilesRepository.findAccountByEmail(
+      email,
+      session,
+    );
     if (account) {
-      const profile = await this.profile
-        .findById(account.profile)
-        .session(session);
-      if (profile) {
-        return profile;
-      }
+      return account.profile;
     }
     return null;
   }
 
   async findByToken(token: string): Promise<Profile | null> {
-    const account = await this.account.findOne({
-      'credentials.accessToken': token,
-    });
+    const account = await this.profilesRepository.findAccountByToken(token);
     if (account) {
-      const profile = await this.profile.findById(account.profile);
-      if (profile) {
-        return profile;
-      }
+      return account.profile;
     }
     return null;
   }
 
   async findAll(): Promise<Profile[]> {
-    return await this.profile.find().exec();
+    return await this.profilesRepository.findAll();
+  }
+
+  async findPartnerRef(ref: string): Promise<Profile | null> {
+    return await this.profilesRepository.findByPartnerRef(ref);
   }
 
   async update(
     id: string,
     updateProfileDto: UpdateProfileDto,
+    session?: ClientSession,
   ): Promise<Profile> {
-    await this.profile.findByIdAndUpdate(id, updateProfileDto);
-    return this.findOne(id);
+    return await this.profilesRepository.update(id, updateProfileDto, session);
   }
 
   async remove(id: string): Promise<Profile> {
-    return await this.profile.findByIdAndDelete(id).exec();
+    return await this.profilesRepository.remove(id);
   }
 }

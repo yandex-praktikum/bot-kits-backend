@@ -4,8 +4,9 @@ import { ProfilesService } from './profiles.service';
 import { ProfilesController } from './profiles.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Profile, ProfileSchema } from './schema/profile.schema';
-import { HashService } from 'src/hash/hash.service';
 import { Account, AccountSchema } from 'src/accounts/schema/account.schema';
+import { ProfilesRepository } from './profiles.repository';
+import { HashModule } from 'src/hash/hash.module';
 
 @Module({
   imports: [
@@ -13,9 +14,10 @@ import { Account, AccountSchema } from 'src/accounts/schema/account.schema';
       { name: Profile.name, schema: ProfileSchema },
       { name: Account.name, schema: AccountSchema },
     ]),
+    HashModule,
   ],
   controllers: [ProfilesController],
-  providers: [ProfilesService, HashService],
+  providers: [ProfilesService, ProfilesRepository],
   exports: [ProfilesService],
 })
 export class ProfilesModule {}

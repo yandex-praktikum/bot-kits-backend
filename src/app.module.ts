@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -17,16 +17,22 @@ import { PlatformModule } from './platforms/platforms.module';
 
 import { PromocodesModule } from './promocodes/promocodes.module';
 
-import { AccountModule } from './accounts/accounts.module';
+import { AccountsModule } from './accounts/accounts.module';
 import { databaseConfig } from './configs/database.config';
 
 import { BotsModule } from './bots/bots.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+
+import { StatisticsModule } from './statistics/statistics.module';
 import { PaymentsModule } from './payments/payments.module';
 import { HttpModule } from '@nestjs/axios';
 import { NotificationModule } from './notifications/notifications.module';
 import { BlacklistTokensModule } from './blacklistTokens/blacklistTokens.module';
 import { throttlerConfig } from './configs/throttler.config';
+import { ChatsModule } from './chats/chats.module';
+import { SharedAccessesModule } from './shared-accesses/shared-accesses.module';
+import { PartnershipModule } from './partnership/partnership.module';
+import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
 
 //app.module.ts
 @Module({
@@ -39,17 +45,21 @@ import { throttlerConfig } from './configs/throttler.config';
     MongooseModule.forRootAsync(databaseConfig()),
     ProfilesModule,
     TariffsModule,
-    AccountModule,
+    AccountsModule,
     AuthModule,
     BotAccessesModule,
     PlatformModule,
     PromocodesModule,
     BotsModule,
     SubscriptionsModule,
+    StatisticsModule,
     PaymentsModule,
     HttpModule,
     NotificationModule,
     BlacklistTokensModule,
+    //ChatsModule,
+    SharedAccessesModule,
+    PartnershipModule,
   ],
   controllers: [AppController, AuthController],
   providers: [
@@ -57,6 +67,12 @@ import { throttlerConfig } from './configs/throttler.config';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    Logger,
+
+    {
+      provide: APP_FILTER,
+      useClass: GlobalHTTPExceptionFilter,
     },
   ],
 })

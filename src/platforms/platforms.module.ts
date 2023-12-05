@@ -5,6 +5,7 @@ import { PlatformService } from './platforms.service';
 import { Platform, PlatformSchema } from './schema/platforms.schema';
 import { PlatformController } from './platforms.controller';
 import { ProfilesModule } from 'src/profiles/profiles.module';
+import { PlatformRepository } from './platforms.repository';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { ProfilesModule } from 'src/profiles/profiles.module';
     ProfilesModule,
   ],
   controllers: [PlatformController],
-  providers: [PlatformService],
+  providers: [PlatformService, PlatformRepository],
 })
 export class PlatformModule {}

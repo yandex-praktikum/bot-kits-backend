@@ -1,94 +1,42 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import {
-  Subscription,
-  SubscriptionDocument,
-} from './schema/subscription.schema';
-import { Model } from 'mongoose';
+import { Injectable } from '@nestjs/common';
+import { Subscription } from './schema/subscription.schema';
 import { Profile } from '../profiles/schema/profile.schema';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
-import { Payment } from '../payments/schema/payment.schema';
-import { Tariff } from 'src/tariffs/schema/tariff.schema';
+import { SubscriptionsRepository } from './subscriptions.repository';
 
 @Injectable()
 export class SubscriptionsService {
-  constructor(
-    @InjectModel(Subscription.name)
-    private subscriptionModel: Model<SubscriptionDocument>,
-    @InjectModel(Payment.name) private paymentModel: Model<Payment>,
-    @InjectModel(Tariff.name) private tariffModel: Model<Tariff>,
-  ) {}
-
-  async subscriptionAndPayments(profile: Profile): Promise<object> {
-    const subscription = await this.subscriptionModel.findOne({ profile });
-    const payment = await this.paymentModel.find({ profile });
-    const dataObject = {
-      tariff: '',
-      status: false,
-      cardMask: '',
-      debitDate: new Date(),
-      balance: profile.balance,
-      payments: payment,
-    };
-    if (subscription) {
-      const tariff = await this.tariffModel
-        .findById(subscription.tariff)
-        .exec();
-      dataObject.tariff = tariff.name;
-      dataObject.status = subscription.status;
-      dataObject.cardMask = subscription.cardMask;
-      dataObject.debitDate = subscription.debitDate;
-    }
-    return dataObject;
-  }
-
-  async activateSubscription(profile: Profile, status: boolean) {
-    const subscription = await this.subscriptionModel
-      .findOne({ profile: profile })
-      .exec();
-    if (!subscription) {
-      throw new NotFoundException('Не найдена подписка пользователя');
-    }
-    subscription.status = status;
-    await subscription.save();
-    return subscription;
-  }
-
-  async create(
-    createSubscriptionDto: CreateSubscriptionDto,
-  ): Promise<Subscription> {
-    const subscription = await this.subscriptionModel
-      .findOne({ profile: createSubscriptionDto.profile })
-      .exec();
-    const tariff = await this.tariffModel
-      .findById(createSubscriptionDto.tariffId)
-      .exec();
-    if (!tariff) {
-      throw new UnprocessableEntityException('Неверный идентификатор тарифа');
-    }
-    if (subscription) {
-      await this.subscriptionModel.findByIdAndRemove(subscription.id).exec();
-    }
-    return await this.subscriptionModel.create({
-      ...createSubscriptionDto,
-      tariff,
-      status: true,
-    });
-  }
-
-  async delete(id: number) {
-    return await this.subscriptionModel.findByIdAndRemove(id).exec();
-  }
+  constructor(private readonly dbQuery: SubscriptionsRepository) {}
 
   async findOne(id: number): Promise<Subscription> {
-    return this.subscriptionModel.findById(id).exec();
+    return await this.dbQuery.findOne(id);
   }
 
   async findAll(): Promise<Subscription[]> {
-    return await this.subscriptionModel.find().exec();
+    return await this.dbQuery.findAll();
+  }
+
+  async findSubscriptionByProfile(profile: Profile) {
+    return await this.dbQuery.findSubscriptionByProfile(profile);
+  }
+
+  async subscriptionAndPayments(profile: Profile) {
+    return await this.dbQuery.subscriptionAndPayments(profile);
+  }
+
+  async activateSubscription(profile: Profile, status: boolean) {
+    return await this.dbQuery.activateSubscription(profile, status);
+  }
+
+  async create(
+    tariffId: string,
+    userId: string,
+    createSubscriptionDto: CreateSubscriptionDto,
+  ): Promise<Subscription> {
+    return await this.dbQuery.create(createSubscriptionDto, tariffId, userId);
+  }
+
+  async delete(id: number) {
+    return await this.dbQuery.delete(id);
   }
 }

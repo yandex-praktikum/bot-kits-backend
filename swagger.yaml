@@ -1,6 +1,6 @@
 openapi: 3.0.0
 paths:
-  /:
+  /dev/api:
     get:
       operationId: AppController_getHello
       parameters: []
@@ -11,7 +11,7 @@ paths:
             application/json:
               schema:
                 type: string
-  /signin:
+  /dev/api/signin:
     post:
       operationId: AuthController_signin
       summary: Войти в систему
@@ -37,11 +37,16 @@ paths:
                 $ref: '#/components/schemas/SigninResponseBodyNotOK'
       tags: &ref_0
         - auth
-  /signup:
+  /dev/api/signup:
     post:
       operationId: AuthController_signup
       summary: Регистрация
-      parameters: []
+      parameters:
+        - name: ref
+          required: true
+          in: query
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -64,7 +69,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SignupResponseBodyNotOK'
       tags: *ref_0
-  /refresh-token:
+  /dev/api/refresh-token:
     post:
       operationId: AuthController_refreshToken
       summary: Обновить токен
@@ -89,7 +94,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/refreshTokenResponseBodyNotOK'
       tags: *ref_0
-  /yandex/exchange:
+  /dev/api/yandex/exchange:
     post:
       operationId: AuthController_exchangeCodeYandex
       summary: Авторизация через Yandex
@@ -108,7 +113,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
-  /mailru/exchange:
+  /dev/api/mailru/exchange:
     post:
       operationId: AuthController_exchangeCodeMail
       summary: Авторизация через Mail
@@ -127,7 +132,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
-  /vkontakte:
+  /dev/api/vkontakte:
     get:
       operationId: AuthController_vkontakteAuth
       summary: Авторизация через Вконтакте
@@ -140,7 +145,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
-  /google:
+  /dev/api/google:
     get:
       operationId: AuthController_googleAuth
       summary: Авторизация через Google
@@ -153,7 +158,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SigninResponseBodyOK'
       tags: *ref_0
-  /telegram:
+  /dev/api/telegram:
     post:
       operationId: AuthController_telegramCallback
       parameters: []
@@ -165,7 +170,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Account'
       tags: *ref_0
-  /reset-password:
+  /dev/api/reset-password:
     post:
       operationId: AuthController_resetPassword
       summary: Сброс пароля
@@ -192,7 +197,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResetPasswordResponseBodyNotFound'
       tags: *ref_0
-  /profiles:
+  /dev/api/profiles:
     get:
       operationId: ProfilesController_findAll
       summary: Получить все профили
@@ -215,7 +220,7 @@ paths:
       security: &ref_3
         - &ref_2
           bearer: []
-  /profiles/me:
+  /dev/api/profiles/me:
     get:
       operationId: ProfilesController_findProfileByToken
       summary: Получить текущий профиль
@@ -241,7 +246,7 @@ paths:
       security:
         - *ref_2
         - bearer: []
-  /profiles/{id}:
+  /dev/api/profiles/{id}:
     get:
       operationId: ProfilesController_findOne
       summary: Получить профиль по id
@@ -322,7 +327,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_1
       security: *ref_3
-  /profiles/{id}/accounts:
+  /dev/api/profiles/{id}/accounts:
     get:
       operationId: ProfilesController_findAccountByProfileId
       summary: Получить все аккаунты пользователя по id профиля
@@ -349,9 +354,9 @@ paths:
           description: Ресурс не найден
       tags: *ref_1
       security: *ref_3
-  /tariffs:
+  /dev/api/tariffs:
     get:
-      operationId: TariffsController_findAll
+      operationId: TariffsController_findAllTariffs
       summary: Получить все тарифы
       parameters: []
       responses:
@@ -370,7 +375,7 @@ paths:
       security: &ref_5
         - bearer: []
     post:
-      operationId: TariffsController_create
+      operationId: TariffsController_createTariff
       summary: Добавить новый тариф
       parameters: []
       requestBody:
@@ -394,9 +399,9 @@ paths:
           description: Такой тариф уже существует
       tags: *ref_4
       security: *ref_5
-  /tariffs/{id}:
+  /dev/api/tariffs/{id}:
     get:
-      operationId: TariffsController_findOne
+      operationId: TariffsController_findTariffToId
       summary: Получить тариф по id
       parameters:
         - name: id
@@ -452,7 +457,7 @@ paths:
       tags: *ref_4
       security: *ref_5
     delete:
-      operationId: TariffsController_remove
+      operationId: TariffsController_removeTariff
       summary: Удалить тариф по id
       parameters:
         - name: id
@@ -475,29 +480,26 @@ paths:
           description: Ресурс не найден
       tags: *ref_4
       security: *ref_5
-  /accounts:
+  /dev/api/accounts:
     get:
-      operationId: AccountController_findAll
-      summary: Получить все аккаунты
+      operationId: AccountsController_findAll
       parameters: []
       responses:
         '200':
-          description: Запрос выполнен успешно
+          description: ''
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SingleAccountResponseBodyOK'
-        '403':
-          description: Отказ в доступе
+                  $ref: '#/components/schemas/Account'
       tags: &ref_6
         - accounts
       security: &ref_7
         - bearer: []
-  /accounts/{id}:
+  /dev/api/accounts/{id}:
     patch:
-      operationId: AccountController_update
+      operationId: AccountsController_update
       summary: Обновить данные аккаунта по id
       parameters:
         - name: id
@@ -528,7 +530,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_6
       security: *ref_7
-  /logout:
+  /dev/api/logout:
     get:
       operationId: BlacklistTokensController_addToken
       summary: Разлогинить пользователя
@@ -554,9 +556,21 @@ paths:
         - logout
       security:
         - bearer: []
-  /bot-accesses:
+  /dev/api/partnership/partner:
+    get:
+      operationId: PartnershipController_redirectToPage
+      parameters:
+        - name: ref
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+  /dev/api/bot-accesses:
     post:
-      operationId: BotAccessesController_create
+      operationId: BotAccessesController_createBotAccesses
       summary: Создает доступ
       description: >-
         Создает запись о доступе пользователя к боту, используется при создании
@@ -584,7 +598,7 @@ paths:
       security: &ref_9
         - bearer: []
     get:
-      operationId: BotAccessesController_findAll
+      operationId: BotAccessesController_findAllBotAccesses
       summary: Найти все доступы
       parameters: []
       responses:
@@ -600,9 +614,9 @@ paths:
           description: Отказ в доступе
       tags: *ref_8
       security: *ref_9
-  /bot-accesses/{id}:
+  /dev/api/bot-accesses/{id}:
     get:
-      operationId: BotAccessesController_findOne
+      operationId: BotAccessesController_findBotAccessesToId
       summary: Найти доступ по ID
       description: ВАЖНО! Находит доступ по botAccessId (запись о связи botId и userId)
       parameters:
@@ -627,7 +641,7 @@ paths:
       tags: *ref_8
       security: *ref_9
     patch:
-      operationId: BotAccessesController_update
+      operationId: BotAccessesController_updateBotAccesses
       summary: Изменить уровень доступа
       description: >-
         Изменяет уровень существующего доступа. Должен передаваться полностью
@@ -662,7 +676,7 @@ paths:
       tags: *ref_8
       security: *ref_9
     delete:
-      operationId: BotAccessesController_delete
+      operationId: BotAccessesController_deleteBotAccesses
       summary: Удалить доступ
       parameters:
         - name: id
@@ -685,7 +699,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_8
       security: *ref_9
-  /bot-accesses/{userId}/{botId}:
+  /dev/api/bot-accesses/{userId}/{botId}:
     get:
       operationId: BotAccessesController_getPermission
       summary: Получить доступ
@@ -718,7 +732,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_8
       security: *ref_9
-  /bot-accesses/{botId}:
+  /dev/api/bot-accesses/{botId}:
     post:
       operationId: BotAccessesController_shareAccess
       summary: Поделиться доступом
@@ -754,7 +768,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_8
       security: *ref_9
-  /platforms:
+  /dev/api/platforms:
     post:
       operationId: PlatformController_create
       summary: Создать новую платформу
@@ -797,7 +811,7 @@ paths:
           description: Отказ в доступе
       tags: *ref_10
       security: *ref_11
-  /platforms/{id}:
+  /dev/api/platforms/{id}:
     get:
       operationId: PlatformController_findOne
       summary: Получить платформу по id
@@ -878,7 +892,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_10
       security: *ref_11
-  /promocodes:
+  /dev/api/promocodes:
     post:
       operationId: PromocodesController_create
       summary: Добавить новый промокод
@@ -921,7 +935,7 @@ paths:
           description: Отказ в доступе
       tags: *ref_12
       security: *ref_13
-  /promocodes/promocode:
+  /dev/api/promocodes/promocode:
     get:
       operationId: PromocodesController_findOneByCode
       summary: Получить промокод по названию
@@ -966,7 +980,7 @@ paths:
           description: Отказ в доступе
       tags: *ref_12
       security: *ref_13
-  /promocodes/{id}:
+  /dev/api/promocodes/{id}:
     get:
       operationId: PromocodesController_findOne
       summary: Получить промокод по id
@@ -1047,7 +1061,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_12
       security: *ref_13
-  /bots:
+  /dev/api/bots:
     get:
       operationId: BotsController_findMy
       summary: Получить ботов пользователя
@@ -1092,10 +1106,10 @@ paths:
           description: Отказ в доступе
       tags: *ref_14
       security: *ref_15
-  /bots/templates:
+  /dev/api/bots/templates:
     get:
       operationId: BotsController_findTemplates
-      summary: Получить ботов пользователя
+      summary: Получить все шаблоны бота
       parameters: []
       responses:
         '200':
@@ -1112,7 +1126,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
-  /bots/{id}:
+  /dev/api/bots/{id}:
     delete:
       operationId: BotsController_remove
       summary: Удаление бота
@@ -1139,7 +1153,7 @@ paths:
       security: *ref_15
     patch:
       operationId: BotsController_update
-      summary: Смена имени бота
+      summary: Обновить бота
       parameters:
         - name: id
           required: true
@@ -1191,7 +1205,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
-  /bots/{id}/share:
+  /dev/api/bots/{id}/share:
     post:
       operationId: BotsController_share
       summary: Предоставить общий доступ к боту, первичный доступ при отправке email
@@ -1224,7 +1238,80 @@ paths:
           description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
-  /subscriptions:
+  /dev/api/bots/template:
+    post:
+      operationId: BotsController_createTemplate
+      summary: Добавление шаблона бота админом
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateDto'
+      responses:
+        '200':
+          description: Созданный шаблон
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+      tags: *ref_14
+      security: *ref_15
+  /dev/api/bots/template/{id}:
+    patch:
+      operationId: BotsController_updateTemplate
+      summary: Обновление шаблона бота админом
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateDto'
+      responses:
+        '200':
+          description: Обновленны шаблон бгота
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+      tags: *ref_14
+      security: *ref_15
+    delete:
+      operationId: BotsController_removeTemplate
+      summary: Удаление шаблона бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор шаблона
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Шаблон удален
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '404':
+          description: Ресурс не найден
+      tags: *ref_14
+      security: *ref_15
+  /dev/api/subscriptions:
     get:
       operationId: SubscriptionsController_subscriptionAndPayments
       summary: Данные страницы "Подписка и платежи"
@@ -1264,7 +1351,7 @@ paths:
         - subscriptions
       security: &ref_17
         - bearer: []
-  /subscriptions/activate:
+  /dev/api/subscriptions/activate:
     post:
       operationId: SubscriptionsController_activateSubscription
       summary: Активировать(отменить) подписку
@@ -1274,11 +1361,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                status:
-                  type: boolean
-                  example: true
+              $ref: '#/components/schemas/ActivateSubscriptionDTO'
       responses:
         '201':
           description: Подписка активирована
@@ -1294,12 +1377,12 @@ paths:
           description: Ресурс не найден
       tags: *ref_16
       security: *ref_17
-  /subscriptions/{id}:
+  /dev/api/subscriptions/{tariffId}:
     post:
       operationId: SubscriptionsController_createSubscription
       summary: Оформить подписку
       parameters:
-        - name: id
+        - name: tariffId
           required: true
           in: path
           description: Идентификатор тарифа
@@ -1334,7 +1417,20 @@ paths:
           description: Ресурс не найден
       tags: *ref_16
       security: *ref_17
-  /payments:
+  /dev/api/statistics:
+    get:
+      operationId: StatisticsController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Statistics'
+  /dev/api/payments:
     get:
       operationId: PaymentsController_userPayments
       summary: История платежей
@@ -1377,7 +1473,7 @@ paths:
           description: Отказ в доступе
       tags: *ref_18
       security: *ref_19
-  /payments/{id}:
+  /dev/api/payments/{id}:
     delete:
       operationId: PaymentsController_delete
       summary: Удалить финансовую операцию
@@ -1430,7 +1526,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_18
       security: *ref_19
-  /notification:
+  /dev/api/notification:
     post:
       operationId: NotificationController_create
       summary: Создать уведомление
@@ -1473,7 +1569,7 @@ paths:
           description: Отказ в доступе
       tags: *ref_20
       security: *ref_21
-  /notification/{id}:
+  /dev/api/notification/{id}:
     get:
       operationId: NotificationController_findOne
       summary: Получить уведомление по id
@@ -1843,9 +1939,25 @@ components:
         price:
           type: number
           example: 390
+        botsCount:
+          type: number
+          example: 100
+        subscribersCount:
+          type: number
+          example: 2120
+        duration:
+          type: string
+          example: 1M
+        status:
+          type: string
+          example: Активен
       required:
         - name
         - price
+        - botsCount
+        - subscribersCount
+        - duration
+        - status
     CreateTariffDto:
       type: object
       properties:
@@ -1856,9 +1968,23 @@ components:
           type: number
           minimum: 1
           example: 390
+        botsCount:
+          type: number
+          minimum: 1
+        subscribersCount:
+          type: number
+          minimum: 1
+        duration:
+          type: string
+        status:
+          type: boolean
       required:
         - name
         - price
+        - botsCount
+        - subscribersCount
+        - duration
+        - status
     UpdateTariffDto:
       type: object
       properties: {}
@@ -1907,6 +2033,15 @@ components:
         balance:
           type: number
           example: 1400
+        partner_ref:
+          type: string
+          example: '0000000'
+        visited_ref:
+          type: number
+          example: 0
+        registration_ref:
+          type: number
+          example: 0
         accounts:
           type: array
           items:
@@ -1916,6 +2051,9 @@ components:
         - phone
         - avatar
         - balance
+        - partner_ref
+        - visited_ref
+        - registration_ref
         - accounts
     Bot:
       type: object
@@ -2150,6 +2288,55 @@ components:
           example: test@test.ru
       required:
         - email
+    CreateTemplateDto:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        title:
+          type: string
+          example: Бот Автоответчик
+        description:
+          type: string
+          example: Бот для создания заказов
+        features:
+          type: object
+        settings:
+          type: object
+          example:
+            Приветствие: Я бот для создания заказов
+            Инлайн_кнопка: Текст кнопки
+        type:
+          type: string
+      required:
+        - title
+    UpdateTemplateDto:
+      type: object
+      properties:
+        icon:
+          type: string
+          example: >-
+            https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png
+        title:
+          type: string
+          example: Бот Автоответчик
+        description:
+          type: string
+          example: Бот для создания заказов
+        features:
+          type: object
+        settings:
+          type: object
+    ActivateSubscriptionDTO:
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: true
+      required:
+        - status
     Subscription:
       type: object
       properties:
@@ -2163,18 +2350,21 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-10-15T09:02:55.897Z
+          example: 2023-12-05T07:31:42.846Z
       required:
         - status
         - cardMask
         - debitDate
+    Statistics:
+      type: object
+      properties: {}
     Payment:
       type: object
       properties:
         date:
           format: date-time
           type: string
-          example: 2023-10-15T09:02:55.899Z
+          example: 2023-12-05T07:31:42.848Z
         amount:
           type: number
           example: 1000

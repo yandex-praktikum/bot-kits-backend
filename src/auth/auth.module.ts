@@ -8,7 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Profile, ProfileSchema } from 'src/profiles/schema/profile.schema';
 import { Account, AccountSchema } from 'src/accounts/schema/account.schema';
 import { ProfilesModule } from 'src/profiles/profiles.module';
-import { AccountModule } from 'src/accounts/accounts.module';
+import { AccountsModule } from 'src/accounts/accounts.module';
 import { HashModule } from 'src/hash/hash.module';
 import { jwtOptions } from 'src/configs/jwt.config';
 import { STRTAGIES } from './strategies';
@@ -16,14 +16,18 @@ import { GUARDS } from './guards';
 import { HttpModule } from '@nestjs/axios';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.module';
+import { SharedAccessesModule } from 'src/shared-accesses/shared-accesses.module';
+import { PartnershipModule } from 'src/partnership/partnership.module';
 
 @Module({
   imports: [
     HttpModule,
     ProfilesModule,
-    AccountModule,
+    AccountsModule,
+    SharedAccessesModule,
     HashModule,
     PassportModule,
+    PartnershipModule,
     ConfigModule,
     JwtModule.registerAsync(jwtOptions()),
     MongooseModule.forFeature([

@@ -11,6 +11,8 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 _*.js
+_*.ts
+
 # OS
 .DS_Store
 
@@ -37,3 +39,4 @@ _*.js
 #custom ignore
 .env*
 !.env.example
+docker-compose-dev-local.yml

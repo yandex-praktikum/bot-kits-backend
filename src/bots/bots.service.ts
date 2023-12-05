@@ -1,108 +1,80 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { Bot, BotDocument } from './schema/bots.schema';
-import { Model } from 'mongoose';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Bot } from './schema/bots.schema';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
-import { BotAccessesService } from '../botAccesses/botAccesses.service';
-import {
-  defaultPermission,
-  fullPermission,
-  LEVEL_ACCESS,
-} from '../botAccesses/types/types';
+import { BotsRepository } from './bots.repository';
+import { CreateTemplateDto } from './dto/create-template.dto';
+import { UpdateTemplateDto } from './dto/update-template.dto';
 
 @Injectable()
 export class BotsService {
-  constructor(
-    @InjectModel(Bot.name) private botModel: Model<BotDocument>,
-    private readonly botAccessesService: BotAccessesService,
-  ) {}
+  constructor(private dbQuery: BotsRepository) {}
 
   async create(profile, createBotDto: CreateBotDto): Promise<Bot> {
-    const bot = await new this.botModel({ ...createBotDto, profile }).save();
-
-    // При создании бота, создаем доступ сразу с полным уровнем
-    await this.botAccessesService.create(profile, {
-      botId: bot.id,
-      permission: fullPermission,
-    });
-
-    // if (bot.title === createBotDto.title) {
-    //   throw new ConflictException('Бот с таким именем уже существует');
-    // }
-
-    return bot;
+    try {
+      return await this.dbQuery.create(profile, createBotDto);
+    } catch (e) {
+      if (e.code === 11000) {
+        throw new ConflictException('Бот с таким имененм уже существует');
+      }
+    }
   }
 
   async findOne(id: string): Promise<Bot> {
-    return await this.botModel.findById(id).exec();
+    return await this.dbQuery.findOne(id);
   }
 
   async findAllByUser(userId: string): Promise<Bot[] | null> {
-    return this.botModel.find({ profile: userId });
+    return this.dbQuery.findAllByUser(userId);
   }
 
   async findAll(): Promise<Bot[]> {
-    return await this.botModel.find().exec();
+    return await this.dbQuery.findAll();
   }
 
   async findAllTemplates(): Promise<Bot[]> {
-    return await this.botModel.find({ type: 'template' }).exec();
+    return await this.dbQuery.findAllTemplates();
   }
 
   async update(
     userId: string,
-    id: string,
+    botId: string,
     updateBotDto: UpdateBotDto,
   ): Promise<Bot> {
-    const permission = await this.botAccessesService.getPermission(userId, id);
-
-    // Если есть доступ только для просмотра вкладки Воронки, то нельзя редактировать
-    if (permission.voronki === LEVEL_ACCESS.VIEWER) {
-      throw new ForbiddenException('Недостаточно прав для редактирования бота');
-    }
-
-    await this.botModel.findByIdAndUpdate(id, updateBotDto).exec();
-    return this.findOne(id);
+    return this.dbQuery.update(userId, botId, updateBotDto);
   }
 
   async remove(userId: string, id: string): Promise<Bot> {
-    const hasFullAccess = await this.botAccessesService.hasFullAccess(
-      userId,
-      id,
-    );
-    if (!hasFullAccess) {
-      throw new ForbiddenException('Недостаточно прав для удаления бота');
-    }
-    return await this.botModel.findByIdAndRemove(id).exec();
+    return await this.dbQuery.remove(userId, id);
   }
-
-  // async copy(
-  //   profile: string,
-  //   id: string,
-  //   copyBotDto: CopyBotDto,
-  // ): Promise<Bot> {
-  //   const { icon, title, settings } = await this.findOne(id);
-  //   return await this.create(profile, {
-  //     icon,
-  //     title,
-  //     messenger: copyBotDto.messenger,
-  //     settings,
-  //   });
-  // }
 
   async share(
     profile: string,
     id: string,
     shareBotDto: ShareBotDto,
   ): Promise<string> {
-    // создаем первичный уровень доступа
-    await this.botAccessesService.shareAccess(profile, id, {
-      email: shareBotDto.email,
-      permission: defaultPermission,
-    });
+    return await this.dbQuery.share(profile, id, shareBotDto);
+  }
 
-    return 'Запрос на предоставление доступа отправлен';
+  async addBotTemplate(createTemplateDto: CreateTemplateDto): Promise<Bot> {
+    try {
+      return await this.dbQuery.createTemplate(createTemplateDto);
+    } catch (e) {
+      if (e.code === 11000) {
+        throw new ConflictException('Шаблон с таким имененм уже существует');
+      }
+    }
+  }
+
+  async updateTemplate(
+    templateId: string,
+    updateTemplateDto: UpdateTemplateDto,
+  ): Promise<Bot> {
+    return this.dbQuery.updateTemplate(templateId, updateTemplateDto);
+  }
+
+  async removeTemplate(templateId: string): Promise<Bot> {
+    return await this.dbQuery.removeTemplate(templateId);
   }
 }

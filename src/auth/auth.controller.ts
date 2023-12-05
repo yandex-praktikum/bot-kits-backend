@@ -6,6 +6,7 @@ import {
   Body,
   Get,
   Res,
+  Query,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { LocalGuard } from './guards/localAuth.guard';
@@ -91,7 +92,10 @@ export class AuthController {
     description: 'Аккаунт уже существует',
     type: SignupResponseBodyNotOK,
   })
-  async signup(@Body() combinedDto: CombinedDto): Promise<Account> {
+  async signup(
+    @Body() combinedDto: CombinedDto,
+    @Query('ref') ref: string,
+  ): Promise<Account> {
     const newAccount: CombinedDto = {
       email: combinedDto.email,
       password: combinedDto.password,
@@ -103,7 +107,7 @@ export class AuthController {
       type: 'body',
       data: 'combinedDto',
     });
-    return await this.authService.registration(authDto);
+    return await this.authService.registration(authDto, TypeAccount.LOCAL, ref);
   }
 
   @Post('refresh-token')

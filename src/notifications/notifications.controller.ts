@@ -26,7 +26,9 @@ import {
 } from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 
+@UseGuards(JwtGuard)
 @ApiTags('notification')
 @ApiBearerAuth()
 @Controller('notification')
