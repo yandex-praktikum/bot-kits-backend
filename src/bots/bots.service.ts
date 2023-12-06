@@ -11,12 +11,14 @@ import { UpdateTemplateDto } from './dto/update-template.dto';
 export class BotsService {
   constructor(private dbQuery: BotsRepository) {}
 
-  async create(profile, createBotDto: CreateBotDto): Promise<Bot> {
+  async create(profile, createBotDto: CreateBotDto, id?: string): Promise<Bot> {
     try {
-      return await this.dbQuery.create(profile, createBotDto);
+      return await this.dbQuery.create(profile, createBotDto, id);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException('Бот с таким имененм уже существует');
+      } else {
+        return e;
       }
     }
   }

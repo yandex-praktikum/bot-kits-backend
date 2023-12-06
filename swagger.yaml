@@ -1127,6 +1127,34 @@ paths:
       tags: *ref_14
       security: *ref_15
   /dev/api/bots/{id}:
+    post:
+      operationId: BotsController_createBotsFromTemplate
+      summary: Создание нового бота из шаблона
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BotCreateRequestBody'
+      responses:
+        '201':
+          description: Новый бот создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+      tags: *ref_14
+      security: *ref_15
     delete:
       operationId: BotsController_remove
       summary: Удаление бота
@@ -1303,6 +1331,28 @@ paths:
       responses:
         '200':
           description: Шаблон удален
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '404':
+          description: Ресурс не найден
+      tags: *ref_14
+      security: *ref_15
+    get:
+      operationId: BotsController_getTemplate
+      summary: Получение шаблона бота по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор шаблона
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Шаблон найден
           content:
             application/json:
               schema:
@@ -2350,7 +2400,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-05T07:31:42.846Z
+          example: 2023-12-06T15:31:36.919Z
       required:
         - status
         - cardMask
@@ -2364,7 +2414,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-05T07:31:42.848Z
+          example: 2023-12-06T15:31:36.922Z
         amount:
           type: number
           example: 1000

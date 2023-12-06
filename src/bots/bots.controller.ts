@@ -81,7 +81,27 @@ export class BotsController {
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: BotCreateRequestBody })
   create(@Req() req, @Body() createBotDto: CreateBotDto): Promise<Bot> {
+    console.log('object');
     return this.botsService.create(req.user.id, createBotDto);
+  }
+
+  @Post(':id')
+  @ApiOperation({
+    summary: 'Создание нового бота из шаблона',
+  })
+  @ApiCreatedResponse({
+    description: 'Новый бот создан',
+    type: Bot,
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  @ApiBody({ type: BotCreateRequestBody })
+  createBotsFromTemplate(
+    @Req() req,
+    @Body() createBotDto: CreateBotDto,
+    @Param('id') id: string,
+  ): Promise<Bot> {
+    return this.botsService.create(req.user.id, createBotDto, id);
   }
 
   @Delete(':id')
@@ -244,5 +264,25 @@ export class BotsController {
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   removeTemplate(@Param('id') templateId: string): Promise<Bot> {
     return this.botsService.removeTemplate(templateId);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @Get('template/:id')
+  @ApiOperation({
+    summary: 'Получение шаблона бота по id',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор шаблона',
+    example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiOkResponse({
+    description: 'Шаблон найден',
+    type: Bot,
+  })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  getTemplate(@Param('id') templateId: string): Promise<Bot> {
+    return this.botsService.findOne(templateId);
   }
 }
