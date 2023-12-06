@@ -1,11 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Bot, BotDocument } from './schema/bots.schema';
 import { Model } from 'mongoose';
-import {
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
@@ -25,17 +21,31 @@ export class BotsRepository {
     private readonly botAccessesService: BotAccessesService,
   ) {}
 
-  async create(profile, createBotDto: CreateBotDto): Promise<Bot> {
+  async create(profile, createBotDto: CreateBotDto, id?: string): Promise<Bot> {
     createBotDto.type = 'custom';
-    const bot = await new this.botModel({ ...createBotDto, profile });
+
+    let bot;
+    if (id) {
+      // Найти существующий шаблон бота по ID
+      bot = await this.botModel.findById(id).select('-_id -updatedAt').lean();
+      // Обновляем данные шаблона бота данными из createBotDto
+      const { isToPublish, ...botFromTemplate } = await Object.assign(
+        bot,
+        createBotDto,
+      );
+
+      bot = new this.botModel({ ...botFromTemplate, profile });
+    } else {
+      // Создаем новый экземпляр бота, если ID не предоставлен
+      bot = new this.botModel({ ...createBotDto, profile });
+    }
 
     // При создании бота, создаем доступ сразу с полным уровнем
     await this.botAccessesService.create(profile, {
       botId: bot.id,
       permission: fullPermission,
     });
-
-    return bot.save();
+    return await bot.save();
   }
 
   async findOne(id: string): Promise<Bot> {
