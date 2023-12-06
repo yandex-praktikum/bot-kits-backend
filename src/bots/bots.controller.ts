@@ -32,7 +32,6 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
-import { request } from 'express';
 
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
