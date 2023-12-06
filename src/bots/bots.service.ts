@@ -65,6 +65,8 @@ export class BotsService {
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException('Шаблон с таким имененм уже существует');
+      } else {
+        return e;
       }
     }
   }

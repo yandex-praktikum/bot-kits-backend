@@ -1127,34 +1127,6 @@ paths:
       tags: *ref_14
       security: *ref_15
   /dev/api/bots/{id}:
-    post:
-      operationId: BotsController_createBotsFromTemplate
-      summary: Создание нового бота из шаблона
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BotCreateRequestBody'
-      responses:
-        '201':
-          description: Новый бот создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-      tags: *ref_14
-      security: *ref_15
     delete:
       operationId: BotsController_remove
       summary: Удаление бота
@@ -1231,6 +1203,34 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
+      tags: *ref_14
+      security: *ref_15
+    post:
+      operationId: BotsController_createBotsFromTemplate
+      summary: Создание нового бота из шаблона
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BotCreateRequestBody'
+      responses:
+        '201':
+          description: Новый бот создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
       tags: *ref_14
       security: *ref_15
   /dev/api/bots/{id}/share:
@@ -2400,7 +2400,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-06T15:31:36.919Z
+          example: 2023-12-06T19:01:14.481Z
       required:
         - status
         - cardMask
@@ -2414,7 +2414,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-06T15:31:36.922Z
+          example: 2023-12-06T19:01:14.483Z
         amount:
           type: number
           example: 1000

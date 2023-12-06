@@ -80,27 +80,7 @@ export class BotsController {
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: BotCreateRequestBody })
   create(@Req() req, @Body() createBotDto: CreateBotDto): Promise<Bot> {
-    console.log('object');
     return this.botsService.create(req.user.id, createBotDto);
-  }
-
-  @Post(':id')
-  @ApiOperation({
-    summary: 'Создание нового бота из шаблона',
-  })
-  @ApiCreatedResponse({
-    description: 'Новый бот создан',
-    type: Bot,
-  })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  @ApiBody({ type: BotCreateRequestBody })
-  createBotsFromTemplate(
-    @Req() req,
-    @Body() createBotDto: CreateBotDto,
-    @Param('id') id: string,
-  ): Promise<Bot> {
-    return this.botsService.create(req.user.id, createBotDto, id);
   }
 
   @Delete(':id')
@@ -283,5 +263,24 @@ export class BotsController {
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   getTemplate(@Param('id') templateId: string): Promise<Bot> {
     return this.botsService.findOne(templateId);
+  }
+
+  @Post(':id')
+  @ApiOperation({
+    summary: 'Создание нового бота из шаблона',
+  })
+  @ApiCreatedResponse({
+    description: 'Новый бот создан',
+    type: Bot,
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  @ApiBody({ type: BotCreateRequestBody })
+  createBotsFromTemplate(
+    @Req() req,
+    @Body() createBotDto: CreateBotDto,
+    @Param('id') id: string,
+  ): Promise<Bot> {
+    return this.botsService.create(req.user.id, createBotDto, id);
   }
 }
