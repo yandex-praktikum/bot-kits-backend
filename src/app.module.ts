@@ -29,7 +29,6 @@ import { HttpModule } from '@nestjs/axios';
 import { NotificationModule } from './notifications/notifications.module';
 import { BlacklistTokensModule } from './blacklistTokens/blacklistTokens.module';
 import { throttlerConfig } from './configs/throttler.config';
-import { ChatsModule } from './chats/chats.module';
 import { SharedAccessesModule } from './shared-accesses/shared-accesses.module';
 import { PartnershipModule } from './partnership/partnership.module';
 import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';

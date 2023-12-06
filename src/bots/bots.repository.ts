@@ -28,7 +28,7 @@ export class BotsRepository {
     if (id) {
       // Найти существующий шаблон бота по ID
       bot = await this.botModel.findById(id).select('-_id -updatedAt').lean();
-      // Обновляем данные шаблона бота данными из createBotDto
+      // Обновляем данные шаблона бота данными из createBotDto у сразу удаляем ненужные поля
       const { isToPublish, ...botFromTemplate } = await Object.assign(
         bot,
         createBotDto,
