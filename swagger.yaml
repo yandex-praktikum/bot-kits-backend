@@ -1126,6 +1126,39 @@ paths:
           description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
+  /dev/api/bots/copy/{id}:
+    post:
+      operationId: BotsController_copyBot
+      summary: Копирование бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopyBotDto'
+      responses:
+        '201':
+          description: Бот скопирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_14
+      security: *ref_15
   /dev/api/bots/{id}:
     delete:
       operationId: BotsController_remove
@@ -2329,6 +2362,16 @@ components:
         - title
         - messenger
         - settings
+    Messenger:
+      type: object
+      properties: {}
+    CopyBotDto:
+      type: object
+      properties:
+        messengers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Messenger'
     ShareBotDto:
       type: object
       properties:
@@ -2400,7 +2443,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-06T19:01:14.481Z
+          example: 2023-12-11T13:01:01.790Z
       required:
         - status
         - cardMask
@@ -2414,7 +2457,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-06T19:01:14.483Z
+          example: 2023-12-11T13:01:01.792Z
         amount:
           type: number
           example: 1000

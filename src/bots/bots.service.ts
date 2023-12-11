@@ -6,6 +6,7 @@ import { ShareBotDto } from './dto/share-bot.dto';
 import { BotsRepository } from './bots.repository';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
+import { CopyBotDto } from './dto/copy-bot.dto';
 
 @Injectable()
 export class BotsService {
@@ -80,5 +81,23 @@ export class BotsService {
 
   async removeTemplate(templateId: string): Promise<Bot> {
     return await this.dbQuery.removeTemplate(templateId);
+  }
+
+  async copyBot(
+    profileId: string,
+    botId: string,
+    copyBotDto: CopyBotDto,
+  ): Promise<Bot> {
+    try {
+      return await this.dbQuery.copy(profileId, botId, copyBotDto);
+    } catch (e) {
+      if (e.code === 11000) {
+        throw new ConflictException(
+          'Переименуйте уже скопированного бота или повторите опе6рацию копирования',
+        );
+      } else {
+        return e;
+      }
+    }
   }
 }

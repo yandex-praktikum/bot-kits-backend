@@ -13,6 +13,8 @@ import {
 } from '../botAccesses/types/types';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
+import { CopyBotDto } from './dto/copy-bot.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class BotsRepository {
@@ -28,6 +30,9 @@ export class BotsRepository {
     if (id) {
       // Найти существующий шаблон бота по ID
       bot = await this.botModel.findById(id).select('-_id -updatedAt').lean();
+      if (bot.type !== 'template') {
+        throw new Error('Создание возможно только из шаблона');
+      }
       // Обновляем данные шаблона бота данными из createBotDto у сразу удаляем ненужные поля
       const { isToPublish, ...botFromTemplate } = await Object.assign(
         bot,
@@ -91,19 +96,22 @@ export class BotsRepository {
     return await this.botModel.findByIdAndRemove(id).exec();
   }
 
-  // async copy(
-  //   profile: string,
-  //   id: string,
-  //   copyBotDto: CopyBotDto,
-  // ): Promise<Bot> {
-  //   const { icon, title, settings } = await this.findOne(id);
-  //   return await this.create(profile, {
-  //     icon,
-  //     title,
-  //     messenger: copyBotDto.messenger,
-  //     settings,
-  //   });
-  // }
+  async copy(
+    profileId: string,
+    botId: string,
+    copyBotDto: CopyBotDto,
+  ): Promise<Bot> {
+    const rndId = uuidv4().slice(0, 8);
+    const bot = await this.botModel
+      .findById(botId)
+      .select('-_id -updatedAt')
+      .lean();
+    return await this.create(profileId, {
+      ...bot,
+      title: bot.title + `_copy_${rndId}`,
+      messengers: copyBotDto.messengers,
+    });
+  }
 
   async share(
     profile: string,
