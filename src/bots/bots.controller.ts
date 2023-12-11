@@ -32,6 +32,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
+import { CopyBotDto } from './dto/copy-bot.dto';
 
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
@@ -83,6 +84,31 @@ export class BotsController {
     return this.botsService.create(req.user.id, createBotDto);
   }
 
+  @Post('copy/:id')
+  @ApiOperation({
+    summary: 'Копирование бота',
+  })
+  @ApiCreatedResponse({
+    description: 'Бот скопирован',
+    type: Bot,
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  @ApiBody({ type: CopyBotDto })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор бота',
+    example: '64f81ba37571bfaac18a857f',
+  })
+  copyBot(
+    @Req() req,
+    @Param('id') botId: string,
+    @Body() copyBotDto: CopyBotDto,
+  ) {
+    return this.botsService.copyBot(req.user.id, botId, copyBotDto);
+  }
+
   @Delete(':id')
   @ApiOperation({
     summary: 'Удаление бота',
@@ -101,27 +127,6 @@ export class BotsController {
   remove(@Req() req, @Param('id') id: string): Promise<Bot> {
     return this.botsService.remove(req.user.id, id);
   }
-
-  // @Post(':id/copy')
-  // @ApiOperation({
-  //   summary: 'Копирование бота',
-  // })
-  // @ApiCreatedResponse({
-  //   description: 'Бот скопирован',
-  //   type: Bot,
-  // })
-  // @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  // @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  // @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  // @ApiBody({ type: CopyBotDto })
-  // @ApiParam({
-  //   name: 'id',
-  //   description: 'Идентификатор бота',
-  //   example: '64f81ba37571bfaac18a857f',
-  // })
-  // copy(@Req() req, @Param('id') id: string, @Body() copyBotDto: CopyBotDto) {
-  //   return this.botsService.copy(req.user.id, id, copyBotDto);
-  // }
 
   @Patch(':id')
   @ApiOperation({
