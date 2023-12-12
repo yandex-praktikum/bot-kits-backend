@@ -29,4 +29,7 @@ export class NotificationService {
   async update(updateNotificationDto: UpdateNotificationDto, id: string) {
     return await this.dbQuery.update(updateNotificationDto, id);
   }
+  async updateStatus(updateNotificationDto: UpdateNotificationDto, id: string,): Promise<Notification> {
+    return await this.dbQuery.update(updateNotificationDto, id);
+  }
 }
