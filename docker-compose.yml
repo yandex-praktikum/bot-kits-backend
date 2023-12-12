@@ -3,7 +3,7 @@ version: "3.9"
 
 services:
   backend:
-    container_name: 'botkit-backend'
+    container_name: 'botkit-backend-release'
     build:
       context: .
     ports:
@@ -16,8 +16,8 @@ services:
       - default
 
   mongo:
-    container_name: 'botkit-mongodb'
-    image: mongo:latest
+    container_name: 'botkit-mongodb-release'
+    image: mongo:5
     restart: always
     env_file:
       - .env
