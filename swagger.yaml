@@ -1126,179 +1126,6 @@ paths:
           description: Ресурс не найден
       tags: *ref_14
       security: *ref_15
-  /dev/api/bots/copy/{id}:
-    post:
-      operationId: BotsController_copyBot
-      summary: Копирование бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CopyBotDto'
-      responses:
-        '201':
-          description: Бот скопирован
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
-  /dev/api/bots/{id}:
-    delete:
-      operationId: BotsController_remove
-      summary: Удаление бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Бот удален
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
-    patch:
-      operationId: BotsController_update
-      summary: Обновить бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BotCreateRequestBody'
-      responses:
-        '200':
-          description: Имя бота обновлено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
-    get:
-      operationId: BotsController_findOne
-      summary: Получить данные бота по Id
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Информация о боте по Id получена
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
-    post:
-      operationId: BotsController_createBotsFromTemplate
-      summary: Создание нового бота из шаблона
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BotCreateRequestBody'
-      responses:
-        '201':
-          description: Новый бот создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-      tags: *ref_14
-      security: *ref_15
-  /dev/api/bots/{id}/share:
-    post:
-      operationId: BotsController_share
-      summary: Предоставить общий доступ к боту, первичный доступ при отправке email
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ShareBotDto'
-      responses:
-        '201':
-          description: Первичный доступ создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
   /dev/api/bots/template:
     post:
       operationId: BotsController_createTemplate
@@ -1390,6 +1217,179 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
+        '404':
+          description: Ресурс не найден
+      tags: *ref_14
+      security: *ref_15
+  /dev/api/bots/{id}:
+    get:
+      operationId: BotsController_findOne
+      summary: Получить данные бота по Id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Информация о боте по Id получена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_14
+      security: *ref_15
+    post:
+      operationId: BotsController_createBotsFromTemplate
+      summary: Создание нового бота из шаблона
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BotCreateRequestBody'
+      responses:
+        '201':
+          description: Новый бот создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+      tags: *ref_14
+      security: *ref_15
+    delete:
+      operationId: BotsController_remove
+      summary: Удаление бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Бот удален
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_14
+      security: *ref_15
+    patch:
+      operationId: BotsController_update
+      summary: Обновить бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BotCreateRequestBody'
+      responses:
+        '200':
+          description: Имя бота обновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_14
+      security: *ref_15
+  /dev/api/bots/{id}/share:
+    post:
+      operationId: BotsController_share
+      summary: Предоставить общий доступ к боту, первичный доступ при отправке email
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareBotDto'
+      responses:
+        '201':
+          description: Первичный доступ создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_14
+      security: *ref_15
+  /dev/api/bots/copy/{id}:
+    post:
+      operationId: BotsController_copyBot
+      summary: Копирование бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopyBotDto'
+      responses:
+        '201':
+          description: Бот скопирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
         '404':
           description: Ресурс не найден
       tags: *ref_14
@@ -2362,25 +2362,6 @@ components:
         - title
         - messenger
         - settings
-    Messenger:
-      type: object
-      properties: {}
-    CopyBotDto:
-      type: object
-      properties:
-        messengers:
-          type: array
-          items:
-            $ref: '#/components/schemas/Messenger'
-    ShareBotDto:
-      type: object
-      properties:
-        email:
-          type: string
-          description: Email зарегистрированного пользователя
-          example: test@test.ru
-      required:
-        - email
     CreateTemplateDto:
       type: object
       properties:
@@ -2422,6 +2403,25 @@ components:
           type: object
         settings:
           type: object
+    ShareBotDto:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Email зарегистрированного пользователя
+          example: test@test.ru
+      required:
+        - email
+    Messenger:
+      type: object
+      properties: {}
+    CopyBotDto:
+      type: object
+      properties:
+        messengers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Messenger'
     ActivateSubscriptionDTO:
       type: object
       properties:
@@ -2443,7 +2443,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-11T13:01:01.790Z
+          example: 2023-12-12T00:59:46.895Z
       required:
         - status
         - cardMask
@@ -2457,7 +2457,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-11T13:01:01.792Z
+          example: 2023-12-12T00:59:46.897Z
         amount:
           type: number
           example: 1000
