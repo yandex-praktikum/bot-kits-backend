@@ -12,8 +12,14 @@ export class AppClusterService {
    * @param numCores Желаемое количество ядер для использования. Если не задано, используются все доступные ядра.
    */
   static clusterize(callback: () => void, numCores?: number): void {
+    // Если задано использовать только одно ядро или параметр не указан, запускаем callback в текущем процессе.
+    if (numCores === 1 || numCores <= 0 || !numCores) {
+      console.log(`Запуск в однопоточном режиме на ${process.pid}`);
+      callback();
+      return;
+    }
     // Определяем количество ядер (по умолчанию используем все доступные ядра системы)
-    const numCPUs = numCores || os.cpus().length;
+    const numCPUs = numCores > os.cpus().length ? os.cpus().length : numCores;
 
     // Проверяем, является ли текущий процесс главным (первичным).
     if (cluster.isPrimary) {

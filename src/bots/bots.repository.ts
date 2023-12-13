@@ -71,18 +71,21 @@ export class BotsRepository {
 
   async update(
     userId: string,
-    id: string,
+    botId: string,
     updateBotDto: UpdateBotDto,
   ): Promise<Bot> {
-    const permission = await this.botAccessesService.getPermission(userId, id);
+    const permission = await this.botAccessesService.getPermission(
+      userId,
+      botId,
+    );
 
     // Если есть доступ только для просмотра вкладки Воронки, то нельзя редактировать
     if (permission.voronki === LEVEL_ACCESS.VIEWER) {
       throw new ForbiddenException('Недостаточно прав для редактирования бота');
     }
 
-    await this.botModel.findByIdAndUpdate(id, updateBotDto).exec();
-    return this.findOne(id);
+    await this.botModel.findByIdAndUpdate(botId, updateBotDto).exec();
+    return this.findOne(botId);
   }
 
   async remove(userId: string, id: string): Promise<Bot> {
@@ -101,6 +104,16 @@ export class BotsRepository {
     botId: string,
     copyBotDto: CopyBotDto,
   ): Promise<Bot> {
+    const permission = await this.botAccessesService.getPermission(
+      profileId,
+      botId,
+    );
+
+    // Если есть доступ только для просмотра вкладки Воронки, то нельзя редактировать
+    if (permission.dashboard === LEVEL_ACCESS.VIEWER) {
+      throw new ForbiddenException('Недостаточно прав для копирования бота');
+    }
+
     const rndId = uuidv4().slice(0, 8);
     const bot = await this.botModel
       .findById(botId)
