@@ -38,7 +38,6 @@ export class Bot extends Document {
   icon?: string;
 
   @Prop({
-    required: true,
     unique: true,
     minlength: 2,
     maxlength: 30,
@@ -70,8 +69,9 @@ export class Bot extends Document {
   })
   commands?: TypeCommands[];
 
-  @Prop({ default: true })
+  @Prop({ default: false })
   isToPublish?: boolean;
 }
 
 export const BotSchema = SchemaFactory.createForClass(Bot);
+BotSchema.index({ title: 1, profile: 1 }, { unique: true });

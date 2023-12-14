@@ -2097,7 +2097,8 @@ components:
           type: object
           description: уровень доступа
           example: &ref_22
-            voronki: viewer
+            dashboard: viewer
+            voronki: editor
       required:
         - botId
         - permission
@@ -2144,35 +2145,23 @@ components:
     Permission:
       type: object
       properties:
+        dashboard:
+          type: string
+          example: editor
         voronki:
           type: string
           example: editor
-        newsletters:
-          type: string
-          example: editor
-        lists:
+        mailing:
           type: string
           example: editor
         statistic:
           type: string
           example: editor
-        dialogs:
-          type: string
-          example: editor
-        crm:
-          type: string
-          example: editor
-        mini_landing:
-          type: string
-          example: editor
       required:
+        - dashboard
         - voronki
-        - newsletters
-        - lists
+        - mailing
         - statistic
-        - dialogs
-        - crm
-        - mini_landing
     BotAccess:
       type: object
       properties:
@@ -2186,13 +2175,10 @@ components:
             - $ref: '#/components/schemas/Bot'
         permission:
           example:
+            dashboard: editor
             voronki: editor
-            newsletters: editor
-            lists: editor
+            mailing: editor
             statistic: editor
-            dialogs: editor
-            crm: editor
-            mini_landing: editor
           allOf:
             - $ref: '#/components/schemas/Permission'
       required:
@@ -2403,6 +2389,8 @@ components:
           type: object
         settings:
           type: object
+        isToPublish:
+          type: boolean
     ShareBotDto:
       type: object
       properties:
@@ -2443,7 +2431,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-12T10:55:26.707Z
+          example: 2023-12-14T14:03:19.630Z
       required:
         - status
         - cardMask
@@ -2457,7 +2445,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-12T10:55:26.709Z
+          example: 2023-12-14T14:03:19.632Z
         amount:
           type: number
           example: 1000
