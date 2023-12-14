@@ -41,5 +41,5 @@ export class UpdateTemplateDto {
 
   @IsBoolean()
   @IsOptional()
-  static isToPublish?: boolean;
+  isToPublish?: boolean;
 }
