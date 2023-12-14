@@ -1,7 +1,11 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Bot, BotDocument } from './schema/bots.schema';
 import { Model } from 'mongoose';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
@@ -84,19 +88,28 @@ export class BotsRepository {
       throw new ForbiddenException('Недостаточно прав для редактирования бота');
     }
 
+    const existingTemplate = await this.botModel.findById(botId).exec();
+    if (!existingTemplate) {
+      throw new NotFoundException(`Бот с ID ${botId} не найден`);
+    }
+
     await this.botModel.findByIdAndUpdate(botId, updateBotDto).exec();
     return this.findOne(botId);
   }
 
-  async remove(userId: string, id: string): Promise<Bot> {
+  async remove(userId: string, botId: string): Promise<Bot> {
     const hasFullAccess = await this.botAccessesService.hasFullAccess(
       userId,
-      id,
+      botId,
     );
     if (!hasFullAccess) {
       throw new ForbiddenException('Недостаточно прав для удаления бота');
     }
-    return await this.botModel.findByIdAndRemove(id).exec();
+    const existingTemplate = await this.botModel.findById(botId).exec();
+    if (!existingTemplate) {
+      throw new NotFoundException(`Бот с ID ${botId} не найден`);
+    }
+    return await this.botModel.findByIdAndRemove(botId).exec();
   }
 
   async copy(
@@ -151,11 +164,19 @@ export class BotsRepository {
     templateId: string,
     updateTemplateDto: UpdateTemplateDto,
   ): Promise<Bot> {
+    const existingTemplate = await this.botModel.findById(templateId).exec();
+    if (!existingTemplate) {
+      throw new NotFoundException(`Шаблон с ID ${templateId} не найден`);
+    }
     await this.botModel.findByIdAndUpdate(templateId, updateTemplateDto).exec();
     return this.findOne(templateId);
   }
 
   async removeTemplate(templateId: string): Promise<Bot> {
+    const existingTemplate = await this.botModel.findById(templateId).exec();
+    if (!existingTemplate) {
+      throw new NotFoundException(`Шаблон с ID ${templateId} не найден`);
+    }
     return await this.botModel.findByIdAndRemove(templateId).exec();
   }
 }

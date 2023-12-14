@@ -25,19 +25,35 @@ export class BotsService {
   }
 
   async findOne(id: string): Promise<Bot> {
-    return await this.dbQuery.findOne(id);
+    try {
+      return await this.dbQuery.findOne(id);
+    } catch (e) {
+      return e;
+    }
   }
 
   async findAllByUser(userId: string): Promise<Bot[] | null> {
-    return this.dbQuery.findAllByUser(userId);
+    try {
+      return this.dbQuery.findAllByUser(userId);
+    } catch (e) {
+      return e;
+    }
   }
 
   async findAll(): Promise<Bot[]> {
-    return await this.dbQuery.findAll();
+    try {
+      return await this.dbQuery.findAll();
+    } catch (e) {
+      return e;
+    }
   }
 
   async findAllTemplates(): Promise<Bot[]> {
-    return await this.dbQuery.findAllTemplates();
+    try {
+      return await this.dbQuery.findAllTemplates();
+    } catch (e) {
+      return e;
+    }
   }
 
   async update(
@@ -45,11 +61,23 @@ export class BotsService {
     botId: string,
     updateBotDto: UpdateBotDto,
   ): Promise<Bot> {
-    return this.dbQuery.update(userId, botId, updateBotDto);
+    try {
+      return this.dbQuery.update(userId, botId, updateBotDto);
+    } catch (e) {
+      if (e.code === 11000) {
+        throw new ConflictException('Бот с таким имененм уже существует');
+      } else {
+        return e;
+      }
+    }
   }
 
   async remove(userId: string, id: string): Promise<Bot> {
-    return await this.dbQuery.remove(userId, id);
+    try {
+      return await this.dbQuery.remove(userId, id);
+    } catch (e) {
+      return e;
+    }
   }
 
   async share(
@@ -57,7 +85,11 @@ export class BotsService {
     id: string,
     shareBotDto: ShareBotDto,
   ): Promise<string> {
-    return await this.dbQuery.share(profile, id, shareBotDto);
+    try {
+      return await this.dbQuery.share(profile, id, shareBotDto);
+    } catch (e) {
+      return e;
+    }
   }
 
   async addBotTemplate(createTemplateDto: CreateTemplateDto): Promise<Bot> {
@@ -76,11 +108,19 @@ export class BotsService {
     templateId: string,
     updateTemplateDto: UpdateTemplateDto,
   ): Promise<Bot> {
-    return this.dbQuery.updateTemplate(templateId, updateTemplateDto);
+    try {
+      return this.dbQuery.updateTemplate(templateId, updateTemplateDto);
+    } catch (e) {
+      return e;
+    }
   }
 
   async removeTemplate(templateId: string): Promise<Bot> {
-    return await this.dbQuery.removeTemplate(templateId);
+    try {
+      return await this.dbQuery.removeTemplate(templateId);
+    } catch (e) {
+      return e;
+    }
   }
 
   async copyBot(
