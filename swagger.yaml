@@ -2389,6 +2389,8 @@ components:
           type: object
         settings:
           type: object
+        isToPublish:
+          type: boolean
     ShareBotDto:
       type: object
       properties:
@@ -2429,7 +2431,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-14T02:32:29.569Z
+          example: 2023-12-14T14:03:19.630Z
       required:
         - status
         - cardMask
@@ -2443,7 +2445,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-14T02:32:29.576Z
+          example: 2023-12-14T14:03:19.632Z
         amount:
           type: number
           example: 1000

@@ -69,7 +69,7 @@ export class Bot extends Document {
   })
   commands?: TypeCommands[];
 
-  @Prop({ default: true })
+  @Prop({ default: false })
   isToPublish?: boolean;
 }
 
