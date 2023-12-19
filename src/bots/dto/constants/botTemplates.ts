@@ -13,7 +13,6 @@ export const botTemplates = [
     features: builderData,
     settings: {},
     commands: botCommands,
-    price: 1000,
     isToPublish: true,
   },
   {
@@ -26,7 +25,6 @@ export const botTemplates = [
     features: builderData,
     settings: {},
     commands: botCommands,
-    price: 1000,
     isToPublish: true,
   },
   {
@@ -39,7 +37,6 @@ export const botTemplates = [
     features: builderData,
     settings: {},
     commands: botCommands,
-    price: 1000,
     isToPublish: true,
   },
   {
@@ -52,7 +49,6 @@ export const botTemplates = [
     features: builderData,
     settings: {},
     commands: botCommands,
-    price: 1000,
     isToPublish: true,
   },
   {
@@ -65,7 +61,6 @@ export const botTemplates = [
     features: builderData,
     settings: {},
     commands: botCommands,
-    price: 1000,
     isToPublish: true,
   },
   {
@@ -78,7 +73,6 @@ export const botTemplates = [
     features: builderData,
     settings: {},
     commands: botCommands,
-    price: 1000,
     isToPublish: true,
   },
   {
@@ -91,7 +85,6 @@ export const botTemplates = [
     features: builderData,
     settings: {},
     commands: botCommands,
-    price: 1000,
     isToPublish: true,
   },
   {
@@ -104,7 +97,6 @@ export const botTemplates = [
     features: builderData,
     settings: {},
     commands: botCommands,
-    price: 1000,
     isToPublish: true,
   },
   {
@@ -117,7 +109,6 @@ export const botTemplates = [
     features: builderData,
     settings: {},
     commands: botCommands,
-    price: 1000,
     isToPublish: true,
   },
   {
@@ -130,7 +121,6 @@ export const botTemplates = [
     features: builderData,
     settings: {},
     commands: botCommands,
-    price: 1000,
     isToPublish: true,
   },
   {
@@ -143,7 +133,6 @@ export const botTemplates = [
     features: builderData,
     settings: {},
     commands: botCommands,
-    price: 1000,
     isToPublish: true,
   },
   {
@@ -156,7 +145,6 @@ export const botTemplates = [
     features: builderData,
     settings: {},
     commands: botCommands,
-    price: 1000,
     isToPublish: true,
   },
 ];

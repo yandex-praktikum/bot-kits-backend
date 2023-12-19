@@ -2,9 +2,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Bot, BotDocument } from './schema/bots.schema';
 import { Model } from 'mongoose';
 import {
-  ConflictException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
@@ -17,6 +17,8 @@ import {
 } from '../botAccesses/types/types';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
+import { CopyBotDto } from './dto/copy-bot.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class BotsRepository {
@@ -25,17 +27,34 @@ export class BotsRepository {
     private readonly botAccessesService: BotAccessesService,
   ) {}
 
-  async create(profile, createBotDto: CreateBotDto): Promise<Bot> {
+  async create(profile, createBotDto: CreateBotDto, id?: string): Promise<Bot> {
     createBotDto.type = 'custom';
-    const bot = await new this.botModel({ ...createBotDto, profile });
+
+    let bot;
+    if (id) {
+      // Найти существующий шаблон бота по ID
+      bot = await this.botModel.findById(id).select('-_id -updatedAt').lean();
+      if (bot.type !== 'template') {
+        throw new Error('Создание возможно только из шаблона');
+      }
+      // Обновляем данные шаблона бота данными из createBotDto у сразу удаляем ненужные поля
+      const { isToPublish, ...botFromTemplate } = await Object.assign(
+        bot,
+        createBotDto,
+      );
+
+      bot = new this.botModel({ ...botFromTemplate, profile });
+    } else {
+      // Создаем новый экземпляр бота, если ID не предоставлен
+      bot = new this.botModel({ ...createBotDto, profile });
+    }
 
     // При создании бота, создаем доступ сразу с полным уровнем
     await this.botAccessesService.create(profile, {
       botId: bot.id,
       permission: fullPermission,
     });
-
-    return bot.save();
+    return await bot.save();
   }
 
   async findOne(id: string): Promise<Bot> {
@@ -56,44 +75,69 @@ export class BotsRepository {
 
   async update(
     userId: string,
-    id: string,
+    botId: string,
     updateBotDto: UpdateBotDto,
   ): Promise<Bot> {
-    const permission = await this.botAccessesService.getPermission(userId, id);
+    const permission = await this.botAccessesService.getPermission(
+      userId,
+      botId,
+    );
 
     // Если есть доступ только для просмотра вкладки Воронки, то нельзя редактировать
     if (permission.voronki === LEVEL_ACCESS.VIEWER) {
       throw new ForbiddenException('Недостаточно прав для редактирования бота');
     }
 
-    await this.botModel.findByIdAndUpdate(id, updateBotDto).exec();
-    return this.findOne(id);
+    const existingTemplate = await this.botModel.findById(botId).exec();
+    if (!existingTemplate) {
+      throw new NotFoundException(`Бот с ID ${botId} не найден`);
+    }
+
+    await this.botModel.findByIdAndUpdate(botId, updateBotDto).exec();
+    return this.findOne(botId);
   }
 
-  async remove(userId: string, id: string): Promise<Bot> {
+  async remove(userId: string, botId: string): Promise<Bot> {
     const hasFullAccess = await this.botAccessesService.hasFullAccess(
       userId,
-      id,
+      botId,
     );
     if (!hasFullAccess) {
       throw new ForbiddenException('Недостаточно прав для удаления бота');
     }
-    return await this.botModel.findByIdAndRemove(id).exec();
+    const existingTemplate = await this.botModel.findById(botId).exec();
+    if (!existingTemplate) {
+      throw new NotFoundException(`Бот с ID ${botId} не найден`);
+    }
+    return await this.botModel.findByIdAndRemove(botId).exec();
   }
 
-  // async copy(
-  //   profile: string,
-  //   id: string,
-  //   copyBotDto: CopyBotDto,
-  // ): Promise<Bot> {
-  //   const { icon, title, settings } = await this.findOne(id);
-  //   return await this.create(profile, {
-  //     icon,
-  //     title,
-  //     messenger: copyBotDto.messenger,
-  //     settings,
-  //   });
-  // }
+  async copy(
+    profileId: string,
+    botId: string,
+    copyBotDto: CopyBotDto,
+  ): Promise<Bot> {
+    const permission = await this.botAccessesService.getPermission(
+      profileId,
+      botId,
+    );
+
+    // Если есть доступ только для просмотра вкладки Воронки, то нельзя редактировать
+    if (permission.dashboard === LEVEL_ACCESS.VIEWER) {
+      throw new ForbiddenException('Недостаточно прав для копирования бота');
+    }
+
+    const rndId = uuidv4().slice(0, 8);
+    const bot = await this.botModel
+      .findById(botId)
+      .select('-_id -updatedAt')
+      .lean();
+    return await this.create(profileId, {
+      ...bot,
+      title: bot.title + `_copy_${rndId}`,
+      messengers: copyBotDto.messengers,
+    });
+  }
 
   async share(
     profile: string,
@@ -120,11 +164,19 @@ export class BotsRepository {
     templateId: string,
     updateTemplateDto: UpdateTemplateDto,
   ): Promise<Bot> {
+    const existingTemplate = await this.botModel.findById(templateId).exec();
+    if (!existingTemplate) {
+      throw new NotFoundException(`Шаблон с ID ${templateId} не найден`);
+    }
     await this.botModel.findByIdAndUpdate(templateId, updateTemplateDto).exec();
     return this.findOne(templateId);
   }
 
   async removeTemplate(templateId: string): Promise<Bot> {
+    const existingTemplate = await this.botModel.findById(templateId).exec();
+    if (!existingTemplate) {
+      throw new NotFoundException(`Шаблон с ID ${templateId} не найден`);
+    }
     return await this.botModel.findByIdAndRemove(templateId).exec();
   }
 }

@@ -7,34 +7,39 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, ValidateNested } from 'class-validator';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 
+//botAccesses.shema.ts
 export class Permission implements TPermission {
+  @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
+  @IsEnum(LEVEL_ACCESS)
+  dashboard: LEVEL_ACCESS;
+
   @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
   @IsEnum(LEVEL_ACCESS)
   voronki: LEVEL_ACCESS;
 
   @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
   @IsEnum(LEVEL_ACCESS)
-  newsletters?: LEVEL_ACCESS;
-
-  @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
-  @IsEnum(LEVEL_ACCESS)
-  lists?: LEVEL_ACCESS;
+  mailing?: LEVEL_ACCESS;
 
   @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
   @IsEnum(LEVEL_ACCESS)
   statistic?: LEVEL_ACCESS;
 
-  @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
-  @IsEnum(LEVEL_ACCESS)
-  dialogs?: LEVEL_ACCESS;
+  // @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
+  // @IsEnum(LEVEL_ACCESS)
+  // dialogs?: LEVEL_ACCESS;
 
-  @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
-  @IsEnum(LEVEL_ACCESS)
-  crm?: LEVEL_ACCESS;
+  // @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
+  // @IsEnum(LEVEL_ACCESS)
+  // crm?: LEVEL_ACCESS;
 
-  @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
-  @IsEnum(LEVEL_ACCESS)
-  mini_landing?: LEVEL_ACCESS;
+  // @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
+  // @IsEnum(LEVEL_ACCESS)
+  // mini_landing?: LEVEL_ACCESS;
+
+  // @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
+  // @IsEnum(LEVEL_ACCESS)
+  // lists?: LEVEL_ACCESS;
 }
 
 export type BotAccessDocument = HydratedDocument<BotAccess>;

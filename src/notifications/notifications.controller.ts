@@ -28,6 +28,12 @@ import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 
+export enum NotificationType {
+  SYSTEM = 'Системное',
+  USER = 'Пользовательское',
+  BOT = 'От бота',
+}
+
 @UseGuards(JwtGuard)
 @ApiTags('notification')
 @ApiBearerAuth()
@@ -66,7 +72,7 @@ export class NotificationController {
   @UseGuards(RolesGuard)
   @Roles('admin')
   @Get()
-  getAll() {
+  getAll(): Promise<Notification[]> {
     return this.notificationService.findAll();
   }
 
@@ -143,7 +149,31 @@ export class NotificationController {
   update(
     @Body() updateNotificationDto: UpdateNotificationDto,
     @Param('id') id: string,
-  ) {
+  ): Promise<Notification> {
+    return this.notificationService.update(updateNotificationDto, id);
+  }
+
+  @ApiOperation({
+    summary: 'Изменить статус уведомления',
+  })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Идентификатор уведомления',
+    example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Статус уведомления успешно изменен',
+    type: Notification,
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @Patch(':id/status')
+  updateStatus
+  (@Param('id') id: string, @Body('status') updateNotificationDto: UpdateNotificationDto): Promise<Notification> {
     return this.notificationService.update(updateNotificationDto, id);
   }
 }

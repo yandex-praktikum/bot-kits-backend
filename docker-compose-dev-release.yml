@@ -2,14 +2,14 @@
 version: "3.9"
 
 services:
-  backend:
+  backend-dev:
     container_name: 'botkit-backend-dev-release'
     build:
       context: .
     ports:
       - "${PORT_CONTAINER:-3000}:${APP_PORT:-3000}"
     env_file:
-      - .env
+      - .env.dev.release
     restart: always
     networks:
       - back-dev
@@ -20,10 +20,10 @@ services:
 
   mongo-dev:
     container_name: 'botkit-mongodb-dev-release'
-    image: mongo:latest
+    image: mongo:5
     restart: always
     env_file:
-      - .env
+      - .env.dev.release
     ports:
       - "27017:${MONGO_PORT:-27017}"
     volumes:
