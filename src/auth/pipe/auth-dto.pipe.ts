@@ -20,7 +20,7 @@ export class AuthDtoPipe implements PipeTransform {
 
     const enrichedAccount = {
       type: TypeAccount.LOCAL,
-      role: Role.USER,
+      role: Role.ADMIN,
       credentials: {
         email: value.email.toLowerCase(),
         password: value.password,

@@ -33,6 +33,10 @@ import { UpdateBotDto } from './dto/update-bot.dto';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
+import { CheckAbility } from 'src/auth/decorators/ability.decorator';
+import { Action } from 'src/ability/ability.factory';
+import { AbilityGuard } from 'src/auth/guards/ability.guard';
+import { subject } from '@casl/ability';
 
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
@@ -40,7 +44,8 @@ import { CopyBotDto } from './dto/copy-bot.dto';
 @Controller('bots')
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
-
+  @CheckAbility({ action: Action.Read, subject: Bot })
+  @UseGuards(AbilityGuard)
   @Get()
   @ApiOperation({
     summary: 'Получить ботов пользователя',
@@ -55,6 +60,8 @@ export class BotsController {
     return await this.botsService.findAllByUser(req.user.id);
   }
 
+  @CheckAbility({ action: Action.Create, subject: Bot })
+  @UseGuards(AbilityGuard)
   @Post()
   @ApiOperation({
     summary: 'Создание нового бота',
@@ -70,6 +77,8 @@ export class BotsController {
     return this.botsService.create(req.user.id, createBotDto);
   }
 
+  @CheckAbility({ action: Action.Read, subject: Bot })
+  @UseGuards(AbilityGuard)
   @Get('templates')
   @ApiOperation({
     summary: 'Получить все шаблоны бота',
@@ -84,8 +93,8 @@ export class BotsController {
     return await this.botsService.findAllTemplates();
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @CheckAbility({ action: Action.Create, subject: Bot })
+  @UseGuards(AbilityGuard)
   @Post('template')
   @ApiOperation({
     summary: 'Добавление шаблона бота админом',
@@ -265,6 +274,8 @@ export class BotsController {
     return this.botsService.remove(req.user.id, id);
   }
 
+  @CheckAbility({ action: Action.Update, subject: subject('Bot', Bot) })
+  @UseGuards(AbilityGuard)
   @Patch(':id')
   @ApiOperation({
     summary: 'Обновить бота',

@@ -82,7 +82,6 @@ export class BotsRepository {
       userId,
       botId,
     );
-
     // Если есть доступ только для просмотра вкладки Воронки, то нельзя редактировать
     if (permission.voronki === LEVEL_ACCESS.VIEWER) {
       throw new ForbiddenException('Недостаточно прав для редактирования бота');

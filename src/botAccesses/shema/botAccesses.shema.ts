@@ -6,6 +6,7 @@ import { fullPermission, LEVEL_ACCESS, TPermission } from '../types/types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, ValidateNested } from 'class-validator';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
+import { Action } from 'src/ability/ability.factory';
 
 //botAccesses.shema.ts
 export class Permission implements TPermission {
@@ -25,21 +26,21 @@ export class Permission implements TPermission {
   @IsEnum(LEVEL_ACCESS)
   statistic?: LEVEL_ACCESS;
 
-  // @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
-  // @IsEnum(LEVEL_ACCESS)
-  // dialogs?: LEVEL_ACCESS;
+  @ApiProperty({ example: Action.Create })
+  @IsEnum(Action)
+  createBot?: Action;
 
-  // @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
-  // @IsEnum(LEVEL_ACCESS)
-  // crm?: LEVEL_ACCESS;
+  @ApiProperty({ example: Action.Read })
+  @IsEnum(Action)
+  readBot?: Action;
 
-  // @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
-  // @IsEnum(LEVEL_ACCESS)
-  // mini_landing?: LEVEL_ACCESS;
+  @ApiProperty({ example: Action.Update })
+  @IsEnum(Action)
+  updateBot?: Action;
 
-  // @ApiProperty({ example: LEVEL_ACCESS.EDITOR })
-  // @IsEnum(LEVEL_ACCESS)
-  // lists?: LEVEL_ACCESS;
+  @ApiProperty({ example: Action.Delete })
+  @IsEnum(Action)
+  deleteBot?: Action;
 }
 
 export type BotAccessDocument = HydratedDocument<BotAccess>;
