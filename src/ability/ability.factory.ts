@@ -39,16 +39,18 @@ export class AbilityFactory {
       createMongoAbility,
     );
     // Здесь определяем правила доступа.
-    if (isSuperAdmin) {
+    if (isAdmin) {
+      // Администраторы имеют право на чтение проифля
+      can(Action.Read, Profile);
+      can(Action.Read, Bot);
+      // can(Action.Update, Bot, ['title']).because(
+      //   'потому что можно обновлять только своего бота',
+      // );
+    } else if (isSuperAdmin) {
       // Супер администраторы имеют доступ ко всем операциям в приложении
       can(Action.Manage, 'all');
-    } else if (isAdmin) {
-      // Администраторы имеют доступ ко всем операциям с ботами
-      can(Action.Update, Bot, ['title']).because(
-        'потому что можно обновлять только своего бота',
-      );
     } else {
-      cannot(Action.Create, Bot);
+      can(Action.Read, 'all');
     }
     // Возвращаем сформированный набор правил. Это важно, так как без этого
     // мы не сможем использовать эти правила в других частях приложения.
