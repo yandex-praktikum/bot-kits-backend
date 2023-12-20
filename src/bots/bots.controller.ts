@@ -76,7 +76,7 @@ export class BotsController {
   }
 
   @UseGuards(AbilityGuard)
-  @CheckAbility({ action: Action.Read, subject: Bot })
+  @CheckAbility({ action: Action.Read, subject: CreateTemplateDto })
   @Get('templates')
   @ApiOperation({
     summary: 'Получить все шаблоны бота',
@@ -92,7 +92,7 @@ export class BotsController {
   }
 
   @UseGuards(AbilityGuard)
-  @CheckAbility({ action: Action.Create, subject: Bot })
+  @CheckAbility({ action: Action.Create, subject: CreateTemplateDto })
   @Post('template')
   @ApiOperation({
     summary: 'Добавление шаблона бота админом',
@@ -107,8 +107,7 @@ export class BotsController {
   }
 
   @UseGuards(AbilityGuard)
-  @UseGuards(AbilityGuard)
-  @CheckAbility({ action: Action.Update, subject: Bot })
+  @CheckAbility({ action: Action.Update, subject: CreateTemplateDto })
   @Patch('template/:id')
   @ApiOperation({
     summary: 'Обновление шаблона бота админом',
@@ -126,7 +125,7 @@ export class BotsController {
   }
 
   @UseGuards(AbilityGuard)
-  @CheckAbility({ action: Action.Delete, subject: Bot })
+  @CheckAbility({ action: Action.Delete, subject: CreateTemplateDto })
   @Delete('template/:id')
   @ApiOperation({
     summary: 'Удаление шаблона бота',

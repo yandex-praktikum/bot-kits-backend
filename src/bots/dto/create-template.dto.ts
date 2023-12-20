@@ -8,8 +8,6 @@ import {
   IsUrl,
 } from 'class-validator';
 import { TBuilderData } from '../schema/types/botBuilderTypes';
-import { Exclude } from 'class-transformer';
-import { Types } from 'mongoose';
 
 //create-template.dto.ts
 export class CreateTemplateDto {
@@ -52,6 +50,6 @@ export class CreateTemplateDto {
   settings?: object;
 
   @IsBoolean()
-  @Exclude()
-  static isToPublish: boolean;
+  @IsOptional()
+  isToPublish?: boolean;
 }

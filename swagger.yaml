@@ -2411,6 +2411,8 @@ components:
             Инлайн_кнопка: Текст кнопки
         type:
           type: string
+        isToPublish:
+          type: boolean
       required:
         - title
     UpdateTemplateDto:
@@ -2472,7 +2474,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-19T22:41:11.988Z
+          example: 2023-12-20T00:27:17.836Z
       required:
         - status
         - cardMask
@@ -2486,7 +2488,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-19T22:41:11.990Z
+          example: 2023-12-20T00:27:17.838Z
         amount:
           type: number
           example: 1000
