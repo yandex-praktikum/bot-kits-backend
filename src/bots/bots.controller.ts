@@ -59,7 +59,6 @@ export class BotsController {
 
   @UseGuards(AbilityGuard)
   @CheckAbility({ action: Action.Create, subject: Bot })
-  @UseGuards(AbilityGuard)
   @Post()
   @ApiOperation({
     summary: 'Создание нового бота',

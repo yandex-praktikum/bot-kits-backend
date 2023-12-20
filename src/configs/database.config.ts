@@ -8,16 +8,12 @@ import { botTemplates } from 'src/bots/dto/constants/botTemplates';
 import { platforms } from 'src/platforms/dto/constants/templates';
 import { tariffsTemplates } from 'src/tariffs/dto/constants/tariffsTemplates';
 import { getHash } from 'src/utils/utils';
-import { accessibleRecordsPlugin } from '@casl/mongoose';
-import mongoose from 'mongoose';
 
 /**
  * Инициализирует базу данных: создает пользователя и шаблонные боты, если они отсутствуют.
  * @param configService - сервис для доступа к конфигурации приложения.
  */
 async function initializeDatabase(configService: ConfigService): Promise<void> {
-  // Применение плагина CASL к Mongoose
-  mongoose.plugin(accessibleRecordsPlugin);
   // Формирование строки подключения к базе данных
   const uri = `mongodb://${configService.get('DB_HOST')}:${configService.get(
     'DB_PORT',

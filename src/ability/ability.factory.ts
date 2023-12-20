@@ -1,7 +1,9 @@
 import {
   AbilityBuilder,
+  ExtractSubjectType,
   InferSubjects,
   MongoAbility,
+  MongoQuery,
   createMongoAbility,
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
@@ -32,7 +34,11 @@ export type Subjects = InferSubjects<
   | CreateTemplateDto
   | 'all'
 >;
-export type AppAbility = MongoAbility<[Action, Subjects]>;
+
+type PossibleAbilities = [Action, Subjects];
+type Conditions = MongoQuery;
+
+export type AppAbility = MongoAbility<PossibleAbilities, Conditions>;
 
 @Injectable()
 export class AbilityFactory {
@@ -44,8 +50,8 @@ export class AbilityFactory {
     const isSuperAdmin = this.getRole(user, Role.SUPER_ADMIN);
     const isAdmin = this.getRole(user, Role.ADMIN);
     //--Создаем строитель AbilityBuilder, который поможет нам определить правила доступа--//
-    const { can, cannot, build } = new AbilityBuilder<AppAbility>(
-      createMongoAbility,
+    const { can, cannot, build } = new AbilityBuilder(
+      createMongoAbility<PossibleAbilities, Conditions>,
     );
     //--Здесь определяем правила доступа--//
     if (isAdmin) {
@@ -57,6 +63,7 @@ export class AbilityFactory {
       cannot(Action.Manage, CreateTemplateDto).because(
         'Этот функционал только у супер администратора',
       );
+      //--Любые сложные правила не работают--//
     } else if (isSuperAdmin) {
       //--Супер администраторы имеют доступ ко всем операциям в приложении--//
       can(Action.Manage, 'all');
@@ -65,6 +72,10 @@ export class AbilityFactory {
       can(Action.Read, 'all');
     }
     //--Возвращаем сформированный набор правил в гарду--//
-    return build();
+    return build({
+      // Read https://casl.js.org/v5/en/guide/subject-type-detection#use-classes-as-subject-types for details
+      detectSubjectType: (item) =>
+        item.constructor as ExtractSubjectType<Subjects>,
+    });
   }
 }
