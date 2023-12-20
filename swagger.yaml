@@ -1733,6 +1733,31 @@ paths:
           description: Ресурс не найден
       tags: *ref_20
       security: *ref_21
+  /dev/api/notification/{id}/status:
+    patch:
+      operationId: NotificationController_updateStatus
+      summary: Изменить статус уведомления
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор уведомления
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Статус уведомления успешно изменен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_20
+      security: *ref_21
 info:
   title: API BotKits
   description: Ручки для команды frontend
@@ -1809,6 +1834,9 @@ components:
             phone: '+79999999999'
             avatar: https://i.pravatar.cc/300
             balance: 0
+            visited_ref: 0
+            registration_ref: 0
+            success: true
         success:
           type: boolean
           example: true
@@ -2431,7 +2459,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-14T14:03:19.630Z
+          example: 2023-12-20T14:50:49.066Z
       required:
         - status
         - cardMask
@@ -2445,7 +2473,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-14T14:03:19.632Z
+          example: 2023-12-20T14:50:49.068Z
         amount:
           type: number
           example: 1000
