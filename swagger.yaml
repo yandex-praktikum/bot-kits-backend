@@ -2459,7 +2459,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-20T14:50:49.066Z
+          example: 2023-12-20T18:06:04.234Z
       required:
         - status
         - cardMask
@@ -2473,7 +2473,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-20T14:50:49.068Z
+          example: 2023-12-20T18:06:04.236Z
         amount:
           type: number
           example: 1000
