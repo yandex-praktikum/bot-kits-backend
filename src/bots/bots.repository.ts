@@ -19,6 +19,8 @@ import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { Action } from 'src/ability/ability.factory';
+import { ForbiddenError, subject } from '@casl/ability';
 
 @Injectable()
 export class BotsRepository {
@@ -34,6 +36,7 @@ export class BotsRepository {
     if (id) {
       // Найти существующий шаблон бота по ID
       bot = await this.botModel.findById(id).select('-_id -updatedAt').lean();
+
       if (bot.type !== 'template') {
         throw new Error('Создание возможно только из шаблона');
       }
@@ -73,26 +76,33 @@ export class BotsRepository {
     return await this.botModel.find({ type: 'template' }).exec();
   }
 
+  //bots.repository.ts
   async update(
     userId: string,
     botId: string,
     updateBotDto: UpdateBotDto,
+    ability: any,
   ): Promise<Bot> {
-    const permission = await this.botAccessesService.getPermission(
-      userId,
-      botId,
-    );
-    // Если есть доступ только для просмотра вкладки Воронки, то нельзя редактировать
-    if (permission.voronki === LEVEL_ACCESS.VIEWER) {
-      throw new ForbiddenException('Недостаточно прав для редактирования бота');
-    }
+    const existingBot = await this.botModel.findById(botId).exec();
 
-    const existingTemplate = await this.botModel.findById(botId).exec();
-    if (!existingTemplate) {
+    if (!existingBot) {
       throw new NotFoundException(`Бот с ID ${botId} не найден`);
     }
 
-    await this.botModel.findByIdAndUpdate(botId, updateBotDto).exec();
+    console.log(ability.can(Action.Update, existingBot));
+
+    try {
+      ForbiddenError.from(ability).throwUnlessCan(Action.Update, existingBot);
+    } catch (e) {
+      return e;
+    }
+
+    try {
+      await this.botModel.findByIdAndUpdate(botId, updateBotDto).exec();
+    } catch (e) {
+      return e;
+    }
+
     return this.findOne(botId);
   }
 

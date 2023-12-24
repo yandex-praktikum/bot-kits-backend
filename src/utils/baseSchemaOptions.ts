@@ -19,7 +19,7 @@ export const baseSchemaOptions = {
 
       // Добавляем поле `success` со значением `true` в результат.
       // Это может быть полезно для обозначения успешных операций или ответов.
-      ret.success = true;
+      //ret.success = true;
 
       // Возвращаем модифицированный результат.
       return ret;

@@ -37,11 +37,11 @@ export class AbilityGuard implements CanActivate {
       const { id } = request.user;
       const user = await this.profilesService.findById(id);
       const ability = this.caslAbilityFactory.defineAbility(user);
+      request.ability = ability;
 
       try {
         // Для каждого правила проверяем, разрешено ли действие.
         rules.forEach((rule) => {
-          console.log(rule);
           ForbiddenError.from(ability).throwUnlessCan(
             rule.action,
             rule.subject,

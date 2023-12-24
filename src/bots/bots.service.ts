@@ -7,6 +7,8 @@ import { BotsRepository } from './bots.repository';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
+import { CheckAbility } from 'src/auth/decorators/ability.decorator';
+import { Action } from 'src/ability/ability.factory';
 
 @Injectable()
 export class BotsService {
@@ -60,9 +62,10 @@ export class BotsService {
     userId: string,
     botId: string,
     updateBotDto: UpdateBotDto,
+    ability: any,
   ): Promise<Bot> {
     try {
-      return this.dbQuery.update(userId, botId, updateBotDto);
+      return this.dbQuery.update(userId, botId, updateBotDto, ability);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException('Бот с таким имененм уже существует');
