@@ -10,17 +10,13 @@ import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
 import { BotAccessesService } from '../botAccesses/botAccesses.service';
-import {
-  defaultPermission,
-  fullPermission,
-  LEVEL_ACCESS,
-} from '../botAccesses/types/types';
+import { defaultPermission, fullPermission } from '../botAccesses/types/types';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { Action } from 'src/ability/ability.factory';
-import { ForbiddenError, subject } from '@casl/ability';
+import { PureAbility } from '@casl/ability';
 
 @Injectable()
 export class BotsRepository {
@@ -29,24 +25,34 @@ export class BotsRepository {
     private readonly botAccessesService: BotAccessesService,
   ) {}
 
-  async create(profile, createBotDto: CreateBotDto, id?: string): Promise<Bot> {
+  async create(
+    profile,
+    createBotDto: CreateBotDto,
+    ability: PureAbility,
+    id?: string,
+  ): Promise<Bot> {
     createBotDto.type = 'custom';
 
     let bot;
+    // Если пользователь создает бота из шаблона по ID
     if (id) {
       // Найти существующий шаблон бота по ID
-      bot = await this.botModel.findById(id).select('-_id -updatedAt').lean();
+      bot = await this.botModel.findById(id).select('-_id -updatedAt');
 
-      if (bot.type !== 'template') {
-        throw new Error('Создание возможно только из шаблона');
+      if (!ability.can(Action.CreateOnlyFromTemplate, bot)) {
+        throw new ForbiddenException('Создание возможно только из шаблона');
       }
-      // Обновляем данные шаблона бота данными из createBotDto у сразу удаляем ненужные поля
-      const { isToPublish, ...botFromTemplate } = await Object.assign(
-        bot,
-        createBotDto,
-      );
 
-      bot = new this.botModel({ ...botFromTemplate, profile });
+      Object.assign(bot, createBotDto);
+      const botData = bot.toObject();
+
+      const rndId = uuidv4().slice(0, 8);
+
+      bot = new this.botModel({
+        ...botData,
+        profile,
+        title: bot.title + `_copy_${rndId}`,
+      });
     } else {
       // Создаем новый экземпляр бота, если ID не предоставлен
       bot = new this.botModel({ ...createBotDto, profile });
@@ -78,10 +84,9 @@ export class BotsRepository {
 
   //bots.repository.ts
   async update(
-    userId: string,
     botId: string,
     updateBotDto: UpdateBotDto,
-    ability: any,
+    ability: PureAbility,
   ): Promise<Bot> {
     const existingBot = await this.botModel.findById(botId).exec();
 
@@ -89,12 +94,8 @@ export class BotsRepository {
       throw new NotFoundException(`Бот с ID ${botId} не найден`);
     }
 
-    console.log(ability.can(Action.Update, existingBot));
-
-    try {
-      ForbiddenError.from(ability).throwUnlessCan(Action.Update, existingBot);
-    } catch (e) {
-      return e;
+    if (!ability.can(Action.Update, existingBot)) {
+      throw new ForbiddenException('Вы не администратор этого бота');
     }
 
     try {
@@ -125,27 +126,27 @@ export class BotsRepository {
     profileId: string,
     botId: string,
     copyBotDto: CopyBotDto,
+    ability: PureAbility,
   ): Promise<Bot> {
-    const permission = await this.botAccessesService.getPermission(
-      profileId,
-      botId,
-    );
+    const rndId = uuidv4().slice(0, 8);
+    const bot = await this.botModel.findById(botId).select('-_id -updatedAt');
 
-    // Если есть доступ только для просмотра вкладки Воронки, то нельзя редактировать
-    if (permission.dashboard === LEVEL_ACCESS.VIEWER) {
-      throw new ForbiddenException('Недостаточно прав для копирования бота');
+    if (!ability.can(Action.Copy, bot)) {
+      throw new ForbiddenException('Копировать можно только своих ботов');
     }
 
-    const rndId = uuidv4().slice(0, 8);
-    const bot = await this.botModel
-      .findById(botId)
-      .select('-_id -updatedAt')
-      .lean();
-    return await this.create(profileId, {
-      ...bot,
-      title: bot.title + `_copy_${rndId}`,
-      messengers: copyBotDto.messengers,
-    });
+    Object.assign(bot, copyBotDto);
+    const botData = bot.toObject();
+
+    return await this.create(
+      profileId,
+      {
+        ...botData,
+        title: botData.title + `_copy_${rndId}`,
+        messengers: copyBotDto.messengers,
+      },
+      ability,
+    );
   }
 
   async share(

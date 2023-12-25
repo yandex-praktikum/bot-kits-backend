@@ -41,8 +41,8 @@ import { AbilityGuard } from 'src/auth/guards/ability.guard';
 @Controller('bots')
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
-  @UseGuards(AbilityGuard)
   @CheckAbility({ action: Action.Read, subject: CreateBotDto })
+  @UseGuards(AbilityGuard)
   @Get()
   @ApiOperation({
     summary: 'Получить ботов пользователя',
@@ -71,7 +71,7 @@ export class BotsController {
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: BotCreateRequestBody })
   create(@Req() req, @Body() createBotDto: CreateBotDto): Promise<Bot> {
-    return this.botsService.create(req.user.id, createBotDto);
+    return this.botsService.create(req.user.id, createBotDto, req.ability);
   }
 
   @UseGuards(AbilityGuard)
@@ -230,7 +230,7 @@ export class BotsController {
     @Body() createBotDto: CreateBotDto,
     @Param('id') id: string,
   ): Promise<Bot> {
-    return this.botsService.create(req.user.id, createBotDto, id);
+    return this.botsService.create(req.user.id, createBotDto, req.ability, id);
   }
 
   @UseGuards(AbilityGuard)
@@ -257,7 +257,12 @@ export class BotsController {
     @Param('id') botId: string,
     @Body() copyBotDto: CopyBotDto,
   ) {
-    return this.botsService.copyBot(req.user.id, botId, copyBotDto);
+    return this.botsService.copyBot(
+      req.user.id,
+      botId,
+      copyBotDto,
+      req.ability,
+    );
   }
 
   @UseGuards(AbilityGuard)
@@ -304,11 +309,6 @@ export class BotsController {
     @Param('id') botId: string,
     @Body() updateBotDto: UpdateBotDto,
   ): Promise<Bot> {
-    return this.botsService.update(
-      req.user.id,
-      botId,
-      updateBotDto,
-      req.ability,
-    );
+    return this.botsService.update(botId, updateBotDto, req.ability);
   }
 }

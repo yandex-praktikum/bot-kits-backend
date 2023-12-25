@@ -6,10 +6,6 @@ import { CreateTemplateDto } from './create-template.dto';
 
 //create-bot.dto.ts
 export class CreateBotDto extends CreateTemplateDto {
-  static get modelName() {
-    return 'Bot';
-  }
-
   @ApiProperty()
   @IsOptional()
   @Type(() => Messenger)

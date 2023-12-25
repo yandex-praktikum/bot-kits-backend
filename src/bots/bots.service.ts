@@ -7,16 +7,20 @@ import { BotsRepository } from './bots.repository';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
-import { CheckAbility } from 'src/auth/decorators/ability.decorator';
-import { Action } from 'src/ability/ability.factory';
+import { PureAbility } from '@casl/ability';
 
 @Injectable()
 export class BotsService {
   constructor(private dbQuery: BotsRepository) {}
 
-  async create(profile, createBotDto: CreateBotDto, id?: string): Promise<Bot> {
+  async create(
+    profile,
+    createBotDto: CreateBotDto,
+    ability: PureAbility,
+    id?: string,
+  ): Promise<Bot> {
     try {
-      return await this.dbQuery.create(profile, createBotDto, id);
+      return await this.dbQuery.create(profile, createBotDto, ability, id);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException('Бот с таким имененм уже существует');
@@ -59,13 +63,12 @@ export class BotsService {
   }
 
   async update(
-    userId: string,
     botId: string,
     updateBotDto: UpdateBotDto,
-    ability: any,
+    ability: PureAbility,
   ): Promise<Bot> {
     try {
-      return this.dbQuery.update(userId, botId, updateBotDto, ability);
+      return this.dbQuery.update(botId, updateBotDto, ability);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException('Бот с таким имененм уже существует');
@@ -130,9 +133,10 @@ export class BotsService {
     profileId: string,
     botId: string,
     copyBotDto: CopyBotDto,
+    ability: PureAbility,
   ): Promise<Bot> {
     try {
-      return await this.dbQuery.copy(profileId, botId, copyBotDto);
+      return await this.dbQuery.copy(profileId, botId, copyBotDto, ability);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException(

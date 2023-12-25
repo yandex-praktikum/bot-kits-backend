@@ -41,7 +41,7 @@ export class Bot extends Document {
   @Prop({
     unique: true,
     minlength: 2,
-    maxlength: 30,
+    maxlength: 100,
   })
   title: string;
 

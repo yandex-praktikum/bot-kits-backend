@@ -1,11 +1,8 @@
 import {
-  Ability,
   AbilityBuilder,
-  AbilityClass,
   ExtractSubjectType,
   InferSubjects,
-  MongoAbility,
-  MongoQuery,
+  PureAbility,
   createMongoAbility,
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
@@ -26,31 +23,13 @@ export enum Action {
   Update = 'update',
   Delete = 'delete',
   Share = 'share',
+  Copy = 'copy',
+  CreateOnlyFromTemplate = 'createOnlyFromTemplate',
 }
 
 export type Subjects = InferSubjects<
-  | 'Profile'
-  | typeof Profile
-  | Profile
-  | 'Bot'
-  | typeof Bot
-  | Bot
-  | 'CreateTemplateDto'
-  | typeof CreateTemplateDto
-  | CreateTemplateDto
-  | 'UpdateBotDto'
-  | typeof UpdateBotDto
-  | UpdateBotDto
-  | 'CreateBotDto'
-  | typeof CreateBotDto
-  | CreateBotDto
-  | 'all'
+  typeof CreateTemplateDto | typeof UpdateBotDto | typeof CreateBotDto | 'all'
 >;
-
-type PossibleAbilities = [Action, Subjects];
-type Conditions = MongoQuery;
-
-export type AppAbility = MongoAbility<PossibleAbilities, Conditions>;
 
 @Injectable()
 export class AbilityFactory {
@@ -60,24 +39,14 @@ export class AbilityFactory {
     return user.accounts.some((account) => account.role === soughtRole);
   }
   //--Функция defineAbility определяет, что может делать пользователь в приложении--//
-  defineAbility(user: Profile): AppAbility {
+  defineAbility(user: Profile): PureAbility {
+    type AppAbility = PureAbility<[Action, Subjects | typeof this.botModel]>;
+
     const isSuperAdmin = this.getRole(user, Role.SUPER_ADMIN);
     const isAdmin = this.getRole(user, Role.ADMIN);
     //--Создаем строитель AbilityBuilder, который поможет нам определить правила доступа--//
-    const { can, cannot, build } = new AbilityBuilder(
-      Ability as AbilityClass<
-        Ability<
-          [
-            Action,
-            (
-              | InferSubjects<typeof this.botModel>
-              | typeof CreateBotDto
-              | typeof UpdateBotDto
-              | 'all'
-            ),
-          ]
-        >
-      >,
+    const { can, cannot, build } = new AbilityBuilder<AppAbility>(
+      createMongoAbility,
     );
 
     //--Здесь определяем правила доступа--//
@@ -88,24 +57,23 @@ export class AbilityFactory {
       cannot(Action.Manage, CreateTemplateDto).because(
         'Этот функционал только у супер администратора',
       );
-      can(Action.Update, this.botModel, { profile: user.id }).because(
-        'Вы не можете редактировать не своего бота',
-      );
+      can(Action.Update, this.botModel, { profile: user.id });
+      can(Action.CreateOnlyFromTemplate, this.botModel, {
+        type: 'template',
+      });
+      can(Action.Copy, this.botModel, { profile: user.id });
     } else if (isSuperAdmin) {
+      can(Action.Manage, [CreateBotDto, UpdateBotDto]);
       //--Супер администраторы имеют доступ ко всем операциям в приложении--//
       can(Action.Manage, 'all');
     } else {
-      //--Остальные пользователи платформы имеют право на чтение всего--//
-      can(Action.Read, 'all');
+      //--Остальные ничего не могут--//
+      cannot(Action.Manage, 'all').because('Зарегистрируйтесь');
     }
     //--Возвращаем сформированный набор правил в гарду--//
     return build({
-      // Read https://casl.js.org/v5/en/guide/subject-type-detection#use-classes-as-subject-types for details
-      detectSubjectType: (object) => {
-        return object.constructor as ExtractSubjectType<
-          InferSubjects<typeof this.botModel> | 'all'
-        >;
-      },
+      detectSubjectType: (object) =>
+        object.constructor as ExtractSubjectType<Subjects>,
     });
   }
 }

@@ -24,7 +24,7 @@ export const CheckAbility = (...requirements: RequiredRules[]) =>
   // для класса или метода. Здесь она используется для установки правил доступа.
   SetMetadata(CHECK_ABILITY, requirements);
 
-export class ReadUserAbility implements RequiredRules {
-  action: Action.Read;
-  subject: Profile;
-}
+// export class ReadUserAbility implements RequiredRules {
+//   action: Action.Read;
+//   subject: Profile;
+// }
