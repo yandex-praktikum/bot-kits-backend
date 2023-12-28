@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import mongoose, { Document, HydratedDocument } from 'mongoose';
+import mongoose, { Document, HydratedDocument, Types } from 'mongoose';
 import { Account } from 'src/accounts/schema/account.schema';
 import { SharedAccess } from 'src/shared-accesses/schema/sharedAccess.schema';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
@@ -47,6 +47,21 @@ export class Profile extends Document {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'SharedAccess' })
   sharedAccess: SharedAccess;
+
+  @Prop()
+  receivedSharedAccess?: [Access];
+
+  @Prop()
+  grantedSharedAccess?: [Access];
+}
+
+export class Access {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Profile' })
+  profile: Types.ObjectId;
+  dasboard: boolean;
+  botBuilder: boolean;
+  mailing: boolean;
+  static: boolean;
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);

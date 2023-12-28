@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, ValidateNested } from 'class-validator';
 import { Messenger } from '../schema/bots.schema';
-import { Exclude, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import { CreateTemplateDto } from './create-template.dto';
 
 //create-bot.dto.ts

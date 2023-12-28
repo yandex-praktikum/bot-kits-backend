@@ -75,7 +75,10 @@ export class AccountsRepository {
     return await this.accountModel
       .findOne({ 'credentials.email': email }, { 'credentials.password': 0 })
       .session(session)
-      .populate('profile');
+      .populate({
+        path: 'profile',
+        select: '-receivedSharedAccess -grantedSharedAccess',
+      });
   }
 
   async findByEmailAndType(
@@ -89,7 +92,10 @@ export class AccountsRepository {
         type: typeAccount,
       })
       .session(session)
-      .populate('profile');
+      .populate({
+        path: 'profile',
+        select: '-receivedSharedAccess -grantedSharedAccess',
+      });
   }
 
   async findByIdAndProvider(
@@ -101,7 +107,10 @@ export class AccountsRepository {
         profile: id,
         type: provider,
       })
-      .populate('profile');
+      .populate({
+        path: 'profile',
+        select: '-receivedSharedAccess -grantedSharedAccess',
+      });
     delete account.credentials.password;
     account.profile.accounts = undefined;
     return account;
@@ -138,7 +147,10 @@ export class AccountsRepository {
         updateQuery,
         { new: true }, //--Этот параметр возвращает измененный документ--//
       )
-      .populate('profile'); //--Возвращает вместе с документом Profile--//
+      .populate({
+        path: 'profile',
+        select: '-receivedSharedAccess -grantedSharedAccess',
+      }); //--Возвращает вместе с документом Profile--//
 
     if (updatedAccount) {
       return updatedAccount.profile;

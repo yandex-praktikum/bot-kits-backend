@@ -2,6 +2,7 @@ import {
   AbilityBuilder,
   ExtractSubjectType,
   InferSubjects,
+  MatchConditions,
   PureAbility,
   createMongoAbility,
 } from '@casl/ability';
@@ -41,29 +42,51 @@ export class AbilityFactory {
   //--Функция defineAbility определяет, что может делать пользователь в приложении--//
   defineAbility(user: Profile): PureAbility {
     type AppAbility = PureAbility<[Action, Subjects | typeof this.botModel]>;
+    const lambdaMatcher = (matchConditions: MatchConditions) => matchConditions;
 
     const isSuperAdmin = this.getRole(user, Role.SUPER_ADMIN);
     const isAdmin = this.getRole(user, Role.ADMIN);
     //--Создаем строитель AbilityBuilder, который поможет нам определить правила доступа--//
-    const { can, cannot, build } = new AbilityBuilder<AppAbility>(
-      createMongoAbility,
-    );
+    const { can, cannot, build } = new AbilityBuilder<AppAbility>(PureAbility);
 
     //--Здесь определяем правила доступа--//
     if (isAdmin) {
-      //--Администраторы имеют право на все действия связанные с ботами--//
+      //--Администраторы могут делать запросы по эндпоинтам связанные с ботами--//
       can(Action.Manage, [CreateBotDto, UpdateBotDto]);
       //--Администраторы НЕ имеют право на любые действия связанные с шаблонами--//
       cannot(Action.Manage, CreateTemplateDto).because(
         'Этот функционал только у супер администратора',
       );
-      can(Action.Update, this.botModel, { profile: user.id });
-      can(Action.CreateOnlyFromTemplate, this.botModel, {
-        type: 'template',
+      //--Администраторы могут обновлять бота если они его создатели и если им ьыл предоставлен общий доступ--//
+      can(Action.Update, this.botModel, (bot: Bot) => {
+        return (
+          bot.profile.equals(user._id) ||
+          user.receivedSharedAccess.some((access) => {
+            //--Создаем объект с пришедшими правами для сравнения--//
+            const comparisonObject = {
+              ...bot.permission,
+              profile: bot.profile._id,
+            };
+            //--Сравниваем объект выданных прав с пришедшими в запросе--//
+            return Object.keys(comparisonObject).every((key) => {
+              return (
+                access[key].toString() === comparisonObject[key].toString()
+              );
+            });
+          })
+        );
       });
-      can(Action.Copy, this.botModel, { profile: user.id });
+      //--Администраторы могут копировать, удалять бота если они его создатели--//
+      can([Action.Copy, Action.Delete], this.botModel, ({ profile }) =>
+        profile.equals(user._id),
+      );
+      //--Администраторы могут создавать бота только из щаблонов--//
+      can(
+        Action.CreateOnlyFromTemplate,
+        this.botModel,
+        ({ type }) => type === 'template',
+      );
     } else if (isSuperAdmin) {
-      can(Action.Manage, [CreateBotDto, UpdateBotDto]);
       //--Супер администраторы имеют доступ ко всем операциям в приложении--//
       can(Action.Manage, 'all');
     } else {
@@ -72,6 +95,7 @@ export class AbilityFactory {
     }
     //--Возвращаем сформированный набор правил в гарду--//
     return build({
+      conditionsMatcher: lambdaMatcher,
       detectSubjectType: (object) =>
         object.constructor as ExtractSubjectType<Subjects>,
     });

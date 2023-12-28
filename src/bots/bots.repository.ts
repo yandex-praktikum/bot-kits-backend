@@ -17,11 +17,13 @@ import { CopyBotDto } from './dto/copy-bot.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { Action } from 'src/ability/ability.factory';
 import { PureAbility } from '@casl/ability';
+import { Profile } from 'src/profiles/schema/profile.schema';
 
 @Injectable()
 export class BotsRepository {
   constructor(
     @InjectModel(Bot.name) private botModel: Model<BotDocument>,
+    @InjectModel(Profile.name) private profileModel: Model<Profile>,
     private readonly botAccessesService: BotAccessesService,
   ) {}
 
@@ -82,7 +84,6 @@ export class BotsRepository {
     return await this.botModel.find({ type: 'template' }).exec();
   }
 
-  //bots.repository.ts
   async update(
     botId: string,
     updateBotDto: UpdateBotDto,
@@ -94,31 +95,37 @@ export class BotsRepository {
       throw new NotFoundException(`Бот с ID ${botId} не найден`);
     }
 
+    existingBot.permission = updateBotDto.permission;
+
     if (!ability.can(Action.Update, existingBot)) {
       throw new ForbiddenException('Вы не администратор этого бота');
     }
-
+    //--Не обновляем права у бота даже у собственного--//
     try {
-      await this.botModel.findByIdAndUpdate(botId, updateBotDto).exec();
+      const { permission, ...updateData } = updateBotDto;
+      await this.botModel.findByIdAndUpdate(botId, updateData).exec();
     } catch (e) {
       return e;
     }
-
-    return this.findOne(botId);
+    //--Отдаем бота обновленного бота без объекта с правами--//
+    return await this.botModel.findById(botId).select('-permission').exec();
   }
 
-  async remove(userId: string, botId: string): Promise<Bot> {
-    const hasFullAccess = await this.botAccessesService.hasFullAccess(
-      userId,
-      botId,
-    );
-    if (!hasFullAccess) {
-      throw new ForbiddenException('Недостаточно прав для удаления бота');
-    }
+  async remove(
+    userId: string,
+    botId: string,
+    ability: PureAbility,
+  ): Promise<Bot> {
     const existingTemplate = await this.botModel.findById(botId).exec();
+
     if (!existingTemplate) {
       throw new NotFoundException(`Бот с ID ${botId} не найден`);
     }
+
+    if (!ability.can(Action.Delete, existingTemplate)) {
+      throw new ForbiddenException('Удалять можно только своих ботов');
+    }
+
     return await this.botModel.findByIdAndRemove(botId).exec();
   }
 
@@ -147,6 +154,40 @@ export class BotsRepository {
       },
       ability,
     );
+  }
+
+  async findAllByUserNew(userId: string): Promise<Bot[]> {
+    // Получение профиля пользователя с одним запросом
+    const userProfile = await this.profileModel.findById(userId);
+
+    // Извлечение всех ID профилей, которые предоставили доступ
+    const accessProfiles = userProfile.receivedSharedAccess.map(
+      (access) => access.profile,
+    );
+
+    // Агрегация запросов: получение всех ботов одним запросом
+    const sharedBots = await this.botModel.find({
+      profile: { $in: accessProfiles },
+    });
+
+    // Настройка прав доступа для sharedBots
+    sharedBots.forEach((bot) => {
+      const access = userProfile.receivedSharedAccess.find((a) =>
+        a.profile.equals(bot.profile._id),
+      );
+      bot.permission = {
+        dasboard: access?.dasboard,
+        botBuilder: access?.botBuilder,
+        mailing: access?.mailing,
+        static: access?.static,
+      };
+    });
+
+    // Получение собственных ботов пользователя
+    const ownBots = await this.botModel.find({ profile: userId });
+
+    // Объединение списков ботов
+    return ownBots.concat(sharedBots);
   }
 
   async share(

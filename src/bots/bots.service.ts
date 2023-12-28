@@ -40,7 +40,7 @@ export class BotsService {
 
   async findAllByUser(userId: string): Promise<Bot[] | null> {
     try {
-      return this.dbQuery.findAllByUser(userId);
+      return this.dbQuery.findAllByUserNew(userId);
     } catch (e) {
       return e;
     }
@@ -78,9 +78,9 @@ export class BotsService {
     }
   }
 
-  async remove(userId: string, id: string): Promise<Bot> {
+  async remove(userId: string, id: string, ability: PureAbility): Promise<Bot> {
     try {
-      return await this.dbQuery.remove(userId, id);
+      return await this.dbQuery.remove(userId, id, ability);
     } catch (e) {
       return e;
     }

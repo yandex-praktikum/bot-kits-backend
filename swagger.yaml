@@ -354,6 +354,25 @@ paths:
           description: Ресурс не найден
       tags: *ref_1
       security: *ref_3
+  /dev/api/profiles/shared:
+    post:
+      operationId: ProfilesController_sharedAccess
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSharedAccessDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+      tags: *ref_1
+      security: *ref_3
   /dev/api/tariffs:
     get:
       operationId: TariffsController_findAllTariffs
@@ -2038,6 +2057,15 @@ components:
     UpdateProfileDto:
       type: object
       properties: {}
+    CreateSharedAccessDto:
+      type: object
+      properties:
+        email:
+          type: string
+          description: email
+          example: test@mail.ru
+      required:
+        - email
     Tariff:
       type: object
       properties:
@@ -2474,7 +2502,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-25T21:44:55.383Z
+          example: 2023-12-28T00:08:07.960Z
       required:
         - status
         - cardMask
@@ -2488,7 +2516,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-25T21:44:55.385Z
+          example: 2023-12-28T00:08:07.962Z
         amount:
           type: number
           example: 1000

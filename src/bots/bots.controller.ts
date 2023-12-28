@@ -283,7 +283,7 @@ export class BotsController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   remove(@Req() req, @Param('id') id: string): Promise<Bot> {
-    return this.botsService.remove(req.user.id, id);
+    return this.botsService.remove(req.user.id, id, req.ability);
   }
 
   @CheckAbility({ action: Action.Update, subject: UpdateBotDto })
