@@ -172,8 +172,10 @@ export class NotificationController {
   @UseGuards(RolesGuard)
   @Roles('admin')
   @Patch(':id/status')
-  updateStatus
-  (@Param('id') id: string, @Body('status') updateNotificationDto: UpdateNotificationDto): Promise<Notification> {
+  updateStatus(
+    @Param('id') id: string,
+    @Body('status') updateNotificationDto: UpdateNotificationDto,
+  ): Promise<Notification> {
     return this.notificationService.update(updateNotificationDto, id);
   }
 }
