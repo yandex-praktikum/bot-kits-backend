@@ -136,7 +136,7 @@ type TMessageBlock = {
   };
 };
 
-type TButtonBlock = {
+export type TButtonBlock = {
   type: 'button' | 'answer';
   direction: 'horizontal' | 'vertical';
   additionalData?: boolean;
