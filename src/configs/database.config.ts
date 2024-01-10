@@ -84,7 +84,7 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
       // Создаем учетную запись администратора
       const adminAccountData = {
         type: 'local',
-        role: 'admin',
+        role: 'superAdmin',
         credentials: {
           email: configService.get('ADMIN_EMAIL'),
           password: await getHash(configService.get('ADMIN_PASSWORD')),
