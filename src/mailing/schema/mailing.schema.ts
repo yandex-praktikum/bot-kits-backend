@@ -14,6 +14,10 @@ export class Mailing extends Document {
   @Prop({ required: true, minlength: 1, maxlength: 255 })
   name: string;
 
+  @ApiProperty({ example: 'mailing message' })
+  @Prop({ required: true, minlength: 1, maxlength: 4096 })
+  message: string;
+
   @ApiProperty()
   @Prop({ type: { type: mongoose.Schema.Types.ObjectId, ref: 'Bot' } })
   bot: Bot;

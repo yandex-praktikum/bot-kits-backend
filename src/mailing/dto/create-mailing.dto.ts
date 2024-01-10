@@ -5,67 +5,97 @@ import {
   IsBoolean,
   IsNotEmpty,
   IsDate,
+  IsOptional,
+  IsUrl,
+  Length,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { TButtonBlock } from 'src/bots/schema/types/botBuilderTypes';
 import { Platform } from 'src/platforms/schema/platforms.schema';
 import { Bot } from 'src/bots/schema/bots.schema';
 
 export class CreateMailingDTO {
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
+  @Length(1, 255)
   name: string;
 
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  @Length(1, 4096)
+  message: string;
+
+  @ApiProperty()
   @IsNotEmpty()
   bot: Bot;
 
+  @ApiProperty()
   @IsNotEmpty()
   platform: Platform;
 
+  @ApiProperty()
   @IsObject()
-  attachment: AttachmentDTO;
+  @IsOptional()
+  attachment?: AttachmentDTO;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsBoolean()
   isActive: boolean;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsBoolean()
   isActibeBotBuilder: boolean;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsObject()
   schedule: scheduleDTO;
 }
 
 class AttachmentDTO {
+  @ApiProperty()
   @IsArray()
-  files: FilesDTO[];
+  @IsOptional()
+  files?: FilesDTO[];
 
+  @ApiProperty()
   @IsArray()
-  buttons: TButtonBlock[];
+  @IsOptional()
+  buttons?: TButtonBlock[];
 }
 
 class FilesDTO {
+  @ApiProperty()
   @IsNotEmpty()
-  @IsString()
+  @IsUrl()
   path: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   name: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   type: string;
 }
 
 class scheduleDTO {
+  @ApiProperty()
   @IsNotEmpty()
   isNow: boolean;
 
+  @ApiProperty()
   @IsDate()
-  date: Date;
+  @IsOptional()
+  date?: Date;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   repeat: string;
