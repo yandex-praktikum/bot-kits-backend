@@ -22,6 +22,9 @@ const profileDescription: IFieldDescription = createNestedObject([
   createField('phone', '+79999999999', 'string'),
   createField('avatar', 'https://i.pravatar.cc/300', 'string'),
   createField('balance', 0, 'number'),
+  createField('visited_ref', 0, 'number'),
+  createField('registration_ref', 0, 'number'),
+  createField('success', true, 'boolean'),
 ]);
 
 const accountsDescription: IFieldDescription[] = [
