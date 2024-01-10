@@ -8,6 +8,8 @@ import {
   BadRequestException,
   UseGuards,
   Headers,
+  Post,
+  Req,
 } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 
@@ -31,6 +33,7 @@ import { UserProfileResponseBodyOK } from './sdo/response-body.sdo';
 import { SingleAccountResponseBodyOK } from 'src/accounts/sdo/response-body.sdo';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { CreateSharedAccessDto } from './dto/create-access.dto';
 
 @UseGuards(JwtGuard)
 @ApiTags('profiles')
@@ -38,6 +41,9 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @Get()
   @ApiOkResponse({
     description: 'Профили успешно получены',
     type: [UserProfileResponseBodyOK],
@@ -47,9 +53,6 @@ export class ProfilesController {
   @ApiOperation({
     summary: 'Получить все профили',
   })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
-  @Get()
   findAll(): Promise<Profile[]> {
     return this.profilesService.findAll();
   }
@@ -75,6 +78,9 @@ export class ProfilesController {
     return await this.profilesService.findByToken(token);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @Get(':id')
   @ApiOperation({
     summary: 'Получить профиль по id',
   })
@@ -89,9 +95,6 @@ export class ProfilesController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
-  @Get(':id')
   async findOne(@Param('id') id: string): Promise<Profile> {
     const profile = await this.profilesService.findOne(id);
     if (!profile) throw new BadRequestException('Ресурс не найден');
@@ -158,5 +161,16 @@ export class ProfilesController {
   })
   remove(@Param('id') id: string): Promise<Profile> {
     return this.profilesService.remove(id);
+  }
+
+  @Post('shared')
+  sharedAccess(
+    @Body() createSharedAccessDto: CreateSharedAccessDto,
+    @Req() req,
+  ) {
+    return this.profilesService.sharedAccess(
+      createSharedAccessDto,
+      req.user.id,
+    );
   }
 }

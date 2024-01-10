@@ -5,6 +5,7 @@ import { Profile } from './schema/profile.schema';
 import { Account } from 'src/accounts/schema/account.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ProfilesRepository } from './profiles.repository';
+import { CreateSharedAccessDto } from './dto/create-access.dto';
 
 @Injectable()
 export class ProfilesService {
@@ -69,5 +70,19 @@ export class ProfilesService {
 
   async remove(id: string): Promise<Profile> {
     return await this.profilesRepository.remove(id);
+  }
+
+  async sharedAccess(
+    createSharedAccessDto: CreateSharedAccessDto,
+    userId: string,
+  ) {
+    try {
+      return await this.profilesRepository.sharedAccess(
+        createSharedAccessDto,
+        userId,
+      );
+    } catch (e) {
+      return e;
+    }
   }
 }

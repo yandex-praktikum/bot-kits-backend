@@ -6,7 +6,7 @@ import { Response } from 'express';
 export class PartnershipController {
   constructor(private readonly partnershipService: PartnershipService) {}
 
-  @Get('partner')
+  @Get()
   redirectToPage(@Res() res: Response, @Query('ref') ref: string) {
     if (ref) {
       // добавление счетчика перехода по ссылке

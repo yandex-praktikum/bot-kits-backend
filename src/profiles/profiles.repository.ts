@@ -1,17 +1,35 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { ClientSession, Model } from 'mongoose';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import mongoose, { ClientSession, Model, Types } from 'mongoose';
 import { CreateProfileDto } from './dto/create-profile.dto';
-import { Profile } from './schema/profile.schema';
+import { Access, Profile } from './schema/profile.schema';
 import { Account } from 'src/accounts/schema/account.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { CreateSharedAccessDto } from './dto/create-access.dto';
 
 @Injectable()
 export class ProfilesRepository {
   constructor(
     @InjectModel(Profile.name) private profileModel: Model<Profile>,
     @InjectModel(Account.name) private accountModel: Model<Account>,
+    @InjectConnection() private readonly connection: mongoose.Connection,
   ) {}
+
+  private async createDefaultAccessObject(
+    profileId: Types.ObjectId,
+  ): Promise<Access> {
+    return {
+      profile: profileId,
+      dasboard: true,
+      botBuilder: true,
+      mailing: false,
+      static: false,
+    };
+  }
 
   async create(
     createProfileDto: CreateProfileDto,
@@ -90,5 +108,84 @@ export class ProfilesRepository {
 
   async remove(id: string): Promise<Profile> {
     return await this.profileModel.findByIdAndDelete(id).exec();
+  }
+
+  async sharedAccess(
+    createSharedAccessDto: CreateSharedAccessDto,
+    userId: string,
+  ) {
+    // Начинаем сессию и транзакцию для работы с БД
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    try {
+      // Находим аккаунт получателя доступа по адресу электронной почты
+      const recipientAccount = await this.accountModel.findOne(
+        { 'credentials.email': createSharedAccessDto.email },
+        { 'credentials.password': 0 },
+      );
+      if (!recipientAccount) {
+        throw new NotFoundException('Профиль получателя не найден');
+      }
+
+      // Проверяем, найден ли соответствующий профиль пользователя получателя
+      const recipientProfile = await this.profileModel
+        .findById(recipientAccount.profile)
+        .exec();
+
+      if (!recipientProfile) {
+        throw new NotFoundException('Профиль получателя не найден');
+      }
+
+      // Поиск профиля пользователя, предоставляющего доступ, по идентификатору
+      const grantingProfile = await this.profileModel.findById(userId);
+
+      if (!grantingProfile) {
+        throw new NotFoundException(
+          'Профиль предоставляющего доступ не найден',
+        );
+      }
+
+      // Проверка на то, был ли доступ уже предоставлен этому пользователю
+      const accessAlreadyGranted = recipientProfile.receivedSharedAccess.some(
+        (access) => access.profile.toString() === userId,
+      );
+
+      if (accessAlreadyGranted) {
+        throw new ConflictException(
+          'Доступ уже был предоставлен этому пользователю',
+        );
+      }
+
+      // Добавление записей о предоставленном доступе в профили пользователей
+      recipientProfile.receivedSharedAccess.push(
+        await this.createDefaultAccessObject(
+          new mongoose.Types.ObjectId(userId),
+        ),
+      );
+      grantingProfile.grantedSharedAccess.push(
+        await this.createDefaultAccessObject(
+          new mongoose.Types.ObjectId(recipientProfile._id),
+        ),
+      );
+
+      // Сохранение изменений в профилях пользователей в БД
+      await recipientProfile.save({ session });
+      await grantingProfile.save({ session });
+
+      // Фиксация транзакции
+      await session.commitTransaction();
+
+      // Возвращаем обновленные профили
+      return { recipientProfile, grantingProfile };
+      // return `Функционал уведосления на email - ${createSharedAccessDto.email} с сообщением о предоставленном доступе`
+    } catch (e) {
+      // В случае ошибки откатываем транзакцию
+      await session.abortTransaction();
+      return e;
+    } finally {
+      // Завершаем сессию вне зависимости от результата
+      session.endSession();
+    }
   }
 }

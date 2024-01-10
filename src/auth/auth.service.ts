@@ -123,7 +123,7 @@ export class AuthService {
     ref?: string, // Реферальная ссылка, может быть null
   ): Promise<Account> {
     // Возвращает Promise, который разрешается в Account
-    // Деструктуризация данных профиля и аккаунта из DTO
+    // Деструктуризация данных профиля и аккаунта из скомбинированного DTO
     const { profileData, accountData } = authDto;
     // Извлечение email из данных аккаунта
     const email = accountData.credentials.email;
