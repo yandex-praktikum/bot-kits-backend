@@ -3,7 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { Document, HydratedDocument } from 'mongoose';
 import { Platform } from 'src/platforms/schema/platforms.schema';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
-import { TAttachments, TMailingSchedule } from './types/mailingTypes';
+import { TAttachment, TMailingSchedule } from './types/mailingTypes';
+import { Bot } from 'src/bots/schema/bots.schema';
 
 export type MailingDocument = HydratedDocument<Mailing>;
 
@@ -14,8 +15,12 @@ export class Mailing extends Document {
   name: string;
 
   @ApiProperty()
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Platform' }] })
-  platforms: Platform[];
+  @Prop({ type: { type: mongoose.Schema.Types.ObjectId, ref: 'Bot' } })
+  bot: Bot;
+
+  @ApiProperty()
+  @Prop({ type: { type: mongoose.Schema.Types.ObjectId, ref: 'Platform' } })
+  platform: Platform;
 
   @ApiProperty()
   @Prop({ default: 0 })
@@ -35,10 +40,10 @@ export class Mailing extends Document {
 
   @ApiProperty()
   @Prop({ type: Object })
-  attachments: TAttachments;
+  attachment: TAttachment;
 
   @ApiProperty()
-  @Prop({ type: Object })
+  @Prop({ type: Object, required: true })
   schedule: TMailingSchedule;
 }
 
