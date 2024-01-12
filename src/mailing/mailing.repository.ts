@@ -1,10 +1,9 @@
 import {
   ConflictException,
-  HttpException,
-  HttpStatus,
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { MongoServerError } from 'mongodb';
 import { InjectModel } from '@nestjs/mongoose';
@@ -40,17 +39,20 @@ export class MailingRepository {
   async update(
     updateMailingDTO: UpdateMailingDTO,
     id: string | number,
+    userId: string,
   ): Promise<Mailing> {
     try {
-      const post = await this.mailingModel.findByIdAndUpdate(
-        id,
-        updateMailingDTO,
-        { new: true },
-      );
+      const post = await this.mailingModel.findById(id).populate('bot');
 
-      if (!post) throw new NotFoundException(`Post with ID ${id} not found`);
+      if (userId !== post.bot.profile._id) {
+        throw new ForbiddenException('Вы не являетесь владельцем бота');
+      }
+      const updatedPost = await post.updateOne(updateMailingDTO, { new: true });
 
-      return await post.populate('platform');
+      if (!updatedPost)
+        throw new NotFoundException(`Post with ID ${id} not found`);
+
+      return await updatedPost.populate('platform');
     } catch (err) {
       if (err instanceof Error.CastError)
         throw new BadRequestException('Invalid resource id');
@@ -58,8 +60,14 @@ export class MailingRepository {
     }
   }
 
-  async create(createMailingDTO: CreateMailingDTO): Promise<Mailing> {
+  async create(
+    userId: string,
+    createMailingDTO: CreateMailingDTO,
+  ): Promise<Mailing> {
     try {
+      if (userId !== createMailingDTO.bot.profile._id) {
+        throw new ForbiddenException('Вы не являетесь владельцем бота');
+      }
       const post = await this.mailingModel.create(createMailingDTO);
       return await post.save();
     } catch (err) {

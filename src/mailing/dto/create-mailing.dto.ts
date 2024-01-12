@@ -14,6 +14,51 @@ import { TButtonBlock } from 'src/bots/schema/types/botBuilderTypes';
 import { Platform } from 'src/platforms/schema/platforms.schema';
 import { Bot } from 'src/bots/schema/bots.schema';
 
+class scheduleDTO {
+  @ApiProperty()
+  @IsNotEmpty()
+  isNow: boolean;
+
+  @ApiProperty()
+  @IsDate()
+  @IsOptional()
+  date?: Date;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  repeat: string;
+}
+
+class FilesDTO {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsUrl()
+  path: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  type: string;
+}
+
+class AttachmentDTO {
+  @ApiProperty()
+  @IsArray()
+  @IsOptional()
+  files?: FilesDTO[];
+
+  @ApiProperty()
+  @IsArray()
+  @IsOptional()
+  buttons?: TButtonBlock[];
+}
+
 export class CreateMailingDTO {
   @ApiProperty()
   @IsNotEmpty()
@@ -54,49 +99,4 @@ export class CreateMailingDTO {
   @IsNotEmpty()
   @IsObject()
   schedule: scheduleDTO;
-}
-
-class AttachmentDTO {
-  @ApiProperty()
-  @IsArray()
-  @IsOptional()
-  files?: FilesDTO[];
-
-  @ApiProperty()
-  @IsArray()
-  @IsOptional()
-  buttons?: TButtonBlock[];
-}
-
-class FilesDTO {
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsUrl()
-  path: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  name: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  type: string;
-}
-
-class scheduleDTO {
-  @ApiProperty()
-  @IsNotEmpty()
-  isNow: boolean;
-
-  @ApiProperty()
-  @IsDate()
-  @IsOptional()
-  date?: Date;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  repeat: string;
 }
