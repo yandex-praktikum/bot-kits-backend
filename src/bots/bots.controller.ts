@@ -27,12 +27,13 @@ import { CreateBotDto } from './dto/create-bot.dto';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import { ShareBotDto } from './dto/share-bot.dto';
 import { BotCreateRequestBody } from './sdo/request-body.sdo';
-import { RolesGuard } from 'src/auth/guards/role.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
+import { CheckAbility } from 'src/auth/decorators/ability.decorator';
+import { Action } from 'src/ability/ability.factory';
+import { AbilityGuard } from 'src/auth/guards/ability.guard';
 
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
@@ -40,7 +41,8 @@ import { CopyBotDto } from './dto/copy-bot.dto';
 @Controller('bots')
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
-
+  @CheckAbility({ action: Action.Read, subject: CreateBotDto })
+  @UseGuards(AbilityGuard)
   @Get()
   @ApiOperation({
     summary: 'Получить ботов пользователя',
@@ -55,6 +57,8 @@ export class BotsController {
     return await this.botsService.findAllByUser(req.user.id);
   }
 
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Create, subject: CreateBotDto })
   @Post()
   @ApiOperation({
     summary: 'Создание нового бота',
@@ -67,9 +71,11 @@ export class BotsController {
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiBody({ type: BotCreateRequestBody })
   create(@Req() req, @Body() createBotDto: CreateBotDto): Promise<Bot> {
-    return this.botsService.create(req.user.id, createBotDto);
+    return this.botsService.create(req.user.id, createBotDto, req.ability);
   }
 
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Read, subject: CreateTemplateDto })
   @Get('templates')
   @ApiOperation({
     summary: 'Получить все шаблоны бота',
@@ -84,8 +90,8 @@ export class BotsController {
     return await this.botsService.findAllTemplates();
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Create, subject: CreateTemplateDto })
   @Post('template')
   @ApiOperation({
     summary: 'Добавление шаблона бота админом',
@@ -99,8 +105,8 @@ export class BotsController {
     return this.botsService.addBotTemplate(createTemplateDto);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Update, subject: CreateTemplateDto })
   @Patch('template/:id')
   @ApiOperation({
     summary: 'Обновление шаблона бота админом',
@@ -117,8 +123,8 @@ export class BotsController {
     return this.botsService.updateTemplate(templateId, updateTemplateDto);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Delete, subject: CreateTemplateDto })
   @Delete('template/:id')
   @ApiOperation({
     summary: 'Удаление шаблона бота',
@@ -137,8 +143,8 @@ export class BotsController {
     return this.botsService.removeTemplate(templateId);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Read, subject: CreateBotDto })
   @Get('template/:id')
   @ApiOperation({
     summary: 'Получение шаблона бота по id',
@@ -157,6 +163,8 @@ export class BotsController {
     return this.botsService.findOne(templateId);
   }
 
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Read, subject: CreateBotDto })
   @Get(':id')
   @ApiOperation({
     summary: 'Получить данные бота по Id',
@@ -176,6 +184,8 @@ export class BotsController {
     return this.botsService.findOne(id);
   }
 
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Share, subject: CreateBotDto })
   @Post(':id/share')
   @ApiOperation({
     summary:
@@ -202,6 +212,8 @@ export class BotsController {
     return this.botsService.share(req.user.id, id, shareBotDto);
   }
 
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Create, subject: CreateBotDto })
   @Post(':id')
   @ApiOperation({
     summary: 'Создание нового бота из шаблона',
@@ -218,9 +230,11 @@ export class BotsController {
     @Body() createBotDto: CreateBotDto,
     @Param('id') id: string,
   ): Promise<Bot> {
-    return this.botsService.create(req.user.id, createBotDto, id);
+    return this.botsService.create(req.user.id, createBotDto, req.ability, id);
   }
 
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Create, subject: CreateBotDto })
   @Post('copy/:id')
   @ApiOperation({
     summary: 'Копирование бота',
@@ -243,9 +257,16 @@ export class BotsController {
     @Param('id') botId: string,
     @Body() copyBotDto: CopyBotDto,
   ) {
-    return this.botsService.copyBot(req.user.id, botId, copyBotDto);
+    return this.botsService.copyBot(
+      req.user.id,
+      botId,
+      copyBotDto,
+      req.ability,
+    );
   }
 
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Delete, subject: CreateBotDto })
   @Delete(':id')
   @ApiOperation({
     summary: 'Удаление бота',
@@ -262,9 +283,11 @@ export class BotsController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   remove(@Req() req, @Param('id') id: string): Promise<Bot> {
-    return this.botsService.remove(req.user.id, id);
+    return this.botsService.remove(req.user.id, id, req.ability);
   }
 
+  @CheckAbility({ action: Action.Update, subject: UpdateBotDto })
+  @UseGuards(AbilityGuard)
   @Patch(':id')
   @ApiOperation({
     summary: 'Обновить бота',
@@ -286,6 +309,6 @@ export class BotsController {
     @Param('id') botId: string,
     @Body() updateBotDto: UpdateBotDto,
   ): Promise<Bot> {
-    return this.botsService.update(req.user.id, botId, updateBotDto);
+    return this.botsService.update(botId, updateBotDto, req.ability);
   }
 }

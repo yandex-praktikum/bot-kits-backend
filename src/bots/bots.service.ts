@@ -7,14 +7,20 @@ import { BotsRepository } from './bots.repository';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
+import { PureAbility } from '@casl/ability';
 
 @Injectable()
 export class BotsService {
   constructor(private dbQuery: BotsRepository) {}
 
-  async create(profile, createBotDto: CreateBotDto, id?: string): Promise<Bot> {
+  async create(
+    profile,
+    createBotDto: CreateBotDto,
+    ability: PureAbility,
+    id?: string,
+  ): Promise<Bot> {
     try {
-      return await this.dbQuery.create(profile, createBotDto, id);
+      return await this.dbQuery.create(profile, createBotDto, ability, id);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException('Бот с таким имененм уже существует');
@@ -34,7 +40,7 @@ export class BotsService {
 
   async findAllByUser(userId: string): Promise<Bot[] | null> {
     try {
-      return this.dbQuery.findAllByUser(userId);
+      return this.dbQuery.findAllByUserNew(userId);
     } catch (e) {
       return e;
     }
@@ -57,12 +63,12 @@ export class BotsService {
   }
 
   async update(
-    userId: string,
     botId: string,
     updateBotDto: UpdateBotDto,
+    ability: PureAbility,
   ): Promise<Bot> {
     try {
-      return this.dbQuery.update(userId, botId, updateBotDto);
+      return this.dbQuery.update(botId, updateBotDto, ability);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException('Бот с таким имененм уже существует');
@@ -72,9 +78,9 @@ export class BotsService {
     }
   }
 
-  async remove(userId: string, id: string): Promise<Bot> {
+  async remove(userId: string, id: string, ability: PureAbility): Promise<Bot> {
     try {
-      return await this.dbQuery.remove(userId, id);
+      return await this.dbQuery.remove(userId, id, ability);
     } catch (e) {
       return e;
     }
@@ -127,9 +133,10 @@ export class BotsService {
     profileId: string,
     botId: string,
     copyBotDto: CopyBotDto,
+    ability: PureAbility,
   ): Promise<Bot> {
     try {
-      return await this.dbQuery.copy(profileId, botId, copyBotDto);
+      return await this.dbQuery.copy(profileId, botId, copyBotDto, ability);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException(

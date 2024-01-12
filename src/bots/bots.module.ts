@@ -6,12 +6,18 @@ import { BotsService } from './bots.service';
 import { BotAccessesModule } from '../botAccesses/botAccesses.module';
 import { BotsRepository } from './bots.repository';
 import { ProfilesModule } from 'src/profiles/profiles.module';
+import { AbilityModule } from 'src/ability/ability.module';
+import { Profile, ProfileSchema } from 'src/profiles/schema/profile.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Bot.name, schema: BotSchema }]),
+    MongooseModule.forFeature([
+      { name: Bot.name, schema: BotSchema },
+      { name: Profile.name, schema: ProfileSchema },
+    ]),
     BotAccessesModule,
     ProfilesModule,
+    AbilityModule,
   ],
   controllers: [BotsController],
   providers: [BotsService, BotsRepository],
