@@ -14,6 +14,8 @@ import { CreateBotDto } from 'src/bots/dto/create-bot.dto';
 import { CreateTemplateDto } from 'src/bots/dto/create-template.dto';
 import { UpdateBotDto } from 'src/bots/dto/update-bot.dto';
 import { Bot, BotDocument } from 'src/bots/schema/bots.schema';
+import { CreatePlatformDto } from 'src/platforms/dto/create-platform.dto';
+import { UpdatePlatformDto } from 'src/platforms/dto/update-platform.dto';
 import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
 import { UpdateProfileDto } from 'src/profiles/dto/update-profile.dto';
 import { Profile } from 'src/profiles/schema/profile.schema';
@@ -36,6 +38,8 @@ export type Subjects = InferSubjects<
   | typeof CreateBotDto
   | typeof CreateProfileDto
   | typeof UpdateProfileDto
+  | typeof UpdatePlatformDto
+  | typeof CreatePlatformDto
   | 'all'
 >;
 
@@ -62,6 +66,10 @@ export class AbilityFactory {
       can(Action.Manage, [CreateBotDto, UpdateBotDto]);
       //--Администраторы могут делать запросы по эндпоинтам связанные с профилем--//
       can(Action.Manage, UpdateProfileDto);
+      //--Администраторы могут только получать платформы--//
+      can(Action.Read, UpdatePlatformDto);
+      //--Администраторы НЕ могут удалять, обновлять и создавать платформы--//
+      cannot(Action.Manage, CreatePlatformDto);
       //--Администраторы НЕ могут удалять чужие профиля и получать к ним доступ--//
       cannot(Action.Manage, CreateProfileDto);
       //--Администраторы НЕ имеют право на любые действия связанные с шаблонами--//
