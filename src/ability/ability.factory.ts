@@ -14,6 +14,8 @@ import { CreateBotDto } from 'src/bots/dto/create-bot.dto';
 import { CreateTemplateDto } from 'src/bots/dto/create-template.dto';
 import { UpdateBotDto } from 'src/bots/dto/update-bot.dto';
 import { Bot, BotDocument } from 'src/bots/schema/bots.schema';
+import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
+import { UpdateProfileDto } from 'src/profiles/dto/update-profile.dto';
 import { Profile } from 'src/profiles/schema/profile.schema';
 
 //ability.factory.ts
@@ -29,7 +31,12 @@ export enum Action {
 }
 
 export type Subjects = InferSubjects<
-  typeof CreateTemplateDto | typeof UpdateBotDto | typeof CreateBotDto | 'all'
+  | typeof CreateTemplateDto
+  | typeof UpdateBotDto
+  | typeof CreateBotDto
+  | typeof CreateProfileDto
+  | typeof UpdateProfileDto
+  | 'all'
 >;
 
 @Injectable()
@@ -53,6 +60,10 @@ export class AbilityFactory {
     if (isAdmin) {
       //--Администраторы могут делать запросы по эндпоинтам связанные с ботами--//
       can(Action.Manage, [CreateBotDto, UpdateBotDto]);
+      //--Администраторы могут делать запросы по эндпоинтам связанные с профилем--//
+      can(Action.Manage, UpdateProfileDto);
+      //--Администраторы НЕ могут удалять чужие профиля и получать к ним доступ--//
+      cannot(Action.Manage, CreateProfileDto);
       //--Администраторы НЕ имеют право на любые действия связанные с шаблонами--//
       cannot(Action.Manage, CreateTemplateDto).because(
         'Этот функционал только у супер администратора',
