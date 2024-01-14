@@ -31,9 +31,11 @@ import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 import { Account } from 'src/accounts/schema/account.schema';
 import { UserProfileResponseBodyOK } from './sdo/response-body.sdo';
 import { SingleAccountResponseBodyOK } from 'src/accounts/sdo/response-body.sdo';
-import { RolesGuard } from 'src/auth/guards/role.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
 import { CreateSharedAccessDto } from './dto/create-access.dto';
+import { CheckAbility } from 'src/auth/decorators/ability.decorator';
+import { Action } from 'src/ability/ability.factory';
+import { AbilityGuard } from 'src/auth/guards/ability.guard';
+import { CreateProfileDto } from './dto/create-profile.dto';
 
 @UseGuards(JwtGuard)
 @ApiTags('profiles')
@@ -41,8 +43,8 @@ import { CreateSharedAccessDto } from './dto/create-access.dto';
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @CheckAbility({ action: Action.Read, subject: CreateProfileDto })
+  @UseGuards(AbilityGuard)
   @Get()
   @ApiOkResponse({
     description: 'Профили успешно получены',
@@ -57,6 +59,8 @@ export class ProfilesController {
     return this.profilesService.findAll();
   }
 
+  @CheckAbility({ action: Action.Read, subject: UpdateProfileDto })
+  @UseGuards(AbilityGuard)
   @Get('me')
   @ApiBearerAuth()
   @ApiOperation({
@@ -78,8 +82,8 @@ export class ProfilesController {
     return await this.profilesService.findByToken(token);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @CheckAbility({ action: Action.Read, subject: CreateProfileDto })
+  @UseGuards(AbilityGuard)
   @Get(':id')
   @ApiOperation({
     summary: 'Получить профиль по id',
@@ -101,6 +105,8 @@ export class ProfilesController {
     return profile;
   }
 
+  @CheckAbility({ action: Action.Read, subject: CreateProfileDto })
+  @UseGuards(AbilityGuard)
   @Get(':id/accounts')
   @ApiOkResponse({
     description: 'Аккаунты профиля успешно получены',
@@ -120,6 +126,8 @@ export class ProfilesController {
     return await this.profilesService.findAccountsByProfileId(id);
   }
 
+  @CheckAbility({ action: Action.Update, subject: UpdateProfileDto })
+  @UseGuards(AbilityGuard)
   @Patch(':id')
   @ApiOkResponse({
     description: 'Профиль успешно обновлен',
@@ -144,6 +152,8 @@ export class ProfilesController {
     return this.profilesService.update(id, updateProfileDto);
   }
 
+  @CheckAbility({ action: Action.Delete, subject: UpdateProfileDto })
+  @UseGuards(AbilityGuard)
   @Delete(':id')
   @ApiOkResponse({
     description: 'Профиль успешно удален',
@@ -163,6 +173,8 @@ export class ProfilesController {
     return this.profilesService.remove(id);
   }
 
+  @CheckAbility({ action: Action.Share, subject: UpdateProfileDto })
+  @UseGuards(AbilityGuard)
   @Post('shared')
   sharedAccess(
     @Body() createSharedAccessDto: CreateSharedAccessDto,
