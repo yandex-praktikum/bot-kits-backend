@@ -105,7 +105,7 @@ export class ProfilesController {
     return profile;
   }
 
-  @CheckAbility({ action: Action.Read, subject: UpdateProfileDto })
+  @CheckAbility({ action: Action.Read, subject: CreateProfileDto })
   @UseGuards(AbilityGuard)
   @Get(':id/accounts')
   @ApiOkResponse({
