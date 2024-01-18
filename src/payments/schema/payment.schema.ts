@@ -32,6 +32,7 @@ export class Payment {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Profile',
+    required: true,
   })
   profile: Profile;
 }

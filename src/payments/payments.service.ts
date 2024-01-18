@@ -13,9 +13,9 @@ import { RepositoryPort } from './payments.repository';
 export class PaymentsService {
   constructor(private readonly paymentsRepository: RepositoryPort) {}
 
-  async create(createPaymentDto: CreatePaymentDto) {
+  async create(userId: string, createPaymentDto: CreatePaymentDto) {
     try {
-      return await this.paymentsRepository.create(createPaymentDto);
+      return await this.paymentsRepository.create(userId, createPaymentDto);
     } catch (error: unknown) {
       throw error;
     }

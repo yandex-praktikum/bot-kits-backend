@@ -55,7 +55,6 @@ export class PaymentsController {
   @ApiOperation({
     summary: 'Добавить данные финансовой операции',
   })
-  @ApiBody({ type: OmitType(CreatePaymentDto, ['profile']) })
   @ApiCreatedResponse({
     description: 'Операция успешно добавлена',
     type: Payment,
@@ -64,13 +63,12 @@ export class PaymentsController {
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @Post()
   create(
-    @AuthUser() profile: Profile,
     @Body() createPaymentDto: CreatePaymentDto,
+    @Req() req,
   ): Promise<Payment> {
     try {
-      const data = this.paymentsService.create({
+      const data = this.paymentsService.create(req.user.id, {
         ...createPaymentDto,
-        profile,
       });
       return data;
     } catch (error) {
@@ -106,7 +104,6 @@ export class PaymentsController {
     description: 'Идентификатор фин.операции',
     example: '64f81ba37571bfaac18a857f',
   })
-  @ApiBody({ type: OmitType(CreatePaymentDto, ['profile']) })
   @ApiOkResponse({
     description: 'Операция успешно обновлена',
     type: Payment,
@@ -122,6 +119,6 @@ export class PaymentsController {
     @Param('id') id: string,
     @Body() updatePaymentDto: Omit<CreatePaymentDto, 'profie'>,
   ): Promise<Payment> {
-    return this.paymentsService.update(id, { ...updatePaymentDto, profile });
+    return this.paymentsService.update(id, { ...updatePaymentDto });
   }
 }

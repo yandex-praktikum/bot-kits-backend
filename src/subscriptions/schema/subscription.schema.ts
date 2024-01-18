@@ -35,6 +35,16 @@ export class Subscription {
     required: true,
   })
   profile: Profile;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Tariff',
+  })
+  updatingTariff: Tariff;
+
+  @ApiProperty({ example: false, default: false })
+  @Prop({ required: true, default: false })
+  isCancelled: boolean; // Флаг отмены подписки
 }
 
 export const SubscriptionSchema = SchemaFactory.createForClass(Subscription);

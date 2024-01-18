@@ -8,11 +8,13 @@ import {
   Subscription,
   SubscriptionDocument,
 } from './schema/subscription.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Profile } from '../profiles/schema/profile.schema';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { Payment } from '../payments/schema/payment.schema';
 import { Tariff } from 'src/tariffs/schema/tariff.schema';
+import { createPaymentData } from 'src/utils/utils';
+import TypeOperation from 'src/payments/types/type-operation';
 
 @Injectable()
 export class SubscriptionsRepository {
@@ -21,7 +23,20 @@ export class SubscriptionsRepository {
     private subscriptionModel: Model<SubscriptionDocument>,
     @InjectModel(Payment.name) private paymentModel: Model<Payment>,
     @InjectModel(Tariff.name) private tariffModel: Model<Tariff>,
+    @InjectModel(Profile.name) private profileModel: Model<Profile>,
   ) {}
+
+  private async processPayment(tariff: Tariff, subscription: Subscription) {
+    // Здесь можно добавить логику для имитации разных сценариев оплаты
+    return await createPaymentData(
+      new Date(),
+      tariff.price,
+      true,
+      TypeOperation.OUTGONE,
+      'Списание',
+      subscription.profile,
+    );
+  }
 
   async findOne(id: number): Promise<Subscription> {
     return this.subscriptionModel.findById(id).exec();
@@ -56,6 +71,7 @@ export class SubscriptionsRepository {
       const tariff = await this.tariffModel
         .findById(subscription.tariff)
         .exec();
+
       dataObject.tariff = tariff.name;
       dataObject.status = subscription.status;
       dataObject.cardMask = subscription.cardMask;
@@ -64,12 +80,26 @@ export class SubscriptionsRepository {
     return dataObject;
   }
 
-  async activateSubscription(profile: Profile, status: boolean) {
-    const subscription = await this.findSubscriptionByProfile(profile);
+  async activateSubscription(userId: Profile, status: boolean) {
+    const subscription = await this.findSubscriptionByProfile(userId);
+    const profile = await this.profileModel.findById(userId);
+    const tariff = await this.tariffModel.findById(subscription.tariff);
+
     if (!subscription) {
       throw new NotFoundException('Не найдена подписка пользователя');
     }
-    subscription.status = status;
+    //Когда приостанавливается тариф status === true
+    if (!status) {
+      if (profile.balance < tariff.price || tariff.name === 'Демо') {
+        throw new BadRequestException(
+          'Нельзя активировать Демо тариф или недостаточно средств',
+        );
+      }
+      subscription.status = !status;
+      subscription.isCancelled = status;
+    }
+
+    subscription.isCancelled = status;
     return await subscription.save();
   }
 
@@ -83,18 +113,63 @@ export class SubscriptionsRepository {
       .exec();
 
     const tariff = await this.tariffModel.findById(tariffId).exec();
-    if (!tariff) {
+
+    console.log(tariff.name);
+
+    if (!tariff || tariff.name === 'Демо') {
       throw new NotFoundException('Неверный идентификатор тарифа');
     }
-    if (subscription) {
-      throw new BadRequestException('Подписка уже существует');
+
+    // Обработка оплаты
+    const paymentSuccess = await this.processPayment(tariff, subscription);
+
+    if (!paymentSuccess.successful) {
+      throw new BadRequestException('Ошибка оплаты');
     }
-    return await this.subscriptionModel.create({
-      ...createSubscriptionDto,
-      tariff: tariffId,
-      status: true,
-      profile: userId,
-    });
+
+    // Создание или обновление подписки
+    if (subscription && subscription.status) {
+      console.log('Пользователь сменил тариф при имеющимся активном тарифе');
+      // Обновление существующей подписки если пользователь выбрал новый тариф
+      return await this.subscriptionModel
+        .findByIdAndUpdate(
+          subscription._id,
+          {
+            updatingTariff: tariff._id,
+            status: true,
+            isCancelled: false,
+          },
+          { new: true },
+        )
+        .exec();
+    } else {
+      console.log('Пользователь активировал тариф');
+      // если у пользователя была деактивирована подписка, обновляем статус и дату следующего списания
+      return await this.subscriptionModel
+        .findByIdAndUpdate(
+          subscription._id,
+          {
+            ...createSubscriptionDto,
+            tariff: tariffId,
+            status: true,
+            profile: userId,
+            isCancelled: false,
+          },
+          { new: true },
+        )
+        .exec();
+    }
+  }
+
+  async initSubscription(
+    subscriptioData,
+    session?: mongoose.ClientSession,
+  ): Promise<Subscription> {
+    const subscriptionNew = new this.subscriptionModel(subscriptioData);
+    if (session) {
+      return await subscriptionNew.save({ session: session });
+    }
+    return await subscriptionNew.save();
   }
 
   async delete(id: number) {

@@ -587,832 +587,6 @@ paths:
       responses:
         '200':
           description: ''
-  /dev/api/bot-accesses:
-    post:
-      operationId: BotAccessesController_createBotAccesses
-      summary: Создает доступ
-      description: >-
-        Создает запись о доступе пользователя к боту, используется при создании
-        бота
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateBotAccessDto'
-      responses:
-        '201':
-          description: Запись о доступе создана.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BotAccess'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-      tags: &ref_8
-        - botAccesses
-      security: &ref_9
-        - bearer: []
-    get:
-      operationId: BotAccessesController_findAllBotAccesses
-      summary: Найти все доступы
-      parameters: []
-      responses:
-        '200':
-          description: Все доступы найдены.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BotAccess'
-        '403':
-          description: Отказ в доступе
-      tags: *ref_8
-      security: *ref_9
-  /dev/api/bot-accesses/{id}:
-    get:
-      operationId: BotAccessesController_findBotAccessesToId
-      summary: Найти доступ по ID
-      description: ВАЖНО! Находит доступ по botAccessId (запись о связи botId и userId)
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор botAccessId
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Доступ найден.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BotAccess'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_8
-      security: *ref_9
-    patch:
-      operationId: BotAccessesController_updateBotAccesses
-      summary: Изменить уровень доступа
-      description: >-
-        Изменяет уровень существующего доступа. Должен передаваться полностью
-        объект с теми доступами, которые должны быть у пользователя.
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор botAccessId
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateBotAccessDto'
-      responses:
-        '200':
-          description: Доступ изменен.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BotAccess'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_8
-      security: *ref_9
-    delete:
-      operationId: BotAccessesController_deleteBotAccesses
-      summary: Удалить доступ
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор botAccessId
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Доступ удален.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BotAccess'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_8
-      security: *ref_9
-  /dev/api/bot-accesses/{userId}/{botId}:
-    get:
-      operationId: BotAccessesController_getPermission
-      summary: Получить доступ
-      description: Позвоялет проверить уровень доступа по botId и userId
-      parameters:
-        - name: botId
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-        - name: userId
-          required: true
-          in: path
-          description: Идентификатор пользователя
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Информация о доступе по botId и userId получена.
-          content:
-            application/json:
-              schema:
-                type: Permission
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_8
-      security: *ref_9
-  /dev/api/bot-accesses/{botId}:
-    post:
-      operationId: BotAccessesController_shareAccess
-      summary: Поделиться доступом
-      description: >-
-        Позвоялет поделиться доступом по botId и создать новый доступ, если
-        пользователь имеет полный уровень доступа к данному боту
-      parameters:
-        - name: botId
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ShareBotAccessDto'
-      responses:
-        '201':
-          description: Новый доступ создан.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BotAccess'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_8
-      security: *ref_9
-  /dev/api/platforms:
-    post:
-      operationId: PlatformController_create
-      summary: Создать новую платформу
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreatePlatformDto'
-      responses:
-        '201':
-          description: Платформа успешно создана
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Platform'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-      tags: &ref_10
-        - platforms
-      security: &ref_11
-        - bearer: []
-    get:
-      operationId: PlatformController_findAll
-      summary: Получить все платформы
-      parameters: []
-      responses:
-        '200':
-          description: Платформы успешно получены
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Platform'
-        '403':
-          description: Отказ в доступе
-      tags: *ref_10
-      security: *ref_11
-  /dev/api/platforms/{id}:
-    get:
-      operationId: PlatformController_findOne
-      summary: Получить платформу по id
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентиификатор платформы
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Платформа успешно получена
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Platform'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_10
-      security: *ref_11
-    patch:
-      operationId: PlatformController_update
-      summary: Обновить данные о платформе по id
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор платформы
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdatePlatformDto'
-      responses:
-        '200':
-          description: Платформа успешно обновлена
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Platform'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_10
-      security: *ref_11
-    delete:
-      operationId: PlatformController_remove
-      summary: Удалить платформу по id
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор платформы
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Платформа успешно удалена
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Platform'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_10
-      security: *ref_11
-  /dev/api/promocodes:
-    post:
-      operationId: PromocodesController_create
-      summary: Добавить новый промокод
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreatePromocodeDto'
-      responses:
-        '201':
-          description: Промокод успешно добавлен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Promocode'
-        '403':
-          description: Отказ в доступе
-        '409':
-          description: Такой промокод уже существует
-      tags: &ref_12
-        - promocodes
-      security: &ref_13
-        - bearer: []
-    get:
-      operationId: PromocodesController_findAll
-      summary: Получить все промокоды
-      parameters: []
-      responses:
-        '200':
-          description: Промокоды успешно получены
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Promocode'
-        '403':
-          description: Отказ в доступе
-      tags: *ref_12
-      security: *ref_13
-  /dev/api/promocodes/promocode:
-    get:
-      operationId: PromocodesController_findOneByCode
-      summary: Получить промокод по названию
-      parameters:
-        - name: code
-          required: true
-          in: query
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Промокод успешно получен
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Promocode'
-        '403':
-          description: Отказ в доступе
-      tags: *ref_12
-      security: *ref_13
-    patch:
-      operationId: PromocodesController_updateByCode
-      summary: Использовать промокод 1 раз
-      parameters:
-        - name: code
-          required: true
-          in: query
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Промокод успешно обновлен
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Promocode'
-        '403':
-          description: Отказ в доступе
-      tags: *ref_12
-      security: *ref_13
-  /dev/api/promocodes/{id}:
-    get:
-      operationId: PromocodesController_findOne
-      summary: Получить промокод по id
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор промокода
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Промокод успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Promocode'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_12
-      security: *ref_13
-    patch:
-      operationId: PromocodesController_update
-      summary: Изменить данные промокода по id
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор промокода
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdatePromocodeDto'
-      responses:
-        '200':
-          description: Данные промокода успешно изменены
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Promocode'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_12
-      security: *ref_13
-    delete:
-      operationId: PromocodesController_remove
-      summary: Удалить промокод по id
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор промокода
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Промокод успешно удален
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Promocode'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_12
-      security: *ref_13
-  /dev/api/bots:
-    get:
-      operationId: BotsController_findMy
-      summary: Получить ботов пользователя
-      parameters: []
-      responses:
-        '200':
-          description: Запрос выполнен успешно
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Bot'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: &ref_14
-        - bots
-      security: &ref_15
-        - bearer: []
-    post:
-      operationId: BotsController_create
-      summary: Создание нового бота
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BotCreateRequestBody'
-      responses:
-        '201':
-          description: Новый бот создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-      tags: *ref_14
-      security: *ref_15
-  /dev/api/bots/templates:
-    get:
-      operationId: BotsController_findTemplates
-      summary: Получить все шаблоны бота
-      parameters: []
-      responses:
-        '200':
-          description: Запрос выполнен успешно
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Bot'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
-  /dev/api/bots/template:
-    post:
-      operationId: BotsController_createTemplate
-      summary: Добавление шаблона бота админом
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateTemplateDto'
-      responses:
-        '200':
-          description: Созданный шаблон
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '201':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-      tags: *ref_14
-      security: *ref_15
-  /dev/api/bots/template/{id}:
-    patch:
-      operationId: BotsController_updateTemplate
-      summary: Обновление шаблона бота админом
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateTemplateDto'
-      responses:
-        '200':
-          description: Обновленны шаблон бгота
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-      tags: *ref_14
-      security: *ref_15
-    delete:
-      operationId: BotsController_removeTemplate
-      summary: Удаление шаблона бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор шаблона
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Шаблон удален
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
-    get:
-      operationId: BotsController_getTemplate
-      summary: Получение шаблона бота по id
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор шаблона
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Шаблон найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
-  /dev/api/bots/{id}:
-    get:
-      operationId: BotsController_findOne
-      summary: Получить данные бота по Id
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Информация о боте по Id получена
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
-    post:
-      operationId: BotsController_createBotsFromTemplate
-      summary: Создание нового бота из шаблона
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BotCreateRequestBody'
-      responses:
-        '201':
-          description: Новый бот создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-      tags: *ref_14
-      security: *ref_15
-    delete:
-      operationId: BotsController_remove
-      summary: Удаление бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Бот удален
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
-    patch:
-      operationId: BotsController_update
-      summary: Обновить бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BotCreateRequestBody'
-      responses:
-        '200':
-          description: Имя бота обновлено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
-  /dev/api/bots/{id}/share:
-    post:
-      operationId: BotsController_share
-      summary: Предоставить общий доступ к боту, первичный доступ при отправке email
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ShareBotDto'
-      responses:
-        '201':
-          description: Первичный доступ создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
-  /dev/api/bots/copy/{id}:
-    post:
-      operationId: BotsController_copyBot
-      summary: Копирование бота
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CopyBotDto'
-      responses:
-        '201':
-          description: Бот скопирован
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bot'
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_14
-      security: *ref_15
   /dev/api/subscriptions:
     get:
       operationId: SubscriptionsController_subscriptionAndPayments
@@ -1449,9 +623,9 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: &ref_16
+      tags: &ref_8
         - subscriptions
-      security: &ref_17
+      security: &ref_9
         - bearer: []
   /dev/api/subscriptions/activate:
     post:
@@ -1477,8 +651,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_16
-      security: *ref_17
+      tags: *ref_8
+      security: *ref_9
   /dev/api/subscriptions/{tariffId}:
     post:
       operationId: SubscriptionsController_createSubscription
@@ -1511,6 +685,832 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subscription'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_8
+      security: *ref_9
+  /dev/api/bot-accesses:
+    post:
+      operationId: BotAccessesController_createBotAccesses
+      summary: Создает доступ
+      description: >-
+        Создает запись о доступе пользователя к боту, используется при создании
+        бота
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBotAccessDto'
+      responses:
+        '201':
+          description: Запись о доступе создана.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotAccess'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+      tags: &ref_10
+        - botAccesses
+      security: &ref_11
+        - bearer: []
+    get:
+      operationId: BotAccessesController_findAllBotAccesses
+      summary: Найти все доступы
+      parameters: []
+      responses:
+        '200':
+          description: Все доступы найдены.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BotAccess'
+        '403':
+          description: Отказ в доступе
+      tags: *ref_10
+      security: *ref_11
+  /dev/api/bot-accesses/{id}:
+    get:
+      operationId: BotAccessesController_findBotAccessesToId
+      summary: Найти доступ по ID
+      description: ВАЖНО! Находит доступ по botAccessId (запись о связи botId и userId)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор botAccessId
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Доступ найден.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotAccess'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_10
+      security: *ref_11
+    patch:
+      operationId: BotAccessesController_updateBotAccesses
+      summary: Изменить уровень доступа
+      description: >-
+        Изменяет уровень существующего доступа. Должен передаваться полностью
+        объект с теми доступами, которые должны быть у пользователя.
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор botAccessId
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBotAccessDto'
+      responses:
+        '200':
+          description: Доступ изменен.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotAccess'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_10
+      security: *ref_11
+    delete:
+      operationId: BotAccessesController_deleteBotAccesses
+      summary: Удалить доступ
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор botAccessId
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Доступ удален.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotAccess'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_10
+      security: *ref_11
+  /dev/api/bot-accesses/{userId}/{botId}:
+    get:
+      operationId: BotAccessesController_getPermission
+      summary: Получить доступ
+      description: Позвоялет проверить уровень доступа по botId и userId
+      parameters:
+        - name: botId
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+        - name: userId
+          required: true
+          in: path
+          description: Идентификатор пользователя
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Информация о доступе по botId и userId получена.
+          content:
+            application/json:
+              schema:
+                type: Permission
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_10
+      security: *ref_11
+  /dev/api/bot-accesses/{botId}:
+    post:
+      operationId: BotAccessesController_shareAccess
+      summary: Поделиться доступом
+      description: >-
+        Позвоялет поделиться доступом по botId и создать новый доступ, если
+        пользователь имеет полный уровень доступа к данному боту
+      parameters:
+        - name: botId
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareBotAccessDto'
+      responses:
+        '201':
+          description: Новый доступ создан.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotAccess'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_10
+      security: *ref_11
+  /dev/api/platforms:
+    post:
+      operationId: PlatformController_create
+      summary: Создать новую платформу
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePlatformDto'
+      responses:
+        '201':
+          description: Платформа успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+      tags: &ref_12
+        - platforms
+      security: &ref_13
+        - bearer: []
+    get:
+      operationId: PlatformController_findAll
+      summary: Получить все платформы
+      parameters: []
+      responses:
+        '200':
+          description: Платформы успешно получены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Platform'
+        '403':
+          description: Отказ в доступе
+      tags: *ref_12
+      security: *ref_13
+  /dev/api/platforms/{id}:
+    get:
+      operationId: PlatformController_findOne
+      summary: Получить платформу по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентиификатор платформы
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Платформа успешно получена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_12
+      security: *ref_13
+    patch:
+      operationId: PlatformController_update
+      summary: Обновить данные о платформе по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор платформы
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePlatformDto'
+      responses:
+        '200':
+          description: Платформа успешно обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_12
+      security: *ref_13
+    delete:
+      operationId: PlatformController_remove
+      summary: Удалить платформу по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор платформы
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Платформа успешно удалена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_12
+      security: *ref_13
+  /dev/api/promocodes:
+    post:
+      operationId: PromocodesController_create
+      summary: Добавить новый промокод
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePromocodeDto'
+      responses:
+        '201':
+          description: Промокод успешно добавлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Отказ в доступе
+        '409':
+          description: Такой промокод уже существует
+      tags: &ref_14
+        - promocodes
+      security: &ref_15
+        - bearer: []
+    get:
+      operationId: PromocodesController_findAll
+      summary: Получить все промокоды
+      parameters: []
+      responses:
+        '200':
+          description: Промокоды успешно получены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Отказ в доступе
+      tags: *ref_14
+      security: *ref_15
+  /dev/api/promocodes/promocode:
+    get:
+      operationId: PromocodesController_findOneByCode
+      summary: Получить промокод по названию
+      parameters:
+        - name: code
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Промокод успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Отказ в доступе
+      tags: *ref_14
+      security: *ref_15
+    patch:
+      operationId: PromocodesController_updateByCode
+      summary: Использовать промокод 1 раз
+      parameters:
+        - name: code
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Промокод успешно обновлен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Отказ в доступе
+      tags: *ref_14
+      security: *ref_15
+  /dev/api/promocodes/{id}:
+    get:
+      operationId: PromocodesController_findOne
+      summary: Получить промокод по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор промокода
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Промокод успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_14
+      security: *ref_15
+    patch:
+      operationId: PromocodesController_update
+      summary: Изменить данные промокода по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор промокода
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePromocodeDto'
+      responses:
+        '200':
+          description: Данные промокода успешно изменены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promocode'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_14
+      security: *ref_15
+    delete:
+      operationId: PromocodesController_remove
+      summary: Удалить промокод по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор промокода
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Промокод успешно удален
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promocode'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_14
+      security: *ref_15
+  /dev/api/bots:
+    get:
+      operationId: BotsController_findMy
+      summary: Получить ботов пользователя
+      parameters: []
+      responses:
+        '200':
+          description: Запрос выполнен успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bot'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: &ref_16
+        - bots
+      security: &ref_17
+        - bearer: []
+    post:
+      operationId: BotsController_create
+      summary: Создание нового бота
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BotCreateRequestBody'
+      responses:
+        '201':
+          description: Новый бот создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+      tags: *ref_16
+      security: *ref_17
+  /dev/api/bots/templates:
+    get:
+      operationId: BotsController_findTemplates
+      summary: Получить все шаблоны бота
+      parameters: []
+      responses:
+        '200':
+          description: Запрос выполнен успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bot'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_16
+      security: *ref_17
+  /dev/api/bots/template:
+    post:
+      operationId: BotsController_createTemplate
+      summary: Добавление шаблона бота админом
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateDto'
+      responses:
+        '200':
+          description: Созданный шаблон
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+      tags: *ref_16
+      security: *ref_17
+  /dev/api/bots/template/{id}:
+    patch:
+      operationId: BotsController_updateTemplate
+      summary: Обновление шаблона бота админом
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateDto'
+      responses:
+        '200':
+          description: Обновленны шаблон бгота
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+      tags: *ref_16
+      security: *ref_17
+    delete:
+      operationId: BotsController_removeTemplate
+      summary: Удаление шаблона бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор шаблона
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Шаблон удален
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '404':
+          description: Ресурс не найден
+      tags: *ref_16
+      security: *ref_17
+    get:
+      operationId: BotsController_getTemplate
+      summary: Получение шаблона бота по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор шаблона
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Шаблон найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '404':
+          description: Ресурс не найден
+      tags: *ref_16
+      security: *ref_17
+  /dev/api/bots/{id}:
+    get:
+      operationId: BotsController_findOne
+      summary: Получить данные бота по Id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Информация о боте по Id получена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_16
+      security: *ref_17
+    post:
+      operationId: BotsController_createBotsFromTemplate
+      summary: Создание нового бота из шаблона
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BotCreateRequestBody'
+      responses:
+        '201':
+          description: Новый бот создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+      tags: *ref_16
+      security: *ref_17
+    delete:
+      operationId: BotsController_remove
+      summary: Удаление бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Бот удален
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_16
+      security: *ref_17
+    patch:
+      operationId: BotsController_update
+      summary: Обновить бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BotCreateRequestBody'
+      responses:
+        '200':
+          description: Имя бота обновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_16
+      security: *ref_17
+  /dev/api/bots/{id}/share:
+    post:
+      operationId: BotsController_share
+      summary: Предоставить общий доступ к боту, первичный доступ при отправке email
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareBotDto'
+      responses:
+        '201':
+          description: Первичный доступ создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_16
+      security: *ref_17
+  /dev/api/bots/copy/{id}:
+    post:
+      operationId: BotsController_copyBot
+      summary: Копирование бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopyBotDto'
+      responses:
+        '201':
+          description: Бот скопирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
         '400':
           description: Неверный запрос
         '403':
@@ -1561,7 +1561,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OmitTypeClass'
+              $ref: '#/components/schemas/CreatePaymentDto'
       responses:
         '201':
           description: Операция успешно добавлена
@@ -1607,12 +1607,6 @@ paths:
           example: 64f81ba37571bfaac18a857f
           schema:
             type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OmitTypeClass'
       responses:
         '200':
           description: Операция успешно обновлена
@@ -2142,6 +2136,37 @@ components:
             email: test@mail.ru
       required:
         - credentials
+    ActivateSubscriptionDTO:
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: true
+      required:
+        - status
+    Subscription:
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: true
+          default: false
+        cardMask:
+          type: string
+          example: 4500 *** 1119
+        debitDate:
+          format: date-time
+          type: string
+          example: 2024-01-18T12:02:54.858Z
+        isCancelled:
+          type: boolean
+          example: false
+          default: false
+      required:
+        - status
+        - cardMask
+        - debitDate
+        - isCancelled
     CreateBotAccessDto:
       type: object
       properties:
@@ -2484,32 +2509,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Messenger'
-    ActivateSubscriptionDTO:
-      type: object
-      properties:
-        status:
-          type: boolean
-          example: true
-      required:
-        - status
-    Subscription:
-      type: object
-      properties:
-        status:
-          type: boolean
-          example: true
-          default: false
-        cardMask:
-          type: string
-          example: 4500 *** 1119
-        debitDate:
-          format: date-time
-          type: string
-          example: 2024-01-14T11:34:39.280Z
-      required:
-        - status
-        - cardMask
-        - debitDate
     Statistics:
       type: object
       properties: {}
@@ -2519,7 +2518,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-01-14T11:34:39.283Z
+          example: 2024-01-18T12:02:54.861Z
         amount:
           type: number
           example: 1000
@@ -2542,7 +2541,7 @@ components:
         - successful
         - operation
         - note
-    OmitTypeClass:
+    CreatePaymentDto:
       type: object
       properties:
         date:
@@ -2564,6 +2563,8 @@ components:
         note:
           type: string
           example: Пополнение счета
+        profile:
+          $ref: '#/components/schemas/Profile'
       required:
         - date
         - amount

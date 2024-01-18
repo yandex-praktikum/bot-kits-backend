@@ -28,8 +28,8 @@ export class PromocodesService {
     return await this.dbQuery.findOneByCode(code);
   }
 
-  async updateByCode(code: string) {
-    return await this.dbQuery.updateByCode(code);
+  async updateByCode(code: string, userId: string) {
+    return await this.dbQuery.updateByCode(code, userId);
   }
 
   async remove(id: string): Promise<Promocode> {

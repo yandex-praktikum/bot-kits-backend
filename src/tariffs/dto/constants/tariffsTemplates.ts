@@ -2,11 +2,19 @@ import { CreateTariffDto } from '../create-tariff.dto';
 
 export const tariffsTemplates: CreateTariffDto[] = [
   {
+    name: 'Демо',
+    price: 0,
+    botsCount: 10,
+    subscribersCount: 120,
+    duration: '0D',
+    status: true,
+  },
+  {
     name: 'Старт',
     price: 390,
     botsCount: 100,
     subscribersCount: 1000,
-    duration: '1M',
+    duration: '0d',
     status: true,
   },
   {
@@ -14,7 +22,7 @@ export const tariffsTemplates: CreateTariffDto[] = [
     price: 790,
     botsCount: 200,
     subscribersCount: 5000,
-    duration: '1M',
+    duration: '0d',
     status: true,
   },
   {
@@ -22,7 +30,7 @@ export const tariffsTemplates: CreateTariffDto[] = [
     price: 1490,
     botsCount: 500,
     subscribersCount: 10000,
-    duration: '1M',
+    duration: '0d',
     status: true,
   },
 ];

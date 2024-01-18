@@ -1,13 +1,15 @@
-import { Injectable, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Payment, PaymentDocument } from './schema/payment.schema';
 import { Model } from 'mongoose';
 import { Profile } from '../profiles/schema/profile.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
+import TypeOperation from './types/type-operation';
+import { ProfilesService } from 'src/profiles/profiles.service';
 
 //payments.repository.ts
 export abstract class RepositoryPort {
-  abstract create(data: CreatePaymentDto): Promise<Payment>;
+  abstract create(userId: string, data: CreatePaymentDto): Promise<Payment>;
   abstract delete(data: string): Promise<Payment>;
   abstract findOne(data: string): Promise<Payment>;
   abstract findAll(): Promise<Payment[]>;
@@ -20,11 +22,48 @@ export class PaymentsRepository extends RepositoryPort {
   constructor(
     @InjectModel(Payment.name)
     private paymentModel: Model<PaymentDocument>,
+    private profileServise: ProfilesService,
   ) {
     super();
   }
-  async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
-    return await this.paymentModel.create(createPaymentDto);
+
+  async create(
+    userId: string,
+    createPaymentDto: CreatePaymentDto,
+  ): Promise<Payment> {
+    const profile = await this.profileServise.findById(userId);
+    switch (createPaymentDto.operation) {
+      case TypeOperation.INCOME:
+        // Логика для обработки случая "Поступление"
+        profile.balance += createPaymentDto.amount;
+        await profile.save();
+        return await this.paymentModel.create({
+          profile: userId,
+          ...createPaymentDto,
+        });
+      // Логика для обработки случая "Списание"
+      case TypeOperation.OUTGONE:
+        // Если на балансе недостаточно средств, выбросить исключение
+        if (
+          profile.balance < createPaymentDto.amount ||
+          createPaymentDto.successful === false
+        ) {
+          return await this.paymentModel.create({
+            profile: userId,
+            ...createPaymentDto,
+            note: 'Недостаточно средств',
+          });
+        }
+        profile.balance -= createPaymentDto.amount;
+        await profile.save();
+        return await this.paymentModel.create({
+          profile: userId,
+          ...createPaymentDto,
+        });
+      default:
+        // Логика для обработки других случаев
+        break;
+    }
   }
 
   async delete(id: string): Promise<Payment> {

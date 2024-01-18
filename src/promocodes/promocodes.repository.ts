@@ -11,11 +11,17 @@ import { UpdatePromocodeDto } from './dto/update-promocode.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Promocode } from './schema/promocode.schema';
 import { Model } from 'mongoose';
+import { Profile } from 'src/profiles/schema/profile.schema';
+import { Payment } from 'src/payments/schema/payment.schema';
+import { createPaymentData } from 'src/utils/utils';
+import TypeOperation from 'src/payments/types/type-operation';
 
 @Injectable()
 export class PromocodesRepository {
   constructor(
     @InjectModel(Promocode.name) private promocodes: Model<Promocode>,
+    @InjectModel(Profile.name) private profileModel: Model<Profile>,
+    @InjectModel(Payment.name) private paymentModel: Model<Payment>,
   ) {}
 
   async create(createPromocodeDto: CreatePromocodeDto) {
@@ -94,14 +100,18 @@ export class PromocodesRepository {
     }
   }
 
-  async updateByCode(code: string) {
+  async updateByCode(code: string, userId: string) {
     try {
+      // Поиск промокода по коду
       const promocodeToCheck = await this.findOneByCode(code);
       const curDate = new Date();
+
+      // Проверка на наличие промокода
       if (!promocodeToCheck) {
         throw new NotFoundException('Промокод не найден');
       }
 
+      // Проверка, не исчерпано ли максимальное количество активаций промокода
       if (
         promocodeToCheck.activationCount >= promocodeToCheck.maxActivationCount
       ) {
@@ -111,24 +121,52 @@ export class PromocodesRepository {
         );
       }
 
-      if (promocodeToCheck.actionPeriod < curDate) {
+      // Проверка срока действия промокода
+      if (promocodeToCheck.actionPeriod <= curDate) {
         throw new HttpException(
           'Промокод не действителен',
           HttpStatus.BAD_REQUEST,
         );
       }
+
+      // Получение профиля пользователя по его ID
+      const profile = await this.profileModel.findById(userId);
+
+      // Проверка, был ли промокод уже использован пользователем
+      if (profile.promocode.includes(code)) {
+        throw new ConflictException('Промокод уже использован');
+      }
+
+      // Увеличение счетчика активаций промокода и его обновление
       const promocode = await this.promocodes.findOneAndUpdate(
         { code: code },
-        {
-          $inc: { activationCount: 1 },
-        },
+        { $inc: { activationCount: 1 } },
         { new: true },
       );
+
+      // Увеличение баланса пользователя на сумму промокода и добавление кода в список использованных
+      profile.balance += promocodeToCheck.amount;
+      profile.promocode.push(promocode.code);
+      await profile.save();
+      const paymenstData = await createPaymentData(
+        new Date(),
+        promocode.amount,
+        true,
+        TypeOperation.INCOME,
+        'Активация промокода',
+        profile,
+      );
+
+      // Создание записи о платеже за активацию промокода
+      await this.paymentModel.create(paymenstData);
+
+      // Возвращение обновленного промокода
       return promocode;
     } catch (error) {
+      // Обработка возникающих исключений
       if (error instanceof NotFoundException) throw error;
       if (error instanceof HttpException) throw error;
-      //500й код
+      // Обработка неизвестной ошибки
       throw new Error('Что-то пошло не так');
     }
   }
