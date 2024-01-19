@@ -217,9 +217,36 @@ paths:
           description: Ресурс не найден
       tags: &ref_1
         - profiles
-      security: &ref_3
-        - &ref_2
+      security: &ref_2
+        - &ref_3
           bearer: []
+    patch:
+      operationId: ProfilesController_updateAccesses
+      summary: Обновить выданный доступ
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSharedAccessDto'
+      responses:
+        '200':
+          description: Профиль успешно обновлен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Access'
+        '400':
+          description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_1
+      security: *ref_2
   /dev/api/profiles/me:
     get:
       operationId: ProfilesController_findProfileByToken
@@ -244,7 +271,53 @@ paths:
           description: Ресурс не найден
       tags: *ref_1
       security:
-        - *ref_2
+        - *ref_3
+        - bearer: []
+  /dev/api/profiles/shared:
+    post:
+      operationId: ProfilesController_sharedAccess
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSharedAccessDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+      tags: *ref_1
+      security: *ref_2
+    get:
+      operationId: ProfilesController_findAllGrantedAccesses
+      summary: Получить все выданные доступы профиля
+      parameters:
+        - name: authorization
+          in: header
+          description: Access токен
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Доступы успешно получены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Access'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_1
+      security:
+        - *ref_3
         - bearer: []
   /dev/api/profiles/{id}:
     get:
@@ -270,7 +343,7 @@ paths:
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_3
+      security: *ref_2
     patch:
       operationId: ProfilesController_update
       summary: Обновить данные профиля по id
@@ -302,7 +375,7 @@ paths:
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_3
+      security: *ref_2
     delete:
       operationId: ProfilesController_remove
       summary: Удалить профиль по id
@@ -326,7 +399,7 @@ paths:
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_3
+      security: *ref_2
   /dev/api/profiles/{id}/accounts:
     get:
       operationId: ProfilesController_findAccountByProfileId
@@ -353,26 +426,7 @@ paths:
         '404':
           description: Ресурс не найден
       tags: *ref_1
-      security: *ref_3
-  /dev/api/profiles/shared:
-    post:
-      operationId: ProfilesController_sharedAccess
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateSharedAccessDto'
-      responses:
-        '201':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-      tags: *ref_1
-      security: *ref_3
+      security: *ref_2
   /dev/api/tariffs:
     get:
       operationId: TariffsController_findAllTariffs
@@ -2031,6 +2085,25 @@ components:
         - avatar
         - balance
         - accounts
+    CreateSharedAccessDto:
+      type: object
+      properties:
+        email:
+          type: string
+          description: email
+          example: test@mail.ru
+      required:
+        - email
+    Access:
+      type: object
+      properties: {}
+    UpdateSharedAccessDto:
+      type: object
+      properties:
+        access:
+          $ref: '#/components/schemas/Access'
+      required:
+        - access
     SingleAccountResponseBodyOK:
       type: object
       properties:
@@ -2060,15 +2133,6 @@ components:
     UpdateProfileDto:
       type: object
       properties: {}
-    CreateSharedAccessDto:
-      type: object
-      properties:
-        email:
-          type: string
-          description: email
-          example: test@mail.ru
-      required:
-        - email
     Tariff:
       type: object
       properties:
@@ -2505,7 +2569,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-01-14T15:01:17.314Z
+          example: 2024-01-19T12:37:10.056Z
       required:
         - status
         - cardMask
@@ -2519,7 +2583,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-01-14T15:01:17.316Z
+          example: 2024-01-19T12:37:10.059Z
         amount:
           type: number
           example: 1000
