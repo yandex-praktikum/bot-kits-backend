@@ -121,9 +121,12 @@ export class ProfilesController {
   @CheckAbility({ action: Action.Update, subject: UpdateProfileDto })
   @UseGuards(AbilityGuard)
   @Patch()
+  @ApiOperation({
+    summary: 'Обновить выданный доступ',
+  })
   @ApiOkResponse({
     description: 'Профиль успешно обновлен',
-    type: UserProfileResponseBodyOK,
+    type: [Access],
   })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
