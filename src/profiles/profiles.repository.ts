@@ -199,7 +199,7 @@ export class ProfilesRepository {
     return profile.grantedSharedAccess;
   }
 
-  async updateAccesses(grantorId: string, access: Access): Promise<void> {
+  async updateAccesses(grantorId: string, access: Access): Promise<Access[]> {
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
@@ -246,6 +246,8 @@ export class ProfilesRepository {
       await grantedUserProfile.save({ session });
 
       await session.commitTransaction();
+
+      return grantorProfile.grantedSharedAccess;
     } catch (e) {
       await session.abortTransaction();
       return e;
