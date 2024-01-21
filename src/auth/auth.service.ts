@@ -184,7 +184,9 @@ export class AuthService {
 
         // Добавляем к профилю демо тарифф
         const allTariifs = await this.tariffsService.findAll(session);
-        const demoTariff = allTariifs.find((tariff) => tariff.name === 'Демо');
+        const demoTariff = allTariifs.find(
+          (tariff) => tariff.isStarted === true,
+        );
 
         // Добавляем подписку на демотариф
         const currentDate = new Date(); // текущая дата
@@ -192,7 +194,7 @@ export class AuthService {
         const debitDate = await addDuration(currentDate, duration);
 
         const subscriptionData = {
-          tariff: demoTariff._id,
+          tariff: demoTariff,
           status: true,
           cardMask: '**** **** **** ****',
           debitDate: debitDate,

@@ -154,7 +154,9 @@ export class PromocodesRepository {
         true,
         TypeOperation.INCOME,
         'Активация промокода',
-        profile,
+        profile.toObject(),
+        undefined,
+        promocode.toObject(),
       );
 
       // Создание записи о платеже за активацию промокода
@@ -167,6 +169,7 @@ export class PromocodesRepository {
       if (error instanceof NotFoundException) throw error;
       if (error instanceof HttpException) throw error;
       // Обработка неизвестной ошибки
+      console.log(error.message);
       throw new Error('Что-то пошло не так');
     }
   }

@@ -2082,7 +2082,7 @@ components:
           type: string
           example: 1M
         status:
-          type: string
+          type: boolean
           example: Активен
       required:
         - name
@@ -2111,6 +2111,8 @@ components:
           type: string
         status:
           type: boolean
+        isStarted:
+          type: boolean
       required:
         - name
         - price
@@ -2118,6 +2120,7 @@ components:
         - subscribersCount
         - duration
         - status
+        - isStarted
     UpdateTariffDto:
       type: object
       properties: {}
@@ -2157,7 +2160,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-01-18T12:02:54.858Z
+          example: 2024-01-21T15:07:10.244Z
         isCancelled:
           type: boolean
           example: false
@@ -2518,7 +2521,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-01-18T12:02:54.861Z
+          example: 2024-01-21T15:07:10.251Z
         amount:
           type: number
           example: 1000

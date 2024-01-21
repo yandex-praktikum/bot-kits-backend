@@ -66,13 +66,21 @@ export class SchedulerService {
       const currentTariff = await this.tariffModel.findOne(tariffId._id);
       const currentProfile = await this.profileModel.findOne(sub.profile._id);
 
+      // Проверка, является ли тариф архивным
+      if (!currentTariff.status) {
+        //тут будет логика если пользователь использует архвный тариф
+        console.log(`Тариф ${currentTariff.name} теперь архивный`);
+        continue;
+      }
+
       const paymentData = await createPaymentData(
         new Date(),
         currentTariff.price,
         sub.status,
         TypeOperation.OUTGONE,
         `Списание ежемесячного платежа по тарифу - ${currentTariff.name}`,
-        sub.profile._id,
+        currentProfile.toObject(),
+        currentTariff.toObject(),
       );
 
       // Проверка баланса
@@ -101,7 +109,7 @@ export class SchedulerService {
           await sub.save();
           await this.paymentModel.create({
             ...paymentData,
-            status: true,
+            successful: true,
             note: `Деактивация тарифа - ${currentTariff.name}`,
           });
           continue;

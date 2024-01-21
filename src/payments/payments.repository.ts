@@ -80,7 +80,7 @@ export class PaymentsRepository extends RepositoryPort {
   }
 
   async findUsersAll(profile: Profile): Promise<Payment[]> {
-    return await this.paymentModel.find({ profile }).exec();
+    return await this.paymentModel.find({ 'profile._id': profile._id }).exec();
   }
 
   async update(

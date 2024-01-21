@@ -4,6 +4,8 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { Profile } from 'src/profiles/schema/profile.schema';
 import TypeOperation from '../types/type-operation';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
+import { Tariff } from 'src/tariffs/schema/tariff.schema';
+import { Promocode } from 'src/promocodes/schema/promocode.schema';
 
 export type PaymentDocument = HydratedDocument<Payment>;
 
@@ -30,11 +32,16 @@ export class Payment {
   note: string;
 
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Profile',
+    type: Profile,
     required: true,
   })
   profile: Profile;
+
+  @Prop({ type: mongoose.Schema.Types.Mixed })
+  tariff: Tariff;
+
+  @Prop({ type: mongoose.Schema.Types.Mixed })
+  promocode: Promocode;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);

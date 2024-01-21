@@ -8,6 +8,7 @@ export const tariffsTemplates: CreateTariffDto[] = [
     subscribersCount: 120,
     duration: '0D',
     status: true,
+    isStarted: true,
   },
   {
     name: 'Старт',
@@ -16,6 +17,7 @@ export const tariffsTemplates: CreateTariffDto[] = [
     subscribersCount: 1000,
     duration: '0d',
     status: true,
+    isStarted: false,
   },
   {
     name: 'Стандарт',
@@ -24,6 +26,7 @@ export const tariffsTemplates: CreateTariffDto[] = [
     subscribersCount: 5000,
     duration: '0d',
     status: true,
+    isStarted: false,
   },
   {
     name: 'Бизнес',
@@ -32,5 +35,6 @@ export const tariffsTemplates: CreateTariffDto[] = [
     subscribersCount: 10000,
     duration: '0d',
     status: true,
+    isStarted: false,
   },
 ];

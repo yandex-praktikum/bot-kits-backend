@@ -26,7 +26,7 @@ export class SubscriptionsRepository {
     @InjectModel(Profile.name) private profileModel: Model<Profile>,
   ) {}
 
-  private async processPayment(tariff: Tariff, subscription: Subscription) {
+  private async processPayment(tariff: Tariff, profile: Profile) {
     // Здесь можно добавить логику для имитации разных сценариев оплаты
     return await createPaymentData(
       new Date(),
@@ -34,7 +34,9 @@ export class SubscriptionsRepository {
       true,
       TypeOperation.OUTGONE,
       'Списание',
-      subscription.profile,
+      profile.toObject(),
+      tariff.toObject(),
+      undefined,
     );
   }
 
@@ -114,14 +116,14 @@ export class SubscriptionsRepository {
 
     const tariff = await this.tariffModel.findById(tariffId).exec();
 
-    console.log(tariff.name);
-
     if (!tariff || tariff.name === 'Демо') {
       throw new NotFoundException('Неверный идентификатор тарифа');
     }
 
+    const profile = await this.profileModel.findById(userId);
+
     // Обработка оплаты
-    const paymentSuccess = await this.processPayment(tariff, subscription);
+    const paymentSuccess = await this.processPayment(tariff, profile);
 
     if (!paymentSuccess.successful) {
       throw new BadRequestException('Ошибка оплаты');
@@ -135,7 +137,7 @@ export class SubscriptionsRepository {
         .findByIdAndUpdate(
           subscription._id,
           {
-            updatingTariff: tariff._id,
+            updatingTariff: tariff.toObject(),
             status: true,
             isCancelled: false,
           },
@@ -143,16 +145,16 @@ export class SubscriptionsRepository {
         )
         .exec();
     } else {
-      console.log('Пользователь активировал тариф');
+      console.log(`Пользователь активировал тариф - ${tariff.name}`);
       // если у пользователя была деактивирована подписка, обновляем статус и дату следующего списания
       return await this.subscriptionModel
         .findByIdAndUpdate(
           subscription._id,
           {
             ...createSubscriptionDto,
-            tariff: tariffId,
+            tariff: tariff.toObject(),
             status: true,
-            profile: userId,
+            profile: profile.toObject(),
             isCancelled: false,
           },
           { new: true },

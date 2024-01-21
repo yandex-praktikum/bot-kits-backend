@@ -9,11 +9,7 @@ export type SubscriptionDocument = HydratedDocument<Subscription>;
 
 @Schema(baseSchemaOptions)
 export class Subscription {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Tariff',
-    required: true,
-  })
+  @Prop({ type: mongoose.Schema.Types.Mixed })
   tariff: Tariff;
 
   @ApiProperty({ example: true, default: false })
@@ -36,10 +32,7 @@ export class Subscription {
   })
   profile: Profile;
 
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Tariff',
-  })
+  @Prop({ type: mongoose.Schema.Types.Mixed })
   updatingTariff: Tariff;
 
   @ApiProperty({ example: false, default: false })

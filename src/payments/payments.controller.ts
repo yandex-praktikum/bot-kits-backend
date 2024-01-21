@@ -14,7 +14,6 @@ import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
-  ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -22,7 +21,6 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
-  OmitType,
 } from '@nestjs/swagger';
 import { Payment } from './schema/payment.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -37,7 +35,7 @@ import { Profile } from 'src/profiles/schema/profile.schema';
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
-
+  @Get()
   @ApiOperation({
     summary: 'История платежей',
   })
@@ -46,12 +44,12 @@ export class PaymentsController {
     type: [Payment],
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @Get()
   userPayments(@Req() req): Promise<Payment[]> {
     const user = req.user;
     return this.paymentsService.findUsersAll(user);
   }
 
+  @Post()
   @ApiOperation({
     summary: 'Добавить данные финансовой операции',
   })
@@ -61,7 +59,6 @@ export class PaymentsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  @Post()
   create(
     @Body() createPaymentDto: CreatePaymentDto,
     @Req() req,
@@ -76,6 +73,7 @@ export class PaymentsController {
     }
   }
 
+  @Delete(':id')
   @ApiOperation({
     summary: 'Удалить финансовую операцию',
   })
@@ -91,11 +89,11 @@ export class PaymentsController {
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @UseGuards(RolesGuard)
   @Roles('admin')
-  @Delete(':id')
   delete(@Param('id') id: string) {
     return this.paymentsService.delete(id);
   }
 
+  @Patch(':id')
   @ApiOperation({
     summary: 'Обновить данные финансовой операции',
   })
@@ -113,7 +111,6 @@ export class PaymentsController {
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @UseGuards(RolesGuard)
   @Roles('admin')
-  @Patch(':id')
   update(
     @AuthUser() profile: Profile,
     @Param('id') id: string,
