@@ -111,6 +111,7 @@ export class AccountsRepository {
         path: 'profile',
         select: '-receivedSharedAccess -grantedSharedAccess',
       });
+
     delete account.credentials.password;
     account.profile.accounts = undefined;
     return account;

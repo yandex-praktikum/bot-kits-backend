@@ -18,8 +18,9 @@ import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.module';
 import { SharedAccessesModule } from 'src/shared-accesses/shared-accesses.module';
 import { PartnershipModule } from 'src/partnership/partnership.module';
-import { AbilityFactory } from 'src/ability/ability.factory';
 import { AbilityModule } from 'src/ability/ability.module';
+import { TariffsModule } from 'src/tariffs/tariffs.module';
+import { SubscriptionsModule } from 'src/subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -37,7 +38,9 @@ import { AbilityModule } from 'src/ability/ability.module';
       { name: Account.name, schema: AccountSchema },
     ]),
     BlacklistTokensModule,
+    TariffsModule,
     AbilityModule,
+    SubscriptionsModule,
   ],
   providers: [AuthService, ...STRTAGIES, ...GUARDS, AuthDtoPipe],
   exports: [AuthService, AuthDtoPipe],

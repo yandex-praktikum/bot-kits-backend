@@ -37,7 +37,7 @@ import { Tariff } from './schema/tariff.schema';
 @Controller('tariffs')
 export class TariffsController {
   constructor(private readonly tariffsService: TariffsService) {}
-
+  @Get()
   @ApiOperation({
     summary: 'Получить все тарифы',
   })
@@ -46,11 +46,11 @@ export class TariffsController {
     type: [Tariff],
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @Get()
   findAllTariffs() {
     return this.tariffsService.findAll();
   }
 
+  @Get(':id')
   @ApiOperation({
     summary: 'Получить тариф по id',
   })
@@ -65,11 +65,11 @@ export class TariffsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @Get(':id')
   findTariffToId(@Param('id') id: string) {
     return this.tariffsService.findOne(id);
   }
 
+  @Post()
   @ApiOperation({
     summary: 'Добавить новый тариф',
   })
@@ -83,11 +83,11 @@ export class TariffsController {
   @ApiConflictResponse({ description: 'Такой тариф уже существует' })
   @UseGuards(RolesGuard)
   @Roles('admin')
-  @Post()
   createTariff(@Body() createTariffDto: CreateTariffDto) {
     return this.tariffsService.create(createTariffDto);
   }
 
+  @Patch(':id')
   @ApiOperation({
     summary: 'Изменить данные тарифа по id',
   })
@@ -106,7 +106,6 @@ export class TariffsController {
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @UseGuards(RolesGuard)
   @Roles('admin')
-  @Patch(':id')
   updateTariff(
     @Param('id') id: string,
     @Body() updateTariffDto: UpdateTariffDto,
@@ -114,6 +113,7 @@ export class TariffsController {
     return this.tariffsService.updateTariff(id, updateTariffDto);
   }
 
+  @Delete(':id')
   @ApiOperation({
     summary: 'Удалить тариф по id',
   })
@@ -130,7 +130,6 @@ export class TariffsController {
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @UseGuards(RolesGuard)
   @Roles('admin')
-  @Delete(':id')
   removeTariff(@Param('id') id: string): Promise<Tariff> {
     return this.tariffsService.remove(id);
   }

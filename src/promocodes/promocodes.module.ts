@@ -5,12 +5,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Promocode, PromocodeSchema } from './schema/promocode.schema';
 import { ProfilesModule } from 'src/profiles/profiles.module';
 import { PromocodesRepository } from './promocodes.repository';
+import { Profile, ProfileSchema } from 'src/profiles/schema/profile.schema';
+import { Payment, PaymentSchema } from 'src/payments/schema/payment.schema';
 
 @Module({
   imports: [
     ProfilesModule,
     MongooseModule.forFeature([
       { name: Promocode.name, schema: PromocodeSchema },
+      { name: Profile.name, schema: ProfileSchema },
+      { name: Payment.name, schema: PaymentSchema },
     ]),
   ],
   controllers: [PromocodesController],
