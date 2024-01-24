@@ -188,4 +188,71 @@ export class ProfilesRepository {
       session.endSession();
     }
   }
+
+  async findAllGrantedAccesses(userId: string): Promise<Access[]> {
+    const profile = await this.profileModel.findById(userId);
+
+    if (!profile) {
+      throw new NotFoundException('Профиль не найден');
+    }
+
+    return profile.grantedSharedAccess;
+  }
+
+  async updateAccesses(grantorId: string, access: Access): Promise<Access[]> {
+    const session = await this.connection.startSession();
+    session.startTransaction();
+    try {
+      const grantorProfile = await this.profileModel
+        .findById(grantorId)
+        .session(session);
+      const grantedUserProfile = await this.profileModel
+        .findById(access.profile)
+        .session(session);
+
+      if (!grantorProfile || !grantedUserProfile) {
+        throw new NotFoundException('Профиль не найден');
+      }
+
+      // Обновление grantedSharedAccess у пользователя, который выдал доступ
+      const grantorAccessIndex = grantorProfile.grantedSharedAccess.findIndex(
+        (a) => a.profile.toString() === access.profile.toString(),
+      );
+
+      if (grantorAccessIndex !== -1) {
+        grantorProfile.grantedSharedAccess[grantorAccessIndex] = access;
+      } else {
+        grantorProfile.grantedSharedAccess.push(access);
+      }
+
+      // Обновление receivedSharedAccess у пользователя, которому был выдан доступ
+      const grantedAccessIndex =
+        grantedUserProfile.receivedSharedAccess.findIndex(
+          (a) => a.profile.toString() === grantorId,
+        );
+      if (grantedAccessIndex !== -1) {
+        grantedUserProfile.receivedSharedAccess[grantedAccessIndex] = {
+          ...access,
+          profile: grantorProfile._id,
+        };
+      } else {
+        grantedUserProfile.receivedSharedAccess.push({
+          ...access,
+          profile: grantorProfile._id,
+        });
+      }
+
+      await grantorProfile.save({ session });
+      await grantedUserProfile.save({ session });
+
+      await session.commitTransaction();
+
+      return grantorProfile.grantedSharedAccess;
+    } catch (e) {
+      await session.abortTransaction();
+      return e;
+    } finally {
+      session.endSession();
+    }
+  }
 }

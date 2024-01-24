@@ -21,6 +21,9 @@ import * as mongoose from 'mongoose';
 import { randomBytes } from 'crypto';
 import { SharedAccessesService } from 'src/shared-accesses/shared-accesses.service';
 import { PartnershipService } from 'src/partnership/partnership.service';
+import { TariffsService } from 'src/tariffs/tariffs.service';
+import { SubscriptionsService } from 'src/subscriptions/subscriptions.service';
+import { addDuration } from 'src/utils/utils';
 
 export interface ITokens {
   accessToken: string;
@@ -37,6 +40,8 @@ export class AuthService {
     private sharedAccessService: SharedAccessesService,
     private hashService: HashService,
     private readonly configService: ConfigService,
+    private tariffsService: TariffsService,
+    private subscriptionsService: SubscriptionsService,
     @InjectConnection() private readonly connection: mongoose.Connection,
   ) {}
 
@@ -169,11 +174,37 @@ export class AuthService {
           },
           session,
         );
+
         // Связывание профиля с sharedAccess
         profile.sharedAccess = sharedAccess._id;
+
         // Генерация и обновление реферальной ссылки
         await this.partnerShipService.getPartnerRef(profile._id, session);
         await this.partnerShipService.updateRegistration(ref);
+
+        // Добавляем к профилю демо тарифф
+        const allTariifs = await this.tariffsService.findAll(session);
+        const demoTariff = allTariifs.find(
+          (tariff) => tariff.isStarted === true,
+        );
+
+        // Добавляем подписку на демотариф
+        const currentDate = new Date(); // текущая дата
+        const duration = demoTariff.duration; // например, '7d' или '1м'
+        const debitDate = await addDuration(currentDate, duration);
+
+        const subscriptionData = {
+          tariff: demoTariff,
+          status: true,
+          cardMask: '**** **** **** ****',
+          debitDate: debitDate,
+          profile: profile._id,
+        };
+
+        await this.subscriptionsService.initSubscription(
+          subscriptionData,
+          session,
+        );
       } else {
         // Если аккаунт существует, получить профиль по email
         profile = await this.profilesService.findByEmail(email, session);

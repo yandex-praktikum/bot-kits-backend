@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsObject,
   IsBoolean,
+  IsNotEmpty,
 } from 'class-validator';
 import { TBuilderData } from '../schema/types/botBuilderTypes';
 
@@ -16,6 +17,7 @@ export class UpdateTemplateDto {
   })
   @IsUrl()
   @IsOptional()
+  @IsNotEmpty()
   icon?: string;
 
   @ApiProperty({
@@ -23,23 +25,28 @@ export class UpdateTemplateDto {
   })
   @IsString()
   @IsOptional()
+  @IsNotEmpty()
   title?: string;
 
   @IsString()
   @IsOptional()
+  @IsNotEmpty()
   @ApiProperty({ example: 'Бот для создания заказов' })
   description?: string;
 
   @IsOptional()
   @ApiProperty()
+  @IsNotEmpty()
   features?: TBuilderData;
 
   @ApiProperty()
   @IsObject()
   @IsOptional()
+  @IsNotEmpty()
   settings?: object;
 
   @IsBoolean()
   @IsOptional()
+  @IsNotEmpty()
   isToPublish?: boolean;
 }

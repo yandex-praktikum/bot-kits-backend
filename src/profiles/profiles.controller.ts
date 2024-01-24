@@ -25,15 +25,18 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { Profile } from './schema/profile.schema';
+import { Access, Profile } from './schema/profile.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 import { Account } from 'src/accounts/schema/account.schema';
 import { UserProfileResponseBodyOK } from './sdo/response-body.sdo';
 import { SingleAccountResponseBodyOK } from 'src/accounts/sdo/response-body.sdo';
-import { RolesGuard } from 'src/auth/guards/role.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
 import { CreateSharedAccessDto } from './dto/create-access.dto';
+import { CheckAbility } from 'src/auth/decorators/ability.decorator';
+import { Action } from 'src/ability/ability.factory';
+import { AbilityGuard } from 'src/auth/guards/ability.guard';
+import { CreateProfileDto } from './dto/create-profile.dto';
+import { UpdateSharedAccessDto } from './dto/update-access.dto';
 
 @UseGuards(JwtGuard)
 @ApiTags('profiles')
@@ -41,8 +44,8 @@ import { CreateSharedAccessDto } from './dto/create-access.dto';
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @CheckAbility({ action: Action.Read, subject: CreateProfileDto })
+  @UseGuards(AbilityGuard)
   @Get()
   @ApiOkResponse({
     description: 'Профили успешно получены',
@@ -57,6 +60,8 @@ export class ProfilesController {
     return this.profilesService.findAll();
   }
 
+  @CheckAbility({ action: Action.Read, subject: UpdateProfileDto })
+  @UseGuards(AbilityGuard)
   @Get('me')
   @ApiBearerAuth()
   @ApiOperation({
@@ -78,8 +83,70 @@ export class ProfilesController {
     return await this.profilesService.findByToken(token);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @CheckAbility({ action: Action.Share, subject: UpdateProfileDto })
+  @UseGuards(AbilityGuard)
+  @Post('shared')
+  sharedAccess(
+    @Body() createSharedAccessDto: CreateSharedAccessDto,
+    @Req() req,
+  ) {
+    return this.profilesService.sharedAccess(
+      createSharedAccessDto,
+      req.user.id,
+    );
+  }
+
+  @CheckAbility({ action: Action.Read, subject: UpdateProfileDto })
+  @UseGuards(AbilityGuard)
+  @Get('shared')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Получить все выданные доступы профиля',
+  })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Access токен',
+    required: true,
+  })
+  @ApiOkResponse({
+    description: 'Доступы успешно получены',
+    type: [Access],
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  async findAllGrantedAccesses(@Req() req) {
+    return await this.profilesService.findAllGrantedAccesses(req.user.id);
+  }
+
+  @CheckAbility({ action: Action.Update, subject: UpdateProfileDto })
+  @UseGuards(AbilityGuard)
+  @Patch()
+  @ApiOperation({
+    summary: 'Обновить выданный доступ',
+  })
+  @ApiOkResponse({
+    description: 'Профиль успешно обновлен',
+    type: [Access],
+  })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  @ApiBody({ type: UpdateSharedAccessDto })
+  @ApiOperation({
+    summary: 'Обновить данные профиля по id',
+  })
+  updateAccesses(
+    @Req() req,
+    @Body() updateSharedAccessDto: UpdateSharedAccessDto,
+  ): Promise<Profile> {
+    return this.profilesService.updateAccesses(
+      req.user.id,
+      updateSharedAccessDto.access,
+    );
+  }
+
+  @CheckAbility({ action: Action.Read, subject: CreateProfileDto })
+  @UseGuards(AbilityGuard)
   @Get(':id')
   @ApiOperation({
     summary: 'Получить профиль по id',
@@ -101,6 +168,8 @@ export class ProfilesController {
     return profile;
   }
 
+  @CheckAbility({ action: Action.Read, subject: CreateProfileDto })
+  @UseGuards(AbilityGuard)
   @Get(':id/accounts')
   @ApiOkResponse({
     description: 'Аккаунты профиля успешно получены',
@@ -120,6 +189,8 @@ export class ProfilesController {
     return await this.profilesService.findAccountsByProfileId(id);
   }
 
+  @CheckAbility({ action: Action.Update, subject: UpdateProfileDto })
+  @UseGuards(AbilityGuard)
   @Patch(':id')
   @ApiOkResponse({
     description: 'Профиль успешно обновлен',
@@ -144,6 +215,8 @@ export class ProfilesController {
     return this.profilesService.update(id, updateProfileDto);
   }
 
+  @CheckAbility({ action: Action.Delete, subject: UpdateProfileDto })
+  @UseGuards(AbilityGuard)
   @Delete(':id')
   @ApiOkResponse({
     description: 'Профиль успешно удален',
@@ -161,16 +234,5 @@ export class ProfilesController {
   })
   remove(@Param('id') id: string): Promise<Profile> {
     return this.profilesService.remove(id);
-  }
-
-  @Post('shared')
-  sharedAccess(
-    @Body() createSharedAccessDto: CreateSharedAccessDto,
-    @Req() req,
-  ) {
-    return this.profilesService.sharedAccess(
-      createSharedAccessDto,
-      req.user.id,
-    );
   }
 }

@@ -36,4 +36,8 @@ export class CreateTariffDto {
   @IsNotEmpty()
   @IsBoolean()
   status: boolean;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  isStarted: boolean;
 }

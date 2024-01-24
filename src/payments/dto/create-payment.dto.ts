@@ -4,7 +4,6 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
-  IsObject,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -35,12 +34,10 @@ export class CreatePaymentDto {
   @IsNotEmpty()
   operation: TypeOperation;
 
-  @IsNotEmpty()
-  @IsObject()
-  @IsOptional()
-  profile?: Profile;
-
   @ApiProperty({ example: 'Пополнение счета' })
   @IsString()
   note: string;
+
+  @IsOptional()
+  profile?: Profile;
 }
