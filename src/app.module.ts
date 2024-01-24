@@ -32,6 +32,7 @@ import { throttlerConfig } from './configs/throttler.config';
 import { SharedAccessesModule } from './shared-accesses/shared-accesses.module';
 import { PartnershipModule } from './partnership/partnership.module';
 import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
+import { HandlersQueuesModule } from './handlers-queues/handlers-queues.module';
 
 //app.module.ts
 @Module({
@@ -59,6 +60,7 @@ import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
     //ChatsModule,
     SharedAccessesModule,
     PartnershipModule,
+    HandlersQueuesModule,
   ],
   controllers: [AppController, AuthController],
   providers: [
@@ -68,7 +70,6 @@ import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
       useClass: ThrottlerGuard,
     },
     Logger,
-
     {
       provide: APP_FILTER,
       useClass: GlobalHTTPExceptionFilter,

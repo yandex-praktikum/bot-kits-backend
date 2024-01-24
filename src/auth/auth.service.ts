@@ -16,14 +16,16 @@ import { AuthDto } from './dto/auth.dto';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { Account } from 'src/accounts/schema/account.schema';
-import { InjectConnection } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { randomBytes } from 'crypto';
 import { SharedAccessesService } from 'src/shared-accesses/shared-accesses.service';
 import { PartnershipService } from 'src/partnership/partnership.service';
 import { TariffsService } from 'src/tariffs/tariffs.service';
 import { SubscriptionsService } from 'src/subscriptions/subscriptions.service';
-import { addDuration } from 'src/utils/utils';
+import { addDuration, createPaymentData } from 'src/utils/utils';
+import { Payment } from 'src/payments/schema/payment.schema';
+import TypeOperation from 'src/payments/types/type-operation';
 
 export interface ITokens {
   accessToken: string;
@@ -42,6 +44,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private tariffsService: TariffsService,
     private subscriptionsService: SubscriptionsService,
+    @InjectModel(Payment.name) private paymentModel: mongoose.Model<Payment>,
     @InjectConnection() private readonly connection: mongoose.Connection,
   ) {}
 
@@ -180,13 +183,15 @@ export class AuthService {
 
         // Генерация и обновление реферальной ссылки
         await this.partnerShipService.getPartnerRef(profile._id, session);
-        await this.partnerShipService.updateRegistration(ref);
+        await this.partnerShipService.updateRegistration(
+          profile._id,
+          ref,
+          session,
+        );
 
         // Добавляем к профилю демо тарифф
         const allTariifs = await this.tariffsService.findAll(session);
-        const demoTariff = allTariifs.find(
-          (tariff) => tariff.isStarted === true,
-        );
+        const demoTariff = allTariifs.find((tariff) => tariff.isDemo === true);
 
         // Добавляем подписку на демотариф
         const currentDate = new Date(); // текущая дата
@@ -198,13 +203,25 @@ export class AuthService {
           status: true,
           cardMask: '**** **** **** ****',
           debitDate: debitDate,
-          profile: profile._id,
+          profile: profile,
         };
 
         await this.subscriptionsService.initSubscription(
           subscriptionData,
           session,
         );
+
+        const paymentData = await createPaymentData(
+          new Date(),
+          demoTariff.price,
+          true,
+          TypeOperation.INCOME,
+          'Активация Демо тарифа',
+          profile,
+          demoTariff.toObject(),
+        );
+
+        await this.paymentModel.create(paymentData);
       } else {
         // Если аккаунт существует, получить профиль по email
         profile = await this.profilesService.findByEmail(email, session);

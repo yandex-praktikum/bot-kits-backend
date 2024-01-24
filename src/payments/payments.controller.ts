@@ -28,6 +28,7 @@ import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
 import { Profile } from 'src/profiles/schema/profile.schema';
+import { TJwtRequest } from 'src/types/jwtRequest';
 
 @ApiTags('payments')
 @ApiBearerAuth()
@@ -44,9 +45,8 @@ export class PaymentsController {
     type: [Payment],
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  userPayments(@Req() req): Promise<Payment[]> {
-    const user = req.user;
-    return this.paymentsService.findUsersAll(user);
+  userPayments(@Req() req: TJwtRequest): Promise<Payment[]> {
+    return this.paymentsService.findUsersAll(req.user.id);
   }
 
   @Post()

@@ -14,6 +14,8 @@ import {
   Promocode,
   PromocodeSchema,
 } from 'src/promocodes/schema/promocode.schema';
+import { RabbitMQService } from 'src/rabbitmq/rabbitmq.service';
+import { RabbitmqModule } from 'src/rabbitmq/rabbitmq.module';
 
 @Module({
   imports: [
@@ -22,9 +24,9 @@ import {
       { name: Payment.name, schema: PaymentSchema },
       { name: Tariff.name, schema: TariffSchema },
       { name: Profile.name, schema: ProfileSchema },
-      { name: Promocode.name, schema: PromocodeSchema },
     ]),
     ScheduleModule.forRoot(),
+    RabbitmqModule,
   ],
   providers: [SchedulerService],
 })
