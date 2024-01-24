@@ -78,7 +78,7 @@ export class CreateMailingDTO {
 
   @ApiProperty()
   @IsNotEmpty()
-  platform: Platform;
+  platforms: Platform[];
 
   @ApiProperty()
   @IsObject()

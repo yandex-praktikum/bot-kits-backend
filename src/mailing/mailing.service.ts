@@ -3,6 +3,7 @@ import { Mailing } from './schema/mailing.schema';
 import { MailingRepository } from './mailing.repository';
 import { CreateMailingDTO } from './dto/create-mailing.dto';
 import { UpdateMailingDTO } from './dto/update-mailing.dto';
+import { Profile } from 'src/profiles/schema/profile.schema';
 
 @Injectable()
 export class MailingService {
@@ -12,15 +13,19 @@ export class MailingService {
     return await this.dbQuery.findAll();
   }
 
+  async findAllByBotId(botId: string): Promise<Mailing[]> {
+    return await this.dbQuery.findAllByBotId(botId);
+  }
+
   async findById(id: string): Promise<Mailing> {
     return await this.dbQuery.findById(id);
   }
 
   async create(
-    userId: string,
+    user: Profile,
     createMailingDTO: CreateMailingDTO,
   ): Promise<Mailing> {
-    return await this.dbQuery.create(userId, createMailingDTO);
+    return await this.dbQuery.create(user, createMailingDTO);
   }
 
   async remove(id: string | number): Promise<Mailing> {

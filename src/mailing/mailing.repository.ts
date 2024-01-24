@@ -11,6 +11,7 @@ import { Mailing, MailingDocument } from './schema/mailing.schema';
 import { Model, Error } from 'mongoose';
 import { UpdateMailingDTO } from './dto/update-mailing.dto';
 import { CreateMailingDTO } from './dto/create-mailing.dto';
+import { Profile } from 'src/profiles/schema/profile.schema';
 
 @Injectable()
 export class MailingRepository {
@@ -30,6 +31,10 @@ export class MailingRepository {
 
   async findAll(): Promise<Mailing[]> {
     return await this.mailingModel.find().exec();
+  }
+
+  async findAllByBotId(botId: string): Promise<Mailing[]> {
+    return await this.mailingModel.find().where({ 'bot._id': botId });
   }
 
   async remove(id: string | number): Promise<Mailing> {
@@ -61,13 +66,17 @@ export class MailingRepository {
   }
 
   async create(
-    userId: string,
+    user: Profile,
     createMailingDTO: CreateMailingDTO,
   ): Promise<Mailing> {
     try {
-      if (userId !== createMailingDTO.bot.profile._id) {
+      if (!createMailingDTO.bot.permission.mailing) {
+        throw new ForbiddenException('У бота нет прав на рассылку');
+      }
+      if (user._id !== createMailingDTO.bot.profile._id) {
         throw new ForbiddenException('Вы не являетесь владельцем бота');
       }
+
       const post = await this.mailingModel.create(createMailingDTO);
       return await post.save();
     } catch (err) {

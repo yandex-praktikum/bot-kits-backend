@@ -30,6 +30,7 @@ import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { TJwtRequest } from 'src/types/jwtRequest';
 import { CreateMailingDTO } from './dto/create-mailing.dto';
+import { UpdateMailingDTO } from './dto/update-mailing.dto';
 
 @UseGuards(JwtGuard)
 @ApiTags('mailing')
@@ -46,6 +47,49 @@ export class MailingController {
     @Req() { user }: TJwtRequest,
     @Body() createMailingDTO: CreateMailingDTO,
   ): Promise<Mailing> {
-    return this.mailingService.create(user._id, createMailingDTO);
+    return this.mailingService.create(user, createMailingDTO);
+  }
+
+  @ApiOperation({
+    summary: 'Все рассылки бота',
+  })
+  @Get()
+  getAllByBotId(@Body() botId: string): Promise<Mailing[]> {
+    return this.mailingService.findAllByBotId(botId);
+  }
+
+  @ApiOperation({
+    summary: 'Все рассылки',
+  })
+  @Get('/all')
+  getAll(): Promise<Mailing[]> {
+    return this.mailingService.findAll();
+  }
+
+  @ApiOperation({
+    summary: 'Получить рассылку по id',
+  })
+  @Get(':id')
+  getById(@Param('id') id: string): Promise<Mailing> {
+    return this.mailingService.findById(id);
+  }
+
+  @ApiOperation({
+    summary: 'Удалить рассылку по id',
+  })
+  @Delete(':id')
+  remove(@Param('id') id: string): Promise<Mailing> {
+    return this.mailingService.remove(id);
+  }
+
+  @ApiOperation({
+    summary: 'Обновить рассылку',
+  })
+  update(
+    @Body() updateMailingDTO: UpdateMailingDTO,
+    @Param('id') id: string,
+    @Req() { user }: TJwtRequest,
+  ) {
+    return this.mailingService.update(updateMailingDTO, id, user._id);
   }
 }

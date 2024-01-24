@@ -23,8 +23,8 @@ export class Mailing extends Document {
   bot: Bot;
 
   @ApiProperty()
-  @Prop({ type: { type: mongoose.Schema.Types.ObjectId, ref: 'Platform' } })
-  platform: Platform;
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Platform' }] })
+  platforms: Platform[];
 
   @ApiProperty()
   @Prop({ default: 0 })
