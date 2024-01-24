@@ -114,9 +114,10 @@ export class SubscriptionsController {
     @Body() createSubscriptionDto: CreateSubscriptionDto,
     @Param('tariffId') tariffId: string,
   ): Promise<Subscription> {
+    console.log(createSubscriptionDto.debitDate);
     return this.subscriptionsService.create(
       tariffId,
-      user.id,
+      user,
       createSubscriptionDto,
     );
   }

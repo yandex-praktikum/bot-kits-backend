@@ -38,6 +38,28 @@ services:
       timeout: 10s
       retries: 5
       start_period: 40s
+    depends_on:
+      rabbitmq-dev:
+        condition: service_healthy
+
+  rabbitmq-dev:
+    container_name: 'botkit-rabbitmq-dev-release'
+    image: rabbitmq:latest
+    env_file:
+      - .env.dev.release
+    ports:
+      - "5672:5672" # RabbitMQ server
+      - "15672:15672" # Management console
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - back-dev
+    restart: always
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
 
 networks:
   back-dev:
@@ -47,3 +69,4 @@ networks:
 volumes:
   db_data:
   db_config:
+  rabbitmq_data:

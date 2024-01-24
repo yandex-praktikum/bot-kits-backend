@@ -2,9 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { Document, HydratedDocument, Types } from 'mongoose';
 import { Account } from 'src/accounts/schema/account.schema';
-import { Promocode } from 'src/promocodes/schema/promocode.schema';
 import { SharedAccess } from 'src/shared-accesses/schema/sharedAccess.schema';
-import { Tariff } from 'src/tariffs/schema/tariff.schema';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 
 export type ProfileDocument = HydratedDocument<Profile>;
@@ -32,6 +30,11 @@ export class Profile extends Document {
   @ApiProperty({ example: '0000000' })
   @Prop()
   partner_ref: string;
+
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Profile' }],
+  })
+  referredUsers: Types.ObjectId[];
 
   @ApiProperty({ example: 0 })
   @Prop({ default: 0 })

@@ -24,12 +24,7 @@ export class Subscription {
   @Prop({ default: new Date(), required: true })
   debitDate: Date;
 
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Profile',
-    unique: true,
-    required: true,
-  })
+  @Prop({ type: mongoose.Schema.Types.Mixed })
   profile: Profile;
 
   @Prop({ type: mongoose.Schema.Types.Mixed })

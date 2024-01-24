@@ -138,6 +138,10 @@ export class BotsRepository {
     const rndId = uuidv4().slice(0, 8);
     const bot = await this.botModel.findById(botId).select('-_id -updatedAt');
 
+    if (!bot) {
+      throw new NotFoundException(`Бот с ID ${botId} не найден`);
+    }
+
     if (!ability.can(Action.Copy, bot)) {
       throw new ForbiddenException('Копировать можно только своих ботов');
     }

@@ -21,6 +21,7 @@ import { PartnershipModule } from 'src/partnership/partnership.module';
 import { AbilityModule } from 'src/ability/ability.module';
 import { TariffsModule } from 'src/tariffs/tariffs.module';
 import { SubscriptionsModule } from 'src/subscriptions/subscriptions.module';
+import { Payment, PaymentSchema } from 'src/payments/schema/payment.schema';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { SubscriptionsModule } from 'src/subscriptions/subscriptions.module';
     MongooseModule.forFeature([
       { name: Profile.name, schema: ProfileSchema },
       { name: Account.name, schema: AccountSchema },
+      { name: Payment.name, schema: PaymentSchema },
     ]),
     BlacklistTokensModule,
     TariffsModule,
