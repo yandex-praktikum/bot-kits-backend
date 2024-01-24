@@ -7,7 +7,7 @@ export type TAttachment = {
 
 export type TMailingSchedule = {
   isNow: boolean;
-  date: Date;
+  date?: Date;
   isRepeat: boolean;
   repeat: string;
 };

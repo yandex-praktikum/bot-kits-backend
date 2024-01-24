@@ -28,6 +28,11 @@ class scheduleDTO {
   @IsNotEmpty()
   @IsString()
   repeat: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsBoolean()
+  isRepeat: boolean;
 }
 
 class FilesDTO {

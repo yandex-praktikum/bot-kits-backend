@@ -74,12 +74,22 @@ export class MailingRepository {
     createMailingDTO: CreateMailingDTO,
   ): Promise<Mailing> {
     try {
-      if (!createMailingDTO.bot.permission.mailing) {
-        throw new ForbiddenException('У бота нет прав на рассылку');
-      }
-      if (user._id !== createMailingDTO.bot.profile._id) {
-        throw new ForbiddenException('Вы не являетесь владельцем бота');
-      }
+      // const botCreatorId = createMailingDTO.bot.profile._id;
+      // const grantedSharedAccess =
+      //   createMailingDTO.bot.profile.grantedSharedAccess;
+
+      // if (!createMailingDTO.bot.permission.mailing) {
+      //   throw new ForbiddenException('У бота нет прав на рассылку');
+      // }
+
+      // grantedSharedAccess.forEach((access) => {
+      //   if (
+      //     !access.mailing &&
+      //     (access.profile._id !== user._id || user._id !== botCreatorId)
+      //   ) {
+      //     throw new ForbiddenException('У вас нет прав на рассылку');
+      //   }
+      // });
 
       const post = await this.mailingModel.create(createMailingDTO);
       return await post.save();
@@ -88,7 +98,7 @@ export class MailingRepository {
         throw new ConflictException('Такой пост уже существует');
       }
       //500й код
-      throw new Error('Что-то пошло не так');
+      throw new Error(err);
     }
   }
 }

@@ -138,14 +138,15 @@ export class SchedulerService {
   }
 
   // Задача для модуля рассылок
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron(CronExpression.EVERY_5_SECONDS)
   async handleMailingTasks() {
     const activePosts = await this.mailingService.findAllActive();
     activePosts.forEach(async (post) => {
       const dateNow = new Date(Date.now());
-      const postDate = post.schedule.date;
+      const postDate = post.schedule.date || dateNow;
 
       if (post.schedule.isNow || postDate <= dateNow) {
+        console.log('Отправляем пост');
         const isOk = true; // Тут нужно отправить пост на другой бэк
 
         if (isOk && !post.schedule.isRepeat) {
