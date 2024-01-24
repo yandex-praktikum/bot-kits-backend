@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Model } from 'mongoose';
+import { MailingService } from 'src/mailing/mailing.service';
+import { Mailing } from 'src/mailing/schema/mailing.schema';
 import { Payment } from 'src/payments/schema/payment.schema';
 import TypeOperation from 'src/payments/types/type-operation';
 import { Profile } from 'src/profiles/schema/profile.schema';
@@ -18,6 +20,7 @@ export class SchedulerService {
   constructor(
     @InjectModel(Subscription.name)
     private subscriptionModel: Model<SubscriptionDocument>,
+    private mailingService: MailingService,
     @InjectModel(Payment.name) private paymentModel: Model<Payment>,
     @InjectModel(Tariff.name) private tariffModel: Model<Tariff>,
     @InjectModel(Profile.name) private profileModel: Model<Profile>,
@@ -135,8 +138,21 @@ export class SchedulerService {
   }
 
   // Задача для модуля рассылок
-  @Cron(CronExpression.EVERY_HOUR)
-  handleMailingTasks() {
-    // Логика обработки рассылок
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async handleMailingTasks() {
+    const activePosts = await this.mailingService.findAllActive();
+    activePosts.forEach(async (post) => {
+      const dateNow = new Date(Date.now());
+      const postDate = post.schedule.date;
+
+      if (post.schedule.isNow || postDate <= dateNow) {
+        const isOk = true; // Тут нужно отправить пост на другой бэк
+
+        if (isOk && !post.schedule.isRepeat) {
+          post.isActive = false;
+          await post.save();
+        }
+      }
+    });
   }
 }

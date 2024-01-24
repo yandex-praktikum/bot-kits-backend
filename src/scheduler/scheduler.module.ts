@@ -14,6 +14,8 @@ import {
   Promocode,
   PromocodeSchema,
 } from 'src/promocodes/schema/promocode.schema';
+import { Mailing, MailingSchema } from 'src/mailing/schema/mailing.schema';
+import { MailingModule } from 'src/mailing/mailing.module';
 
 @Module({
   imports: [
@@ -23,8 +25,10 @@ import {
       { name: Tariff.name, schema: TariffSchema },
       { name: Profile.name, schema: ProfileSchema },
       { name: Promocode.name, schema: PromocodeSchema },
+      { name: Mailing.name, schema: MailingSchema },
     ]),
     ScheduleModule.forRoot(),
+    MailingModule,
   ],
   providers: [SchedulerService],
 })

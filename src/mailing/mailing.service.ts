@@ -13,6 +13,10 @@ export class MailingService {
     return await this.dbQuery.findAll();
   }
 
+  async findAllActive(): Promise<Mailing[]> {
+    return await this.dbQuery.findAllActive();
+  }
+
   async findAllByBotId(botId: string): Promise<Mailing[]> {
     return await this.dbQuery.findAllByBotId(botId);
   }

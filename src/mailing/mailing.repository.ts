@@ -33,6 +33,10 @@ export class MailingRepository {
     return await this.mailingModel.find().exec();
   }
 
+  async findAllActive(): Promise<Mailing[]> {
+    return await this.mailingModel.find({ isActive: true }).exec();
+  }
+
   async findAllByBotId(botId: string): Promise<Mailing[]> {
     return await this.mailingModel.find().where({ 'bot._id': botId });
   }
