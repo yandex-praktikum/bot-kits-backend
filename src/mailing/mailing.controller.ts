@@ -85,6 +85,7 @@ export class MailingController {
   @ApiOperation({
     summary: 'Обновить рассылку',
   })
+  @Patch(':id')
   update(
     @Body() updateMailingDTO: UpdateMailingDTO,
     @Param('id') id: string,
