@@ -16,7 +16,6 @@ import { GUARDS } from './guards';
 import { HttpModule } from '@nestjs/axios';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.module';
-import { SharedAccessesModule } from 'src/shared-accesses/shared-accesses.module';
 import { PartnershipModule } from 'src/partnership/partnership.module';
 import { AbilityModule } from 'src/ability/ability.module';
 import { TariffsModule } from 'src/tariffs/tariffs.module';
@@ -28,7 +27,6 @@ import { Payment, PaymentSchema } from 'src/payments/schema/payment.schema';
     HttpModule,
     ProfilesModule,
     AccountsModule,
-    SharedAccessesModule,
     HashModule,
     PassportModule,
     PartnershipModule,
