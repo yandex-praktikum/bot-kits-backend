@@ -19,7 +19,6 @@ import { Account } from 'src/accounts/schema/account.schema';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { randomBytes } from 'crypto';
-import { SharedAccessesService } from 'src/shared-accesses/shared-accesses.service';
 import { PartnershipService } from 'src/partnership/partnership.service';
 import { TariffsService } from 'src/tariffs/tariffs.service';
 import { SubscriptionsService } from 'src/subscriptions/subscriptions.service';
@@ -39,7 +38,6 @@ export class AuthService {
     private profilesService: ProfilesService,
     private partnerShipService: PartnershipService,
     private accountsService: AccountsService,
-    private sharedAccessService: SharedAccessesService,
     private hashService: HashService,
     private readonly configService: ConfigService,
     private tariffsService: TariffsService,
@@ -168,18 +166,6 @@ export class AuthService {
       // Если аккаунт не существует, создать новый профиль
       if (!existsAccount) {
         profile = await this.profilesService.create(profileData, session);
-        // Создание записи о доступе
-        const sharedAccess = await this.sharedAccessService.create(
-          {
-            username: profileData.username,
-            email: accountData.credentials.email,
-            profile: profile._id,
-          },
-          session,
-        );
-
-        // Связывание профиля с sharedAccess
-        profile.sharedAccess = sharedAccess._id;
 
         // Генерация и обновление реферальной ссылки
         await this.partnerShipService.getPartnerRef(profile._id, session);

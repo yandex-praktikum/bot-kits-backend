@@ -9,8 +9,6 @@ import {
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
-import { BotAccessesService } from '../botAccesses/botAccesses.service';
-import { defaultPermission, fullPermission } from '../botAccesses/types/types';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
@@ -24,7 +22,6 @@ export class BotsRepository {
   constructor(
     @InjectModel(Bot.name) private botModel: Model<BotDocument>,
     @InjectModel(Profile.name) private profileModel: Model<Profile>,
-    private readonly botAccessesService: BotAccessesService,
   ) {}
 
   async create(
@@ -59,12 +56,6 @@ export class BotsRepository {
       // Создаем новый экземпляр бота, если ID не предоставлен
       bot = new this.botModel({ ...createBotDto, profile });
     }
-
-    // При создании бота, создаем доступ сразу с полным уровнем
-    await this.botAccessesService.create(profile, {
-      botId: bot.id,
-      permission: fullPermission,
-    });
     return await bot.save();
   }
 
@@ -199,12 +190,6 @@ export class BotsRepository {
     id: string,
     shareBotDto: ShareBotDto,
   ): Promise<string> {
-    // создаем первичный уровень доступа
-    await this.botAccessesService.shareAccess(profile, id, {
-      email: shareBotDto.email,
-      permission: defaultPermission,
-    });
-
     return 'Запрос на предоставление доступа отправлен';
   }
 

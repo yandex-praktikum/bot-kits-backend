@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { Document, HydratedDocument, Types } from 'mongoose';
 import { Account } from 'src/accounts/schema/account.schema';
-import { SharedAccess } from 'src/shared-accesses/schema/sharedAccess.schema';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 
 export type ProfileDocument = HydratedDocument<Profile>;
@@ -49,9 +48,6 @@ export class Profile extends Document {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
   })
   accounts: Account[];
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'SharedAccess' })
-  sharedAccess: SharedAccess;
 
   @Prop()
   receivedSharedAccess?: [Access];
