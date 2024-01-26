@@ -769,16 +769,16 @@ paths:
         - mailing
       security: &ref_11
         - bearer: []
+  /dev/api/mailing/bot/{id}:
     get:
       operationId: MailingController_getAllByBotId
       summary: Все рассылки бота
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: string
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
       responses:
         '200':
           description: ''
@@ -2344,7 +2344,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-01-24T11:32:51.506Z
+          example: 2024-01-26T12:18:45.792Z
         isCancelled:
           type: boolean
           example: false
@@ -2354,9 +2354,6 @@ components:
         - cardMask
         - debitDate
         - isCancelled
-    Bot:
-      type: object
-      properties: {}
     Platform:
       type: object
       properties: {}
@@ -2412,7 +2409,7 @@ components:
           minLength: 1
           maxLength: 4096
         bot:
-          $ref: '#/components/schemas/Bot'
+          type: object
         platforms:
           type: array
           items:
@@ -2433,6 +2430,9 @@ components:
         - isActive
         - isActibeBotBuilder
         - schedule
+    Bot:
+      type: object
+      properties: {}
     Mailing:
       type: object
       properties:
@@ -2483,7 +2483,7 @@ components:
           minLength: 1
           maxLength: 4096
         bot:
-          $ref: '#/components/schemas/Bot'
+          type: object
         platforms:
           type: array
           items:
@@ -2848,7 +2848,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-01-24T11:32:51.526Z
+          example: 2024-01-26T12:18:45.797Z
         amount:
           type: number
           example: 1000

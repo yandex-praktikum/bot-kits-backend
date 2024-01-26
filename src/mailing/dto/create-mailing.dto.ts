@@ -13,6 +13,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TButtonBlock } from 'src/bots/schema/types/botBuilderTypes';
 import { Platform } from 'src/platforms/schema/platforms.schema';
 import { Bot } from 'src/bots/schema/bots.schema';
+import { Types } from 'mongoose';
 
 class scheduleDTO {
   @ApiProperty()
@@ -79,7 +80,7 @@ export class CreateMailingDTO {
 
   @ApiProperty()
   @IsNotEmpty()
-  bot: Bot;
+  bot: Types.ObjectId | string;
 
   @ApiProperty()
   @IsNotEmpty()

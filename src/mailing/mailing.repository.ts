@@ -12,11 +12,13 @@ import { Model, Error } from 'mongoose';
 import { UpdateMailingDTO } from './dto/update-mailing.dto';
 import { CreateMailingDTO } from './dto/create-mailing.dto';
 import { Profile } from 'src/profiles/schema/profile.schema';
+import { Bot, BotDocument } from 'src/bots/schema/bots.schema';
 
 @Injectable()
 export class MailingRepository {
   constructor(
     @InjectModel(Mailing.name) private mailingModel: Model<MailingDocument>,
+    @InjectModel(Bot.name) private botModel: Model<BotDocument>,
   ) {}
 
   async findById(id: string | number): Promise<Mailing> {
@@ -38,7 +40,7 @@ export class MailingRepository {
   }
 
   async findAllByBotId(botId: string): Promise<Mailing[]> {
-    return await this.mailingModel.find().where({ 'bot._id': botId });
+    return await this.mailingModel.find().where({ bot: botId });
   }
 
   async remove(id: string | number): Promise<Mailing> {
@@ -74,28 +76,36 @@ export class MailingRepository {
     createMailingDTO: CreateMailingDTO,
   ): Promise<Mailing> {
     try {
-      // const botCreatorId = createMailingDTO.bot.profile._id;
-      // const grantedSharedAccess =
-      //   createMailingDTO.bot.profile.grantedSharedAccess;
+      const bot = await this.botModel
+        .findById(createMailingDTO.bot)
+        .populate('profile');
+      const botCreatorId = bot.profile._id.toString();
+      const userId = user._id.toString();
+      const grantedSharedAccess = bot.profile.grantedSharedAccess;
 
-      // if (!createMailingDTO.bot.permission.mailing) {
-      //   throw new ForbiddenException('У бота нет прав на рассылку');
-      // }
+      if (!bot.permission.mailing) {
+        throw new ForbiddenException('У бота нет прав на рассылку');
+      }
 
-      // grantedSharedAccess.forEach((access) => {
-      //   if (
-      //     !access.mailing &&
-      //     (access.profile._id !== user._id || user._id !== botCreatorId)
-      //   ) {
-      //     throw new ForbiddenException('У вас нет прав на рассылку');
-      //   }
-      // });
+      if (userId !== botCreatorId && !grantedSharedAccess.length) {
+        throw new ForbiddenException('У вас нет прав на рассылку');
+      }
 
-      const post = await this.mailingModel.create(createMailingDTO);
-      return await post.save();
+      if (userId !== botCreatorId) {
+        grantedSharedAccess.forEach((access) => {
+          if (!access.mailing || access.profile._id.toString() !== userId) {
+            throw new ForbiddenException('У вас нет прав на рассылку');
+          }
+        });
+      }
+
+      return await new this.mailingModel(createMailingDTO).save();
     } catch (err) {
       if (err instanceof MongoServerError && err.code === 11000) {
         throw new ConflictException('Такой пост уже существует');
+      }
+      if (err instanceof ForbiddenException) {
+        throw new ForbiddenException(err.message);
       }
       //500й код
       throw new Error(err);

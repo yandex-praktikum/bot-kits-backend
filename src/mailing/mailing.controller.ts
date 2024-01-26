@@ -53,8 +53,8 @@ export class MailingController {
   @ApiOperation({
     summary: 'Все рассылки бота',
   })
-  @Get()
-  getAllByBotId(@Body() botId: string): Promise<Mailing[]> {
+  @Get('/bot/:id')
+  getAllByBotId(@Param('id') botId: string): Promise<Mailing[]> {
     return this.mailingService.findAllByBotId(botId);
   }
 

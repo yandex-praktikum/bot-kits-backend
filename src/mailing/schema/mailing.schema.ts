@@ -19,7 +19,7 @@ export class Mailing extends Document {
   message: string;
 
   @ApiProperty()
-  @Prop({ type: { type: mongoose.Schema.Types.ObjectId, ref: 'Bot' } })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Bot' })
   bot: Bot;
 
   @ApiProperty()
