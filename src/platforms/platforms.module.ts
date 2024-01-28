@@ -6,6 +6,7 @@ import { Platform, PlatformSchema } from './schema/platforms.schema';
 import { PlatformController } from './platforms.controller';
 import { ProfilesModule } from 'src/profiles/profiles.module';
 import { PlatformRepository } from './platforms.repository';
+import { AbilityModule } from 'src/ability/ability.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PlatformRepository } from './platforms.repository';
       { name: Platform.name, schema: PlatformSchema },
     ]),
     ProfilesModule,
+    AbilityModule,
   ],
   controllers: [PlatformController],
   providers: [PlatformService, PlatformRepository],

@@ -8,6 +8,7 @@ import { botTemplates } from 'src/bots/dto/constants/botTemplates';
 import { platforms } from 'src/platforms/dto/constants/templates';
 import { tariffsTemplates } from 'src/tariffs/dto/constants/tariffsTemplates';
 import { getHash } from 'src/utils/utils';
+import { promocodesTemplates } from 'src/promocodes/dto/constants/promocodesTemplates';
 
 /**
  * Инициализирует базу данных: создает пользователя и шаблонные боты, если они отсутствуют.
@@ -84,7 +85,7 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
       // Создаем учетную запись администратора
       const adminAccountData = {
         type: 'local',
-        role: 'admin',
+        role: 'superAdmin',
         credentials: {
           email: configService.get('ADMIN_EMAIL'),
           password: await getHash(configService.get('ADMIN_PASSWORD')),
@@ -157,30 +158,56 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
       console.log('All platforms already exist.');
     }
 
-    // Получаем коллекцию 'platforms'
+    // Получаем коллекцию 'tariff'
     const tariffsCollection = currentDb.collection('tariffs');
 
-    // Запрашиваем количество платформ в коллекции
+    // Запрашиваем количество тарифов в коллекции
     const tariffsCount = await tariffsCollection.countDocuments();
 
     if (tariffsCount < tariffsTemplates.length) {
       console.log('Creating tariffs...');
 
-      // Получаем список существующих платформ
+      // Получаем список существующих тарифов
       const existingTariffs = await tariffsCollection.find().toArray();
       const existingTariffName = existingTariffs.map((p) => p.name);
 
-      // Фильтруем список платформ, чтобы добавить только те, которых еще нет в базе данных
+      // Фильтруем список тарифов, чтобы добавить только те, которых еще нет в базе данных
       const tariffsToAdd = tariffsTemplates.filter(
         (tariff) => !existingTariffName.includes(tariff.name),
       );
 
-      // Создаем платформы
+      // Создаем тарифы
       await tariffsCollection.insertMany(tariffsToAdd);
 
       console.log('Tariffs created successfully.');
     } else {
       console.log('All tariffs already exist.');
+    }
+
+    // Получаем коллекцию 'promocodes'
+    const promocodesCollection = currentDb.collection('promocodes');
+
+    // Запрашиваем количество тарифов в коллекции
+    const promocodesCount = await promocodesCollection.countDocuments();
+
+    if (promocodesCount < promocodesTemplates.length) {
+      console.log('Creating promocodes...');
+
+      // Получаем список существующих тарифов
+      const existingPromocodes = await promocodesCollection.find().toArray();
+      const existingPromocodesName = existingPromocodes.map((p) => p.name);
+
+      // Фильтруем список тарифов, чтобы добавить только те, которых еще нет в базе данных
+      const promocodesToAdd = promocodesTemplates.filter(
+        (promocode) => !existingPromocodesName.includes(promocode.code),
+      );
+
+      // Создаем тарифы
+      await promocodesCollection.insertMany(promocodesToAdd);
+
+      console.log('Promocodes created successfully.');
+    } else {
+      console.log('All promocodes already exist.');
     }
   } catch (error) {
     // Ловим и выводим любые ошибки

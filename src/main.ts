@@ -10,7 +10,7 @@ import { SanitizePipe } from './utils/pipe/sanitize.pipe';
 import { AppClusterService } from './appCluster/appCluster.service';
 import { LoggerFactory } from './utils/loggerFactory';
 
-//--событие, которое перехватывает необработанные исключения. --//
+//--событие, которое перехватывает необработанные исключения--//
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   Logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
@@ -69,7 +69,11 @@ async function bootstrap() {
 
   // первый аргумент - путь, по которому будет доступна
   // веб-страница с документацией Swagger
-  SwaggerModule.setup('dev/api/docs', app, document);
+  SwaggerModule.setup(
+    `${configService.get('GLOBAL_PREFIX')}/docs`,
+    app,
+    document,
+  );
 
   await app.listen(port);
 }

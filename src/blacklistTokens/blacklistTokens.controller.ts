@@ -11,13 +11,13 @@ import {
 
 @UseGuards(JwtGuard)
 @ApiTags('logout')
-@Controller()
+@Controller('logout')
 export class BlacklistTokensController {
   constructor(
     private readonly blacklistTokensService: BlacklistTokensService,
   ) {}
 
-  @Get('logout')
+  @Get()
   @ApiOperation({
     summary: 'Разлогинить пользователя',
   })

@@ -24,9 +24,10 @@ import {
   ApiNotFoundResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { RolesGuard } from 'src/auth/guards/role.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
+import { CheckAbility } from 'src/auth/decorators/ability.decorator';
+import { AbilityGuard } from 'src/auth/guards/ability.guard';
+import { Action } from 'src/ability/ability.factory';
 
 export enum NotificationType {
   SYSTEM = 'Системное',
@@ -41,6 +42,9 @@ export enum NotificationType {
 export class NotificationController {
   constructor(private notificationService: NotificationService) {}
 
+  @CheckAbility({ action: Action.Create, subject: UpdateNotificationDto })
+  @UseGuards(AbilityGuard)
+  @Post()
   @ApiOperation({
     summary: 'Создать уведомление',
   })
@@ -54,12 +58,14 @@ export class NotificationController {
     description: 'Неверный запрос',
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @Post()
   @Header('Content-Type', 'application/json')
   create(@Body() createNotificationDto: CreateNotificationDto) {
     this.notificationService.create(createNotificationDto);
   }
 
+  @CheckAbility({ action: Action.Read, subject: CreateNotificationDto })
+  @UseGuards(AbilityGuard)
+  @Get()
   @ApiOperation({
     summary: 'Все уведомления',
   })
@@ -69,13 +75,13 @@ export class NotificationController {
     type: [Notification],
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
-  @Get()
   getAll(): Promise<Notification[]> {
     return this.notificationService.findAll();
   }
 
+  @CheckAbility({ action: Action.Read, subject: CreateNotificationDto })
+  @UseGuards(AbilityGuard)
+  @Get(':id')
   @ApiOperation({
     summary: 'Получить уведомление по id',
   })
@@ -92,13 +98,13 @@ export class NotificationController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
-  @Get(':id')
   findOne(@Param('id') id: string): Promise<Notification> {
     return this.notificationService.findbyId(id);
   }
 
+  @CheckAbility({ action: Action.Delete, subject: CreateNotificationDto })
+  @UseGuards(AbilityGuard)
+  @Delete(':id')
   @ApiOperation({
     summary: 'Удалить уведомление',
   })
@@ -115,13 +121,13 @@ export class NotificationController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
-  @Delete(':id')
   remove(@Param('id') id: string): Promise<Notification> {
     return this.notificationService.remove(id);
   }
 
+  @CheckAbility({ action: Action.Update, subject: CreateNotificationDto })
+  @UseGuards(AbilityGuard)
+  @Patch(':id')
   @ApiOperation({
     summary: 'Изменить уведомление',
   })
@@ -143,9 +149,6 @@ export class NotificationController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
-  @Patch(':id')
   update(
     @Body() updateNotificationDto: UpdateNotificationDto,
     @Param('id') id: string,
@@ -153,6 +156,9 @@ export class NotificationController {
     return this.notificationService.update(updateNotificationDto, id);
   }
 
+  @CheckAbility({ action: Action.Update, subject: CreateNotificationDto })
+  @UseGuards(AbilityGuard)
+  @Patch(':id/status')
   @ApiOperation({
     summary: 'Изменить статус уведомления',
   })
@@ -169,11 +175,10 @@ export class NotificationController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
-  @Patch(':id/status')
-  updateStatus
-  (@Param('id') id: string, @Body('status') updateNotificationDto: UpdateNotificationDto): Promise<Notification> {
+  updateStatus(
+    @Param('id') id: string,
+    @Body('status') updateNotificationDto: UpdateNotificationDto,
+  ): Promise<Notification> {
     return this.notificationService.update(updateNotificationDto, id);
   }
 }
