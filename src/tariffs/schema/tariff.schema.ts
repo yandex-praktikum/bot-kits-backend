@@ -29,7 +29,13 @@ export class Tariff extends Document {
 
   @ApiProperty({ example: 'Активен' })
   @Prop({ required: true })
-  status: string;
+  status: boolean;
+
+  @Prop({ required: true, default: false })
+  isStarted: boolean;
+
+  @Prop({ default: false })
+  isDemo: boolean;
 }
 
 export const TariffSchema = SchemaFactory.createForClass(Tariff);

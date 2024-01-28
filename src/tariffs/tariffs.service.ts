@@ -4,6 +4,7 @@ import { CreateTariffDto } from './dto/create-tariff.dto';
 import { UpdateTariffDto } from './dto/update-tariff.dto';
 import { Tariff } from './schema/tariff.schema';
 import { TariffsRepository } from './tariffs.repository';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class TariffsService {
@@ -17,8 +18,8 @@ export class TariffsService {
     return await this.dbQuery.findOne(id);
   }
 
-  async findAll(): Promise<Tariff[]> {
-    return await this.dbQuery.findAll();
+  async findAll(session?: mongoose.ClientSession): Promise<Tariff[]> {
+    return await this.dbQuery.findAll(session);
   }
 
   async updateTariff(id: string, updateTariffDto: UpdateTariffDto) {

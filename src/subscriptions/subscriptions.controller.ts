@@ -6,6 +6,7 @@ import {
   Req,
   Post,
   Param,
+  BadRequestException,
 } from '@nestjs/common';
 import { SubscriptionsService } from './subscriptions.service';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
@@ -35,6 +36,7 @@ import { ActivateSubscriptionDTO } from './dto/activate-subscription.dto';
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
+  @Get()
   @ApiOperation({
     summary: 'Данные страницы "Подписка и платежи"',
   })
@@ -54,11 +56,11 @@ export class SubscriptionsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @Get()
   subscriptionAndPayments(@Req() req: TJwtRequest): Promise<object> {
     return this.subscriptionsService.subscriptionAndPayments(req.user);
   }
 
+  @Post('activate')
   @ApiOperation({
     summary: 'Активировать(отменить) подписку',
   })
@@ -72,7 +74,6 @@ export class SubscriptionsController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @Post('activate')
   activateSubscription(
     @Req() req: TJwtRequest,
     @Body() activateSubscription: ActivateSubscriptionDTO,
@@ -83,6 +84,7 @@ export class SubscriptionsController {
     );
   }
 
+  @Post(':tariffId')
   @ApiOperation({
     summary: 'Оформить подписку',
   })
@@ -107,15 +109,15 @@ export class SubscriptionsController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  @Post(':tariffId')
-  createSubscription(
+  async createSubscription(
     @Req() { user }: TJwtRequest,
     @Body() createSubscriptionDto: CreateSubscriptionDto,
     @Param('tariffId') tariffId: string,
   ): Promise<Subscription> {
+    console.log(createSubscriptionDto.debitDate);
     return this.subscriptionsService.create(
       tariffId,
-      user.id,
+      user,
       createSubscriptionDto,
     );
   }

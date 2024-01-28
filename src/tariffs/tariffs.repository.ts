@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Tariff } from './schema/tariff.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { CreateTariffDto } from './dto/create-tariff.dto';
 import { UpdateTariffDto } from './dto/update-tariff.dto';
 
@@ -33,9 +33,9 @@ export class TariffsRepository {
     }
   }
 
-  async findAll(): Promise<Tariff[]> {
+  async findAll(session?: mongoose.ClientSession): Promise<Tariff[]> {
     try {
-      const tariffs = await this.tariff.find().exec();
+      const tariffs = await this.tariff.find().session(session).exec();
       if (tariffs.length === 0)
         throw new NotFoundException('Нет ни одного тарифа');
       return tariffs;

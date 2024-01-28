@@ -9,11 +9,7 @@ export type SubscriptionDocument = HydratedDocument<Subscription>;
 
 @Schema(baseSchemaOptions)
 export class Subscription {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Tariff',
-    required: true,
-  })
+  @Prop({ type: mongoose.Schema.Types.Mixed })
   tariff: Tariff;
 
   @ApiProperty({ example: true, default: false })
@@ -28,13 +24,15 @@ export class Subscription {
   @Prop({ default: new Date(), required: true })
   debitDate: Date;
 
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Profile',
-    unique: true,
-    required: true,
-  })
+  @Prop({ type: mongoose.Schema.Types.Mixed })
   profile: Profile;
+
+  @Prop({ type: mongoose.Schema.Types.Mixed })
+  updatingTariff: Tariff;
+
+  @ApiProperty({ example: false, default: false })
+  @Prop({ required: true, default: false })
+  isCancelled: boolean; // Флаг отмены подписки
 }
 
 export const SubscriptionSchema = SchemaFactory.createForClass(Subscription);
