@@ -1308,6 +1308,31 @@ paths:
           description: Ресурс не найден
       tags: *ref_17
       security: *ref_18
+  /dev/api/bots/bot/{id}:
+    get:
+      operationId: BotsController_findOneBotWithAccess
+      summary: Получить данные бота по Id с правами
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Информация о боте по Id получена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_17
+      security: *ref_18
   /dev/api/bots/{id}:
     get:
       operationId: BotsController_findOne
@@ -2029,7 +2054,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-01-25T01:04:45.156Z
+          example: 2024-01-28T12:51:39.076Z
         amount:
           type: number
           example: 1000
@@ -2140,7 +2165,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-01-25T01:04:45.173Z
+          example: 2024-01-28T12:51:39.103Z
         isCancelled:
           type: boolean
           example: false

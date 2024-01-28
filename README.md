@@ -2,7 +2,7 @@
 
 Данный проект является полноценным веб-сервисом, состоящий из back- **и front- **частей для удобного создания \*\*пользователями собственных ботов.
 
-__[Notion](https://www.notion.so/BotKits-14-web-195fad87a50d4ad58a4e5d6fb5ea4e25) проекта и его функциональности__
+__[Notion](https://www.notion.so/BotKits-1c5c57b5337544d4a5c88c65d5868c4c) проекта и его функциональности__
 __Ссылка на репозиторий проекта BotKits [frontend-часть](https://github.com/MrStnr21/botkits-14-frontend)__
 ***
 ## Запуск проекта

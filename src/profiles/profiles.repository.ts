@@ -24,7 +24,7 @@ export class ProfilesRepository {
   ): Promise<Access> {
     return {
       profile: profileId,
-      dasboard: true,
+      dashboard: true,
       botBuilder: true,
       mailing: false,
       static: false,

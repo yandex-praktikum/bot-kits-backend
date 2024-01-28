@@ -2,6 +2,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Bot, BotDocument } from './schema/bots.schema';
 import { Model } from 'mongoose';
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -61,6 +62,50 @@ export class BotsRepository {
 
   async findOne(id: string): Promise<Bot> {
     return await this.botModel.findById(id).exec();
+  }
+
+  async findOneBotWithAccess(id: string, userId: Profile): Promise<Bot> {
+    // Получение бота по его ID
+    const bot = await this.botModel.findById(id).exec();
+
+    if (!bot) {
+      throw new Error('Bot not found');
+    }
+
+    // Получение профиля пользователя, который запрашивает данные
+    const userProfile = await this.profileModel.findById(userId);
+
+    if (!userProfile) {
+      throw new Error('User profile not found');
+    }
+
+    // Проверка, принадлежит ли бот запрашивающему пользователю
+    if (bot.profile.equals(userProfile._id)) {
+      bot.permission = {
+        dashboard: true, // предполагаем, что владелец имеет полный доступ
+        botBuilder: true,
+        mailing: true,
+        static: true,
+      };
+    } else {
+      // Извлечение прав доступа для бота, предоставленных другими пользователями
+      const access = userProfile.receivedSharedAccess.find((a) =>
+        a.profile.equals(bot.profile._id),
+      );
+
+      if (access) {
+        bot.permission = {
+          dashboard: access.dashboard,
+          botBuilder: access.botBuilder,
+          mailing: access.mailing,
+          static: access.static,
+        };
+      } else {
+        throw new Error('Доступ этому боту не предоставлен');
+      }
+    }
+
+    return bot;
   }
 
   async findAllByUser(userId: string): Promise<Bot[] | null> {
@@ -127,28 +172,36 @@ export class BotsRepository {
     ability: PureAbility,
   ): Promise<Bot> {
     const rndId = uuidv4().slice(0, 8);
-    const bot = await this.botModel.findById(botId).select('-_id -updatedAt');
 
-    if (!bot) {
-      throw new NotFoundException(`Бот с ID ${botId} не найден`);
+    try {
+      const bot = await this.botModel.findById(botId).select('-_id -updatedAt');
+
+      if (!bot) {
+        throw new NotFoundException(`Бот с ID ${botId} не найден`);
+      }
+
+      if (!ability.can(Action.Copy, bot)) {
+        throw new ForbiddenException('Копировать можно только своих ботов');
+      }
+
+      Object.assign(bot, copyBotDto);
+      const botData = bot.toObject();
+      try {
+        return await this.create(
+          profileId,
+          {
+            ...botData,
+            title: botData.title + `_copy_${rndId}`,
+            messengers: copyBotDto.messengers,
+          },
+          ability,
+        );
+      } catch (e) {
+        throw new BadRequestException(`dsfsdfsdf`);
+      }
+    } catch (e) {
+      throw new BadRequestException(`Бот с ID ${botId} не найден`);
     }
-
-    if (!ability.can(Action.Copy, bot)) {
-      throw new ForbiddenException('Копировать можно только своих ботов');
-    }
-
-    Object.assign(bot, copyBotDto);
-    const botData = bot.toObject();
-
-    return await this.create(
-      profileId,
-      {
-        ...botData,
-        title: botData.title + `_copy_${rndId}`,
-        messengers: copyBotDto.messengers,
-      },
-      ability,
-    );
   }
 
   async findAllByUserNew(userId: string): Promise<Bot[]> {
@@ -171,7 +224,7 @@ export class BotsRepository {
         a.profile.equals(bot.profile._id),
       );
       bot.permission = {
-        dasboard: access?.dasboard,
+        dashboard: access?.dashboard,
         botBuilder: access?.botBuilder,
         mailing: access?.mailing,
         static: access?.static,

@@ -62,7 +62,7 @@ export class Profile extends Document {
 export class Access {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Profile' })
   profile: Types.ObjectId;
-  dasboard: boolean;
+  dashboard: boolean;
   botBuilder: boolean;
   mailing: boolean;
   static: boolean;

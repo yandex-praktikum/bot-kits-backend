@@ -8,6 +8,7 @@ import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
 import { PureAbility } from '@casl/ability';
+import { Profile } from 'src/profiles/schema/profile.schema';
 
 @Injectable()
 export class BotsService {
@@ -33,6 +34,14 @@ export class BotsService {
   async findOne(id: string): Promise<Bot> {
     try {
       return await this.dbQuery.findOne(id);
+    } catch (e) {
+      return e;
+    }
+  }
+
+  async findOneBotWithAccess(id: string, userId: Profile): Promise<Bot> {
+    try {
+      return await this.dbQuery.findOneBotWithAccess(id, userId);
     } catch (e) {
       return e;
     }
