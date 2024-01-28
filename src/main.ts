@@ -9,6 +9,7 @@ import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { SanitizePipe } from './utils/pipe/sanitize.pipe';
 import { AppClusterService } from './appCluster/appCluster.service';
 import { LoggerFactory } from './utils/loggerFactory';
+import 'reflect-metadata';
 
 //--событие, которое перехватывает необработанные исключения--//
 process.on('unhandledRejection', (reason, promise) => {

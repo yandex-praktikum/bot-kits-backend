@@ -16,7 +16,7 @@ import {
 
 export type AccountDocument = HydratedDocument<Account>;
 
-class Credentials {
+export class Credentials {
   @IsEmail(
     {},
     { message: 'Email должен быть действительным адресом электронной почты' },
