@@ -12,6 +12,10 @@ export class Profile extends Document {
   @Prop({ required: true, minlength: 2, maxlength: 30 })
   username: string;
 
+  @ApiProperty({ example: 'stephen@jr.com' })
+  @Prop()
+  email: string;
+
   @ApiProperty({ example: '+79501364578' })
   @Prop({ required: true })
   phone: string;
