@@ -24,6 +24,10 @@ export class Promocode extends Document {
   @ApiProperty({ example: 1500 })
   @Prop({ required: true, isInteger: true })
   amount: number;
+
+  @ApiProperty({ example: 1500 })
+  @Prop({ required: true, default: false })
+  status: boolean;
 }
 
 export const PromocodeSchema = SchemaFactory.createForClass(Promocode);

@@ -7,5 +7,6 @@ export const promocodesTemplates: CreatePromocodeDto[] = [
     activationCount: 0,
     maxActivationCount: 5,
     amount: 2000,
+    status: true,
   },
 ];
