@@ -40,7 +40,10 @@ export class MailingRepository {
   }
 
   async findAllByBotId(botId: string): Promise<Mailing[]> {
-    return await this.mailingModel.find().where({ bot: botId });
+    return await this.mailingModel
+      .find()
+      .where({ bot: botId })
+      .populate('platforms');
   }
 
   async remove(id: string | number): Promise<Mailing> {
@@ -99,7 +102,26 @@ export class MailingRepository {
         });
       }
 
-      return await new this.mailingModel(createMailingDTO).save();
+      const post = (() => {
+        if (createMailingDTO.schedule.date) {
+          const timezone = createMailingDTO.schedule.date.timezone
+            ? createMailingDTO.schedule.date.timezone
+            : '+0300';
+          const dateIsoString = `${createMailingDTO.schedule.date.date}T${createMailingDTO.schedule.date.time}${timezone}`;
+          return new this.mailingModel({
+            ...createMailingDTO,
+            schedule: {
+              ...createMailingDTO.schedule,
+              date: new Date(dateIsoString),
+            },
+          });
+        } else {
+          return new this.mailingModel(createMailingDTO);
+        }
+      })();
+
+      await post.save();
+      return post.populate('platforms');
     } catch (err) {
       if (err instanceof MongoServerError && err.code === 11000) {
         throw new ConflictException('Такой пост уже существует');

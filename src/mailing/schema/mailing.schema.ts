@@ -4,6 +4,7 @@ import mongoose, { Document, HydratedDocument } from 'mongoose';
 import { Platform } from 'src/platforms/schema/platforms.schema';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 import { TAttachment, TMailingSchedule } from './types/mailingTypes';
+import { Descendant } from 'slate';
 import { Bot } from 'src/bots/schema/bots.schema';
 
 export type MailingDocument = HydratedDocument<Mailing>;
@@ -15,8 +16,8 @@ export class Mailing extends Document {
   name: string;
 
   @ApiProperty({ example: 'mailing message' })
-  @Prop({ required: true, minlength: 1, maxlength: 4096 })
-  message: string;
+  @Prop({ required: true })
+  message: Descendant[];
 
   @ApiProperty()
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Bot' })
@@ -40,7 +41,7 @@ export class Mailing extends Document {
 
   @ApiProperty()
   @Prop({ required: true })
-  isActibeBotBuilder: boolean;
+  isActiveBotBuilder: boolean;
 
   @ApiProperty()
   @Prop({ type: Object })

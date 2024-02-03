@@ -2344,7 +2344,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-01-26T12:18:45.792Z
+          example: 2024-02-02T13:00:54.783Z
         isCancelled:
           type: boolean
           example: false
@@ -2381,21 +2381,31 @@ components:
           type: array
           items:
             type: object
+    dateDTO:
+      type: object
+      properties:
+        time:
+          type: string
+        date:
+          type: string
+        timezone:
+          type: string
+      required:
+        - time
+        - date
     scheduleDTO:
       type: object
       properties:
         isNow:
           type: boolean
         date:
-          format: date-time
-          type: string
+          $ref: '#/components/schemas/dateDTO'
         repeat:
           type: string
         isRepeat:
           type: boolean
       required:
         - isNow
-        - repeat
         - isRepeat
     CreateMailingDTO:
       type: object
@@ -2405,9 +2415,9 @@ components:
           minLength: 1
           maxLength: 255
         message:
-          type: string
-          minLength: 1
-          maxLength: 4096
+          type: array
+          items:
+            type: object
         bot:
           type: object
         platforms:
@@ -2418,7 +2428,7 @@ components:
           $ref: '#/components/schemas/AttachmentDTO'
         isActive:
           type: boolean
-        isActibeBotBuilder:
+        isActiveBotBuilder:
           type: boolean
         schedule:
           $ref: '#/components/schemas/scheduleDTO'
@@ -2428,7 +2438,7 @@ components:
         - bot
         - platforms
         - isActive
-        - isActibeBotBuilder
+        - isActiveBotBuilder
         - schedule
     Bot:
       type: object
@@ -2440,8 +2450,10 @@ components:
           type: string
           example: test
         message:
-          type: string
           example: mailing message
+          type: array
+          items:
+            type: string
         bot:
           $ref: '#/components/schemas/Bot'
         platforms:
@@ -2454,7 +2466,7 @@ components:
           type: number
         isActive:
           type: boolean
-        isActibeBotBuilder:
+        isActiveBotBuilder:
           type: boolean
         attachment:
           type: object
@@ -2468,7 +2480,7 @@ components:
         - countSuccesesMailing
         - conversion
         - isActive
-        - isActibeBotBuilder
+        - isActiveBotBuilder
         - attachment
         - schedule
     UpdateMailingDTO:
@@ -2479,9 +2491,9 @@ components:
           minLength: 1
           maxLength: 255
         message:
-          type: string
-          minLength: 1
-          maxLength: 4096
+          type: array
+          items:
+            type: object
         bot:
           type: object
         platforms:
@@ -2492,7 +2504,7 @@ components:
           $ref: '#/components/schemas/AttachmentDTO'
         isActive:
           type: boolean
-        isActibeBotBuilder:
+        isActiveBotBuilder:
           type: boolean
         schedule:
           $ref: '#/components/schemas/scheduleDTO'
@@ -2848,7 +2860,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-01-26T12:18:45.797Z
+          example: 2024-02-02T13:00:54.793Z
         amount:
           type: number
           example: 1000

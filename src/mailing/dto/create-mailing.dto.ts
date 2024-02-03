@@ -10,10 +10,28 @@ import {
   Length,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Descendant } from 'slate';
 import { TButtonBlock } from 'src/bots/schema/types/botBuilderTypes';
 import { Platform } from 'src/platforms/schema/platforms.schema';
 import { Bot } from 'src/bots/schema/bots.schema';
 import { Types } from 'mongoose';
+
+class dateDTO {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  time: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  date: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  timezone?: string;
+}
 
 class scheduleDTO {
   @ApiProperty()
@@ -21,14 +39,13 @@ class scheduleDTO {
   isNow: boolean;
 
   @ApiProperty()
-  @IsDate()
   @IsOptional()
-  date?: Date;
+  date?: dateDTO;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  repeat: string;
+  repeat?: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -74,9 +91,7 @@ export class CreateMailingDTO {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
-  @Length(1, 4096)
-  message: string;
+  message: Descendant[];
 
   @ApiProperty()
   @IsNotEmpty()
@@ -99,7 +114,7 @@ export class CreateMailingDTO {
   @ApiProperty()
   @IsNotEmpty()
   @IsBoolean()
-  isActibeBotBuilder: boolean;
+  isActiveBotBuilder: boolean;
 
   @ApiProperty()
   @IsNotEmpty()

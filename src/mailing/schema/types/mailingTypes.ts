@@ -9,5 +9,5 @@ export type TMailingSchedule = {
   isNow: boolean;
   date?: Date;
   isRepeat: boolean;
-  repeat: string;
+  repeat?: string;
 };

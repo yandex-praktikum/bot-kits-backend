@@ -140,7 +140,7 @@ export class SchedulerService {
   // Задача для модуля рассылок
   @Cron(CronExpression.EVERY_5_SECONDS)
   async handleMailingTasks() {
-    const activePosts = await this.mailingService.findAllActive();
+    const activePosts = await this.mailingService.findAllActive(); // Доработать, сделать выборку по дате
     activePosts.forEach(async (post) => {
       const dateNow = new Date(Date.now());
       const postDate = post.schedule.date || dateNow;
