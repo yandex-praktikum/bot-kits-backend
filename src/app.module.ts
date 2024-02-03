@@ -31,6 +31,8 @@ import { throttlerConfig } from './configs/throttler.config';
 import { PartnershipModule } from './partnership/partnership.module';
 import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
 import { HandlersQueuesModule } from './handlers-queues/handlers-queues.module';
+import { ChatsModule } from './chats/chats.module';
+import { RedisModule } from './redis/redis.module';
 
 //app.module.ts
 @Module({
@@ -54,7 +56,7 @@ import { HandlersQueuesModule } from './handlers-queues/handlers-queues.module';
     HttpModule,
     NotificationModule,
     BlacklistTokensModule,
-    //ChatsModule,
+    ChatsModule,
     PartnershipModule,
     HandlersQueuesModule,
   ],

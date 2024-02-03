@@ -5,102 +5,78 @@ import {
   MessageBody,
   WebSocketServer,
   ConnectedSocket,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { createAdapter } from 'socket.io-redis';
-import Redis from 'ioredis';
-import {
-  OnModuleInit,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
-import { Chat, ChatDocument } from '../schema/chat.schema';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { WSGuard } from 'src/auth/guards/ws.guards';
+import { RedisService } from 'src/redis/redis.service';
+import { v4 as uuidv4 } from 'uuid';
+import { createAdapter } from '@socket.io/redis-adapter';
+import { Redis, RedisOptions } from 'ioredis';
+import { Emitter } from '@socket.io/redis-emitter';
 
-//chats.gateway.ts
-@UseGuards(WSGuard)
 @WebSocketGateway()
-export class WsGateway implements OnModuleInit {
-  @WebSocketServer()
-  server: Server;
-  private redisClient: Redis;
+export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  private pubClient: Redis;
+  private subClient: Redis;
+  private taskClient: Redis;
+  private emitter: Emitter;
 
-  constructor(@InjectModel(Chat.name) private chatModel: Model<ChatDocument>) {
-    this.redisClient = new Redis({ host: '127.0.0.1', port: 3003 });
-  }
+  @WebSocketServer() server: Server;
+
+  constructor(private redisService: RedisService) {}
 
   async onModuleInit() {
-    const subClient = this.redisClient.duplicate();
-    this.server.adapter(
-      createAdapter({ pubClient: this.redisClient, subClient }),
-    );
+    const { pubClient, subClient, emitter, taskClient } = this.redisService;
+    this.pubClient = pubClient;
+    this.subClient = subClient;
+    this.taskClient = taskClient;
+    this.emitter = emitter;
+
+    // Интеграция адаптера Redis с сервером Socket.IO без явного вызова connect
+    this.server.adapter(createAdapter(pubClient, subClient));
   }
 
-  async handleConnection(client: Socket) {
-    if (!client.handshake.headers.authorization) {
-      client.disconnect();
-      client.emit('error', 'Пользователь не авторизован');
-    }
-    const user = client.data.user;
-    if (!user) return;
-
-    const cacheKey = `chat_history_${user.id}`;
-    let chats = await this.redisClient.get(cacheKey);
-
-    if (!chats) {
-      const chatDocuments = await this.chatModel
-        .find({
-          $or: [{ sender: user.id }, { recipient: user.id }],
-        })
-        .exec();
-
-      // Сериализация результатов запроса в строку
-      chats = JSON.stringify(chatDocuments);
-      await this.redisClient.set(cacheKey, chats);
-    } else {
-      chats = JSON.parse(chats);
-    }
-
-    client.emit('chatHistory', chats);
+  handleConnection(client: Socket, ...args: any[]) {
+    console.log('a user connected');
   }
 
-  @UsePipes(new ValidationPipe())
-  @SubscribeMessage('sendMessage')
-  async handleMessage(
-    client: Socket,
-    payload: { recipient: string; message: string; roomId: string },
-  ): Promise<void> {
-    const sender = client.data.user.id;
-    const newChat = new this.chatModel({
-      message: payload.message,
-      sender: sender,
-      recipient: payload.recipient,
-      roomId: payload.roomId, // определить логику для roomId
-      profile: sender,
-    });
-
-    await newChat.save();
-
-    // Обновляем кеш
-    const cacheKey = `chat_history_${sender}`;
-    const cachedChats = await this.redisClient.get(cacheKey);
-    const chats = cachedChats ? JSON.parse(cachedChats) : [];
-    chats.push(newChat);
-    await this.redisClient.set(cacheKey, JSON.stringify(chats));
-
-    // Отправляем сообщение получателю
-    this.server.to(payload.recipient).emit('newMessage', JSON.stringify(chats));
-  }
-
-  @SubscribeMessage('joinRoom')
-  handleJoinRoom(
+  @SubscribeMessage('register')
+  handleRegister(
     @ConnectedSocket() client: Socket,
-    @MessageBody() roomId: string,
+    @MessageBody() data: { id?: string; name: string },
   ) {
-    client.join(roomId);
-    // Опционально: отправить историю сообщений или уведомление о новом пользователе в комнате
+    const userID = data.id ?? uuidv4(); // Генерация или использование существующего ID.
+    console.log(`register: ${userID}`);
+
+    client.emit('registered', { name: data.name, id: userID });
+    client.join(`/user/${userID}`); // Присоединение к комнате пользователя.
+    client.join('/chat'); // Присоединение к общей комнате чата.
+  }
+
+  @SubscribeMessage('start-dialog')
+  handleStartDialog(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() { from, to }: { from: string; to: string },
+  ) {
+    client.join(`/${from}:${to}`); // Присоединение к приватной комнате для диалога.
+    this.server.to(`/user/${to}`).emit('invite', { from, to }); // Отправка приглашения другому пользователю.
+  }
+
+  @SubscribeMessage('message')
+  handleMessage(@ConnectedSocket() client: Socket, @MessageBody() msg: any) {
+    console.log(`message: `, msg);
+    this.server.to('/chat').emit('message', msg); // Отправка сообщения всем в комнате чата.
+    this.redisService.publish('message', JSON.stringify(msg)); // Публикация сообщения в Redis.
+  }
+
+  @SubscribeMessage('task')
+  handleTask(@ConnectedSocket() client: Socket, @MessageBody() msg: any) {
+    console.log(`task: `, msg);
+    this.redisService.publish('task', JSON.stringify(msg)); // Публикация задачи в Redis.
+  }
+
+  handleDisconnect(client: Socket) {
+    console.log('user disconnected');
   }
 }
