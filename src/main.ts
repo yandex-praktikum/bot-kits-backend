@@ -37,7 +37,7 @@ async function bootstrap() {
   app.use(helmet());
 
   app.enableCors({
-    origin: configService.get('ALLOW_URL'),
+    origin: [configService.get('ALLOW_URL'), 'http://127.0.0.1:5500'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
     credentials: true,

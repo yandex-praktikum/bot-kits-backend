@@ -4,10 +4,53 @@ import { UpdateChatDto } from './dto/update-chat.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Chat, ChatDocument } from './schema/chat.schema';
 import { Model } from 'mongoose';
+import { Emitter } from '@socket.io/redis-emitter';
+import Redis from 'ioredis';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class ChatsService {
-  constructor(@InjectModel(Chat.name) private chatModel: Model<ChatDocument>) {}
+  private pubClient: Redis;
+  private subClient: Redis;
+  private taskClient: Redis;
+  private emitter: Emitter;
+  public cashClient: Redis;
+
+  constructor(
+    private redisService: RedisService,
+    @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
+  ) {
+    const { emitter } = this.redisService;
+    this.redisService.createClient(
+      'pubClientChatServoce',
+      { host: '127.0.0.1', port: 6379 },
+      true,
+    );
+    this.pubClient = this.redisService.getClient('pubClientChatService');
+
+    this.redisService.createClient(
+      'subClientChatService',
+      { host: '127.0.0.1', port: 6379 },
+      true,
+    );
+    this.subClient = this.redisService.getClient('subClientChatService');
+
+    this.redisService.createClient(
+      'taskClientChatService',
+      { host: '127.0.0.1', port: 6379 },
+      true,
+    );
+    this.taskClient = this.redisService.getClient('taskClientChatService');
+
+    this.redisService.createClient(
+      'cashClientChatService',
+      { host: '127.0.0.1', port: 6379 },
+      true,
+    );
+    this.taskClient = this.redisService.getClient('cashClientChatService');
+
+    this.emitter = emitter;
+  }
 
   async create(createChatDto: CreateChatDto) {
     const chat = new this.chatModel(createChatDto);

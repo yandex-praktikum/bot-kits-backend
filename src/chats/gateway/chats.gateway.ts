@@ -27,18 +27,44 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private redisService: RedisService) {}
 
   async onModuleInit() {
-    const { pubClient, subClient, emitter, taskClient } = this.redisService;
-    this.pubClient = pubClient;
-    this.subClient = subClient;
-    this.taskClient = taskClient;
+    const { emitter } = this.redisService;
+    this.redisService.createClient(
+      'pubClientWSGateway',
+      { host: '127.0.0.1', port: 6379 },
+      true,
+    );
+    this.pubClient = this.redisService.getClient('pubClientWSGateway');
+
+    this.redisService.createClient(
+      'subClientWSGateway',
+      { host: '127.0.0.1', port: 6379 },
+      true,
+    );
+    this.subClient = this.redisService.getClient('subClientWSGateway');
+
+    this.redisService.createClient(
+      'taskClientWSGateway',
+      { host: '127.0.0.1', port: 6379 },
+      true,
+    );
+    this.taskClient = this.redisService.getClient('taskClientWSGateway');
+
     this.emitter = emitter;
 
     // Интеграция адаптера Redis с сервером Socket.IO без явного вызова connect
-    this.server.adapter(createAdapter(pubClient, subClient));
+    this.server.adapter(createAdapter(this.pubClient, this.subClient));
   }
 
   handleConnection(client: Socket, ...args: any[]) {
     console.log('a user connected');
+    // // Обработчик события регистрации пользователя.
+    // client.once('register', ({ id, name }) => {
+    //   const userID = id ?? uuidv4(); // Генерация или использование существующего ID.
+    //   console.log(`register: ${userID}`);
+    //   client.emit('registered', { name, id: userID }); // Отправка данных о регистрации клиенту.
+    //   client.join(`/user/${userID}`); // Присоединение к комнате пользователя.
+    //   client.join('/chat'); // Присоединение к общей комнате чата.
+    // });
   }
 
   @SubscribeMessage('register')
@@ -52,6 +78,7 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.emit('registered', { name: data.name, id: userID });
     client.join(`/user/${userID}`); // Присоединение к комнате пользователя.
     client.join('/chat'); // Присоединение к общей комнате чата.
+    client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
   }
 
   @SubscribeMessage('start-dialog')
@@ -59,15 +86,32 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() { from, to }: { from: string; to: string },
   ) {
-    client.join(`/${from}:${to}`); // Присоединение к приватной комнате для диалога.
-    this.server.to(`/user/${to}`).emit('invite', { from, to }); // Отправка приглашения другому пользователю.
+    // Гарантируем уникальность имени комнаты путем сортировки идентификаторов
+    const participants = [from, to].sort();
+    const roomName = `/${participants[0]}:${participants[1]}`;
+
+    // Проверяем, существует ли уже такая комната
+    const existingRoom = [...client.rooms].find((room) => room === roomName);
+
+    if (!existingRoom) {
+      client.join(roomName);
+      console.log(`Присоединение к комнате: ${roomName}`);
+    } else {
+      console.log(`Уже присоединен к комнате: ${existingRoom}`);
+    }
+
+    client.emit('start-dialog', JSON.stringify({ from, to, room: roomName }));
+    client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
   }
 
   @SubscribeMessage('message')
-  handleMessage(@ConnectedSocket() client: Socket, @MessageBody() msg: any) {
-    console.log(`message: `, msg);
-    this.server.to('/chat').emit('message', msg); // Отправка сообщения всем в комнате чата.
-    this.redisService.publish('message', JSON.stringify(msg)); // Публикация сообщения в Redis.
+  async handleMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() msg: any,
+  ) {
+    console.log(msg);
+    this.server.to(`${msg.to}`).emit('message', msg); // Отправка сообщения всем в комнате чата.
+    this.taskClient.publish('message', JSON.stringify(msg)); // Публикация сообщения в Redis.
   }
 
   @SubscribeMessage('task')

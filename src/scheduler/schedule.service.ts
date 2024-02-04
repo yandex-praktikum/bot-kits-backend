@@ -26,7 +26,7 @@ export class SchedulerService {
     private readonly rabbitMQService: RabbitMQService,
   ) {}
 
-  @Cron('*/20 * * * * *', {
+  @Cron('0 0 0 * * *', {
     timeZone: 'UTC',
   }) // 0 0 0 * * * - в 00:00:00 каждый день для прода
   async handleSubscriptionTasks() {

@@ -1668,9 +1668,9 @@ paths:
           description: Ресурс не найден
       tags: *ref_19
       security: *ref_20
-  /dev/api/chats:
+  /dev/api/chats/task:
     post:
-      operationId: ChatsController_create
+      operationId: ChatsController_createTask
       parameters: []
       requestBody:
         required: true
@@ -1681,12 +1681,22 @@ paths:
       responses:
         '201':
           description: ''
-          content:
-            application/json:
-              schema:
-                type: object
+  /dev/api/chats/message:
+    post:
+      operationId: ChatsController_createMessage
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatDto'
+      responses:
+        '201':
+          description: ''
+  /dev/api/chats/history:
     get:
-      operationId: ChatsController_findAll
+      operationId: ChatsController_getHistory
       parameters: []
       responses:
         '200':
@@ -1694,61 +1704,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Chat'
-  /dev/api/chats/{id}:
-    get:
-      operationId: ChatsController_findOne
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: string
-    patch:
-      operationId: ChatsController_update
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateChatDto'
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: string
-    delete:
-      operationId: ChatsController_remove
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: string
+                type: object
 info:
   title: API BotKits
   description: Ручки для команды frontend
@@ -2135,7 +2091,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-02-03T18:33:41.048Z
+          example: 2024-02-04T20:02:34.936Z
         amount:
           type: number
           example: 1000
@@ -2246,7 +2202,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-02-03T18:33:41.063Z
+          example: 2024-02-04T20:02:34.949Z
         isCancelled:
           type: boolean
           example: false
@@ -2566,15 +2522,3 @@ components:
         - message
         - sender
         - recipient
-    Chat:
-      type: object
-      properties: {}
-    UpdateChatDto:
-      type: object
-      properties:
-        message:
-          type: string
-        sender:
-          type: object
-        recipient:
-          type: object
