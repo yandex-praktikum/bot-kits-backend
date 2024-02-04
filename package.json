@@ -64,7 +64,8 @@
     "socket.io": "^4.7.2",
     "socket.io-redis": "^6.1.1",
     "uuid": "^9.0.1",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "slate": "^0.101.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.7.1",

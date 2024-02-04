@@ -22,6 +22,8 @@ import { databaseConfig } from './configs/database.config';
 import { BotsModule } from './bots/bots.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 
+import { MailingModule } from './mailing/mailing.module';
+
 import { StatisticsModule } from './statistics/statistics.module';
 import { PaymentsModule } from './payments/payments.module';
 import { HttpModule } from '@nestjs/axios';
@@ -56,7 +58,9 @@ import { HandlersQueuesModule } from './handlers-queues/handlers-queues.module';
     BlacklistTokensModule,
     //ChatsModule,
     PartnershipModule,
+    MailingModule,
     HandlersQueuesModule,
+
   ],
   controllers: [AppController, AuthController],
   providers: [
