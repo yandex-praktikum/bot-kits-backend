@@ -26,10 +26,6 @@ export class CreateProfileDto {
   @IsString()
   phone: string;
 
-  @IsString()
-  @ApiProperty({ example: 'jony@jony.com' })
-  email: string;
-
   @ApiProperty({ example: 'https://i.pravatar.cc/300', required: false })
   @IsUrl({}, { message: 'Avatar должен быть действительным URL' })
   @IsOptional()

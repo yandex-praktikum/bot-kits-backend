@@ -16,7 +16,6 @@ export class AuthDtoPipe implements PipeTransform {
       balance: 0,
       avatar: this.configService.get('PROFILE_AVATAR'),
       accounts: [],
-      email: value.email,
     };
 
     const enrichedAccount = {
