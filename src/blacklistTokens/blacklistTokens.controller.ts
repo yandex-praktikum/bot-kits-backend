@@ -8,13 +8,18 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { InjectModel } from '@nestjs/mongoose';
+import { Profile, ProfileDocument } from '../profiles/schema/profile.schema';
+import { Model } from 'mongoose';
+import { JwtService } from '@nestjs/jwt';
 
-@UseGuards(JwtGuard)
 @ApiTags('logout')
 @Controller('logout')
 export class BlacklistTokensController {
   constructor(
     private readonly blacklistTokensService: BlacklistTokensService,
+    private readonly jwtService: JwtService,
+    @InjectModel(Profile.name) private profileModel: Model<ProfileDocument>,
   ) {}
 
   @Get()
@@ -41,7 +46,17 @@ export class BlacklistTokensController {
   })
   async addToken(@Headers('authorization') authHeader: string) {
     const token = authHeader.split(' ')[1];
+    // console.log(token)
     await this.blacklistTokensService.addToken(token);
-    return { message: 'Пользователь успешно разлогинен' };
+    const decoded = this.jwtService.decode(token);
+
+    if (decoded && decoded.sub) {
+      await this.profileModel.updateOne(
+        { _id: decoded.sub },
+        { $set: { lastAccountActivity: new Date() } },
+      );
+    }
+
+    return { message: 'User logged out' };
   }
 }
