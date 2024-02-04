@@ -61,7 +61,5 @@ export class BlacklistTokensRepository {
         { $set: { lastAccountActivity: new Date() } },
       );
     }
-
-    return { message: 'User logged out' };
   }
 }

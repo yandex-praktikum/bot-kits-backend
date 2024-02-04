@@ -40,5 +40,7 @@ export class BlacklistTokensController {
     const token = authHeader.split(' ')[1];
     await this.blacklistTokensService.addToken(token);
     await this.blacklistTokensService.updateLastActivity(token);
+
+    return { message: 'User logged out' };
   }
 }
