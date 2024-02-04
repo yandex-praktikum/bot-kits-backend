@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsDateString,
   IsInt,
   IsNotEmpty,
@@ -36,4 +37,9 @@ export class CreatePromocodeDto {
   @IsInt()
   @IsPositive()
   amount: number;
+
+  @ApiProperty({ example: 1500 })
+  @IsNotEmpty()
+  @IsBoolean()
+  status: boolean;
 }
