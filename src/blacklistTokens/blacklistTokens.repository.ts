@@ -41,6 +41,7 @@ export class BlacklistTokensRepository {
     await blacklistedToken.save();
     await this.cleanupTokens();
   }
+
   //--Проверяем есть находитсся ли токен в черном списке--//
   async isTokenBlacklisted(token: string): Promise<boolean> {
     const count = await this.blacklistTokensModel.countDocuments({ token });

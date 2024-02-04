@@ -61,6 +61,9 @@ export class Profile extends Document {
 
   @Prop()
   promocode: string[];
+
+  @Prop({ default: new Date(), required: true })
+  dateRegistration: Date;
 }
 
 export class Access {
