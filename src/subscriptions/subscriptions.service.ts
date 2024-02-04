@@ -31,10 +31,10 @@ export class SubscriptionsService {
 
   async create(
     tariffId: string,
-    userId: string,
+    user: Profile,
     createSubscriptionDto: CreateSubscriptionDto,
   ): Promise<Subscription> {
-    return await this.dbQuery.create(createSubscriptionDto, tariffId, userId);
+    return await this.dbQuery.create(createSubscriptionDto, tariffId, user);
   }
 
   async initSubscription(

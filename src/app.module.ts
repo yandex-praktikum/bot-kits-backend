@@ -11,7 +11,6 @@ import { AuthController } from './auth/auth.controller';
 
 import { ProfilesModule } from './profiles/profiles.module';
 import { AuthModule } from './auth/auth.module';
-import { BotAccessesModule } from './botAccesses/botAccesses.module';
 import { TariffsModule } from './tariffs/tariffs.module';
 import { PlatformModule } from './platforms/platforms.module';
 
@@ -31,9 +30,9 @@ import { HttpModule } from '@nestjs/axios';
 import { NotificationModule } from './notifications/notifications.module';
 import { BlacklistTokensModule } from './blacklistTokens/blacklistTokens.module';
 import { throttlerConfig } from './configs/throttler.config';
-import { SharedAccessesModule } from './shared-accesses/shared-accesses.module';
 import { PartnershipModule } from './partnership/partnership.module';
 import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
+import { HandlersQueuesModule } from './handlers-queues/handlers-queues.module';
 
 //app.module.ts
 @Module({
@@ -48,7 +47,6 @@ import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
     TariffsModule,
     AccountsModule,
     AuthModule,
-    BotAccessesModule,
     PlatformModule,
     PromocodesModule,
     BotsModule,
@@ -59,9 +57,10 @@ import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
     NotificationModule,
     BlacklistTokensModule,
     //ChatsModule,
-    SharedAccessesModule,
     PartnershipModule,
     MailingModule,
+    HandlersQueuesModule,
+
   ],
   controllers: [AppController, AuthController],
   providers: [
@@ -71,7 +70,6 @@ import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
       useClass: ThrottlerGuard,
     },
     Logger,
-
     {
       provide: APP_FILTER,
       useClass: GlobalHTTPExceptionFilter,

@@ -59,5 +59,5 @@ export async function addDuration(currentDate, duration) {
     resultDate.setMonth(resultDate.getMonth() + durationValue);
   }
 
-  return resultDate.toISOString().split('T')[0];
+  return resultDate.toISOString();
 }

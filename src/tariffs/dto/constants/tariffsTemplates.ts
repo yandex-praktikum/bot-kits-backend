@@ -9,6 +9,7 @@ export const tariffsTemplates: CreateTariffDto[] = [
     duration: '0D',
     status: true,
     isStarted: true,
+    isDemo: true,
   },
   {
     name: 'Старт',

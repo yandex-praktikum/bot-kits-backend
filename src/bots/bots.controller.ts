@@ -34,6 +34,7 @@ import { CopyBotDto } from './dto/copy-bot.dto';
 import { CheckAbility } from 'src/auth/decorators/ability.decorator';
 import { Action } from 'src/ability/ability.factory';
 import { AbilityGuard } from 'src/auth/guards/ability.guard';
+import { TJwtRequest } from 'src/types/jwtRequest';
 
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
@@ -161,6 +162,30 @@ export class BotsController {
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   getTemplate(@Param('id') templateId: string): Promise<Bot> {
     return this.botsService.findOne(templateId);
+  }
+
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Read, subject: CreateBotDto })
+  @Get('bot/:id')
+  @ApiOperation({
+    summary: 'Получить данные бота по Id с правами',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор бота',
+    example: '64f81ba37571bfaac18a857f',
+  })
+  @ApiOkResponse({
+    description: 'Информация о боте по Id получена',
+    type: Bot,
+  })
+  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
+  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  findOneBotWithAccess(
+    @Param('id') id: string,
+    @Req() req: TJwtRequest,
+  ): Promise<Bot> {
+    return this.botsService.findOneBotWithAccess(id, req.user.id);
   }
 
   @UseGuards(AbilityGuard)

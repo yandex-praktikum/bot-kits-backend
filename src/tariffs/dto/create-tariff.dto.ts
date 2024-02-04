@@ -3,9 +3,12 @@ import {
   IsBoolean,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsPositive,
   IsString,
+  Min,
 } from 'class-validator';
+import { IsNotNaN } from 'src/utils/class-validator/isNotNaN';
 
 export class CreateTariffDto {
   @ApiProperty({ example: 'Старт' })
@@ -16,17 +19,20 @@ export class CreateTariffDto {
   @ApiProperty({ example: 390 })
   @IsNotEmpty()
   @IsInt()
-  @IsPositive()
+  @Min(0)
+  @IsNotNaN()
   price: number;
 
   @IsNotEmpty()
   @IsInt()
   @IsPositive()
+  @IsNotNaN()
   botsCount: number;
 
   @IsNotEmpty()
   @IsInt()
   @IsPositive()
+  @IsNotNaN()
   subscribersCount: number;
 
   @IsNotEmpty()
@@ -40,4 +46,9 @@ export class CreateTariffDto {
   @IsNotEmpty()
   @IsBoolean()
   isStarted: boolean;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  @IsOptional()
+  isDemo?: boolean;
 }

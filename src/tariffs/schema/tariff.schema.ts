@@ -33,6 +33,9 @@ export class Tariff extends Document {
 
   @Prop({ required: true, default: false })
   isStarted: boolean;
+
+  @Prop({ default: false })
+  isDemo: boolean;
 }
 
 export const TariffSchema = SchemaFactory.createForClass(Tariff);

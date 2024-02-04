@@ -36,7 +36,6 @@ export class SubscriptionsRepository {
       'Списание',
       profile.toObject(),
       tariff.toObject(),
-      undefined,
     );
   }
 
@@ -60,7 +59,9 @@ export class SubscriptionsRepository {
 
   async subscriptionAndPayments(profile: Profile): Promise<object> {
     const subscription = await this.subscriptionModel.findOne({ profile });
-    const payment = await this.paymentModel.find({ profile });
+    const payment = await this.paymentModel.find({
+      'profile._id': profile,
+    });
     const dataObject = {
       tariff: '',
       status: false,
@@ -92,7 +93,7 @@ export class SubscriptionsRepository {
     }
     //Когда приостанавливается тариф status === true
     if (!status) {
-      if (profile.balance < tariff.price || tariff.name === 'Демо') {
+      if (profile.balance < tariff.price || tariff.isDemo) {
         throw new BadRequestException(
           'Нельзя активировать Демо тариф или недостаточно средств',
         );
@@ -108,19 +109,19 @@ export class SubscriptionsRepository {
   async create(
     createSubscriptionDto: CreateSubscriptionDto,
     tariffId: string,
-    userId: string,
+    user: Profile,
   ): Promise<Subscription> {
     const subscription = await this.subscriptionModel
-      .findOne({ profile: userId })
+      .findOne({ 'profile._id': user._id })
       .exec();
 
     const tariff = await this.tariffModel.findById(tariffId).exec();
 
-    if (!tariff || tariff.name === 'Демо') {
+    if (!tariff || tariff.isDemo) {
       throw new NotFoundException('Неверный идентификатор тарифа');
     }
 
-    const profile = await this.profileModel.findById(userId);
+    const profile = await this.profileModel.findById(user._id);
 
     // Обработка оплаты
     const paymentSuccess = await this.processPayment(tariff, profile);

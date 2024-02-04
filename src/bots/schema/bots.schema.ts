@@ -36,7 +36,7 @@ export class Messenger {
 export class Permission {
   @IsNotEmpty()
   @IsBoolean()
-  dasboard: boolean;
+  dashboard: boolean;
 
   @IsNotEmpty()
   @IsBoolean()
@@ -100,7 +100,7 @@ export class Bot extends Document {
   @Prop({
     type: Permission,
     default: () => ({
-      dasboard: true,
+      dashboard: true,
       botBuilder: true,
       mailing: true,
       static: true,

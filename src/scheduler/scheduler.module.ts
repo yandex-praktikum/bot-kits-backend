@@ -16,6 +16,9 @@ import {
 } from 'src/promocodes/schema/promocode.schema';
 import { Mailing, MailingSchema } from 'src/mailing/schema/mailing.schema';
 import { MailingModule } from 'src/mailing/mailing.module';
+import { RabbitMQService } from 'src/rabbitmq/rabbitmq.service';
+import { RabbitmqModule } from 'src/rabbitmq/rabbitmq.module';
+
 
 @Module({
   imports: [
@@ -27,8 +30,9 @@ import { MailingModule } from 'src/mailing/mailing.module';
       { name: Promocode.name, schema: PromocodeSchema },
       { name: Mailing.name, schema: MailingSchema },
     ]),
-    ScheduleModule.forRoot(),
     MailingModule,
+    ScheduleModule.forRoot(),
+    RabbitmqModule,
   ],
   providers: [SchedulerService],
 })

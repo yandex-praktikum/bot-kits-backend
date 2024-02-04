@@ -120,7 +120,7 @@ export class ProfilesController {
 
   @CheckAbility({ action: Action.Update, subject: UpdateProfileDto })
   @UseGuards(AbilityGuard)
-  @Patch()
+  @Patch('shared')
   @ApiOperation({
     summary: 'Обновить выданный доступ',
   })

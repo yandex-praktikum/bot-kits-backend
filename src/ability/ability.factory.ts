@@ -4,7 +4,6 @@ import {
   InferSubjects,
   MatchConditions,
   PureAbility,
-  createMongoAbility,
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
