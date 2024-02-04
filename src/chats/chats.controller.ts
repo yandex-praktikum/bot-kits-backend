@@ -10,13 +10,32 @@ import {
 import { ChatsService } from './chats.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
+import Redis from 'ioredis';
+import { Emitter } from '@socket.io/redis-emitter';
+import { RedisService } from 'src/redis/redis.service';
 
 @Controller('chats')
 export class ChatsController {
-  constructor(private readonly chatsService: ChatsService) {}
+  private pubClient: Redis;
+  private subClient: Redis;
+  private taskClient: Redis;
+  private emitter: Emitter;
 
-  @Post()
+  constructor(
+    private readonly chatsService: ChatsService,
+    private redisService: RedisService,
+  ) {
+    const { pubClient, subClient, emitter, taskClient } = this.redisService;
+    this.pubClient = pubClient;
+    this.subClient = subClient;
+    this.taskClient = taskClient;
+    this.emitter = emitter;
+  }
+
+  @Post('/task')
   create(@Body() createChatDto: CreateChatDto) {
+    this.taskClient.publish('task', JSON.stringify(req.body)); // Публикация задачи в Redis.
+    //res.json({ result: 'OK' }); // Отправка ответа клиенту.
     return this.chatsService.create(createChatDto);
   }
 
