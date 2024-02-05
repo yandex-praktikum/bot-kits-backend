@@ -8,6 +8,9 @@ import {
   Delete,
   UseGuards,
   Req,
+  UseInterceptors,
+  Header,
+  UploadedFiles,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -33,6 +36,7 @@ import { UpdateBotDto } from './dto/update-bot.dto';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
@@ -40,6 +44,23 @@ import { CopyBotDto } from './dto/copy-bot.dto';
 @Controller('bots')
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
+
+  @Post('files/upload')
+  @UseInterceptors(FilesInterceptor('files'))
+  async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>) {
+    return await this.botsService.uploadFiles(files);
+  }
+
+  @Get('files/download/:id')
+  @Header('Cross-Origin-Resource-Policy', 'cross-origin') //чтобы можно было запрашивать из тега <img src="...">
+  async downloadFile(@Param('id') id: string) {
+    return await this.botsService.downloadFile(id);
+  }
+
+  @Delete('files/delete/:id')
+  deleteFile(@Param() id: string) {
+    return this.botsService.deleteFile(id);
+  }
 
   @Get()
   @ApiOperation({

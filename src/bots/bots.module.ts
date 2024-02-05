@@ -6,6 +6,7 @@ import { BotsService } from './bots.service';
 import { BotAccessesModule } from '../botAccesses/botAccesses.module';
 import { BotsRepository } from './bots.repository';
 import { ProfilesModule } from 'src/profiles/profiles.module';
+import { FilesBucketService } from 'src/gridFS/gridFS.service';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { ProfilesModule } from 'src/profiles/profiles.module';
     ProfilesModule,
   ],
   controllers: [BotsController],
-  providers: [BotsService, BotsRepository],
+  providers: [BotsService, BotsRepository, FilesBucketService],
 })
 export class BotsModule {}

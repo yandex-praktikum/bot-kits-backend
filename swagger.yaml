@@ -1061,6 +1061,48 @@ paths:
           description: Ресурс не найден
       tags: *ref_12
       security: *ref_13
+  /dev/api/bots/files/upload:
+    post:
+      operationId: BotsController_uploadFiles
+      parameters: []
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+      tags: &ref_14
+        - bots
+      security: &ref_15
+        - bearer: []
+  /dev/api/bots/files/download/{id}:
+    get:
+      operationId: BotsController_downloadFile
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags: *ref_14
+      security: *ref_15
+  /dev/api/bots/files/delete/{id}:
+    delete:
+      operationId: BotsController_deleteFile
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+      tags: *ref_14
+      security: *ref_15
   /dev/api/bots:
     get:
       operationId: BotsController_findMy
@@ -1079,10 +1121,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: &ref_14
-        - bots
-      security: &ref_15
-        - bearer: []
+      tags: *ref_14
+      security: *ref_15
     post:
       operationId: BotsController_create
       summary: Создание нового бота
@@ -1727,6 +1767,31 @@ paths:
                 $ref: '#/components/schemas/UpdateNotificationDto'
         '400':
           description: Неверный запрос
+        '403':
+          description: Отказ в доступе
+        '404':
+          description: Ресурс не найден
+      tags: *ref_20
+      security: *ref_21
+  /dev/api/notification/{id}/status:
+    patch:
+      operationId: NotificationController_updateStatus
+      summary: Изменить статус уведомления
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор уведомления
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Статус уведомления успешно изменен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
         '403':
           description: Отказ в доступе
         '404':
@@ -2431,7 +2496,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2023-12-14T14:03:19.630Z
+          example: 2024-02-05T12:50:32.462Z
       required:
         - status
         - cardMask
@@ -2445,7 +2510,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2023-12-14T14:03:19.632Z
+          example: 2024-02-05T12:50:32.468Z
         amount:
           type: number
           example: 1000
