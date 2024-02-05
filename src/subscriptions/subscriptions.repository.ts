@@ -58,24 +58,28 @@ export class SubscriptionsRepository {
   }
 
   async subscriptionAndPayments(profile: Profile): Promise<object> {
-    const subscription = await this.subscriptionModel.findOne({ profile });
+    const subscription = await this.subscriptionModel.findOne({
+      'profile._id': profile._id,
+    });
+
     const payment = await this.paymentModel.find({
       'profile._id': profile,
     });
+
     const dataObject = {
-      tariff: '',
+      tariff: null,
       status: false,
       cardMask: '',
       debitDate: new Date(),
       balance: profile.balance,
       payments: payment,
     };
+
     if (subscription) {
       const tariff = await this.tariffModel
         .findById(subscription.tariff)
         .exec();
-
-      dataObject.tariff = tariff.name;
+      dataObject.tariff = tariff;
       dataObject.status = subscription.status;
       dataObject.cardMask = subscription.cardMask;
       dataObject.debitDate = subscription.debitDate;

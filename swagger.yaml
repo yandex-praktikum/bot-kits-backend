@@ -570,16 +570,23 @@ paths:
   /dev/api/accounts:
     get:
       operationId: AccountsController_findAll
+      summary: Получение всех пользователей
       parameters: []
       responses:
         '200':
-          description: ''
+          description: Успешный ответ сервера
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Account'
+                  $ref: '#/components/schemas/SingleAccountResponseBodyOK'
+        '401':
+          description: Неверный токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidTokenResponse'
       tags: &ref_6
         - accounts
       security: &ref_7
@@ -611,10 +618,16 @@ paths:
                 $ref: '#/components/schemas/SingleAccountResponseBodyOK'
         '400':
           description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Неверный токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidTokenResponse'
       tags: *ref_6
       security: *ref_7
   /dev/api/partnership:
@@ -869,6 +882,126 @@ paths:
           description: Ресурс не найден
       tags: *ref_11
       security: *ref_12
+  /dev/api/mailing:
+    post:
+      operationId: MailingController_createMailing
+      summary: Создать рассылку
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMailingDTO'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mailing'
+      tags: &ref_13
+        - mailing
+      security: &ref_14
+        - bearer: []
+  /dev/api/mailing/bot/{id}:
+    get:
+      operationId: MailingController_getAllByBotId
+      summary: Все рассылки бота
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mailing'
+      tags: *ref_13
+      security: *ref_14
+  /dev/api/mailing/all:
+    get:
+      operationId: MailingController_getAll
+      summary: Все рассылки
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mailing'
+      tags: *ref_13
+      security: *ref_14
+  /dev/api/mailing/{id}:
+    get:
+      operationId: MailingController_getById
+      summary: Получить рассылку по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mailing'
+      tags: *ref_13
+      security: *ref_14
+    delete:
+      operationId: MailingController_remove
+      summary: Удалить рассылку по id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mailing'
+      tags: *ref_13
+      security: *ref_14
+    patch:
+      operationId: MailingController_update
+      summary: Обновить рассылку
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMailingDTO'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mailing'
+      tags: *ref_13
+      security: *ref_14
   /dev/api/platforms:
     post:
       operationId: PlatformController_create
@@ -891,9 +1024,9 @@ paths:
           description: Неверный запрос
         '403':
           description: Отказ в доступе
-      tags: &ref_13
+      tags: &ref_15
         - platforms
-      security: &ref_14
+      security: &ref_16
         - bearer: []
     get:
       operationId: PlatformController_findAll
@@ -910,8 +1043,8 @@ paths:
                   $ref: '#/components/schemas/Platform'
         '403':
           description: Отказ в доступе
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_15
+      security: *ref_16
   /dev/api/platforms/{id}:
     get:
       operationId: PlatformController_findOne
@@ -935,8 +1068,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_15
+      security: *ref_16
     patch:
       operationId: PlatformController_update
       summary: Обновить данные о платформе по id
@@ -967,8 +1100,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_15
+      security: *ref_16
     delete:
       operationId: PlatformController_remove
       summary: Удалить платформу по id
@@ -991,8 +1124,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_15
+      security: *ref_16
   /dev/api/promocodes:
     post:
       operationId: PromocodesController_create
@@ -1015,9 +1148,9 @@ paths:
           description: Отказ в доступе
         '409':
           description: Такой промокод уже существует
-      tags: &ref_15
+      tags: &ref_17
         - promocodes
-      security: &ref_16
+      security: &ref_18
         - bearer: []
     get:
       operationId: PromocodesController_findAll
@@ -1034,8 +1167,8 @@ paths:
                   $ref: '#/components/schemas/Promocode'
         '403':
           description: Отказ в доступе
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_17
+      security: *ref_18
   /dev/api/promocodes/promocode:
     get:
       operationId: PromocodesController_findOneByCode
@@ -1057,8 +1190,8 @@ paths:
                   $ref: '#/components/schemas/Promocode'
         '403':
           description: Отказ в доступе
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_17
+      security: *ref_18
     patch:
       operationId: PromocodesController_updateByCode
       summary: Использовать промокод 1 раз
@@ -1079,8 +1212,8 @@ paths:
                   $ref: '#/components/schemas/Promocode'
         '403':
           description: Отказ в доступе
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_17
+      security: *ref_18
   /dev/api/promocodes/{id}:
     get:
       operationId: PromocodesController_findOne
@@ -1104,8 +1237,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_17
+      security: *ref_18
     patch:
       operationId: PromocodesController_update
       summary: Изменить данные промокода по id
@@ -1136,8 +1269,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_17
+      security: *ref_18
     delete:
       operationId: PromocodesController_remove
       summary: Удалить промокод по id
@@ -1160,8 +1293,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_17
+      security: *ref_18
   /dev/api/bots:
     get:
       operationId: BotsController_findMy
@@ -1180,9 +1313,9 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: &ref_17
+      tags: &ref_19
         - bots
-      security: &ref_18
+      security: &ref_20
         - bearer: []
     post:
       operationId: BotsController_create
@@ -1205,8 +1338,8 @@ paths:
           description: Неверный запрос
         '403':
           description: Отказ в доступе
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/templates:
     get:
       operationId: BotsController_findTemplates
@@ -1225,8 +1358,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/template:
     post:
       operationId: BotsController_createTemplate
@@ -1251,8 +1384,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/template/{id}:
     patch:
       operationId: BotsController_updateTemplate
@@ -1276,8 +1409,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bot'
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
     delete:
       operationId: BotsController_removeTemplate
       summary: Удаление шаблона бота
@@ -1298,8 +1431,8 @@ paths:
                 $ref: '#/components/schemas/Bot'
         '404':
           description: Ресурс не найден
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
     get:
       operationId: BotsController_getTemplate
       summary: Получение шаблона бота по id
@@ -1320,8 +1453,8 @@ paths:
                 $ref: '#/components/schemas/Bot'
         '404':
           description: Ресурс не найден
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/bot/{id}:
     get:
       operationId: BotsController_findOneBotWithAccess
@@ -1345,8 +1478,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/{id}:
     get:
       operationId: BotsController_findOne
@@ -1370,8 +1503,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
     post:
       operationId: BotsController_createBotsFromTemplate
       summary: Создание нового бота из шаблона
@@ -1398,8 +1531,8 @@ paths:
           description: Неверный запрос
         '403':
           description: Отказ в доступе
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
     delete:
       operationId: BotsController_remove
       summary: Удаление бота
@@ -1422,8 +1555,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
     patch:
       operationId: BotsController_update
       summary: Обновить бота
@@ -1452,8 +1585,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/{id}/share:
     post:
       operationId: BotsController_share
@@ -1485,8 +1618,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/copy/{id}:
     post:
       operationId: BotsController_copyBot
@@ -1518,8 +1651,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_19
+      security: *ref_20
   /dev/api/statistics:
     get:
       operationId: StatisticsController_findAll
@@ -1555,9 +1688,9 @@ paths:
           description: Неверный запрос
         '403':
           description: Отказ в доступе
-      tags: &ref_19
+      tags: &ref_21
         - notification
-      security: &ref_20
+      security: &ref_22
         - bearer: []
     get:
       operationId: NotificationController_getAll
@@ -1574,8 +1707,8 @@ paths:
                   $ref: '#/components/schemas/Notification'
         '403':
           description: Отказ в доступе
-      tags: *ref_19
-      security: *ref_20
+      tags: *ref_21
+      security: *ref_22
   /dev/api/notification/{id}:
     get:
       operationId: NotificationController_findOne
@@ -1599,8 +1732,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_19
-      security: *ref_20
+      tags: *ref_21
+      security: *ref_22
     delete:
       operationId: NotificationController_remove
       summary: Удалить уведомление
@@ -1623,8 +1756,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_19
-      security: *ref_20
+      tags: *ref_21
+      security: *ref_22
     patch:
       operationId: NotificationController_update
       summary: Изменить уведомление
@@ -1655,8 +1788,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_19
-      security: *ref_20
+      tags: *ref_21
+      security: *ref_22
   /dev/api/notification/{id}/status:
     patch:
       operationId: NotificationController_updateStatus
@@ -1680,8 +1813,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_19
-      security: *ref_20
+      tags: *ref_21
+      security: *ref_22
 info:
   title: API BotKits
   description: Ручки для команды frontend
@@ -2048,9 +2181,6 @@ components:
         profile:
           type: string
           example: 6516ab8f2c612e8cce53e45d
-        success:
-          type: boolean
-          example: true
       required:
         - credentials
     UpdateProfileDto:
@@ -2119,6 +2249,25 @@ components:
     UpdateTariffDto:
       type: object
       properties: {}
+    InvalidTokenResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Unauthorized
+          description: Сообщение об ошибке
+        statusCode:
+          type: number
+          example: 401
+          description: HTTP-статус код
+        timestamp:
+          type: string
+          example: '2024-02-04T12:37:00.127Z'
+          description: Время возникновения ошибки
+        path:
+          type: string
+          example: /dev/api/accounts
+          description: Путь возникновения ошибки
     AccountUpdateRequestBody:
       type: object
       properties:
@@ -2134,13 +2283,32 @@ components:
             email: test@mail.ru
       required:
         - credentials
+    BadRequestResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Bad Request Exception
+          description: Сообщение об ошибке
+        statusCode:
+          type: number
+          example: 400
+          description: HTTP-статус код
+        timestamp:
+          type: string
+          example: '2024-02-04T12:37:00.127Z'
+          description: Время возникновения ошибки
+        path:
+          type: string
+          example: /dev/api/accounts/65bf68aaaf2c1d8d0eb88180
+          description: Путь возникновения ошибки
     Payment:
       type: object
       properties:
         date:
           format: date-time
           type: string
-          example: 2024-02-04T11:51:16.898Z
+          example: 2024-02-05T12:45:07.811Z
         amount:
           type: number
           example: 1000
@@ -2251,7 +2419,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-02-04T11:51:16.912Z
+          example: 2024-02-05T12:45:07.826Z
         isCancelled:
           type: boolean
           example: false
@@ -2261,6 +2429,167 @@ components:
         - cardMask
         - debitDate
         - isCancelled
+    Platform:
+      type: object
+      properties: {}
+    FilesDTO:
+      type: object
+      properties:
+        path:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+      required:
+        - path
+        - name
+        - type
+    AttachmentDTO:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilesDTO'
+        buttons:
+          type: array
+          items:
+            type: object
+    dateDTO:
+      type: object
+      properties:
+        time:
+          type: string
+        date:
+          type: string
+        timezone:
+          type: string
+      required:
+        - time
+        - date
+    scheduleDTO:
+      type: object
+      properties:
+        isNow:
+          type: boolean
+        date:
+          $ref: '#/components/schemas/dateDTO'
+        repeat:
+          type: string
+        isRepeat:
+          type: boolean
+      required:
+        - isNow
+        - isRepeat
+    CreateMailingDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        message:
+          type: array
+          items:
+            type: object
+        bot:
+          type: object
+        platforms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Platform'
+        attachment:
+          $ref: '#/components/schemas/AttachmentDTO'
+        isActive:
+          type: boolean
+        isActiveBotBuilder:
+          type: boolean
+        schedule:
+          $ref: '#/components/schemas/scheduleDTO'
+      required:
+        - name
+        - message
+        - bot
+        - platforms
+        - isActive
+        - isActiveBotBuilder
+        - schedule
+    Bot:
+      type: object
+      properties: {}
+    Mailing:
+      type: object
+      properties:
+        name:
+          type: string
+          example: test
+        message:
+          example: mailing message
+          type: array
+          items:
+            type: string
+        bot:
+          $ref: '#/components/schemas/Bot'
+        platforms:
+          type: array
+          items:
+            type: string
+        countSuccesesMailing:
+          type: number
+        conversion:
+          type: number
+        isActive:
+          type: boolean
+        isActiveBotBuilder:
+          type: boolean
+        attachment:
+          type: object
+        schedule:
+          type: object
+      required:
+        - name
+        - message
+        - bot
+        - platforms
+        - countSuccesesMailing
+        - conversion
+        - isActive
+        - isActiveBotBuilder
+        - attachment
+        - schedule
+    UpdateMailingDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        message:
+          type: array
+          items:
+            type: object
+        bot:
+          type: object
+        platforms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Platform'
+        attachment:
+          $ref: '#/components/schemas/AttachmentDTO'
+        isActive:
+          type: boolean
+        isActiveBotBuilder:
+          type: boolean
+        schedule:
+          $ref: '#/components/schemas/scheduleDTO'
+        conversion:
+          type: number
+        countSuccesesMailing:
+          type: number
+      required:
+        - conversion
+        - countSuccesesMailing
     FormFields:
       type: object
       properties:
@@ -2297,9 +2626,6 @@ components:
         - icon
         - title
         - formFields
-    Platform:
-      type: object
-      properties: {}
     UpdatePlatformDto:
       type: object
       properties: {}
@@ -2365,9 +2691,6 @@ components:
         - amount
         - status
     UpdatePromocodeDto:
-      type: object
-      properties: {}
-    Bot:
       type: object
       properties: {}
     BotCreateRequestBody:
