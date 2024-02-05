@@ -22,9 +22,11 @@ const profileDescription: IFieldDescription = createNestedObject([
   createField('phone', '+79999999999', 'string'),
   createField('avatar', 'https://i.pravatar.cc/300', 'string'),
   createField('balance', 0, 'number'),
+  createField('referredUsers', [], 'array'),
   createField('visited_ref', 0, 'number'),
   createField('registration_ref', 0, 'number'),
-  createField('success', true, 'boolean'),
+  createField('promocode', [], 'array'),
+  createField('partner_ref', '1234abc', 'string'),
 ]);
 
 const accountsDescription: IFieldDescription[] = [
@@ -33,7 +35,6 @@ const accountsDescription: IFieldDescription[] = [
   createField('role', 'user', 'string'),
   { ...credentialsDescription, key: 'credentials' },
   { ...profileDescription, key: 'profile' },
-  createField('success', true, 'boolean'),
 ];
 
 const badRequestSigninDescription: IFieldDescription[] = [
@@ -43,13 +44,19 @@ const badRequestSigninDescription: IFieldDescription[] = [
     'string',
     'Сообщение об ошибке',
   ),
-  createField('error', 'Unauthorized', 'string', 'Тип ошибки'),
   createField(
     'statusCode',
     HttpStatus.UNAUTHORIZED,
     'number',
     'HTTP-статус код',
   ),
+  createField(
+    'timestamp',
+    '2024-02-04T10:41:34.656Z',
+    'string',
+    'Время возникновения ошибки',
+  ),
+  createField('path', '/dev/api/signin', 'string', 'Путь возникновения ошибки'),
 ];
 
 const badRequestSignupDescription: IFieldDescription[] = [
@@ -59,8 +66,14 @@ const badRequestSignupDescription: IFieldDescription[] = [
     'string',
     'Сообщение об ошибке',
   ),
-  createField('error', 'Conflict', 'string', 'Тип ошибки'),
   createField('statusCode', HttpStatus.CONFLICT, 'number', 'HTTP-статус код'),
+  createField(
+    'timestamp',
+    '2024-02-04T10:41:34.656Z',
+    'string',
+    'Время возникновения ошибки',
+  ),
+  createField('path', '/dev/api/signup', 'string', 'Путь возникновения ошибки'),
 ];
 
 const refreshTokenBodyDescription: IFieldDescription[] = [
@@ -85,12 +98,23 @@ const badRequestRefreshTokeDescription: IFieldDescription[] = [
     'string',
     'Сообщение об ошибке',
   ),
-  createField('error', 'Unauthorized', 'string', 'Тип ошибки'),
   createField(
     'statusCode',
     HttpStatus.UNAUTHORIZED,
     'number',
     'HTTP-статус код',
+  ),
+  createField(
+    'timestamp',
+    '2024-02-04T10:41:34.656Z',
+    'string',
+    'Время возникновения ошибки',
+  ),
+  createField(
+    'path',
+    '/dev/api/refresh-token',
+    'string',
+    'Путь возникновения ошибки',
   ),
 ];
 
@@ -110,8 +134,85 @@ const badRequestResetPasswordDescription: IFieldDescription[] = [
     'string',
     'Сообщение об ошибке',
   ),
-  createField('error', 'Not Found', 'string', 'Тип ошибки'),
   createField('statusCode', HttpStatus.NOT_FOUND, 'number', 'HTTP-статус код'),
+  createField(
+    'timestamp',
+    '2024-02-04T10:41:34.656Z',
+    'string',
+    'Время возникновения ошибки',
+  ),
+  createField(
+    'path',
+    '/dev/api/reset-password',
+    'string',
+    'Путь возникновения ошибки',
+  ),
+];
+
+const singUpBadRequest: IFieldDescription[] = [
+  createField('message', 'Bad Request Exception', 'string', 'Тип ошибки'),
+  createField(
+    'statusCode',
+    HttpStatus.BAD_REQUEST,
+    'number',
+    'HTTP-статус код',
+  ),
+  createField(
+    'timestamp',
+    '2024-02-04T10:41:34.656Z',
+    'string',
+    'Время возникновения ошибки',
+  ),
+  createField('path', '/dev/api/signup', 'string', 'Путь возникновения ошибки'),
+];
+
+const yandexExchangeBadRequest: IFieldDescription[] = [
+  createField(
+    'message',
+    'Ошибка в процессе авторизации через Яндекс',
+    'string',
+    'Тип ошибки',
+  ),
+  createField(
+    'statusCode',
+    HttpStatus.BAD_REQUEST,
+    'number',
+    'HTTP-статус код',
+  ),
+  createField(
+    'timestamp',
+    '2024-02-04T10:41:34.656Z',
+    'string',
+    'Время возникновения ошибки',
+  ),
+  createField(
+    'path',
+    '/dev/api/yandex/exchange',
+    'string',
+    'Путь возникновения ошибки',
+  ),
+];
+
+const mailruExchangeBadRequest: IFieldDescription[] = [
+  createField('message', 'Internal Server Error', 'string', 'Тип ошибки'),
+  createField(
+    'statusCode',
+    HttpStatus.INTERNAL_SERVER_ERROR,
+    'number',
+    'HTTP-статус код',
+  ),
+  createField(
+    'timestamp',
+    '2024-02-04T10:41:34.656Z',
+    'string',
+    'Время возникновения ошибки',
+  ),
+  createField(
+    'path',
+    '/dev/api/mailru/exchange',
+    'string',
+    'Путь возникновения ошибки',
+  ),
 ];
 
 export const SigninResponseBodyOK = new ApiPropertyFactory(
@@ -141,3 +242,15 @@ export const ResetPasswordResponseBodyOK = new ApiPropertyFactory(
 export const ResetPasswordResponseBodyNotFound = new ApiPropertyFactory(
   badRequestResetPasswordDescription,
 ).generate('ResetPasswordResponseBodyNotFound');
+
+export const SingUpBadRequest = new ApiPropertyFactory(
+  singUpBadRequest,
+).generate('SingUpBadRequest');
+
+export const YandexExchangeBadRequest = new ApiPropertyFactory(
+  yandexExchangeBadRequest,
+).generate('YandexExchangeBadRequest');
+
+export const MailruExchangeBadRequest = new ApiPropertyFactory(
+  mailruExchangeBadRequest,
+).generate('MailruExchangeBadRequest');
