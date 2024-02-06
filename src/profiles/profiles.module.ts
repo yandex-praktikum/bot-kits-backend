@@ -1,5 +1,5 @@
 ////scr/profiles/profiles.module.ts
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { ProfilesController } from './profiles.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -15,8 +15,8 @@ import { AbilityModule } from 'src/ability/ability.module';
       { name: Profile.name, schema: ProfileSchema },
       { name: Account.name, schema: AccountSchema },
     ]),
+    forwardRef(() => AbilityModule),
     HashModule,
-    AbilityModule,
   ],
   controllers: [ProfilesController],
   providers: [ProfilesService, ProfilesRepository],
