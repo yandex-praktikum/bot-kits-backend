@@ -66,7 +66,7 @@ export class ProfilesRepository {
         phone: user.phone,
         botCount: allBotsUser.length,
         dateRegistration: user.dateRegistration, // Используем дату создния из модели пользователя
-        lastActivityAccount: new Date(), // Требует реализации
+        lastActivityAccount: user.lastAccountActivity, // Требует реализации
         lastActivityBot: new Date(), // Требует реализации
         tariff: subscriptionUser ? subscriptionUser.tariff : null,
         debitDate: subscriptionUser ? subscriptionUser.debitDate : null,
