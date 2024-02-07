@@ -40,3 +40,4 @@ _*.ts
 .env*
 !.env.example
 docker-compose-dev-local.yml
+swagger.yaml
