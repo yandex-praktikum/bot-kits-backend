@@ -37,6 +37,7 @@ import { Action } from 'src/ability/ability.factory';
 import { AbilityGuard } from 'src/auth/guards/ability.guard';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateSharedAccessDto } from './dto/update-access.dto';
+import { TAllUsersResponse } from './profiles.repository';
 
 @UseGuards(JwtGuard)
 @ApiTags('profiles')
@@ -56,7 +57,7 @@ export class ProfilesController {
   @ApiOperation({
     summary: 'Получить все профили',
   })
-  findAll(): Promise<Profile[]> {
+  findAll(): Promise<TAllUsersResponse[]> {
     return this.profilesService.findAll();
   }
 
