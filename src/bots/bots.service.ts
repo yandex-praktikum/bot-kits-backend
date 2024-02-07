@@ -95,18 +95,6 @@ export class BotsService {
     }
   }
 
-  async share(
-    profile: string,
-    id: string,
-    shareBotDto: ShareBotDto,
-  ): Promise<string> {
-    try {
-      return await this.dbQuery.share(profile, id, shareBotDto);
-    } catch (e) {
-      return e;
-    }
-  }
-
   async addBotTemplate(createTemplateDto: CreateTemplateDto): Promise<Bot> {
     try {
       return await this.dbQuery.createTemplate(createTemplateDto);

@@ -238,14 +238,6 @@ export class BotsRepository {
     return ownBots.concat(sharedBots);
   }
 
-  async share(
-    profile: string,
-    id: string,
-    shareBotDto: ShareBotDto,
-  ): Promise<string> {
-    return 'Запрос на предоставление доступа отправлен';
-  }
-
   async createTemplate(createTemplateDto: CreateTemplateDto): Promise<Bot> {
     createTemplateDto.type = 'template';
     const bot = await new this.botModel(createTemplateDto).save();
