@@ -109,7 +109,7 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() msg: any,
   ) {
-    console.log(msg);
+    //console.log(msg);
     this.server.to(`${msg.to}`).emit('message', msg); // Отправка сообщения всем в комнате чата.
     this.taskClient.publish('message', JSON.stringify(msg)); // Публикация сообщения в Redis.
   }

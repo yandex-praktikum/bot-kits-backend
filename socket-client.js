@@ -12,8 +12,9 @@ let user = {
   name: '',
   id: '',
 };
-let rooms;
 
+let rooms;
+//Слушатели собыий с сервера
 // Обработчик успешного подключения
 socket.on('connect', async () => {
   console.log('Connected to the server.');
@@ -59,6 +60,7 @@ socket.on('start-dialog', (msg) => {
   console.log('Dialog started:', `${m.from}:${m.to}`);
 });
 
+//Эмитеры событий к серверу
 function sendMessageToChat(message) {
   socket.emit('message', message);
 }
