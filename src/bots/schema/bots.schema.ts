@@ -1,10 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document, HydratedDocument } from 'mongoose';
-import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { Profile } from '../../profiles/schema/profile.schema';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 import { TypeCommands, botCommands } from '../dto/constants/botCommands';
 import { TBuilderData } from './types/botBuilderTypes';
+
 //bots.schema.ts
 export type BotDocument = HydratedDocument<Bot>;
 
@@ -26,6 +33,24 @@ export class Messenger {
   url?: string;
 }
 
+export class Permission {
+  @IsNotEmpty()
+  @IsBoolean()
+  dashboard: boolean;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  botBuilder: boolean;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  mailing: boolean;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  static: boolean;
+}
+
 @Schema(baseSchemaOptions)
 export class Bot extends Document {
   @Prop({
@@ -40,7 +65,7 @@ export class Bot extends Document {
   @Prop({
     unique: true,
     minlength: 2,
-    maxlength: 30,
+    maxlength: 100,
   })
   title: string;
 
@@ -71,6 +96,17 @@ export class Bot extends Document {
 
   @Prop({ default: false })
   isToPublish?: boolean;
+
+  @Prop({
+    type: Permission,
+    default: () => ({
+      dashboard: true,
+      botBuilder: true,
+      mailing: true,
+      static: true,
+    }),
+  })
+  permission: Permission;
 }
 
 export const BotSchema = SchemaFactory.createForClass(Bot);

@@ -23,6 +23,9 @@ import {
   ApiParam,
   ApiBearerAuth,
   ApiBadRequestResponse,
+  ApiHeader,
+  ApiUnauthorizedResponse,
+  ApiConflictResponse,
 } from '@nestjs/swagger';
 import { BotsService } from './bots.service';
 import { Bot } from './schema/bots.schema';
@@ -30,21 +33,42 @@ import { CreateBotDto } from './dto/create-bot.dto';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import { ShareBotDto } from './dto/share-bot.dto';
 import { BotCreateRequestBody } from './sdo/request-body.sdo';
-import { RolesGuard } from 'src/auth/guards/role.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { CheckAbility } from 'src/auth/decorators/ability.decorator';
+import { Action } from 'src/ability/ability.factory';
+import { AbilityGuard } from 'src/auth/guards/ability.guard';
+import { TJwtRequest } from 'src/types/jwtRequest';
+import {
+  BotDataBadRequestResponse,
+  BotDataConflictResponse,
+  CreateBotResponseOk,
+  CreateBotTemplateResponseOk,
+  CreateTemplateResponseOk,
+  DeleteBotBadRequestBad,
+  DeleteBotBadRequestResponse,
+  DeleteTemplateBadRequestResponse,
+  GetBotsResponseOk,
+  GetBotsTemplatesResponseOk,
+  TemplateDataConflictResponse,
+  UpdateTemplateBadRequestResponse,
+  UserUnauthirizedResponse,
+} from './sdo/response-body.sdo';
 
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
 @ApiTags('bots')
+@ApiHeader({
+  name: 'authorization',
+  description: 'Access токен',
+  required: true,
+})
 @Controller('bots')
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
-
   @Post('files/upload')
   @UseInterceptors(FilesInterceptor('files'))
   async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>) {
@@ -62,75 +86,119 @@ export class BotsController {
     return this.botsService.deleteFile(id);
   }
 
+  @CheckAbility({ action: Action.Read, subject: CreateBotDto })
+  @UseGuards(AbilityGuard)
   @Get()
   @ApiOperation({
     summary: 'Получить ботов пользователя',
   })
   @ApiOkResponse({
     description: 'Запрос выполнен успешно',
-    type: [Bot],
+    type: [GetBotsResponseOk],
   })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
   async findMy(@Req() req): Promise<Bot[]> {
     return await this.botsService.findAllByUser(req.user.id);
   }
 
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Create, subject: CreateBotDto })
   @Post()
   @ApiOperation({
     summary: 'Создание нового бота',
   })
+  @ApiBody({
+    type: CreateBotDto,
+  })
   @ApiCreatedResponse({
     description: 'Новый бот создан',
-    type: Bot,
+    type: CreateBotResponseOk,
   })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({
+    description: 'Неверный запрос',
+    type: BotDataBadRequestResponse,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
+  @ApiConflictResponse({
+    description: 'Конфликт данных',
+    type: BotDataConflictResponse,
+  })
   @ApiBody({ type: BotCreateRequestBody })
   create(@Req() req, @Body() createBotDto: CreateBotDto): Promise<Bot> {
-    return this.botsService.create(req.user.id, createBotDto);
+    return this.botsService.create(req.user.id, createBotDto, req.ability);
   }
 
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Read, subject: CreateTemplateDto })
   @Get('templates')
   @ApiOperation({
     summary: 'Получить все шаблоны бота',
   })
   @ApiOkResponse({
     description: 'Запрос выполнен успешно',
-    type: [Bot],
+    type: [GetBotsTemplatesResponseOk],
   })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
   async findTemplates(): Promise<Bot[]> {
     return await this.botsService.findAllTemplates();
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Create, subject: CreateTemplateDto })
   @Post('template')
   @ApiOperation({
     summary: 'Добавление шаблона бота админом',
   })
-  @ApiOkResponse({
+  @ApiCreatedResponse({
     description: 'Созданный шаблон',
-    type: Bot,
+    type: CreateTemplateResponseOk,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
+  @ApiConflictResponse({
+    description: 'Конфликт данных',
+    type: TemplateDataConflictResponse,
   })
   @ApiBody({ type: CreateTemplateDto })
   createTemplate(@Body() createTemplateDto: CreateTemplateDto) {
     return this.botsService.addBotTemplate(createTemplateDto);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Update, subject: CreateTemplateDto })
   @Patch('template/:id')
   @ApiOperation({
     summary: 'Обновление шаблона бота админом',
   })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор шаблона',
+    example: '64f81ba37571bfaac18a857f',
+  })
   @ApiOkResponse({
     description: 'Обновленны шаблон бгота',
-    type: Bot,
+    type: GetBotsTemplatesResponseOk,
   })
   @ApiBody({ type: UpdateTemplateDto })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Ресурс не найден',
+    type: UpdateTemplateBadRequestResponse,
+  })
   updateTemplate(
     @Param('id') templateId: string,
     @Body() updateTemplateDto: UpdateTemplateDto,
@@ -138,8 +206,8 @@ export class BotsController {
     return this.botsService.updateTemplate(templateId, updateTemplateDto);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Delete, subject: CreateTemplateDto })
   @Delete('template/:id')
   @ApiOperation({
     summary: 'Удаление шаблона бота',
@@ -151,15 +219,22 @@ export class BotsController {
   })
   @ApiOkResponse({
     description: 'Шаблон удален',
-    type: Bot,
+    type: GetBotsTemplatesResponseOk,
   })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Ресурс не найден',
+    type: DeleteTemplateBadRequestResponse,
+  })
   removeTemplate(@Param('id') templateId: string): Promise<Bot> {
     return this.botsService.removeTemplate(templateId);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Read, subject: CreateBotDto })
   @Get('template/:id')
   @ApiOperation({
     summary: 'Получение шаблона бота по id',
@@ -171,16 +246,21 @@ export class BotsController {
   })
   @ApiOkResponse({
     description: 'Шаблон найден',
-    type: Bot,
+    type: GetBotsTemplatesResponseOk,
   })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
   getTemplate(@Param('id') templateId: string): Promise<Bot> {
     return this.botsService.findOne(templateId);
   }
 
-  @Get(':id')
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Read, subject: CreateBotDto })
+  @Get('bot/:id')
   @ApiOperation({
-    summary: 'Получить данные бота по Id',
+    summary: 'Получить данные бота по Id с правами',
   })
   @ApiParam({
     name: 'id',
@@ -189,70 +269,60 @@ export class BotsController {
   })
   @ApiOkResponse({
     description: 'Информация о боте по Id получена',
-    type: Bot,
+    type: GetBotsResponseOk,
   })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  findOne(@Param('id') id: string): Promise<Bot> {
-    return this.botsService.findOne(id);
-  }
-
-  @Post(':id/share')
-  @ApiOperation({
-    summary:
-      'Предоставить общий доступ к боту, первичный доступ при отправке email',
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
   })
-  @ApiCreatedResponse({
-    description: 'Первичный доступ создан',
-    type: Bot,
-  })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  @ApiBody({ type: ShareBotDto })
-  @ApiParam({
-    name: 'id',
-    description: 'Идентификатор бота',
-    example: '64f81ba37571bfaac18a857f',
-  })
-  share(
-    @Req() req,
+  findOneBotWithAccess(
     @Param('id') id: string,
-    @Body() shareBotDto: ShareBotDto,
-  ): Promise<string> {
-    return this.botsService.share(req.user.id, id, shareBotDto);
+    @Req() req: TJwtRequest,
+  ): Promise<Bot> {
+    return this.botsService.findOneBotWithAccess(id, req.user.id);
   }
 
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Create, subject: CreateBotDto })
   @Post(':id')
   @ApiOperation({
     summary: 'Создание нового бота из шаблона',
   })
   @ApiCreatedResponse({
     description: 'Новый бот создан',
-    type: Bot,
+    type: CreateBotTemplateResponseOk,
   })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
   @ApiBody({ type: BotCreateRequestBody })
   createBotsFromTemplate(
     @Req() req,
     @Body() createBotDto: CreateBotDto,
     @Param('id') id: string,
   ): Promise<Bot> {
-    return this.botsService.create(req.user.id, createBotDto, id);
+    return this.botsService.create(req.user.id, createBotDto, req.ability, id);
   }
 
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Create, subject: CreateBotDto })
   @Post('copy/:id')
   @ApiOperation({
     summary: 'Копирование бота',
   })
   @ApiCreatedResponse({
     description: 'Бот скопирован',
-    type: Bot,
+    type: CreateBotResponseOk,
   })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
+  @ApiBadRequestResponse({
+    description: 'Ресурс не найден',
+    type: '',
+  })
   @ApiBody({ type: CopyBotDto })
   @ApiParam({
     name: 'id',
@@ -264,9 +334,16 @@ export class BotsController {
     @Param('id') botId: string,
     @Body() copyBotDto: CopyBotDto,
   ) {
-    return this.botsService.copyBot(req.user.id, botId, copyBotDto);
+    return this.botsService.copyBot(
+      req.user.id,
+      botId,
+      copyBotDto,
+      req.ability,
+    );
   }
 
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Delete, subject: CreateBotDto })
   @Delete(':id')
   @ApiOperation({
     summary: 'Удаление бота',
@@ -278,14 +355,22 @@ export class BotsController {
   })
   @ApiOkResponse({
     description: 'Бот удален',
-    type: Bot,
+    type: GetBotsTemplatesResponseOk,
   })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Ресурс не найден',
+    type: DeleteBotBadRequestBad,
+  })
   remove(@Req() req, @Param('id') id: string): Promise<Bot> {
-    return this.botsService.remove(req.user.id, id);
+    return this.botsService.remove(req.user.id, id, req.ability);
   }
 
+  @CheckAbility({ action: Action.Update, subject: UpdateBotDto })
+  @UseGuards(AbilityGuard)
   @Patch(':id')
   @ApiOperation({
     summary: 'Обновить бота',
@@ -307,6 +392,6 @@ export class BotsController {
     @Param('id') botId: string,
     @Body() updateBotDto: UpdateBotDto,
   ): Promise<Bot> {
-    return this.botsService.update(req.user.id, botId, updateBotDto);
+    return this.botsService.update(botId, updateBotDto, req.ability);
   }
 }

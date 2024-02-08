@@ -26,8 +26,9 @@ import { Platform } from './schema/platforms.schema';
 import { CreatePlatformDto } from './dto/create-platform.dto';
 import { UpdatePlatformDto } from './dto/update-platform.dto';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
-import { RolesGuard } from 'src/auth/guards/role.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
+import { CheckAbility } from 'src/auth/decorators/ability.decorator';
+import { AbilityGuard } from 'src/auth/guards/ability.guard';
+import { Action } from 'src/ability/ability.factory';
 
 @UseGuards(JwtGuard)
 @ApiTags('platforms')
@@ -36,6 +37,9 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 export class PlatformController {
   constructor(private readonly platformService: PlatformService) {}
 
+  @CheckAbility({ action: Action.Create, subject: CreatePlatformDto })
+  @UseGuards(AbilityGuard)
+  @Post()
   @ApiBody({ type: CreatePlatformDto })
   @ApiCreatedResponse({
     description: 'Платформа успешно создана',
@@ -46,13 +50,13 @@ export class PlatformController {
   @ApiOperation({
     summary: 'Создать новую платформу',
   })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
-  @Post()
   create(@Body() createPlatformDto: CreatePlatformDto): Promise<Platform> {
     return this.platformService.create(createPlatformDto);
   }
 
+  @CheckAbility({ action: Action.Read, subject: UpdatePlatformDto })
+  @UseGuards(AbilityGuard)
+  @Get()
   @ApiOkResponse({
     description: 'Платформы успешно получены',
     type: [Platform],
@@ -61,11 +65,13 @@ export class PlatformController {
   @ApiOperation({
     summary: 'Получить все платформы',
   })
-  @Get()
   findAll(): Promise<Platform[]> {
     return this.platformService.findAll();
   }
 
+  @CheckAbility({ action: Action.Read, subject: UpdatePlatformDto })
+  @UseGuards(AbilityGuard)
+  @Get(':id')
   @ApiOkResponse({
     description: 'Платформа успешно получена',
     type: Platform,
@@ -80,11 +86,13 @@ export class PlatformController {
   @ApiOperation({
     summary: 'Получить платформу по id',
   })
-  @Get(':id')
   async findOne(@Param('id') id: string): Promise<Platform> {
     return await this.platformService.findOne(id);
   }
 
+  @CheckAbility({ action: Action.Update, subject: CreatePlatformDto })
+  @UseGuards(AbilityGuard)
+  @Patch(':id')
   @ApiOkResponse({
     description: 'Платформа успешно обновлена',
     type: Platform,
@@ -101,9 +109,6 @@ export class PlatformController {
   @ApiOperation({
     summary: 'Обновить данные о платформе по id',
   })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
-  @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updatePlatformDto: UpdatePlatformDto,
@@ -111,6 +116,9 @@ export class PlatformController {
     return this.platformService.update(id, updatePlatformDto);
   }
 
+  @CheckAbility({ action: Action.Delete, subject: CreatePlatformDto })
+  @UseGuards(AbilityGuard)
+  @Delete(':id')
   @ApiOkResponse({
     description: 'Платформа успешно удалена',
     type: Platform,
@@ -125,9 +133,6 @@ export class PlatformController {
   @ApiOperation({
     summary: 'Удалить платформу по id',
   })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
-  @Delete(':id')
   remove(@Param('id') id: string): Promise<Platform> {
     return this.platformService.remove(id);
   }

@@ -22,6 +22,8 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@casl/ability": "^6.5.0",
+    "@casl/mongoose": "^7.2.1",
     "@nestjs/axios": "^3.0.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.0.1",
@@ -32,33 +34,38 @@
     "@nestjs/passport": "^10.0.1",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/platform-socket.io": "^10.2.7",
+    "@nestjs/schedule": "^4.0.0",
     "@nestjs/swagger": "^7.1.11",
     "@nestjs/throttler": "^5.0.0",
     "@nestjs/websockets": "^10.2.7",
     "@socket.io/redis-adapter": "^8.2.1",
+    "amqplib": "^0.10.3",
     "axios": "^1.5.0",
     "bcrypt": "^5.1.1",
     "class-sanitizer": "^1.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "date-fns": "^3.3.1",
     "helmet": "^7.0.0",
     "husky": "^8.0.3",
     "ioredis": "^5.3.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.0",
     "nest-winston": "^1.9.4",
+    "node-cache": "^5.1.2",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "passport-telegram-official": "^2.0.1",
     "passport-vkontakte": "^0.5.0",
     "redis": "^4.6.11",
-    "reflect-metadata": "^0.1.13",
+    "reflect-metadata": "^0.1.14",
     "rxjs": "^7.8.1",
     "socket.io": "^4.7.2",
     "socket.io-redis": "^6.1.1",
     "uuid": "^9.0.1",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "slate": "^0.101.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.7.1",
@@ -81,7 +88,7 @@
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "jest": "^29.5.0",
+    "jest": "^29.7.0",
     "js-yaml": "^4.1.0",
     "prettier": "^2.8.8",
     "socket.io-client": "^4.7.2",
@@ -103,6 +110,9 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   },

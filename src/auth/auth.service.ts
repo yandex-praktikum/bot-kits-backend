@@ -16,11 +16,15 @@ import { AuthDto } from './dto/auth.dto';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { Account } from 'src/accounts/schema/account.schema';
-import { InjectConnection } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { randomBytes } from 'crypto';
-import { SharedAccessesService } from 'src/shared-accesses/shared-accesses.service';
 import { PartnershipService } from 'src/partnership/partnership.service';
+import { TariffsService } from 'src/tariffs/tariffs.service';
+import { SubscriptionsService } from 'src/subscriptions/subscriptions.service';
+import { addDuration, createPaymentData } from 'src/utils/utils';
+import { Payment } from 'src/payments/schema/payment.schema';
+import TypeOperation from 'src/payments/types/type-operation';
 
 export interface ITokens {
   accessToken: string;
@@ -34,9 +38,11 @@ export class AuthService {
     private profilesService: ProfilesService,
     private partnerShipService: PartnershipService,
     private accountsService: AccountsService,
-    private sharedAccessService: SharedAccessesService,
     private hashService: HashService,
     private readonly configService: ConfigService,
+    private tariffsService: TariffsService,
+    private subscriptionsService: SubscriptionsService,
+    @InjectModel(Payment.name) private paymentModel: mongoose.Model<Payment>,
     @InjectConnection() private readonly connection: mongoose.Connection,
   ) {}
 
@@ -123,7 +129,7 @@ export class AuthService {
     ref?: string, // Реферальная ссылка, может быть null
   ): Promise<Account> {
     // Возвращает Promise, который разрешается в Account
-    // Деструктуризация данных профиля и аккаунта из DTO
+    // Деструктуризация данных профиля и аккаунта из скомбинированного DTO
     const { profileData, accountData } = authDto;
     // Извлечение email из данных аккаунта
     const email = accountData.credentials.email;
@@ -160,20 +166,48 @@ export class AuthService {
       // Если аккаунт не существует, создать новый профиль
       if (!existsAccount) {
         profile = await this.profilesService.create(profileData, session);
-        // Создание записи о доступе
-        const sharedAccess = await this.sharedAccessService.create(
-          {
-            username: profileData.username,
-            email: accountData.credentials.email,
-            profile: profile._id,
-          },
-          session,
-        );
-        // Связывание профиля с sharedAccess
-        profile.sharedAccess = sharedAccess._id;
+
         // Генерация и обновление реферальной ссылки
         await this.partnerShipService.getPartnerRef(profile._id, session);
-        await this.partnerShipService.updateRegistration(ref);
+        await this.partnerShipService.updateRegistration(
+          profile._id,
+          ref,
+          session,
+        );
+
+        // Добавляем к профилю демо тарифф
+        const allTariifs = await this.tariffsService.findAll(session);
+        const demoTariff = allTariifs.find((tariff) => tariff.isDemo === true);
+
+        // Добавляем подписку на демотариф
+        const currentDate = new Date(); // текущая дата
+        const duration = demoTariff.duration; // например, '7d' или '1м'
+        const debitDate = await addDuration(currentDate, duration);
+
+        const subscriptionData = {
+          tariff: demoTariff,
+          status: true,
+          cardMask: '**** **** **** ****',
+          debitDate: debitDate,
+          profile: profile,
+        };
+
+        await this.subscriptionsService.initSubscription(
+          subscriptionData,
+          session,
+        );
+
+        const paymentData = await createPaymentData(
+          new Date(),
+          demoTariff.price,
+          true,
+          TypeOperation.INCOME,
+          'Активация Демо тарифа',
+          profile,
+          demoTariff.toObject(),
+        );
+
+        await this.paymentModel.create(paymentData);
       } else {
         // Если аккаунт существует, получить профиль по email
         profile = await this.profilesService.findByEmail(email, session);

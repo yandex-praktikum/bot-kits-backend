@@ -8,6 +8,7 @@ import { NotificationController } from './notifications.controller';
 import { NotificationService } from './notifications.service';
 import { ProfilesModule } from 'src/profiles/profiles.module';
 import { NotificationRepository } from './notifications.repository';
+import { AbilityModule } from 'src/ability/ability.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { NotificationRepository } from './notifications.repository';
         schema: NotificationSchema,
       },
     ]),
+    AbilityModule,
   ],
 
   controllers: [NotificationController],

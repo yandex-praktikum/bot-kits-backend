@@ -8,6 +8,9 @@ import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
 import { FilesBucketService } from 'src/gridFS/gridFS.service';
+import { PureAbility } from '@casl/ability';
+import { Profile } from 'src/profiles/schema/profile.schema';
+
 @Injectable()
 export class BotsService {
   constructor(
@@ -39,9 +42,14 @@ export class BotsService {
     }
   }
 
-  async create(profile, createBotDto: CreateBotDto, id?: string): Promise<Bot> {
+  async create(
+    profile,
+    createBotDto: CreateBotDto,
+    ability: PureAbility,
+    id?: string,
+  ): Promise<Bot> {
     try {
-      return await this.dbQuery.create(profile, createBotDto, id);
+      return await this.dbQuery.create(profile, createBotDto, ability, id);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException('Бот с таким имененм уже существует');
@@ -59,9 +67,17 @@ export class BotsService {
     }
   }
 
+  async findOneBotWithAccess(id: string, userId: Profile): Promise<Bot> {
+    try {
+      return await this.dbQuery.findOneBotWithAccess(id, userId);
+    } catch (e) {
+      return e;
+    }
+  }
+
   async findAllByUser(userId: string): Promise<Bot[] | null> {
     try {
-      return this.dbQuery.findAllByUser(userId);
+      return this.dbQuery.findAllByUserNew(userId);
     } catch (e) {
       return e;
     }
@@ -84,12 +100,12 @@ export class BotsService {
   }
 
   async update(
-    userId: string,
     botId: string,
     updateBotDto: UpdateBotDto,
+    ability: PureAbility,
   ): Promise<Bot> {
     try {
-      return this.dbQuery.update(userId, botId, updateBotDto);
+      return this.dbQuery.update(botId, updateBotDto, ability);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException('Бот с таким имененм уже существует');
@@ -99,21 +115,9 @@ export class BotsService {
     }
   }
 
-  async remove(userId: string, id: string): Promise<Bot> {
+  async remove(userId: string, id: string, ability: PureAbility): Promise<Bot> {
     try {
-      return await this.dbQuery.remove(userId, id);
-    } catch (e) {
-      return e;
-    }
-  }
-
-  async share(
-    profile: string,
-    id: string,
-    shareBotDto: ShareBotDto,
-  ): Promise<string> {
-    try {
-      return await this.dbQuery.share(profile, id, shareBotDto);
+      return await this.dbQuery.remove(userId, id, ability);
     } catch (e) {
       return e;
     }
@@ -154,9 +158,10 @@ export class BotsService {
     profileId: string,
     botId: string,
     copyBotDto: CopyBotDto,
+    ability: PureAbility,
   ): Promise<Bot> {
     try {
-      return await this.dbQuery.copy(profileId, botId, copyBotDto);
+      return await this.dbQuery.copy(profileId, botId, copyBotDto, ability);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException(

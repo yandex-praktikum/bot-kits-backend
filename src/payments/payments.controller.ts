@@ -14,7 +14,6 @@ import { JwtGuard } from '../auth/guards/jwtAuth.guards';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
-  ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -22,7 +21,6 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
-  OmitType,
 } from '@nestjs/swagger';
 import { Payment } from './schema/payment.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -30,6 +28,7 @@ import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
 import { Profile } from 'src/profiles/schema/profile.schema';
+import { TJwtRequest } from 'src/types/jwtRequest';
 
 @ApiTags('payments')
 @ApiBearerAuth()
@@ -37,7 +36,7 @@ import { Profile } from 'src/profiles/schema/profile.schema';
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
-
+  @Get()
   @ApiOperation({
     summary: 'История платежей',
   })
@@ -46,31 +45,27 @@ export class PaymentsController {
     type: [Payment],
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @Get()
-  userPayments(@Req() req): Promise<Payment[]> {
-    const user = req.user;
-    return this.paymentsService.findUsersAll(user);
+  userPayments(@Req() req: TJwtRequest): Promise<Payment[]> {
+    return this.paymentsService.findUsersAll(req.user.id);
   }
 
+  @Post()
   @ApiOperation({
     summary: 'Добавить данные финансовой операции',
   })
-  @ApiBody({ type: OmitType(CreatePaymentDto, ['profile']) })
   @ApiCreatedResponse({
     description: 'Операция успешно добавлена',
     type: Payment,
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  @Post()
   create(
-    @AuthUser() profile: Profile,
     @Body() createPaymentDto: CreatePaymentDto,
+    @Req() req,
   ): Promise<Payment> {
     try {
-      const data = this.paymentsService.create({
+      const data = this.paymentsService.create(req.user.id, {
         ...createPaymentDto,
-        profile,
       });
       return data;
     } catch (error) {
@@ -78,6 +73,7 @@ export class PaymentsController {
     }
   }
 
+  @Delete(':id')
   @ApiOperation({
     summary: 'Удалить финансовую операцию',
   })
@@ -93,11 +89,11 @@ export class PaymentsController {
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @UseGuards(RolesGuard)
   @Roles('admin')
-  @Delete(':id')
   delete(@Param('id') id: string) {
     return this.paymentsService.delete(id);
   }
 
+  @Patch(':id')
   @ApiOperation({
     summary: 'Обновить данные финансовой операции',
   })
@@ -106,7 +102,6 @@ export class PaymentsController {
     description: 'Идентификатор фин.операции',
     example: '64f81ba37571bfaac18a857f',
   })
-  @ApiBody({ type: OmitType(CreatePaymentDto, ['profile']) })
   @ApiOkResponse({
     description: 'Операция успешно обновлена',
     type: Payment,
@@ -116,12 +111,11 @@ export class PaymentsController {
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
   @UseGuards(RolesGuard)
   @Roles('admin')
-  @Patch(':id')
   update(
     @AuthUser() profile: Profile,
     @Param('id') id: string,
     @Body() updatePaymentDto: Omit<CreatePaymentDto, 'profie'>,
   ): Promise<Payment> {
-    return this.paymentsService.update(id, { ...updatePaymentDto, profile });
+    return this.paymentsService.update(id, { ...updatePaymentDto });
   }
 }

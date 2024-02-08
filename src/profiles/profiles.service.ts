@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import mongoose, { ClientSession } from 'mongoose';
 import { CreateProfileDto } from './dto/create-profile.dto';
-import { Profile } from './schema/profile.schema';
+import { Access, Profile } from './schema/profile.schema';
 import { Account } from 'src/accounts/schema/account.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { ProfilesRepository } from './profiles.repository';
+import { ProfilesRepository, TAllUsersResponse } from './profiles.repository';
+import { CreateSharedAccessDto } from './dto/create-access.dto';
 
 @Injectable()
 export class ProfilesService {
@@ -51,7 +52,7 @@ export class ProfilesService {
     return null;
   }
 
-  async findAll(): Promise<Profile[]> {
+  async findAll(): Promise<TAllUsersResponse[]> {
     return await this.profilesRepository.findAll();
   }
 
@@ -69,5 +70,31 @@ export class ProfilesService {
 
   async remove(id: string): Promise<Profile> {
     return await this.profilesRepository.remove(id);
+  }
+
+  async sharedAccess(
+    createSharedAccessDto: CreateSharedAccessDto,
+    userId: string,
+  ) {
+    try {
+      return await this.profilesRepository.sharedAccess(
+        createSharedAccessDto,
+        userId,
+      );
+    } catch (e) {
+      return e;
+    }
+  }
+
+  async findAllGrantedAccesses(userId: string): Promise<Access[]> {
+    return await this.profilesRepository.findAllGrantedAccesses(userId);
+  }
+
+  async updateAccesses(userId: string, access: Access) {
+    try {
+      return await this.profilesRepository.updateAccesses(userId, access);
+    } catch (e) {
+      return e;
+    }
   }
 }

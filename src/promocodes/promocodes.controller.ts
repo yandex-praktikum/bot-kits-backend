@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { PromocodesService } from './promocodes.service';
 import { CreatePromocodeDto } from './dto/create-promocode.dto';
@@ -82,6 +83,7 @@ export class PromocodesController {
     return this.promocodesService.findOneByCode(code);
   }
 
+  @Patch('promocode')
   @ApiOperation({
     summary: 'Использовать промокод 1 раз',
   })
@@ -90,9 +92,11 @@ export class PromocodesController {
     type: [Promocode],
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @Patch('promocode')
-  async updateByCode(@Query('code') code: string): Promise<Promocode> {
-    return this.promocodesService.updateByCode(code);
+  async updateByCode(
+    @Query('code') code: string,
+    @Req() req,
+  ): Promise<Promocode> {
+    return this.promocodesService.updateByCode(code, req.user.id);
   }
 
   @ApiOperation({
