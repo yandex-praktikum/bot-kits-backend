@@ -31,7 +31,6 @@ import { BotsService } from './bots.service';
 import { Bot } from './schema/bots.schema';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
-import { ShareBotDto } from './dto/share-bot.dto';
 import { BotCreateRequestBody } from './sdo/request-body.sdo';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { CreateTemplateDto } from './dto/create-template.dto';
@@ -49,7 +48,6 @@ import {
   CreateBotTemplateResponseOk,
   CreateTemplateResponseOk,
   DeleteBotBadRequestBad,
-  DeleteBotBadRequestResponse,
   DeleteTemplateBadRequestResponse,
   GetBotsResponseOk,
   GetBotsTemplatesResponseOk,

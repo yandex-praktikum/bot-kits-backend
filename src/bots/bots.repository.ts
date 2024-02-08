@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
-import { ShareBotDto } from './dto/share-bot.dto';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
@@ -27,7 +26,6 @@ import { Profile } from 'src/profiles/schema/profile.schema';
 export class BotsRepository {
   constructor(
     @InjectModel(Bot.name) private botModel: Model<BotDocument>,
-    private readonly botAccessesService: BotAccessesService,
     private readonly gridFS: FilesBucketService,
     @InjectModel(Profile.name) private profileModel: Model<Profile>,
   ) {}
@@ -160,6 +158,7 @@ export class BotsRepository {
     } catch (e) {
       return e;
     }
+  }
 
   async findOneBotWithAccess(id: string, userId: Profile): Promise<Bot> {
     // Получение бота по его ID
