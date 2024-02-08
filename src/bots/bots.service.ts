@@ -1,5 +1,5 @@
 import { Bot } from './schema/bots.schema';
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, StreamableFile } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { ShareBotDto } from './dto/share-bot.dto';
@@ -7,12 +7,40 @@ import { BotsRepository } from './bots.repository';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
+import { FilesBucketService } from 'src/gridFS/gridFS.service';
 import { PureAbility } from '@casl/ability';
 import { Profile } from 'src/profiles/schema/profile.schema';
 
 @Injectable()
 export class BotsService {
-  constructor(private dbQuery: BotsRepository) {}
+  constructor(
+    private dbQuery: BotsRepository,
+    private gridFS: FilesBucketService,
+  ) {}
+
+  async uploadFiles(files: Array<Express.Multer.File>) {
+    try {
+      return await this.dbQuery.filesUpload(files);
+    } catch (e) {
+      return e;
+    }
+  }
+
+  async downloadFile(id: string): Promise<StreamableFile> {
+    try {
+      return await this.dbQuery.filesDownload(id);
+    } catch (e) {
+      return e;
+    }
+  }
+
+  async deleteFile(id: string) {
+    try {
+      return await this.dbQuery.filesDelete(id);
+    } catch (e) {
+      return e;
+    }
+  }
 
   async create(
     profile,
