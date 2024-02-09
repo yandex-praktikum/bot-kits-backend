@@ -1671,36 +1671,6 @@ paths:
           description: Ресурс не найден
       tags: *ref_20
       security: *ref_21
-  /dev/api/bots/{id}/share:
-    post:
-      operationId: BotsController_share
-      summary: Предоставить общий доступ к боту, первичный доступ при отправке email
-      parameters:
-        - *ref_19
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ShareBotDto'
-      responses:
-        '201':
-          description: Первичный доступ создан
-        '400':
-          description: Неверный запрос
-        '403':
-          description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
-      tags: *ref_20
-      security: *ref_21
   /dev/api/bots/copy/{id}:
     post:
       operationId: BotsController_copyBot
@@ -2392,7 +2362,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-02-05T22:10:24.304Z
+          example: 2024-02-09T08:37:45.317Z
         amount:
           type: number
           example: 1000
@@ -2503,7 +2473,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-02-05T22:10:24.320Z
+          example: 2024-02-09T08:37:45.328Z
         isCancelled:
           type: boolean
           example: false
@@ -3247,15 +3217,6 @@ components:
           example: NotFoundException
       required:
         - response
-    ShareBotDto:
-      type: object
-      properties:
-        email:
-          type: string
-          description: Email зарегистрированного пользователя
-          example: test@test.ru
-      required:
-        - email
     CreateBotTemplateResponseOk:
       type: object
       properties:

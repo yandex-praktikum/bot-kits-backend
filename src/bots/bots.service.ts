@@ -2,7 +2,6 @@ import { Bot } from './schema/bots.schema';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
-import { ShareBotDto } from './dto/share-bot.dto';
 import { BotsRepository } from './bots.repository';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
@@ -90,18 +89,6 @@ export class BotsService {
   async remove(userId: string, id: string, ability: PureAbility): Promise<Bot> {
     try {
       return await this.dbQuery.remove(userId, id, ability);
-    } catch (e) {
-      return e;
-    }
-  }
-
-  async share(
-    profile: string,
-    id: string,
-    shareBotDto: ShareBotDto,
-  ): Promise<string> {
-    try {
-      return await this.dbQuery.share(profile, id, shareBotDto);
     } catch (e) {
       return e;
     }

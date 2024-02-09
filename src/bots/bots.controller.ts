@@ -28,7 +28,6 @@ import { BotsService } from './bots.service';
 import { Bot } from './schema/bots.schema';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
-import { ShareBotDto } from './dto/share-bot.dto';
 import { BotCreateRequestBody } from './sdo/request-body.sdo';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { CreateTemplateDto } from './dto/create-template.dto';
@@ -45,7 +44,6 @@ import {
   CreateBotTemplateResponseOk,
   CreateTemplateResponseOk,
   DeleteBotBadRequestBad,
-  DeleteBotBadRequestResponse,
   DeleteTemplateBadRequestResponse,
   GetBotsResponseOk,
   GetBotsTemplatesResponseOk,
@@ -282,34 +280,6 @@ export class BotsController {
   })
   findOne(@Param('id') id: string): Promise<Bot> {
     return this.botsService.findOne(id);
-  }
-
-  @UseGuards(AbilityGuard)
-  @CheckAbility({ action: Action.Share, subject: CreateBotDto })
-  @Post(':id/share')
-  @ApiOperation({
-    summary:
-      'Предоставить общий доступ к боту, первичный доступ при отправке email',
-  })
-  @ApiCreatedResponse({
-    description: 'Первичный доступ создан',
-    type: '',
-  })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  @ApiBody({ type: ShareBotDto })
-  @ApiParam({
-    name: 'id',
-    description: 'Идентификатор бота',
-    example: '64f81ba37571bfaac18a857f',
-  })
-  share(
-    @Req() req,
-    @Param('id') id: string,
-    @Body() shareBotDto: ShareBotDto,
-  ): Promise<string> {
-    return this.botsService.share(req.user.id, id, shareBotDto);
   }
 
   @UseGuards(AbilityGuard)
