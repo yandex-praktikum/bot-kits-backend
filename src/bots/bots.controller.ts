@@ -260,29 +260,6 @@ export class BotsController {
   }
 
   @UseGuards(AbilityGuard)
-  @CheckAbility({ action: Action.Read, subject: CreateBotDto })
-  @Get(':id')
-  @ApiOperation({
-    summary: 'Получить данные бота по Id',
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'Идентификатор бота',
-    example: '64f81ba37571bfaac18a857f',
-  })
-  @ApiOkResponse({
-    description: 'Информация о боте по Id получена',
-    type: GetBotsResponseOk,
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Отказ в доступе',
-    type: UserUnauthirizedResponse,
-  })
-  findOne(@Param('id') id: string): Promise<Bot> {
-    return this.botsService.findOne(id);
-  }
-
-  @UseGuards(AbilityGuard)
   @CheckAbility({ action: Action.Create, subject: CreateBotDto })
   @Post(':id')
   @ApiOperation({
