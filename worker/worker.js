@@ -1,10 +1,12 @@
-// Импорт необходимых библиотек.
+//worker
 import { createClient } from 'redis'; // Импорт клиента Redis для работы с Redis сервером.
 import { Emitter } from '@socket.io/redis-emitter'; // Импорт Emitter для работы с Redis и Socket.IO.
 import mongoose, { Schema } from 'mongoose'; // Импорт Mongoose для работы с MongoDB.
 import dotenv from 'dotenv';
+dotenv.config({ path: '.env.worker' });
+import io from 'socket.io-client';
 
-dotenv.config();
+const socket = io('http://localhost:3001');
 
 // Определение схемы и модели для сообщений в MongoDB.
 const Message = mongoose.model(
@@ -42,9 +44,24 @@ Promise.all([
   subClient.subscribe('task', (task) => {
     const { user, payload } = JSON.parse(task); // Разбор JSON строки с задачей.
     console.log(`worker: `, payload);
+
     setTimeout(() => {
       emitter.to(`/user/${user}`).emit('notify', `task "${payload}" ready!`); // Отправка уведомления пользователю.
     }, 3000); // Имитация задержки выполнения задачи.
+  });
+
+  // Подписка на канал 'task' и обработка полученных задач.
+  subClient.subscribe('newChat', (payload) => {
+    const { user, toUser, message } = JSON.parse(payload); // Разбор JSON строки с задачей.
+    console.log(`worker: `, payload);
+    socket.emit('start-dialog', { from: user, to: toUser }); // Отправка уведомления пользователю.
+  });
+
+  // Подписка на канал 'task' и обработка полученных задач.
+  subClient.subscribe('emitNewChat', (payload) => {
+    const { user, toUser, message } = JSON.parse(payload); // Разбор JSON строки с задачей.
+    console.log(`emitter: `, payload);
+    emitter.emit('start-dialog', { from: user, to: toUser }); // Отправка уведомления пользователю.
   });
 
   // Подписка на канал 'message' и обработка сообщений.

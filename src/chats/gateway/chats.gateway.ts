@@ -15,6 +15,7 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import { Redis, RedisOptions } from 'ioredis';
 import { Emitter } from '@socket.io/redis-emitter';
 
+//chats.gateway.ts
 @WebSocketGateway()
 export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private pubClient: Redis;
@@ -89,19 +90,20 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // Гарантируем уникальность имени комнаты путем сортировки идентификаторов
     const participants = [from, to].sort();
     const roomName = `/${participants[0]}:${participants[1]}`;
+    const roomNamereversed = `/${participants[1]}:${participants[0]}`;
 
     // Проверяем, существует ли уже такая комната
     const existingRoom = [...client.rooms].find((room) => room === roomName);
 
     if (!existingRoom) {
       client.join(roomName);
-      console.log(`Присоединение к комнате: ${roomName}`);
+      client.join(roomNamereversed);
+      console.log(
+        `Присоединение к комнате: ${roomName} и к комнате ${roomNamereversed}`,
+      );
     } else {
       console.log(`Уже присоединен к комнате: ${existingRoom}`);
     }
-
-    client.emit('start-dialog', JSON.stringify({ from, to, room: roomName }));
-    client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
   }
 
   @SubscribeMessage('message')

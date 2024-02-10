@@ -49,6 +49,11 @@ socket.on('message', (msg) => {
 });
 
 // Подписка на получение сообщений в чате
+socket.on('emitNewChat', (msg) => {
+  console.log('Эмитим новый чат через эмитер воркера:', msg);
+});
+
+// Подписка на получение сообщений в чате
 socket.on('get-rooms', (msg) => {
   const resrooms = JSON.parse(msg);
   rooms = resrooms.rooms;
