@@ -19,24 +19,27 @@ export class BotsService {
   ) {}
 
   async uploadFiles(files: Array<Express.Multer.File>) {
+    //todo: сделать добавление attachment'ов к боту
     try {
-      return await this.dbQuery.filesUpload(files);
+      return await this.gridFS.filesUpload(files);
     } catch (e) {
       return e;
     }
   }
 
   async downloadFile(id: string): Promise<StreamableFile> {
+    //todo: сделать добавление attachment'ов к боту
     try {
-      return await this.dbQuery.filesDownload(id);
+      return await this.gridFS.filesDownload(id);
     } catch (e) {
       return e;
     }
   }
 
   async deleteFile(id: string) {
+    //todo: сделать добавление attachment'ов к боту
     try {
-      return await this.dbQuery.filesDelete(id);
+      return await this.gridFS.filesDelete(id);
     } catch (e) {
       return e;
     }

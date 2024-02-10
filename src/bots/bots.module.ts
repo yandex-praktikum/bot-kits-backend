@@ -8,6 +8,7 @@ import { ProfilesModule } from 'src/profiles/profiles.module';
 import { FilesBucketService } from 'src/gridFS/gridFS.service';
 import { AbilityModule } from 'src/ability/ability.module';
 import { Profile, ProfileSchema } from 'src/profiles/schema/profile.schema';
+import { GridFSModule } from 'src/gridFS/grifFS.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { Profile, ProfileSchema } from 'src/profiles/schema/profile.schema';
     ]),
     ProfilesModule,
     AbilityModule,
+    GridFSModule,
   ],
   controllers: [BotsController],
   providers: [BotsService, BotsRepository, FilesBucketService],
