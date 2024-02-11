@@ -33,6 +33,7 @@ import { throttlerConfig } from './configs/throttler.config';
 import { PartnershipModule } from './partnership/partnership.module';
 import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
 import { HandlersQueuesModule } from './handlers-queues/handlers-queues.module';
+import { GridFSModule } from './gridFS/grifFS.module';
 
 //app.module.ts
 @Module({
@@ -60,7 +61,7 @@ import { HandlersQueuesModule } from './handlers-queues/handlers-queues.module';
     PartnershipModule,
     MailingModule,
     HandlersQueuesModule,
-
+    GridFSModule,
   ],
   controllers: [AppController, AuthController],
   providers: [
