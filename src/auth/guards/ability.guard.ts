@@ -36,7 +36,7 @@ export class AbilityGuard implements CanActivate {
       // Получаем пользователя и его права доступа.
       const { id } = request.user;
       const user = await this.profilesService.findById(id);
-      const ability = this.caslAbilityFactory.defineAbility(user);
+      const ability = await this.caslAbilityFactory.defineAbility(user);
       request.ability = ability;
 
       try {

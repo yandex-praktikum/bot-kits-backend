@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Bot, BotSchema } from './schema/bots.schema';
 import { BotsController } from './bots.controller';
@@ -15,10 +15,11 @@ import { Profile, ProfileSchema } from 'src/profiles/schema/profile.schema';
       { name: Bot.name, schema: BotSchema },
       { name: Profile.name, schema: ProfileSchema },
     ]),
-    ProfilesModule,
-    AbilityModule,
+    forwardRef(() => ProfilesModule),
+    forwardRef(() => AbilityModule),
   ],
   controllers: [BotsController],
   providers: [BotsService, BotsRepository, FilesBucketService],
+  exports: [BotsService],
 })
 export class BotsModule {}
