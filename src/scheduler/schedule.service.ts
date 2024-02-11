@@ -4,7 +4,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { MailingService } from 'src/mailing/mailing.service';
-import { Mailing } from 'src/mailing/schema/mailing.schema';
 import { Payment } from 'src/payments/schema/payment.schema';
 import { Profile } from 'src/profiles/schema/profile.schema';
 import { RabbitMQService } from 'src/rabbitmq/rabbitmq.service';

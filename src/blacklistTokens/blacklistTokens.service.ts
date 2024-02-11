@@ -3,13 +3,19 @@ import { BlacklistTokensRepository } from './blacklistTokens.repository';
 
 @Injectable()
 export class BlacklistTokensService {
-  constructor(private readonly dbQuery: BlacklistTokensRepository) {}
+  constructor(
+    private readonly blacklistTokensRepository: BlacklistTokensRepository,
+  ) {}
 
   async addToken(token: string): Promise<void> {
-    return await this.dbQuery.addToken(token);
+    return await this.blacklistTokensRepository.addToken(token);
   }
 
   async isTokenBlacklisted(token: string): Promise<boolean> {
-    return await this.dbQuery.isTokenBlacklisted(token);
+    return await this.blacklistTokensRepository.isTokenBlacklisted(token);
+  }
+
+  async updateLastActivity(token: string) {
+    return await this.blacklistTokensRepository.updateLastActivity(token);
   }
 }

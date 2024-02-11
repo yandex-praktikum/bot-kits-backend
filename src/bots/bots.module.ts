@@ -5,6 +5,7 @@ import { BotsController } from './bots.controller';
 import { BotsService } from './bots.service';
 import { BotsRepository } from './bots.repository';
 import { ProfilesModule } from 'src/profiles/profiles.module';
+import { FilesBucketService } from 'src/gridFS/gridFS.service';
 import { AbilityModule } from 'src/ability/ability.module';
 import { Profile, ProfileSchema } from 'src/profiles/schema/profile.schema';
 
@@ -18,7 +19,7 @@ import { Profile, ProfileSchema } from 'src/profiles/schema/profile.schema';
     forwardRef(() => AbilityModule),
   ],
   controllers: [BotsController],
-  providers: [BotsService, BotsRepository],
+  providers: [BotsService, BotsRepository, FilesBucketService],
   exports: [BotsService],
 })
 export class BotsModule {}
