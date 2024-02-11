@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TariffsService } from './tariffs.service';
 import { TariffsController } from './tariffs.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,8 +8,8 @@ import { TariffsRepository } from './tariffs.repository';
 
 @Module({
   imports: [
-    ProfilesModule,
     MongooseModule.forFeature([{ name: Tariff.name, schema: TariffSchema }]),
+    ProfilesModule,
   ],
   controllers: [TariffsController],
   providers: [TariffsService, TariffsRepository],

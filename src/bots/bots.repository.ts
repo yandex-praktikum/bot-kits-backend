@@ -9,11 +9,11 @@ import {
 } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
-import { ShareBotDto } from './dto/share-bot.dto';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { CopyBotDto } from './dto/copy-bot.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { FilesBucketService } from 'src/gridFS/gridFS.service';
 import { Action } from 'src/ability/ability.factory';
 import { PureAbility } from '@casl/ability';
 import { Profile } from 'src/profiles/schema/profile.schema';
@@ -22,6 +22,7 @@ import { Profile } from 'src/profiles/schema/profile.schema';
 export class BotsRepository {
   constructor(
     @InjectModel(Bot.name) private botModel: Model<BotDocument>,
+    private readonly gridFS: FilesBucketService,
     @InjectModel(Profile.name) private profileModel: Model<Profile>,
   ) {}
 
@@ -236,14 +237,6 @@ export class BotsRepository {
 
     // Объединение списков ботов
     return ownBots.concat(sharedBots);
-  }
-
-  async share(
-    profile: string,
-    id: string,
-    shareBotDto: ShareBotDto,
-  ): Promise<string> {
-    return 'Запрос на предоставление доступа отправлен';
   }
 
   async createTemplate(createTemplateDto: CreateTemplateDto): Promise<Bot> {

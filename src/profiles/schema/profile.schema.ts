@@ -57,6 +57,12 @@ export class Profile extends Document {
 
   @Prop()
   promocode: string[];
+
+  @Prop({ default: new Date(), required: true })
+  dateRegistration: Date;
+
+  @Prop({ default: Date.now })
+  lastAccountActivity: Date;
 }
 
 export class Access {

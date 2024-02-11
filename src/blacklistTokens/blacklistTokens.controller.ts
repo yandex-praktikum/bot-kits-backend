@@ -1,6 +1,5 @@
 import { Controller, Get, Headers, UseGuards } from '@nestjs/common';
 import { BlacklistTokensService } from './blacklistTokens.service';
-import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 import {
   ApiBearerAuth,
   ApiHeader,
@@ -8,6 +7,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
 
 @UseGuards(JwtGuard)
 @ApiTags('logout')
@@ -42,6 +42,8 @@ export class BlacklistTokensController {
   async addToken(@Headers('authorization') authHeader: string) {
     const token = authHeader.split(' ')[1];
     await this.blacklistTokensService.addToken(token);
-    return { message: 'Пользователь успешно разлогинен' };
+    await this.blacklistTokensService.updateLastActivity(token);
+
+    return { message: 'User logged out' };
   }
 }
