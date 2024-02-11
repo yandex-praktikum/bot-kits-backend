@@ -65,6 +65,22 @@ socket.on('start-dialog', (msg) => {
   console.log('Dialog started:', `${m.from}:${m.to}`);
 });
 
+// Подписка на получение сообщений в чате
+socket.on('newChat', (msg) => {
+  console.log(
+    `Сработало событие создание нового чата у фронитового клиента - ${JSON.stringify(
+      msg,
+      null,
+      2,
+    )}`,
+  );
+  socket.emit('start-dialog', {
+    from: msg.from,
+    to: msg.to,
+    message: msg.message,
+  });
+});
+
 //Эмитеры событий к серверу
 function sendMessageToChat(message) {
   socket.emit('message', message);

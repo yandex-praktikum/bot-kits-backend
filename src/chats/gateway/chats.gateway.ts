@@ -12,7 +12,7 @@ import { Server, Socket } from 'socket.io';
 import { RedisService } from 'src/redis/redis.service';
 import { v4 as uuidv4 } from 'uuid';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { Redis, RedisOptions } from 'ioredis';
+import { Redis } from 'ioredis';
 import { Emitter } from '@socket.io/redis-emitter';
 
 //chats.gateway.ts
@@ -23,7 +23,7 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private taskClient: Redis;
   private emitter: Emitter;
 
-  @WebSocketServer() server: Server;
+  @WebSocketServer() server: Server = new Server();
 
   constructor(private redisService: RedisService) {}
 
@@ -78,14 +78,15 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     client.emit('registered', { name: data.name, id: userID });
     client.join(`/user/${userID}`); // Присоединение к комнате пользователя.
-    client.join('/chat'); // Присоединение к общей комнате чата.
+    //client.join('/chat'); // Присоединение к общей комнате чата.
     client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
   }
 
   @SubscribeMessage('start-dialog')
   handleStartDialog(
     @ConnectedSocket() client: Socket,
-    @MessageBody() { from, to }: { from: string; to: string },
+    @MessageBody()
+    { from, to, message }: { from: string; to: string; message: string },
   ) {
     // Гарантируем уникальность имени комнаты путем сортировки идентификаторов
     const participants = [from, to].sort();
@@ -101,8 +102,10 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log(
         `Присоединение к комнате: ${roomName} и к комнате ${roomNamereversed}`,
       );
+      client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
     } else {
       console.log(`Уже присоединен к комнате: ${existingRoom}`);
+      client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
     }
   }
 

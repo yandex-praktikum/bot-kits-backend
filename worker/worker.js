@@ -6,8 +6,6 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.worker' });
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:3001');
-
 // Определение схемы и модели для сообщений в MongoDB.
 const Message = mongoose.model(
   'Message',
@@ -51,17 +49,11 @@ Promise.all([
   });
 
   // Подписка на канал 'task' и обработка полученных задач.
-  subClient.subscribe('newChat', (payload) => {
+  subClient.subscribe('NewChat', (payload) => {
     const { user, toUser, message } = JSON.parse(payload); // Разбор JSON строки с задачей.
-    console.log(`worker: `, payload);
-    socket.emit('start-dialog', { from: user, to: toUser }); // Отправка уведомления пользователю.
-  });
-
-  // Подписка на канал 'task' и обработка полученных задач.
-  subClient.subscribe('emitNewChat', (payload) => {
-    const { user, toUser, message } = JSON.parse(payload); // Разбор JSON строки с задачей.
-    console.log(`emitter: `, payload);
-    emitter.emit('start-dialog', { from: user, to: toUser }); // Отправка уведомления пользователю.
+    emitter
+      .to(`/user/${toUser}`)
+      .emit('newChat', { from: user, to: toUser, message: message }); // Отправка уведомления пользователю.
   });
 
   // Подписка на канал 'message' и обработка сообщений.

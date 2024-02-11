@@ -58,6 +58,4 @@ export class RedisService {
     this.emitter.to(channel).emit(event, message);
     console.log(`Event ${event} emitted to ${channel}`);
   }
-
-  // Дополнительные методы...
 }
