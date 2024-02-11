@@ -75,139 +75,143 @@ const getBotsTemplates: IFieldDescription[] = [
     'features',
     {
       // eslint-disable-next-line prettier/prettier
-    "nodes": [{
-      "width": 80,
-      "height": 29,
-      "id": "node-1",
-      "type": "buttonStart",
-      "data": {
-          "type": "start"
-      },
-      "position": {
-          "x": 0,
-          "y": 0
-      },
-      "positionAbsolute": {
-          "x": 0,
-          "y": 0
-      }
-    },
-    {
-      "width": 296,
-      "height": 954,
-      "id": "node-2",
-      "type": "message",
-      "data": {
-          "name": "message",
-          "data": [
-              {
-                  "type": "message",
-                  "value": ""
-              },
-              {
-                  "type": "buttons",
-                  "verButtons": [],
-                  "horButtons": []
-              },
-              {
-                  "type": "answers",
-                  "verButtons": [],
-                  "horButtons": []
-              }
-          ],
-          "showTime": {
-              "show": true,
-              "value": 0
+      nodes: [
+        {
+          width: 80,
+          height: 29,
+          id: 'node-1',
+          type: 'buttonStart',
+          data: {
+            type: 'start',
           },
-          "saveAnswer": {
-              "show": true,
-              "value": ""
-          }
-      },
-      "position": {
-          "x": 130,
-          "y": 0
-      },
-      "positionAbsolute": {
-          "x": 130,
-          "y": 0
-      }
-    },
-    {
-      "width": 296,
-      "height": 148,
-      "id": "ea276e42-2a22-457a-aa75-e7f83cc28b6d",
-      "position": {
-          "x": 518.3058186738838,
-          "y": 188.7345060893099
-      },
-      "type": "variable",
-      "data": {
-          "name": "Variable Block",
-          "variables": []
-      },
-      "selected": false,
-      "positionAbsolute": {
-          "x": 518.3058186738838,
-          "y": 188.7345060893099
-      },
-      "dragging": false
-    },
-    {
-      "id": "37ccf480-a55c-4eab-a9d2-60b5a582fe5d",
-      "position": {
-          "x": 630.487956698241,
-          "y": 430.1391069012179
-      },
-      "type": "telegramPay",
-      "data": {
-          "name": "TelegramPay",
-          "goodsName": "",
-          "image": "",
-          "description": "",
-          "payment": "",
-          "currency": "",
-          "providerToken": "",
-          "onSuccess": ""
-      },
-      "width": 296,
-      "height": 654,
-      "selected": true,
-      "positionAbsolute": {
-          "x": 630.487956698241,
-          "y": 430.1391069012179
-      },
-      "dragging": false
-    }],
+          position: {
+            x: 0,
+            y: 0,
+          },
+          positionAbsolute: {
+            x: 0,
+            y: 0,
+          },
+        },
+        {
+          width: 296,
+          height: 954,
+          id: 'node-2',
+          type: 'message',
+          data: {
+            name: 'message',
+            data: [
+              {
+                type: 'message',
+                value: '',
+              },
+              {
+                type: 'buttons',
+                verButtons: [],
+                horButtons: [],
+              },
+              {
+                type: 'answers',
+                verButtons: [],
+                horButtons: [],
+              },
+            ],
+            showTime: {
+              show: true,
+              value: 0,
+            },
+            saveAnswer: {
+              show: true,
+              value: '',
+            },
+          },
+          position: {
+            x: 130,
+            y: 0,
+          },
+          positionAbsolute: {
+            x: 130,
+            y: 0,
+          },
+        },
+        {
+          width: 296,
+          height: 148,
+          id: 'ea276e42-2a22-457a-aa75-e7f83cc28b6d',
+          position: {
+            x: 518.3058186738838,
+            y: 188.7345060893099,
+          },
+          type: 'variable',
+          data: {
+            name: 'Variable Block',
+            variables: [],
+          },
+          selected: false,
+          positionAbsolute: {
+            x: 518.3058186738838,
+            y: 188.7345060893099,
+          },
+          dragging: false,
+        },
+        {
+          id: '37ccf480-a55c-4eab-a9d2-60b5a582fe5d',
+          position: {
+            x: 630.487956698241,
+            y: 430.1391069012179,
+          },
+          type: 'telegramPay',
+          data: {
+            name: 'TelegramPay',
+            goodsName: '',
+            image: '',
+            description: '',
+            payment: '',
+            currency: '',
+            providerToken: '',
+            onSuccess: '',
+          },
+          width: 296,
+          height: 654,
+          selected: true,
+          positionAbsolute: {
+            x: 630.487956698241,
+            y: 430.1391069012179,
+          },
+          dragging: false,
+        },
+      ],
       // eslint-disable-next-line prettier/prettier
-    "edges": [{
-      "id": "1-2",
-      "source": "node-1",
-      "target": "node-2",
-      "targetHandle": "l"
-    },
-    {
-      "type": "smoothstep",
-      "markerEnd": {
-          "type": "arrow"
-      },
-      "source": "node-2",
-      "sourceHandle": "r",
-      "target": "ea276e42-2a22-457a-aa75-e7f83cc28b6d",
-      "targetHandle": "l",
-      "id": "reactflow__edge-node-2r-ea276e42-2a22-457a-aa75-e7f83cc28b6dl"
-    },
-    {
-      "type": "smoothstep",
-      "markerEnd": {
-          "type": "arrow"
-      },
-      "source": "node-2",
-      "sourceHandle": "r",
-      "target": "37ccf480-a55c-4eab-a9d2-60b5a582fe5d",
-      "targetHandle": "l",
-      "id": "reactflow__edge-node-2r-37ccf480-a55c-4eab-a9d2-60b5a582fe5dl"
-    }]
+      edges: [
+        {
+          id: '1-2',
+          source: 'node-1',
+          target: 'node-2',
+          targetHandle: 'l',
+        },
+        {
+          type: 'smoothstep',
+          markerEnd: {
+            type: 'arrow',
+          },
+          source: 'node-2',
+          sourceHandle: 'r',
+          target: 'ea276e42-2a22-457a-aa75-e7f83cc28b6d',
+          targetHandle: 'l',
+          id: 'reactflow__edge-node-2r-ea276e42-2a22-457a-aa75-e7f83cc28b6dl',
+        },
+        {
+          type: 'smoothstep',
+          markerEnd: {
+            type: 'arrow',
+          },
+          source: 'node-2',
+          sourceHandle: 'r',
+          target: '37ccf480-a55c-4eab-a9d2-60b5a582fe5d',
+          targetHandle: 'l',
+          id: 'reactflow__edge-node-2r-37ccf480-a55c-4eab-a9d2-60b5a582fe5dl',
+        },
+      ],
     },
     'object',
   ),
@@ -227,163 +231,171 @@ const createBotTemplate: IFieldDescription[] = [
   createField('title', 'Бот', 'string'),
   createField('description', 'Какой-то бот', 'string'),
   createField('icon', 'answering machine', 'string'),
-  createField('messengers', [{
-    "name": "VK",
-    "pages": [
-        "vk.com/club1245321223"
+  createField(
+    'messengers',
+    [
+      {
+        name: 'VK',
+        pages: ['vk.com/club1245321223'],
+        accessKey: '1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo',
+        url: 'some_url',
+      },
+      {
+        name: 'WhathApp',
+        pages: [
+          'vk.com/club1245321223',
+          'vk.com/club1245321223',
+          'vk.com/club1245321223',
+          'vk.com/club1245321223',
+        ],
+        accessKey: '1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo',
+        url: 'some_url',
+      },
     ],
-    "accessKey": "1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo",
-    "url": "some_url"
-  },
-  {
-    "name": "WhathApp",
-    "pages": [
-        "vk.com/club1245321223",
-        "vk.com/club1245321223",
-        "vk.com/club1245321223",
-        "vk.com/club1245321223"
-    ],
-    "accessKey": "1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo",
-    "url": "some_url"
-  }], 'array'),
+    'array',
+  ),
   createField('profile', '65a6c1d139fcee38a9890d13', 'string'),
   createField(
     'features',
     {
       // eslint-disable-next-line prettier/prettier
-    "nodes": [{
-      "width": 80,
-      "height": 29,
-      "id": "node-1",
-      "type": "buttonStart",
-      "data": {
-          "type": "start"
-      },
-      "position": {
-          "x": 0,
-          "y": 0
-      },
-      "positionAbsolute": {
-          "x": 0,
-          "y": 0
-      }
-    },
-    {
-      "width": 296,
-      "height": 954,
-      "id": "node-2",
-      "type": "message",
-      "data": {
-          "name": "message",
-          "data": [
-              {
-                  "type": "message",
-                  "value": ""
-              },
-              {
-                  "type": "buttons",
-                  "verButtons": [],
-                  "horButtons": []
-              },
-              {
-                  "type": "answers",
-                  "verButtons": [],
-                  "horButtons": []
-              }
-          ],
-          "showTime": {
-              "show": true,
-              "value": 0
+      nodes: [
+        {
+          width: 80,
+          height: 29,
+          id: 'node-1',
+          type: 'buttonStart',
+          data: {
+            type: 'start',
           },
-          "saveAnswer": {
-              "show": true,
-              "value": ""
-          }
-      },
-      "position": {
-          "x": 130,
-          "y": 0
-      },
-      "positionAbsolute": {
-          "x": 130,
-          "y": 0
-      }
-    },
-    {
-      "width": 296,
-      "height": 148,
-      "id": "ea276e42-2a22-457a-aa75-e7f83cc28b6d",
-      "position": {
-          "x": 518.3058186738838,
-          "y": 188.7345060893099
-      },
-      "type": "variable",
-      "data": {
-          "name": "Variable Block",
-          "variables": []
-      },
-      "selected": false,
-      "positionAbsolute": {
-          "x": 518.3058186738838,
-          "y": 188.7345060893099
-      },
-      "dragging": false
-    },
-    {
-      "id": "37ccf480-a55c-4eab-a9d2-60b5a582fe5d",
-      "position": {
-          "x": 630.487956698241,
-          "y": 430.1391069012179
-      },
-      "type": "telegramPay",
-      "data": {
-          "name": "TelegramPay",
-          "goodsName": "",
-          "image": "",
-          "description": "",
-          "payment": "",
-          "currency": "",
-          "providerToken": "",
-          "onSuccess": ""
-      },
-      "width": 296,
-      "height": 654,
-      "selected": true,
-      "positionAbsolute": {
-          "x": 630.487956698241,
-          "y": 430.1391069012179
-      },
-      "dragging": false
-    }],
+          position: {
+            x: 0,
+            y: 0,
+          },
+          positionAbsolute: {
+            x: 0,
+            y: 0,
+          },
+        },
+        {
+          width: 296,
+          height: 954,
+          id: 'node-2',
+          type: 'message',
+          data: {
+            name: 'message',
+            data: [
+              {
+                type: 'message',
+                value: '',
+              },
+              {
+                type: 'buttons',
+                verButtons: [],
+                horButtons: [],
+              },
+              {
+                type: 'answers',
+                verButtons: [],
+                horButtons: [],
+              },
+            ],
+            showTime: {
+              show: true,
+              value: 0,
+            },
+            saveAnswer: {
+              show: true,
+              value: '',
+            },
+          },
+          position: {
+            x: 130,
+            y: 0,
+          },
+          positionAbsolute: {
+            x: 130,
+            y: 0,
+          },
+        },
+        {
+          width: 296,
+          height: 148,
+          id: 'ea276e42-2a22-457a-aa75-e7f83cc28b6d',
+          position: {
+            x: 518.3058186738838,
+            y: 188.7345060893099,
+          },
+          type: 'variable',
+          data: {
+            name: 'Variable Block',
+            variables: [],
+          },
+          selected: false,
+          positionAbsolute: {
+            x: 518.3058186738838,
+            y: 188.7345060893099,
+          },
+          dragging: false,
+        },
+        {
+          id: '37ccf480-a55c-4eab-a9d2-60b5a582fe5d',
+          position: {
+            x: 630.487956698241,
+            y: 430.1391069012179,
+          },
+          type: 'telegramPay',
+          data: {
+            name: 'TelegramPay',
+            goodsName: '',
+            image: '',
+            description: '',
+            payment: '',
+            currency: '',
+            providerToken: '',
+            onSuccess: '',
+          },
+          width: 296,
+          height: 654,
+          selected: true,
+          positionAbsolute: {
+            x: 630.487956698241,
+            y: 430.1391069012179,
+          },
+          dragging: false,
+        },
+      ],
       // eslint-disable-next-line prettier/prettier
-    "edges": [{
-      "id": "1-2",
-      "source": "node-1",
-      "target": "node-2",
-      "targetHandle": "l"
-    },
-    {
-      "type": "smoothstep",
-      "markerEnd": {
-          "type": "arrow"
-      },
-      "source": "node-2",
-      "sourceHandle": "r",
-      "target": "ea276e42-2a22-457a-aa75-e7f83cc28b6d",
-      "targetHandle": "l",
-      "id": "reactflow__edge-node-2r-ea276e42-2a22-457a-aa75-e7f83cc28b6dl"
-    },
-    {
-      "type": "smoothstep",
-      "markerEnd": {
-          "type": "arrow"
-      },
-      "source": "node-2",
-      "sourceHandle": "r",
-      "target": "37ccf480-a55c-4eab-a9d2-60b5a582fe5d",
-      "targetHandle": "l",
-      "id": "reactflow__edge-node-2r-37ccf480-a55c-4eab-a9d2-60b5a582fe5dl"
-    }]
+      edges: [
+        {
+          id: '1-2',
+          source: 'node-1',
+          target: 'node-2',
+          targetHandle: 'l',
+        },
+        {
+          type: 'smoothstep',
+          markerEnd: {
+            type: 'arrow',
+          },
+          source: 'node-2',
+          sourceHandle: 'r',
+          target: 'ea276e42-2a22-457a-aa75-e7f83cc28b6d',
+          targetHandle: 'l',
+          id: 'reactflow__edge-node-2r-ea276e42-2a22-457a-aa75-e7f83cc28b6dl',
+        },
+        {
+          type: 'smoothstep',
+          markerEnd: {
+            type: 'arrow',
+          },
+          source: 'node-2',
+          sourceHandle: 'r',
+          target: '37ccf480-a55c-4eab-a9d2-60b5a582fe5d',
+          targetHandle: 'l',
+          id: 'reactflow__edge-node-2r-37ccf480-a55c-4eab-a9d2-60b5a582fe5dl',
+        },
+      ],
     },
     'object',
   ),
@@ -493,12 +505,7 @@ const updateTemplateBadRequest: IFieldDescription[] = [
     'string',
     'Сообщение об ошибке',
   ),
-  createField(
-    'statusCode',
-    HttpStatus.NOT_FOUND,
-    'number',
-    'HTTP-статус код',
-  ),
+  createField('statusCode', HttpStatus.NOT_FOUND, 'number', 'HTTP-статус код'),
   createField(
     'timestamp',
     '2024-02-04T12:37:00.127Z',
@@ -509,29 +516,31 @@ const updateTemplateBadRequest: IFieldDescription[] = [
 ];
 
 const deleteTemplateNotFound: IFieldDescription = createNestedObject([
-  createField('message', 'Шаблон с ID 65a6c1d139fcee38a9890d51 не найден', 'string'),
-  createField('error', 'Not Found', 'string'),
   createField(
-    'statusCode',
-    HttpStatus.NOT_FOUND,
-    'number',
-    'HTTP-статус код',
+    'message',
+    'Шаблон с ID 65a6c1d139fcee38a9890d51 не найден',
+    'string',
   ),
+  createField('error', 'Not Found', 'string'),
+  createField('statusCode', HttpStatus.NOT_FOUND, 'number', 'HTTP-статус код'),
 ]);
 
 const deleteBotNotFound: IFieldDescription = createNestedObject([
-  createField('message', 'Бот с ID 65a6c1d139fcee38a9890d16 не найден', 'string'),
-  createField('error', 'Not Found', 'string'),
   createField(
-    'statusCode',
-    HttpStatus.NOT_FOUND,
-    'number',
-    'HTTP-статус код',
+    'message',
+    'Бот с ID 65a6c1d139fcee38a9890d16 не найден',
+    'string',
   ),
+  createField('error', 'Not Found', 'string'),
+  createField('statusCode', HttpStatus.NOT_FOUND, 'number', 'HTTP-статус код'),
 ]);
 
 const deleteBotBadRequest: IFieldDescription = createNestedObject([
-  createField('message', 'Бот с ID 65a6c1d139fcee38a9890d16 не найден', 'string'),
+  createField(
+    'message',
+    'Бот с ID 65a6c1d139fcee38a9890d16 не найден',
+    'string',
+  ),
   createField('error', 'Not Found', 'string'),
   createField(
     'statusCode',
@@ -541,20 +550,10 @@ const deleteBotBadRequest: IFieldDescription = createNestedObject([
   ),
 ]);
 
-
 const deleteTemplateBadRequest: IFieldDescription[] = [
-  {...deleteTemplateNotFound, key: 'response'},
-  createField(
-    'status',
-    HttpStatus.NOT_FOUND,
-    'number',
-    'HTTP-статус код',
-  ),
-  createField(
-    'options',
-    {},
-    'object'
-  ),
+  { ...deleteTemplateNotFound, key: 'response' },
+  createField('status', HttpStatus.NOT_FOUND, 'number', 'HTTP-статус код'),
+  createField('options', {}, 'object'),
   createField(
     'message',
     'Шаблон с ID 65a6c1d139fcee38a9890d51 не найден',
@@ -565,18 +564,22 @@ const deleteTemplateBadRequest: IFieldDescription[] = [
 ];
 
 const deleteBotNotFoundBadRequest: IFieldDescription[] = [
-  {...deleteBotNotFound, key: 'response'},
+  { ...deleteBotNotFound, key: 'response' },
+  createField('status', HttpStatus.NOT_FOUND, 'number', 'HTTP-статус код'),
+  createField('options', {}, 'object'),
   createField(
-    'status',
-    HttpStatus.NOT_FOUND,
-    'number',
-    'HTTP-статус код',
+    'message',
+    'Бот с ID 65a6c1d139fcee38a9890d51 не найден',
+    'string',
+    'Сообщение об ошибке',
   ),
-  createField(
-    'options',
-    {},
-    'object'
-  ),
+  createField('name', 'NotFoundException', 'string'),
+];
+
+const deleteBotBadRequestBad: IFieldDescription[] = [
+  { ...deleteBotBadRequest, key: 'response' },
+  createField('status', HttpStatus.BAD_REQUEST, 'number', 'HTTP-статус код'),
+  createField('options', {}, 'object'),
   createField(
     'message',
     'Шаблон с ID 65a6c1d139fcee38a9890d51 не найден',
@@ -586,26 +589,59 @@ const deleteBotNotFoundBadRequest: IFieldDescription[] = [
   createField('name', 'NotFoundException', 'string'),
 ];
 
-const deleteBotBadRequestBad: IFieldDescription[] = [
-  {...deleteBotBadRequest, key: 'response'},
-  createField(
-    'status',
-    HttpStatus.BAD_REQUEST,
-    'number',
-    'HTTP-статус код',
-  ),
-  createField(
-    'options',
-    {},
-    'object'
-  ),
+const updateBotNotFoundBadRequest: IFieldDescription[] = [
   createField(
     'message',
-    'Шаблон с ID 65a6c1d139fcee38a9890d51 не найден',
+    'Бот с ID 65a6c1d139fcee38a9890d51 не найден',
     'string',
     'Сообщение об ошибке',
   ),
-  createField('name', 'NotFoundException', 'string'),
+  createField('statusCode', HttpStatus.NOT_FOUND, 'number', 'HTTP-статус код'),
+  createField(
+    'timestamp',
+    '2024-02-04T12:37:00.127Z',
+    'string',
+    'Время возникновения ошибки',
+  ),
+  createField('path', '/dev/api/:path', 'string', 'Путь возникновения ошибки'),
+];
+
+const updateBotTemplate: IFieldDescription[] = [
+  createField('_id', '65c12f9e1aab02a0f1392f32', 'string'),
+  createField('type', 'custom', 'string'),
+  createField('title', 'Бот', 'string'),
+  createField('description', 'Какой-то бот', 'string'),
+  createField('profile', '65c5e2ee219c9bffc85cb696', 'string'),
+  createField(
+    'messengers',
+    [
+      {
+        name: 'VK',
+        pages: ['vk.com/club1245321223'],
+        accessKey: '1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo',
+        url: 'some_url',
+      },
+      {
+        name: 'WhathApp',
+        pages: [
+          'vk.com/club1245321223',
+          'vk.com/club1245321223',
+          'vk.com/club1245321223',
+          'vk.com/club1245321223',
+        ],
+        accessKey: '1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo',
+        url: 'some_url',
+      },
+    ],
+    'array',
+  ),
+  createField(
+    'commands',
+    ['/copy', '/delete', '/rename', '/share', '/info', '/notify'],
+    'array',
+  ),
+  createField('isToPublish', false, 'boolean'),
+  { ...settings, key: 'settings' },
 ];
 
 export const CreateBotResponseOk = new ApiPropertyFactory(createBot).generate(
@@ -627,6 +663,10 @@ export const CreateTemplateResponseOk = new ApiPropertyFactory(
 export const CreateBotTemplateResponseOk = new ApiPropertyFactory(
   createBotTemplate,
 ).generate('CreateBotTemplateResponseOk');
+
+export const UpdateBotResponseOk = new ApiPropertyFactory(
+  updateBotTemplate,
+).generate('UpdateBotResponseOk');
 
 export const UserUnauthirizedResponse = new ApiPropertyFactory(
   userUnauthirizedResponse,
@@ -659,3 +699,7 @@ export const DeleteBotBadRequestResponse = new ApiPropertyFactory(
 export const DeleteBotBadRequestBad = new ApiPropertyFactory(
   deleteBotBadRequestBad,
 ).generate('DeleteBotBadRequestBad');
+
+export const UpdateBotNotFoundBadRequest = new ApiPropertyFactory(
+  updateBotNotFoundBadRequest,
+).generate('UpdateBotNotFoundBadRequest');

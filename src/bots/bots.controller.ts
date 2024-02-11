@@ -18,7 +18,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiParam,
   ApiBearerAuth,
@@ -31,7 +30,10 @@ import { BotsService } from './bots.service';
 import { Bot } from './schema/bots.schema';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
-import { BotCreateRequestBody } from './sdo/request-body.sdo';
+import {
+  BotCreateRequestBody,
+  UpdateBotDescription,
+} from './sdo/request-body.sdo';
 import { UpdateBotDto } from './dto/update-bot.dto';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
@@ -52,6 +54,8 @@ import {
   GetBotsResponseOk,
   GetBotsTemplatesResponseOk,
   TemplateDataConflictResponse,
+  UpdateBotNotFoundBadRequest,
+  UpdateBotResponseOk,
   UpdateTemplateBadRequestResponse,
   UserUnauthirizedResponse,
 } from './sdo/response-body.sdo';
@@ -370,16 +374,26 @@ export class BotsController {
   @CheckAbility({ action: Action.Update, subject: UpdateBotDto })
   @UseGuards(AbilityGuard)
   @Patch(':id')
+  @ApiBody({ type: UpdateBotDescription })
   @ApiOperation({
     summary: 'Обновить бота',
   })
   @ApiOkResponse({
     description: 'Имя бота обновлено',
-    type: Bot,
+    type: UpdateBotResponseOk,
   })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiBody({ type: BotCreateRequestBody })
+  @ApiBadRequestResponse({
+    description: 'Неверный запрос',
+    type: BotDataBadRequestResponse,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Ресурс не найден',
+    type: UpdateBotNotFoundBadRequest,
+  })
   @ApiParam({
     name: 'id',
     description: 'Идентификатор бота',

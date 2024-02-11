@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Bot, BotSchema } from './schema/bots.schema';
 import { BotsController } from './bots.controller';
@@ -22,5 +22,6 @@ import { GridFSModule } from 'src/gridFS/grifFS.module';
   ],
   controllers: [BotsController],
   providers: [BotsService, BotsRepository, FilesBucketService],
+  exports: [BotsService],
 })
 export class BotsModule {}
