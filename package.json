@@ -58,14 +58,15 @@
     "passport-local": "^1.0.0",
     "passport-telegram-official": "^2.0.1",
     "passport-vkontakte": "^0.5.0",
+    "rabbitmq": "^0.0.2",
     "redis": "^4.6.11",
     "reflect-metadata": "^0.1.14",
     "rxjs": "^7.8.1",
+    "slate": "^0.101.5",
     "socket.io": "^4.7.2",
     "socket.io-redis": "^6.1.1",
     "uuid": "^9.0.1",
-    "winston": "^3.11.0",
-    "slate": "^0.101.4"
+    "winston": "^3.11.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.7.1",
