@@ -2,7 +2,6 @@ import { Bot } from './schema/bots.schema';
 import { ConflictException, Injectable, StreamableFile } from '@nestjs/common';
 import { CreateBotDto } from './dto/create-bot.dto';
 import { UpdateBotDto } from './dto/update-bot.dto';
-import { ShareBotDto } from './dto/share-bot.dto';
 import { BotsRepository } from './bots.repository';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
