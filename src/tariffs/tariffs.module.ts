@@ -9,7 +9,7 @@ import { TariffsRepository } from './tariffs.repository';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Tariff.name, schema: TariffSchema }]),
-    forwardRef(() => ProfilesModule),
+    ProfilesModule,
   ],
   controllers: [TariffsController],
   providers: [TariffsService, TariffsRepository],

@@ -21,9 +21,11 @@ import { UpdatePlatformDto } from 'src/platforms/dto/update-platform.dto';
 import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
 import { UpdateProfileDto } from 'src/profiles/dto/update-profile.dto';
 import { Profile } from 'src/profiles/schema/profile.schema';
-import { Subscription } from 'src/subscriptions/schema/subscription.schema';
-import { SubscriptionsService } from 'src/subscriptions/subscriptions.service';
-import { Tariff } from 'src/tariffs/schema/tariff.schema';
+import {
+  Subscription,
+  SubscriptionDocument,
+} from 'src/subscriptions/schema/subscription.schema';
+import { Tariff, TariffDocument } from 'src/tariffs/schema/tariff.schema';
 import { TariffsService } from 'src/tariffs/tariffs.service';
 
 //ability.factory.ts
@@ -55,18 +57,19 @@ export type Subjects = InferSubjects<
 export class AbilityFactory {
   constructor(
     @InjectModel(Bot.name) private botModel: Model<BotDocument>,
-    private readonly subscriptionsService: SubscriptionsService,
-    private readonly tariffsService: TariffsService,
-    private readonly botsService: BotsService,
+    @InjectModel(Subscription.name)
+    private subscriptionModel: Model<SubscriptionDocument>,
+    @InjectModel(Tariff.name) private tariffModel: Model<TariffDocument>,
   ) {}
 
   private getRole(user, soughtRole): boolean {
     return user.accounts.some((account) => account.role === soughtRole);
   }
 
-  private async getSub(user): Promise<Subscription> {
-    const subs = await this.subscriptionsService.findAll();
+  private async getSub(user): Promise<any> {
+    const subs = await this.subscriptionModel.find();
     return subs.find((sub) => (sub.profile._id = user._id));
+    return true;
   }
 
   private async getSubStatus(user): Promise<boolean> {
@@ -74,7 +77,7 @@ export class AbilityFactory {
   }
 
   private async getUserTariff(user): Promise<Tariff> {
-    const tariff = await this.tariffsService.findOne(
+    const tariff = await this.tariffModel.findOne(
       (
         await this.getSub(user)
       ).tariff._id,
@@ -87,7 +90,7 @@ export class AbilityFactory {
   }
 
   private async getBotsCount(user): Promise<number> {
-    return (await this.botsService.findAllByUser(user)).length;
+    return (await this.botModel.find(user)).length;
   }
 
   //--Функция defineAbility определяет, что может делать пользователь в приложении--//

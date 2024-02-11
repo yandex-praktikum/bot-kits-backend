@@ -1,17 +1,20 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AbilityFactory } from './ability.factory';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Bot, BotSchema } from 'src/bots/schema/bots.schema';
-import { SubscriptionsModule } from 'src/subscriptions/subscriptions.module';
-import { TariffsModule } from 'src/tariffs/tariffs.module';
-import { BotsModule } from 'src/bots/bots.module';
+import {
+  Subscription,
+  SubscriptionSchema,
+} from 'src/subscriptions/schema/subscription.schema';
+import { Tariff, TariffSchema } from 'src/tariffs/schema/tariff.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Bot.name, schema: BotSchema }]),
-    forwardRef(() => BotsModule),
-    forwardRef(() => TariffsModule),
-    SubscriptionsModule,
+    MongooseModule.forFeature([
+      { name: Bot.name, schema: BotSchema },
+      { name: Subscription.name, schema: SubscriptionSchema },
+      { name: Tariff.name, schema: TariffSchema },
+    ]),
   ],
   providers: [AbilityFactory],
   exports: [AbilityFactory], // Экспорт AbilityFactory

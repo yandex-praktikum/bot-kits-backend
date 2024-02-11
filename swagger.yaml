@@ -1673,18 +1673,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BotCreateRequestBody'
+              $ref: '#/components/schemas/UpdateBotDescription'
       responses:
         '200':
           description: Имя бота обновлено
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Bot'
-        '403':
+                $ref: '#/components/schemas/UpdateBotResponseOk'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotDataBadRequestResponse'
+        '401':
           description: Отказ в доступе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
         '404':
           description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateBotNotFoundBadRequest'
       tags: *ref_20
       security: *ref_21
   /dev/api/bots/copy/{id}:
@@ -2378,7 +2392,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-02-10T12:35:49.661Z
+          example: 2024-02-11T10:26:02.920Z
         amount:
           type: number
           example: 1000
@@ -2489,7 +2503,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-02-10T12:35:49.571Z
+          example: 2024-02-11T10:26:02.886Z
         isCancelled:
           type: boolean
           example: false
@@ -3387,7 +3401,7 @@ components:
           example: *ref_25
         settings:
           type: object
-          example:
+          example: &ref_26
             prop1: prop1
             prop2: prop2
       required:
@@ -3428,6 +3442,93 @@ components:
           example: NotFoundException
       required:
         - response
+    UpdateBotDescription:
+      type: object
+      properties:
+        title:
+          type: string
+          example: name bot
+          description: ''
+        permission:
+          type: object
+          example:
+            dashboard: true
+            botBuilder: true
+            mailing: true
+            static: true
+      required:
+        - title
+        - permission
+    UpdateBotResponseOk:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 65c12f9e1aab02a0f1392f32
+        type:
+          type: string
+          example: custom
+        title:
+          type: string
+          example: Бот
+        description:
+          type: string
+          example: Какой-то бот
+        profile:
+          type: string
+          example: 65c5e2ee219c9bffc85cb696
+        messengers:
+          type: array
+          example:
+            - name: VK
+              pages:
+                - vk.com/club1245321223
+              accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
+              url: some_url
+            - name: WhathApp
+              pages:
+                - vk.com/club1245321223
+                - vk.com/club1245321223
+                - vk.com/club1245321223
+                - vk.com/club1245321223
+              accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
+              url: some_url
+        commands:
+          type: array
+          example:
+            - /copy
+            - /delete
+            - /rename
+            - /share
+            - /info
+            - /notify
+        isToPublish:
+          type: boolean
+          example: false
+        settings:
+          type: object
+          example: *ref_26
+      required:
+        - settings
+    UpdateBotNotFoundBadRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Бот с ID 65a6c1d139fcee38a9890d51 не найден
+          description: Сообщение об ошибке
+        statusCode:
+          type: number
+          example: 404
+          description: HTTP-статус код
+        timestamp:
+          type: string
+          example: '2024-02-04T12:37:00.127Z'
+          description: Время возникновения ошибки
+        path:
+          type: string
+          example: /dev/api/:path
+          description: Путь возникновения ошибки
     Statistics:
       type: object
       properties: {}
