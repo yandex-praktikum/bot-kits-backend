@@ -1591,41 +1591,10 @@ paths:
                 $ref: '#/components/schemas/UserUnauthirizedResponse'
       tags: *ref_20
       security: *ref_21
-  /dev/api/bots/{id}:
+  /dev/api/bots/copy/{id}:
     post:
-      operationId: BotsController_createBotsFromTemplate
-      summary: Создание нового бота из шаблона
-      parameters:
-        - *ref_19
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BotCreateRequestBody'
-      responses:
-        '201':
-          description: Новый бот создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateBotTemplateResponseOk'
-        '401':
-          description: Отказ в доступе
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserUnauthirizedResponse'
-      tags: *ref_20
-      security: *ref_21
-    delete:
-      operationId: BotsController_remove
-      summary: Удаление бота
+      operationId: BotsController_copyBot
+      summary: Копирование бота
       parameters:
         - *ref_19
         - name: id
@@ -1635,27 +1604,30 @@ paths:
           example: 64f81ba37571bfaac18a857f
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopyBotDto'
       responses:
-        '200':
-          description: Бот удален
+        '201':
+          description: Бот скопирован
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetBotsTemplatesResponseOk'
+                $ref: '#/components/schemas/CreateBotResponseOk'
+        '400':
+          description: Ресурс не найден
         '401':
           description: Отказ в доступе
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserUnauthirizedResponse'
-        '404':
-          description: Ресурс не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DeleteBotBadRequestBad'
       tags: *ref_20
       security: *ref_21
+  /dev/api/bots/{id}:
     patch:
       operationId: BotsController_update
       summary: Обновить бота
@@ -1701,10 +1673,9 @@ paths:
                 $ref: '#/components/schemas/UpdateBotNotFoundBadRequest'
       tags: *ref_20
       security: *ref_21
-  /dev/api/bots/copy/{id}:
-    post:
-      operationId: BotsController_copyBot
-      summary: Копирование бота
+    delete:
+      operationId: BotsController_remove
+      summary: Удаление бота
       parameters:
         - *ref_19
         - name: id
@@ -1714,21 +1685,50 @@ paths:
           example: 64f81ba37571bfaac18a857f
           schema:
             type: string
+      responses:
+        '200':
+          description: Бот удален
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBotsTemplatesResponseOk'
+        '401':
+          description: Отказ в доступе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteBotBadRequestBad'
+      tags: *ref_20
+      security: *ref_21
+    post:
+      operationId: BotsController_createBotsFromTemplate
+      summary: Создание нового бота из шаблона
+      parameters:
+        - *ref_19
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CopyBotDto'
+              $ref: '#/components/schemas/BotCreateRequestBody'
       responses:
         '201':
-          description: Бот скопирован
+          description: Новый бот создан
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateBotResponseOk'
-        '400':
-          description: Ресурс не найден
+                $ref: '#/components/schemas/CreateBotTemplateResponseOk'
         '401':
           description: Отказ в доступе
           content:
@@ -2392,7 +2392,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-02-12T06:39:22.143Z
+          example: 2024-02-12T12:42:29.989Z
         amount:
           type: number
           example: 1000
@@ -2503,7 +2503,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-02-12T06:39:22.112Z
+          example: 2024-02-12T12:42:29.925Z
         isCancelled:
           type: boolean
           example: false
@@ -3247,6 +3247,130 @@ components:
           example: NotFoundException
       required:
         - response
+    Messenger:
+      type: object
+      properties: {}
+    CopyBotDto:
+      type: object
+      properties:
+        messengers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Messenger'
+    UpdateBotDescription:
+      type: object
+      properties:
+        title:
+          type: string
+          example: name bot
+          description: ''
+        permission:
+          type: object
+          example:
+            dashboard: true
+            botBuilder: true
+            mailing: true
+            static: true
+      required:
+        - title
+        - permission
+    UpdateBotResponseOk:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 65c12f9e1aab02a0f1392f32
+        type:
+          type: string
+          example: custom
+        title:
+          type: string
+          example: Бот
+        description:
+          type: string
+          example: Какой-то бот
+        profile:
+          type: string
+          example: 65c5e2ee219c9bffc85cb696
+        messengers:
+          type: array
+          example:
+            - name: VK
+              pages:
+                - vk.com/club1245321223
+              accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
+              url: some_url
+            - name: WhathApp
+              pages:
+                - vk.com/club1245321223
+                - vk.com/club1245321223
+                - vk.com/club1245321223
+                - vk.com/club1245321223
+              accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
+              url: some_url
+        commands:
+          type: array
+          example:
+            - /copy
+            - /delete
+            - /rename
+            - /share
+            - /info
+            - /notify
+        isToPublish:
+          type: boolean
+          example: false
+        settings:
+          type: object
+          example: &ref_26
+            prop1: prop1
+            prop2: prop2
+      required:
+        - settings
+    UpdateBotNotFoundBadRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Бот с ID 65a6c1d139fcee38a9890d51 не найден
+          description: Сообщение об ошибке
+        statusCode:
+          type: number
+          example: 404
+          description: HTTP-статус код
+        timestamp:
+          type: string
+          example: '2024-02-04T12:37:00.127Z'
+          description: Время возникновения ошибки
+        path:
+          type: string
+          example: /dev/api/:path
+          description: Путь возникновения ошибки
+    DeleteBotBadRequestBad:
+      type: object
+      properties:
+        response:
+          type: object
+          example:
+            message: Бот с ID 65a6c1d139fcee38a9890d16 не найден
+            error: Not Found
+            statusCode: 400
+        status:
+          type: number
+          example: 400
+          description: HTTP-статус код
+        options:
+          type: object
+          example: {}
+        message:
+          type: string
+          example: Шаблон с ID 65a6c1d139fcee38a9890d51 не найден
+          description: Сообщение об ошибке
+        name:
+          type: string
+          example: NotFoundException
+      required:
+        - response
     CreateBotTemplateResponseOk:
       type: object
       properties:
@@ -3401,134 +3525,10 @@ components:
           example: *ref_25
         settings:
           type: object
-          example: &ref_26
-            prop1: prop1
-            prop2: prop2
-      required:
-        - permission
-        - settings
-    Messenger:
-      type: object
-      properties: {}
-    CopyBotDto:
-      type: object
-      properties:
-        messengers:
-          type: array
-          items:
-            $ref: '#/components/schemas/Messenger'
-    DeleteBotBadRequestBad:
-      type: object
-      properties:
-        response:
-          type: object
-          example:
-            message: Бот с ID 65a6c1d139fcee38a9890d16 не найден
-            error: Not Found
-            statusCode: 400
-        status:
-          type: number
-          example: 400
-          description: HTTP-статус код
-        options:
-          type: object
-          example: {}
-        message:
-          type: string
-          example: Шаблон с ID 65a6c1d139fcee38a9890d51 не найден
-          description: Сообщение об ошибке
-        name:
-          type: string
-          example: NotFoundException
-      required:
-        - response
-    UpdateBotDescription:
-      type: object
-      properties:
-        title:
-          type: string
-          example: name bot
-          description: ''
-        permission:
-          type: object
-          example:
-            dashboard: true
-            botBuilder: true
-            mailing: true
-            static: true
-      required:
-        - title
-        - permission
-    UpdateBotResponseOk:
-      type: object
-      properties:
-        _id:
-          type: string
-          example: 65c12f9e1aab02a0f1392f32
-        type:
-          type: string
-          example: custom
-        title:
-          type: string
-          example: Бот
-        description:
-          type: string
-          example: Какой-то бот
-        profile:
-          type: string
-          example: 65c5e2ee219c9bffc85cb696
-        messengers:
-          type: array
-          example:
-            - name: VK
-              pages:
-                - vk.com/club1245321223
-              accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
-              url: some_url
-            - name: WhathApp
-              pages:
-                - vk.com/club1245321223
-                - vk.com/club1245321223
-                - vk.com/club1245321223
-                - vk.com/club1245321223
-              accessKey: 1685494522:AAHzRs4YFqckLvBVARVoUL0c3B1GFqlDpo
-              url: some_url
-        commands:
-          type: array
-          example:
-            - /copy
-            - /delete
-            - /rename
-            - /share
-            - /info
-            - /notify
-        isToPublish:
-          type: boolean
-          example: false
-        settings:
-          type: object
           example: *ref_26
       required:
+        - permission
         - settings
-    UpdateBotNotFoundBadRequest:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Бот с ID 65a6c1d139fcee38a9890d51 не найден
-          description: Сообщение об ошибке
-        statusCode:
-          type: number
-          example: 404
-          description: HTTP-статус код
-        timestamp:
-          type: string
-          example: '2024-02-04T12:37:00.127Z'
-          description: Время возникновения ошибки
-        path:
-          type: string
-          example: /dev/api/:path
-          description: Путь возникновения ошибки
     Statistics:
       type: object
       properties: {}

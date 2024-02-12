@@ -137,6 +137,7 @@ export class BotsRepository {
     if (!ability.can(Action.Update, existingBot)) {
       throw new ForbiddenException('Вы не администратор этого бота');
     }
+
     //--Не обновляем права у бота даже у собственного--//
     try {
       const { permission, ...updateData } = updateBotDto;
