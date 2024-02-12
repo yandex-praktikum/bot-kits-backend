@@ -49,7 +49,7 @@ export class SubscriptionsRepository {
 
   async findSubscriptionByProfile(profile: Profile) {
     const subscription = await this.subscriptionModel
-      .findOne({ profile: profile })
+      .findOne({ 'profile._id': profile })
       .exec();
     if (!subscription) {
       throw new NotFoundException('Не найдена подписка пользователя');
@@ -142,7 +142,7 @@ export class SubscriptionsRepository {
         .findByIdAndUpdate(
           subscription._id,
           {
-            updatingTariff: tariff.toObject(),
+            updatingTariff: tariff,
             status: true,
             isCancelled: false,
           },

@@ -79,7 +79,7 @@ export class SubscriptionsController {
     @Body() activateSubscription: ActivateSubscriptionDTO,
   ): Promise<Subscription> {
     return this.subscriptionsService.activateSubscription(
-      req.user,
+      req.user._id,
       activateSubscription.status,
     );
   }
