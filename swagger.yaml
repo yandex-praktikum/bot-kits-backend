@@ -1627,7 +1627,7 @@ paths:
                 $ref: '#/components/schemas/UserUnauthirizedResponse'
       tags: *ref_20
       security: *ref_21
-  /dev/api/bots/{id}:
+  /dev/api/bots/bot{id}:
     patch:
       operationId: BotsController_update
       summary: Обновить бота
@@ -1673,6 +1673,7 @@ paths:
                 $ref: '#/components/schemas/UpdateBotNotFoundBadRequest'
       tags: *ref_20
       security: *ref_21
+  /dev/api/bots/{id}:
     delete:
       operationId: BotsController_remove
       summary: Удаление бота
@@ -2392,7 +2393,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-02-12T13:50:18.540Z
+          example: 2024-02-12T14:02:06.382Z
         amount:
           type: number
           example: 1000
@@ -2503,7 +2504,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-02-12T13:50:18.507Z
+          example: 2024-02-12T14:02:06.346Z
         isCancelled:
           type: boolean
           example: false

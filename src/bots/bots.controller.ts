@@ -323,7 +323,7 @@ export class BotsController {
 
   @UseGuards(AbilityGuard)
   @CheckAbility({ action: Action.Update, subject: UpdateBotDto })
-  @Patch('bot:id')
+  @Patch('bot/:id')
   @ApiBody({ type: UpdateBotDescription })
   @ApiOperation({
     summary: 'Обновить бота',
