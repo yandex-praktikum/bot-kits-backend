@@ -5,8 +5,16 @@ const io = require('socket.io-client');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const inquirer = require('inquirer');
 
-// Подключение к серверу WebSocket
-const socket = io('http://localhost:3001');
+// const socket = io('http://127.0.0.1:3001/chats', {
+//   // extraHeaders: {
+//   //   Authorization: Bearer token-yes,
+//   // },
+//   extraHeaders: {
+//     Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWM4YWFiMWI1ZDdiODYyNTZhYjU1M2QiLCJqdGkiOiIxYjJiZDU3ZWVlOTExZWRlY2Y1YzYzMzU2MDU3NDA2NyIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MDc2NDk3NDQsImV4cCI6MTcwNzczNjE0NH0.wzTP94TjUf9hYZjCn2dq_tpQqZ9OjbVWR-B60o8kCqI`,
+//   },
+// });
+
+const socket = io('http://127.0.0.1:3001');
 
 let user = {
   name: '',
@@ -49,11 +57,6 @@ socket.on('message', (msg) => {
 });
 
 // Подписка на получение сообщений в чате
-socket.on('emitNewChat', (msg) => {
-  console.log('Эмитим новый чат через эмитер воркера:', msg);
-});
-
-// Подписка на получение сообщений в чате
 socket.on('get-rooms', (msg) => {
   const resrooms = JSON.parse(msg);
   rooms = resrooms.rooms;
@@ -77,6 +80,11 @@ socket.on('newChat', (msg) => {
   socket.emit('start-dialog', {
     from: msg.from,
     to: msg.to,
+    message: msg.message,
+  });
+  socket.emit('message', {
+    from: msg.from,
+    to: `/${msg.to}:${msg.from}`,
     message: msg.message,
   });
 });

@@ -4,7 +4,6 @@ import { Emitter } from '@socket.io/redis-emitter'; // Импорт Emitter дл
 import mongoose, { Schema } from 'mongoose'; // Импорт Mongoose для работы с MongoDB.
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.worker' });
-import io from 'socket.io-client';
 
 // Определение схемы и модели для сообщений в MongoDB.
 const Message = mongoose.model(
@@ -49,7 +48,8 @@ Promise.all([
   });
 
   // Подписка на канал 'task' и обработка полученных задач.
-  subClient.subscribe('NewChat', (payload) => {
+  subClient.subscribe('newChat', (payload) => {
+    console.log(payload);
     const { user, toUser, message } = JSON.parse(payload); // Разбор JSON строки с задачей.
     emitter
       .to(`/user/${toUser}`)

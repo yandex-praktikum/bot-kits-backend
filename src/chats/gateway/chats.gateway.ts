@@ -58,14 +58,6 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleConnection(client: Socket, ...args: any[]) {
     console.log('a user connected');
-    // // Обработчик события регистрации пользователя.
-    // client.once('register', ({ id, name }) => {
-    //   const userID = id ?? uuidv4(); // Генерация или использование существующего ID.
-    //   console.log(`register: ${userID}`);
-    //   client.emit('registered', { name, id: userID }); // Отправка данных о регистрации клиенту.
-    //   client.join(`/user/${userID}`); // Присоединение к комнате пользователя.
-    //   client.join('/chat'); // Присоединение к общей комнате чата.
-    // });
   }
 
   @SubscribeMessage('register')
@@ -103,6 +95,7 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         `Присоединение к комнате: ${roomName} и к комнате ${roomNamereversed}`,
       );
       client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
+      //this.taskClient.publish('message', JSON.stringify({ from, to, message }));
     } else {
       console.log(`Уже присоединен к комнате: ${existingRoom}`);
       client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));

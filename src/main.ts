@@ -36,12 +36,16 @@ async function bootstrap() {
   );
   app.use(helmet());
 
-  app.enableCors({
-    origin: [configService.get('ALLOW_URL'), 'http://127.0.0.1:5500'],
+  const cors = {
+    origin: [configService.get('ALLOW_URL')],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
     credentials: true,
-  });
+  };
+
+  // app.enableCors(cors);
+
+  // app.useWebSocketAdapter(new SocketIoAdapter(app, configService, cors));
 
   // Создаем экземпляр билдера Swagger-документации
   const config = new DocumentBuilder()
