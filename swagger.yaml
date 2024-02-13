@@ -225,15 +225,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserProfileResponseBodyOK'
-        '403':
+        '401':
           description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
       tags: &ref_1
         - profiles
-      security: &ref_3
+      security:
         - &ref_2
           bearer: []
+        - bearer: []
   /dev/api/profiles/me:
     get:
       operationId: ProfilesController_findProfileByToken
@@ -251,11 +254,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfileResponseBodyOK'
-        '403':
+                $ref: '#/components/schemas/UserResponseBodyOK'
+        '401':
           description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
       tags: *ref_1
       security:
         - *ref_2
@@ -263,7 +268,14 @@ paths:
   /dev/api/profiles/shared:
     post:
       operationId: ProfilesController_sharedAccess
-      parameters: []
+      summary: Выдать прова пользователю
+      parameters:
+        - name: authorization
+          in: header
+          description: Access токен
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -272,13 +284,33 @@ paths:
               $ref: '#/components/schemas/CreateSharedAccessDto'
       responses:
         '201':
-          description: ''
+          description: Права выданы успешно
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/SetSharedDescription'
+        '401':
+          description: Отказ в доступе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
+        '404':
+          description: Профиль не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetSharedNotFound'
+        '409':
+          description: Доступ уже предоставлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetSharedConflict'
       tags: *ref_1
-      security: *ref_3
+      security:
+        - *ref_2
+        - bearer: []
     get:
       operationId: ProfilesController_findAllGrantedAccesses
       summary: Получить все выданные доступы профиля
@@ -297,11 +329,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Access'
-        '403':
+                  $ref: '#/components/schemas/SharedDescription'
+        '401':
           description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
       tags: *ref_1
       security:
         - *ref_2
@@ -309,30 +343,42 @@ paths:
     patch:
       operationId: ProfilesController_updateAccesses
       summary: Обновить выданный доступ
-      parameters: []
+      parameters:
+        - name: authorization
+          in: header
+          description: Access токен
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateSharedAccessDto'
+              $ref: '#/components/schemas/SharedDescription'
       responses:
         '200':
           description: Профиль успешно обновлен
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Access'
+                $ref: '#/components/schemas/SharedDescription'
         '400':
-          description: Неверный запрос
-        '403':
+          description: Плохой запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileBadRequestResponse'
+        '401':
           description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
       tags: *ref_1
-      security: *ref_3
+      security:
+        - *ref_2
+        - bearer: []
   /dev/api/profiles/{id}:
     get:
       operationId: ProfilesController_findOne
@@ -351,13 +397,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfileResponseBodyOK'
-        '403':
+                $ref: '#/components/schemas/UserResponseBodyOK'
+        '400':
+          description: Неверный ID пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceIsNotFound'
+        '401':
           description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
       tags: *ref_1
-      security: *ref_3
+      security:
+        - *ref_2
+        - bearer: []
     patch:
       operationId: ProfilesController_update
       summary: Обновить данные профиля по id
@@ -374,22 +430,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateProfileDto'
+              $ref: '#/components/schemas/UpdateProfile'
       responses:
         '200':
           description: Профиль успешно обновлен
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfileResponseBodyOK'
-        '400':
-          description: Неверный запрос
-        '403':
+                $ref: '#/components/schemas/UserResponseBodyOK'
+        '401':
           description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
       tags: *ref_1
-      security: *ref_3
+      security:
+        - *ref_2
+        - bearer: []
     delete:
       operationId: ProfilesController_remove
       summary: Удалить профиль по id
@@ -407,13 +465,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfileResponseBodyOK'
-        '403':
+                $ref: '#/components/schemas/UserResponseBodyOK'
+        '401':
           description: Отказ в доступе
-        '404':
-          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
       tags: *ref_1
-      security: *ref_3
+      security:
+        - *ref_2
+        - bearer: []
   /dev/api/profiles/{id}/accounts:
     get:
       operationId: ProfilesController_findAccountByProfileId
@@ -434,13 +496,23 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SingleAccountResponseBodyOK'
-        '403':
+                  $ref: '#/components/schemas/AccountsDescription'
+        '401':
           description: Отказ в доступе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
         '404':
-          description: Ресурс не найден
+          description: Неверный ID пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountsNotFoundResponse'
       tags: *ref_1
-      security: *ref_3
+      security:
+        - *ref_2
+        - bearer: []
   /dev/api/tariffs:
     get:
       operationId: TariffsController_findAllTariffs
@@ -457,9 +529,9 @@ paths:
                   $ref: '#/components/schemas/Tariff'
         '403':
           description: Отказ в доступе
-      tags: &ref_4
+      tags: &ref_3
         - tariffs
-      security: &ref_5
+      security: &ref_4
         - bearer: []
     post:
       operationId: TariffsController_createTariff
@@ -484,8 +556,8 @@ paths:
           description: Отказ в доступе
         '409':
           description: Такой тариф уже существует
-      tags: *ref_4
-      security: *ref_5
+      tags: *ref_3
+      security: *ref_4
   /dev/api/tariffs/{id}:
     get:
       operationId: TariffsController_findTariffToId
@@ -509,8 +581,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_4
-      security: *ref_5
+      tags: *ref_3
+      security: *ref_4
     patch:
       operationId: TariffsController_updateTariff
       summary: Изменить данные тарифа по id
@@ -541,8 +613,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_4
-      security: *ref_5
+      tags: *ref_3
+      security: *ref_4
     delete:
       operationId: TariffsController_removeTariff
       summary: Удалить тариф по id
@@ -565,8 +637,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_4
-      security: *ref_5
+      tags: *ref_3
+      security: *ref_4
   /dev/api/accounts:
     get:
       operationId: AccountsController_findAll
@@ -587,9 +659,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvalidTokenResponse'
-      tags: &ref_6
+      tags: &ref_5
         - accounts
-      security: &ref_7
+      security: &ref_6
         - bearer: []
   /dev/api/accounts/{id}:
     patch:
@@ -628,8 +700,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvalidTokenResponse'
-      tags: *ref_6
-      security: *ref_7
+      tags: *ref_5
+      security: *ref_6
   /dev/api/partnership:
     get:
       operationId: PartnershipController_redirectToPage
@@ -642,7 +714,7 @@ paths:
       responses:
         '200':
           description: ''
-      tags: &ref_8
+      tags: &ref_7
         - partnership
   /dev/api/partnership/statistic:
     get:
@@ -657,7 +729,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Payment'
-      tags: *ref_8
+      tags: *ref_7
       security:
         - bearer: []
   /dev/api/payments:
@@ -676,9 +748,9 @@ paths:
                   $ref: '#/components/schemas/Payment'
         '403':
           description: Отказ в доступе
-      tags: &ref_9
+      tags: &ref_8
         - payments
-      security: &ref_10
+      security: &ref_9
         - bearer: []
     post:
       operationId: PaymentsController_create
@@ -701,8 +773,8 @@ paths:
           description: Неверный запрос
         '403':
           description: Отказ в доступе
-      tags: *ref_9
-      security: *ref_10
+      tags: *ref_8
+      security: *ref_9
   /dev/api/payments/{id}:
     delete:
       operationId: PaymentsController_delete
@@ -722,8 +794,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_9
-      security: *ref_10
+      tags: *ref_8
+      security: *ref_9
     patch:
       operationId: PaymentsController_update
       summary: Обновить данные финансовой операции
@@ -748,8 +820,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_9
-      security: *ref_10
+      tags: *ref_8
+      security: *ref_9
   /dev/api/logout:
     get:
       operationId: BlacklistTokensController_addToken
@@ -812,9 +884,9 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: &ref_11
+      tags: &ref_10
         - subscriptions
-      security: &ref_12
+      security: &ref_11
         - bearer: []
   /dev/api/subscriptions/activate:
     post:
@@ -840,8 +912,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_11
-      security: *ref_12
+      tags: *ref_10
+      security: *ref_11
   /dev/api/subscriptions/{tariffId}:
     post:
       operationId: SubscriptionsController_createSubscription
@@ -880,8 +952,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_11
-      security: *ref_12
+      tags: *ref_10
+      security: *ref_11
   /dev/api/mailing:
     post:
       operationId: MailingController_createMailing
@@ -900,9 +972,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Mailing'
-      tags: &ref_13
+      tags: &ref_12
         - mailing
-      security: &ref_14
+      security: &ref_13
         - bearer: []
   /dev/api/mailing/bot/{id}:
     get:
@@ -923,8 +995,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Mailing'
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_12
+      security: *ref_13
   /dev/api/mailing/all:
     get:
       operationId: MailingController_getAll
@@ -939,8 +1011,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Mailing'
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_12
+      security: *ref_13
   /dev/api/mailing/{id}:
     get:
       operationId: MailingController_getById
@@ -958,8 +1030,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Mailing'
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_12
+      security: *ref_13
     delete:
       operationId: MailingController_remove
       summary: Удалить рассылку по id
@@ -976,8 +1048,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Mailing'
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_12
+      security: *ref_13
     patch:
       operationId: MailingController_update
       summary: Обновить рассылку
@@ -1000,8 +1072,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Mailing'
-      tags: *ref_13
-      security: *ref_14
+      tags: *ref_12
+      security: *ref_13
   /dev/api/platforms:
     post:
       operationId: PlatformController_create
@@ -1024,9 +1096,9 @@ paths:
           description: Неверный запрос
         '403':
           description: Отказ в доступе
-      tags: &ref_15
+      tags: &ref_14
         - platforms
-      security: &ref_16
+      security: &ref_15
         - bearer: []
     get:
       operationId: PlatformController_findAll
@@ -1043,8 +1115,8 @@ paths:
                   $ref: '#/components/schemas/Platform'
         '403':
           description: Отказ в доступе
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_14
+      security: *ref_15
   /dev/api/platforms/{id}:
     get:
       operationId: PlatformController_findOne
@@ -1068,8 +1140,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_14
+      security: *ref_15
     patch:
       operationId: PlatformController_update
       summary: Обновить данные о платформе по id
@@ -1100,8 +1172,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_14
+      security: *ref_15
     delete:
       operationId: PlatformController_remove
       summary: Удалить платформу по id
@@ -1124,8 +1196,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_15
-      security: *ref_16
+      tags: *ref_14
+      security: *ref_15
   /dev/api/promocodes:
     post:
       operationId: PromocodesController_create
@@ -1148,9 +1220,9 @@ paths:
           description: Отказ в доступе
         '409':
           description: Такой промокод уже существует
-      tags: &ref_17
+      tags: &ref_16
         - promocodes
-      security: &ref_18
+      security: &ref_17
         - bearer: []
     get:
       operationId: PromocodesController_findAll
@@ -1167,8 +1239,8 @@ paths:
                   $ref: '#/components/schemas/Promocode'
         '403':
           description: Отказ в доступе
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_16
+      security: *ref_17
   /dev/api/promocodes/promocode:
     get:
       operationId: PromocodesController_findOneByCode
@@ -1190,8 +1262,8 @@ paths:
                   $ref: '#/components/schemas/Promocode'
         '403':
           description: Отказ в доступе
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_16
+      security: *ref_17
     patch:
       operationId: PromocodesController_updateByCode
       summary: Использовать промокод 1 раз
@@ -1212,8 +1284,8 @@ paths:
                   $ref: '#/components/schemas/Promocode'
         '403':
           description: Отказ в доступе
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_16
+      security: *ref_17
   /dev/api/promocodes/{id}:
     get:
       operationId: PromocodesController_findOne
@@ -1237,8 +1309,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_16
+      security: *ref_17
     patch:
       operationId: PromocodesController_update
       summary: Изменить данные промокода по id
@@ -1269,8 +1341,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_16
+      security: *ref_17
     delete:
       operationId: PromocodesController_remove
       summary: Удалить промокод по id
@@ -1293,13 +1365,13 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_17
-      security: *ref_18
+      tags: *ref_16
+      security: *ref_17
   /dev/api/bots/files/upload:
     post:
       operationId: BotsController_uploadFiles
       parameters:
-        - &ref_19
+        - &ref_18
           name: authorization
           in: header
           description: Access токен
@@ -1313,15 +1385,15 @@ paths:
             application/json:
               schema:
                 type: object
-      tags: &ref_20
+      tags: &ref_19
         - bots
-      security: &ref_21
+      security: &ref_20
         - bearer: []
   /dev/api/bots/files/download/{id}:
     get:
       operationId: BotsController_downloadFile
       parameters:
-        - *ref_19
+        - *ref_18
         - name: id
           required: true
           in: path
@@ -1330,13 +1402,13 @@ paths:
       responses:
         '200':
           description: ''
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/files/delete/{id}:
     delete:
       operationId: BotsController_deleteFile
       parameters:
-        - *ref_19
+        - *ref_18
       responses:
         '200':
           description: ''
@@ -1344,14 +1416,14 @@ paths:
             application/json:
               schema:
                 type: object
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots:
     get:
       operationId: BotsController_findMy
       summary: Получить ботов пользователя
       parameters:
-        - *ref_19
+        - *ref_18
       responses:
         '200':
           description: Запрос выполнен успешно
@@ -1367,13 +1439,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserUnauthirizedResponse'
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
     post:
       operationId: BotsController_create
       summary: Создание нового бота
       parameters:
-        - *ref_19
+        - *ref_18
       requestBody:
         required: true
         content:
@@ -1405,14 +1477,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BotDataConflictResponse'
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/templates:
     get:
       operationId: BotsController_findTemplates
       summary: Получить все шаблоны бота
       parameters:
-        - *ref_19
+        - *ref_18
       responses:
         '200':
           description: Запрос выполнен успешно
@@ -1428,14 +1500,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserUnauthirizedResponse'
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/template:
     post:
       operationId: BotsController_createTemplate
       summary: Добавление шаблона бота админом
       parameters:
-        - *ref_19
+        - *ref_18
       requestBody:
         required: true
         content:
@@ -1461,14 +1533,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TemplateDataConflictResponse'
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/template/{id}:
     patch:
       operationId: BotsController_updateTemplate
       summary: Обновление шаблона бота админом
       parameters:
-        - *ref_19
+        - *ref_18
         - name: id
           required: true
           in: path
@@ -1501,13 +1573,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateTemplateBadRequestResponse'
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
     delete:
       operationId: BotsController_removeTemplate
       summary: Удаление шаблона бота
       parameters:
-        - *ref_19
+        - *ref_18
         - name: id
           required: true
           in: path
@@ -1534,13 +1606,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteTemplateBadRequestResponse'
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
     get:
       operationId: BotsController_getTemplate
       summary: Получение шаблона бота по id
       parameters:
-        - *ref_19
+        - *ref_18
         - name: id
           required: true
           in: path
@@ -1561,14 +1633,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserUnauthirizedResponse'
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/bot/{id}:
     get:
       operationId: BotsController_findOneBotWithAccess
       summary: Получить данные бота по Id с правами
       parameters:
-        - *ref_19
+        - *ref_18
         - name: id
           required: true
           in: path
@@ -1589,14 +1661,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserUnauthirizedResponse'
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/{id}:
     post:
       operationId: BotsController_createBotsFromTemplate
       summary: Создание нового бота из шаблона
       parameters:
-        - *ref_19
+        - *ref_18
         - name: id
           required: true
           in: path
@@ -1621,13 +1693,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserUnauthirizedResponse'
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
     delete:
       operationId: BotsController_remove
       summary: Удаление бота
       parameters:
-        - *ref_19
+        - *ref_18
         - name: id
           required: true
           in: path
@@ -1654,13 +1726,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteBotBadRequestBad'
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
     patch:
       operationId: BotsController_update
       summary: Обновить бота
       parameters:
-        - *ref_19
+        - *ref_18
         - name: id
           required: true
           in: path
@@ -1699,14 +1771,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateBotNotFoundBadRequest'
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/copy/{id}:
     post:
       operationId: BotsController_copyBot
       summary: Копирование бота
       parameters:
-        - *ref_19
+        - *ref_18
         - name: id
           required: true
           in: path
@@ -1735,8 +1807,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserUnauthirizedResponse'
-      tags: *ref_20
-      security: *ref_21
+      tags: *ref_19
+      security: *ref_20
   /dev/api/statistics:
     get:
       operationId: StatisticsController_findAll
@@ -1772,9 +1844,9 @@ paths:
           description: Неверный запрос
         '403':
           description: Отказ в доступе
-      tags: &ref_22
+      tags: &ref_21
         - notification
-      security: &ref_23
+      security: &ref_22
         - bearer: []
     get:
       operationId: NotificationController_getAll
@@ -1791,8 +1863,8 @@ paths:
                   $ref: '#/components/schemas/Notification'
         '403':
           description: Отказ в доступе
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_21
+      security: *ref_22
   /dev/api/notification/{id}:
     get:
       operationId: NotificationController_findOne
@@ -1816,8 +1888,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_21
+      security: *ref_22
     delete:
       operationId: NotificationController_remove
       summary: Удалить уведомление
@@ -1840,8 +1912,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_21
+      security: *ref_22
     patch:
       operationId: NotificationController_update
       summary: Изменить уведомление
@@ -1872,8 +1944,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_21
+      security: *ref_22
   /dev/api/notification/{id}/status:
     patch:
       operationId: NotificationController_updateStatus
@@ -1897,8 +1969,8 @@ paths:
           description: Отказ в доступе
         '404':
           description: Ресурс не найден
-      tags: *ref_22
-      security: *ref_23
+      tags: *ref_21
+      security: *ref_22
 info:
   title: API BotKits
   description: Ручки для команды frontend
@@ -2191,40 +2263,115 @@ components:
     UserProfileResponseBodyOK:
       type: object
       properties:
-        _id:
+        id:
           type: string
           example: 65196b9715b55bd51b039144
-          description: ' '
-        username:
+        name:
           type: string
           example: test
-          description: ' '
+        mail:
+          type: string
+          example: test@test.ru
         phone:
           type: string
           example: '+79999999999'
-          description: ' '
+        botCount:
+          type: number
+          example: 0
+        dateRegistration:
+          type: string
+          example: '2024-02-13T10:09:38.909Z'
+        lastActivityAccount:
+          type: string
+          example: '2024-02-13T10:09:38.909Z'
+        lastActivityBot:
+          type: string
+          example: '2024-02-13T10:09:38.909Z'
+        tariff:
+          type: object
+          example:
+            _id: 65196b9715b55bd51b039144
+            name: Демо
+            price: 0
+            botsCount: 10
+            subscribersCount: 120
+            duration: 0D
+            status: true
+            isStarted: true
+            isDemo: true
+        debitDate:
+          type: string
+          example: '2024-02-13T10:09:38.909Z'
+      required:
+        - tariff
+    UserUnauthirizedResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Unauthorized
+          description: Сообщение об ошибке
+        statusCode:
+          type: number
+          example: 401
+          description: HTTP-статус код
+        timestamp:
+          type: string
+          example: '2024-02-04T12:37:00.127Z'
+          description: Время возникновения ошибки
+        path:
+          type: string
+          example: /dev/api/:path
+          description: Путь возникновения ошибки
+    UserResponseBodyOK:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 65196b9715b55bd51b039144
+        username:
+          type: string
+          example: test
+        phone:
+          type: string
+          example: '+79999999999'
         avatar:
           type: string
           example: https://i.pravatar.cc/300
-          description: ' '
         balance:
           type: number
           example: 0
-          description: ' '
+        referredUsers:
+          type: array
+          example: []
+        visited_ref:
+          type: number
+          example: 0
+        registration_ref:
+          type: number
+          example: 0
         accounts:
           type: array
           example:
-            - 65196b9715b55bd51b039144
-        success:
-          type: boolean
-          example: true
-      required:
-        - _id
-        - username
-        - phone
-        - avatar
-        - balance
-        - accounts
+            - 65cb405ca6d2a27bb1d09750
+        receivedSharedAccess:
+          type: array
+          example: []
+        grantedSharedAccess:
+          type: array
+          example: []
+        promocode:
+          type: array
+          example: []
+        dateRegistration:
+          type: string
+          example: '2024-02-13T10:09:38.909Z'
+        lastAccountActivity:
+          type: string
+          example: '2024-02-13T10:09:38.909Z'
+        partner_ref:
+          type: string
+          example: e7f8d6a
     CreateSharedAccessDto:
       type: object
       properties:
@@ -2234,42 +2381,237 @@ components:
           example: test@mail.ru
       required:
         - email
-    Access:
-      type: object
-      properties: {}
-    UpdateSharedAccessDto:
+    SetSharedDescription:
       type: object
       properties:
-        access:
-          $ref: '#/components/schemas/Access'
+        recipientProfile:
+          type: object
+          example:
+            _id: 65196b9715b55bd51b039144
+            username: name
+            phone: '+79001234567'
+            avatar: https://i.pravatar.cc/300
+            balance: 0
+            referredUsers: []
+            visited_ref: 0
+            registration_ref: 0
+            accounts:
+              - 65cb405ca6d2a27bb1d09750
+            receivedSharedAccess:
+              - profile: 65c5e2ee219c9bffc85cb696
+                dashboard: true
+                botBuilder: true
+                mailing: false
+                static: false
+            grantedSharedAccess: []
+            promocode: []
+            dateRegistration: '2024-02-13T10:09:38.909Z'
+            lastAccountActivity: '2024-02-13T10:09:38.909Z'
+            partner_ref: e7f8d6a
+        grantingProfile:
+          type: object
+          example:
+            _id: 65196b9715b55bd51b039144
+            username: name
+            phone: '+79001234567'
+            avatar: https://i.pravatar.cc/300
+            accounts:
+              - 65cb405ca6d2a27bb1d09750
+            balance: 0
+            dateRegistration: '2024-02-13T10:09:38.909Z'
+            grantedSharedAccess:
+              - profile: 65c5e2ee219c9bffc85cb696
+                dashboard: true
+                botBuilder: true
+                mailing: false
+                static: false
+            lastAccountActivity: '2024-02-13T10:09:38.909Z'
+            promocode: []
+            receivedSharedAccess: []
+            referredUsers: []
+            registration_ref: 0
+            visited_ref: 0
       required:
-        - access
-    SingleAccountResponseBodyOK:
+        - recipientProfile
+        - grantingProfile
+    SetSharedNotFound:
+      type: object
+      properties:
+        response:
+          type: object
+          example:
+            message: Профиль получателя не найден
+            error: Not Found
+            statusCode: 404
+        status:
+          type: number
+          example: 404
+          description: HTTP-статус код
+        options:
+          type: object
+          example: {}
+        message:
+          type: string
+          example: Профиль получателя не найден
+          description: Сообщение об ошибке
+        name:
+          type: string
+          example: NotFoundException
+      required:
+        - response
+    SetSharedConflict:
+      type: object
+      properties:
+        response:
+          type: object
+          example:
+            message: Доступ уже был предоставлен этому пользователю
+            error: Conflict
+            statusCode: 409
+        status:
+          type: number
+          example: 409
+          description: HTTP-статус код
+        options:
+          type: object
+          example: {}
+        message:
+          type: string
+          example: Доступ уже был предоставлен этому пользователю
+          description: Сообщение об ошибке
+        name:
+          type: string
+          example: ConflictException
+      required:
+        - response
+    SharedDescription:
+      type: object
+      properties:
+        profile:
+          type: string
+          example: 65196b9715b55bd51b039144
+        dashboard:
+          type: boolean
+          example: true
+        botBuilder:
+          type: boolean
+          example: true
+        mailing:
+          type: boolean
+          example: true
+        static:
+          type: boolean
+          example: true
+    ProfileBadRequestResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Bad Request Exception
+          description: Сообщение об ошибке
+        statusCode:
+          type: number
+          example: 400
+          description: HTTP-статус код
+        timestamp:
+          type: string
+          example: '2024-02-04T12:37:00.127Z'
+          description: Время возникновения ошибки
+        path:
+          type: string
+          example: /dev/api/:path
+          description: Путь возникновения ошибки
+    ResourceIsNotFound:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Ресурс не найден
+          description: Сообщение об ошибке
+        statusCode:
+          type: number
+          example: 400
+          description: HTTP-статус код
+        timestamp:
+          type: string
+          example: '2024-02-04T12:37:00.127Z'
+          description: Время возникновения ошибки
+        path:
+          type: string
+          example: /dev/api/:path
+          description: Путь возникновения ошибки
+    AccountsDescription:
       type: object
       properties:
         _id:
           type: string
-          example: 6516ab8f2c612e8cce53e45f
+          example: 65196b9715b55bd51b039144
         type:
           type: string
           example: local
         role:
           type: string
-          example: user
+          example: admin
         credentials:
           type: object
           example:
-            email: test@mail.ru
-            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-            refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+            email: test@test.ru
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5c
+            refreshToken: +eyJhbGciOiJIUzI1NiIsInR5c
         profile:
           type: string
-          example: 6516ab8f2c612e8cce53e45d
+          example: 65196b9715b55bd51b039144
       required:
         - credentials
-    UpdateProfileDto:
+    AccountsNotFoundResponse:
       type: object
-      properties: {}
+      properties:
+        message:
+          type: string
+          example: Profile with ID 65cb47257fe616dcd10b335a not found
+          description: Сообщение об ошибке
+        statusCode:
+          type: number
+          example: 404
+          description: HTTP-статус код
+        timestamp:
+          type: string
+          example: '2024-02-04T12:37:00.127Z'
+          description: Время возникновения ошибки
+        path:
+          type: string
+          example: /dev/api/:path
+          description: Путь возникновения ошибки
+    UpdateProfile:
+      type: object
+      properties:
+        username:
+          type: string
+          example: name
+        phone:
+          type: string
+          example: '+79501364578'
+        avatar:
+          type: string
+          example: https://i.pravatar.cc/300
+        balance:
+          type: number
+          example: 1400
+        accounts:
+          type: array
+          example: []
+        sharedAccess:
+          type: string
+          example: 64f9ac26edb84d7ebf6281d0
+        partner_ref:
+          type: string
+          example: asfadsfadsf
+        visited_ref:
+          type: number
+          example: 0
+        registration_ref:
+          type: number
+          example: 0
     Tariff:
       type: object
       properties:
@@ -2333,6 +2675,29 @@ components:
     UpdateTariffDto:
       type: object
       properties: {}
+    SingleAccountResponseBodyOK:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 6516ab8f2c612e8cce53e45f
+        type:
+          type: string
+          example: local
+        role:
+          type: string
+          example: user
+        credentials:
+          type: object
+          example:
+            email: test@mail.ru
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+            refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        profile:
+          type: string
+          example: 6516ab8f2c612e8cce53e45d
+      required:
+        - credentials
     InvalidTokenResponse:
       type: object
       properties:
@@ -2392,7 +2757,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-02-11T10:26:02.920Z
+          example: 2024-02-13T12:06:02.890Z
         amount:
           type: number
           example: 1000
@@ -2503,7 +2868,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-02-11T10:26:02.886Z
+          example: 2024-02-13T12:06:02.865Z
         isCancelled:
           type: boolean
           example: false
@@ -2798,7 +3163,7 @@ components:
         messengers:
           type: array
           example:
-            - &ref_24
+            - &ref_23
               name: name-bot
               pages:
                 - vk.com/club1245321223
@@ -2818,32 +3183,13 @@ components:
           example: false
         permission:
           type: object
-          example: &ref_25
+          example: &ref_24
             dashboard: true
             botBuilder: true
             mailing: true
             static: true
       required:
         - permission
-    UserUnauthirizedResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Unauthorized
-          description: Сообщение об ошибке
-        statusCode:
-          type: number
-          example: 401
-          description: HTTP-статус код
-        timestamp:
-          type: string
-          example: '2024-02-04T12:37:00.127Z'
-          description: Время возникновения ошибки
-        path:
-          type: string
-          example: /dev/api/:path
-          description: Путь возникновения ошибки
     BotCreateRequestBody:
       type: object
       properties:
@@ -2904,7 +3250,7 @@ components:
         messengers:
           type: array
           example:
-            - *ref_24
+            - *ref_23
         commands:
           type: array
           example:
@@ -2922,7 +3268,7 @@ components:
           example: 65c12f9e1aab02a0f1392f32
         permission:
           type: object
-          example: *ref_25
+          example: *ref_24
       required:
         - permission
     BotDataBadRequestResponse:
@@ -3101,7 +3447,7 @@ components:
           example: false
         permission:
           type: object
-          example: *ref_25
+          example: *ref_24
       required:
         - permission
     CreateTemplateDto:
@@ -3162,7 +3508,7 @@ components:
           example: 65c12f9e1aab02a0f1392f32
         permission:
           type: object
-          example: *ref_25
+          example: *ref_24
       required:
         - permission
     TemplateDataConflictResponse:
@@ -3398,10 +3744,10 @@ components:
           example: false
         permission:
           type: object
-          example: *ref_25
+          example: *ref_24
         settings:
           type: object
-          example: &ref_26
+          example: &ref_25
             prop1: prop1
             prop2: prop2
       required:
@@ -3507,7 +3853,7 @@ components:
           example: false
         settings:
           type: object
-          example: *ref_26
+          example: *ref_25
       required:
         - settings
     UpdateBotNotFoundBadRequest:
