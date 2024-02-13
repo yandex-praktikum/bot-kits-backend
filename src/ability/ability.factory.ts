@@ -20,11 +20,11 @@ import { UpdatePlatformDto } from 'src/platforms/dto/update-platform.dto';
 import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
 import { UpdateProfileDto } from 'src/profiles/dto/update-profile.dto';
 import { Profile } from 'src/profiles/schema/profile.schema';
+import { Statistics } from 'src/statistics/schema/statistics.schema';
 import {
   Subscription,
   SubscriptionDocument,
 } from 'src/subscriptions/schema/subscription.schema';
-import { Tariff, TariffDocument } from 'src/tariffs/schema/tariff.schema';
 
 //ability.factory.ts
 export enum Action {
@@ -48,6 +48,7 @@ export type Subjects = InferSubjects<
   | typeof CreatePlatformDto
   | typeof UpdateNotificationDto
   | typeof CreateNotificationDto
+  | typeof Statistics
   | 'all'
 >;
 
@@ -58,7 +59,6 @@ export class AbilityFactory {
     @InjectModel(Bot.name) private botModel: Model<BotDocument>,
     @InjectModel(Subscription.name)
     private subscriptionModel: Model<SubscriptionDocument>,
-    @InjectModel(Tariff.name) private tariffModel: Model<TariffDocument>,
   ) {}
 
   private getRole(user, soughtRole): boolean {
@@ -99,20 +99,30 @@ export class AbilityFactory {
 
     //--Здесь определяем правила доступа--//
     if (isAdmin) {
+      cannot(Action.Manage, Statistics).because(
+        'Этот функционал только у супер администратора',
+      );
+
       //--Администраторы могут делать запросы по эндпоинтам связанные с профилем--//
       can(Action.Manage, UpdateProfileDto);
       //--Администраторы НЕ могут удалять чужие профиля и получать к ним доступ--//
-      cannot(Action.Manage, CreateProfileDto);
+      cannot(Action.Manage, CreateProfileDto).because(
+        'Этот функционал только у супер администратора',
+      );
 
       //--Администраторы могут только получать платформы--//
       can(Action.Read, UpdatePlatformDto);
       //--Администраторы НЕ могут удалять, обновлять и создавать платформы--//
-      cannot(Action.Manage, CreatePlatformDto);
+      cannot(Action.Manage, CreatePlatformDto).because(
+        'Этот функционал только у супер администратора',
+      );
 
       //--Администраторы могут только создавать уведомления--//
       can([Action.Read, Action.Update], UpdateNotificationDto);
       //--Администраторы НЕ могут удалять, изменять и получать уведомления--//
-      cannot(Action.Manage, CreateNotificationDto);
+      cannot(Action.Manage, CreateNotificationDto).because(
+        'Этот функционал только у супер администратора',
+      );
 
       //--Администраторы НЕ имеют право на любые действия связанные с шаблонами--//
       cannot(Action.Manage, CreateTemplateDto).because(
@@ -170,7 +180,10 @@ export class AbilityFactory {
           profile.equals(user._id),
         );
       } else {
-        cannot([Action.Copy, Action.Create], [CreateBotDto, UpdateBotDto]);
+        cannot(
+          [Action.Copy, Action.Create],
+          [CreateBotDto, UpdateBotDto],
+        ).because('Оформите подписку');
       }
     } else if (isSuperAdmin) {
       //--Супер администраторы имеют доступ ко всем операциям в приложении--//
