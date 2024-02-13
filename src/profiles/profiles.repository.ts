@@ -13,7 +13,6 @@ import { CreateSharedAccessDto } from './dto/create-access.dto';
 import { Bot } from 'src/bots/schema/bots.schema';
 import { Subscription } from 'src/subscriptions/schema/subscription.schema';
 import { Tariff } from 'src/tariffs/schema/tariff.schema';
-import TypeAccount from 'src/accounts/types/type-account';
 import Role from 'src/accounts/types/role';
 
 // Определение типа для ответа функции findAll
@@ -66,7 +65,9 @@ export class ProfilesRepository {
         phone: user.phone,
         botCount: allBotsUser.length,
         dateRegistration: user.dateRegistration, // Используем дату создния из модели пользователя
-        lastActivityAccount: user.lastAccountActivity, // Требует реализации
+        lastActivityAccount: user.lastAccountActivity
+          ? user.lastAccountActivity
+          : new Date(), // Требует реализации
         lastActivityBot: new Date(), // Требует реализации
         tariff: subscriptionUser ? subscriptionUser.tariff : null,
         debitDate: subscriptionUser ? subscriptionUser.debitDate : null,

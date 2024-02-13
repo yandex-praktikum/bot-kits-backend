@@ -1591,43 +1591,6 @@ paths:
                 $ref: '#/components/schemas/UserUnauthirizedResponse'
       tags: *ref_20
       security: *ref_21
-  /dev/api/bots/copy/{id}:
-    post:
-      operationId: BotsController_copyBot
-      summary: Копирование бота
-      parameters:
-        - *ref_19
-        - name: id
-          required: true
-          in: path
-          description: Идентификатор бота
-          example: 64f81ba37571bfaac18a857f
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CopyBotDto'
-      responses:
-        '201':
-          description: Бот скопирован
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateBotResponseOk'
-        '400':
-          description: Ресурс не найден
-        '401':
-          description: Отказ в доступе
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserUnauthirizedResponse'
-      tags: *ref_20
-      security: *ref_21
-  /dev/api/bots/bot{id}:
     patch:
       operationId: BotsController_update
       summary: Обновить бота
@@ -1671,6 +1634,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateBotNotFoundBadRequest'
+      tags: *ref_20
+      security: *ref_21
+  /dev/api/bots/copy/{id}:
+    post:
+      operationId: BotsController_copyBot
+      summary: Копирование бота
+      parameters:
+        - *ref_19
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopyBotDto'
+      responses:
+        '201':
+          description: Бот скопирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateBotResponseOk'
+        '400':
+          description: Ресурс не найден
+        '401':
+          description: Отказ в доступе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
       tags: *ref_20
       security: *ref_21
   /dev/api/bots/{id}:
@@ -2393,7 +2392,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-02-12T14:02:06.382Z
+          example: 2024-02-13T09:49:23.864Z
         amount:
           type: number
           example: 1000
@@ -2504,7 +2503,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-02-12T14:02:06.346Z
+          example: 2024-02-13T09:49:23.827Z
         isCancelled:
           type: boolean
           example: false
