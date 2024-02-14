@@ -6,6 +6,7 @@ import { BlacklistTokensService } from 'src/blacklistTokens/blacklistTokens.serv
 import { ProfilesService } from 'src/profiles/profiles.service';
 import { TJwtRequest } from 'src/types/jwtRequest';
 
+//socketMiddleware.ts
 export const socketMiddleware =
   (
     jwtService: JwtService,
@@ -32,6 +33,9 @@ export const socketMiddleware =
       if ((await blacklistTokensService.isTokenBlacklisted(token)) || !user) {
         throw new Error('Пользователь не авторизован');
       }
+
+      // Прикрепляем объект пользователя к socket для последующего использования
+      socket.user = user;
 
       next();
     } catch (err) {

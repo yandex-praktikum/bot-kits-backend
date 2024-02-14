@@ -5,44 +5,44 @@ const io = require('socket.io-client');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const inquirer = require('inquirer');
 
-// const socket = io('http://127.0.0.1:3001/chats', {
-//   // extraHeaders: {
-//   //   Authorization: Bearer token-yes,
-//   // },
-//   extraHeaders: {
-//     Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWM4YWFiMWI1ZDdiODYyNTZhYjU1M2QiLCJqdGkiOiIxYjJiZDU3ZWVlOTExZWRlY2Y1YzYzMzU2MDU3NDA2NyIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MDc2NDk3NDQsImV4cCI6MTcwNzczNjE0NH0.wzTP94TjUf9hYZjCn2dq_tpQqZ9OjbVWR-B60o8kCqI`,
-//   },
-// });
+const socket = io('http://127.0.0.1:3001', {
+  // extraHeaders: {
+  //   Authorization: Bearer token-yes,
+  // },
+  extraHeaders: {
+    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWNkMjQwMWVhMWFlNmQ5ZTUyMDY1ZjAiLCJqdGkiOiI0YWY5ZjdmYTljZTA1ZDQ1NzhkZjI4OWExM2RlNGM5YSIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MDc5NDI5MTMsImV4cCI6MTcwODAyOTMxM30.ScUslLD_3bPvAlJ7UyuqU32Znry7p3lStzH9lTCponw`,
+  },
+});
 
-const socket = io('http://127.0.0.1:3001');
+// const socket = io('http://127.0.0.1:3001');
 
 let user = {
   name: '',
   id: '',
 };
 
+let message = {
+  avatar: '',
+  user: 'Вячеслав Баумтрок',
+  message: 'Инициализация дилога',
+  time: '16 мин назад',
+  online: false,
+  seen: '14:05',
+  status: 'read',
+};
+
 let rooms;
 //Слушатели собыий с сервера
 // Обработчик успешного подключения
 socket.on('connect', async () => {
-  console.log('Connected to the server.');
-  // Запрос имени пользователя перед регистрацией
-  const answers = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'name',
-      message: 'Введите ваше имя:',
-    },
-  ]);
-
-  user.name = answers.name;
-  socket.emit('register', { name: user.name });
+  console.log('Connected to the server successful');
 });
 
 // Подписка на событие 'registered' для получения ответа от сервера после регистрации
 socket.on('registered', (data) => {
   console.log('Успешно зарегистрирован пользователь:', data);
-  user = data;
+  user.name = data.name;
+  user.id = data.id;
   setTimeout(() => showMenu(user), 1000); // Передача имени пользователя в showMenu
 });
 
@@ -69,24 +69,21 @@ socket.on('start-dialog', (msg) => {
 });
 
 // Подписка на получение сообщений в чате
-socket.on('newChat', (msg) => {
-  console.log(
-    `Сработало событие создание нового чата у фронитового клиента - ${JSON.stringify(
-      msg,
-      null,
-      2,
-    )}`,
-  );
+socket.on('newChat', async (chatData) => {
+  // console.log(
+  //   `Сработало событие создание нового чата у фронитового клиента - ${JSON.stringify(
+  //     chatData,
+  //     null,
+  //     2,
+  //   )}`,
+  // );
+  const res = JSON.parse(chatData);
   socket.emit('start-dialog', {
-    from: msg.from,
-    to: msg.to,
-    message: msg.message,
+    from: res.sender,
+    to: res.participants[1],
   });
-  socket.emit('message', {
-    from: msg.from,
-    to: `/${msg.to}:${msg.from}`,
-    message: msg.message,
-  });
+
+  socket.emit('message', res);
 });
 
 //Эмитеры событий к серверу
