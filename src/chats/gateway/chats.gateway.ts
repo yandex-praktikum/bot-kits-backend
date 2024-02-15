@@ -10,7 +10,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RedisService } from 'src/redis/redis.service';
-import { v4 as uuidv4 } from 'uuid';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { Redis } from 'ioredis';
 import { Emitter } from '@socket.io/redis-emitter';
@@ -92,6 +91,8 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('registered', { name: user.username, id: user._id });
       client.join(`/user/${user._id}`); // Присоединение к комнате пользователя.
       this.pubClient.publish('register', `${user._id}`);
+
+      this.pubClient.publish('get_rooms', JSON.stringify({ userId: user._id }));
     } else {
       console.log('Пользователь не аутентифицирован');
     }
@@ -119,11 +120,6 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
       //this.taskClient.publish('message', JSON.stringify({ from, to, message }));
-      // Также можете здесь добавить логику для создания метаданных нового чата в Redis
-      await this.pubClient.set(
-        `chat:${roomName}`,
-        JSON.stringify({ roomName, roomNamereversed }),
-      );
     } else {
       console.log(`Уже присоединен к комнате: ${existingRoom}`);
       client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
@@ -135,7 +131,9 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody() msg: any,
   ) {
-    console.log(`/${msg.participants[0]}:${msg.participants[1]}`);
+    console.log(
+      `Сработало событие mesage на рутовом сервере /${msg.participants[0]}:${msg.participants[1]}`,
+    );
     this.server
       .to(`/${msg.participants[0]}:${msg.participants[1]}`)
       .emit('message', msg); // Отправка сообщения всем в комнате чата.

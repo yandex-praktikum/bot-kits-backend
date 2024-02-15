@@ -10,7 +10,7 @@ const socket = io('http://127.0.0.1:3001', {
   //   Authorization: Bearer token-yes,
   // },
   extraHeaders: {
-    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWNkMjQwMWVhMWFlNmQ5ZTUyMDY1ZjAiLCJqdGkiOiI0YWY5ZjdmYTljZTA1ZDQ1NzhkZjI4OWExM2RlNGM5YSIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MDc5NDI5MTMsImV4cCI6MTcwODAyOTMxM30.ScUslLD_3bPvAlJ7UyuqU32Znry7p3lStzH9lTCponw`,
+    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWNkZmE5NGM0ZGIyYTQ1Y2JkZDMyODMiLCJqdGkiOiI4MDY0MDkyOWJjOThhNjNjYTc5YTA5MmI5NTRiNjdkYiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MDc5OTc4NDUsImV4cCI6MTcwODA4NDI0NX0.Pnj5b52S6UTlVre8hfgpkhgxu8u3u-ovV_zMi1YXthY`,
   },
 });
 
@@ -21,14 +21,13 @@ let user = {
   id: '',
 };
 
-let message = {
+let messageData = {
+  participants: [],
+  sender: user.name, // Идентификатор отправителя
+  message: '', // Текст сообщения
+  time: new Date().toISOString(), // Временная метка сообщения
+  status: 'sent', // Статус сообщения
   avatar: '',
-  user: 'Вячеслав Баумтрок',
-  message: 'Инициализация дилога',
-  time: '16 мин назад',
-  online: false,
-  seen: '14:05',
-  status: 'read',
 };
 
 let rooms;
@@ -70,13 +69,13 @@ socket.on('start-dialog', (msg) => {
 
 // Подписка на получение сообщений в чате
 socket.on('newChat', async (chatData) => {
-  // console.log(
-  //   `Сработало событие создание нового чата у фронитового клиента - ${JSON.stringify(
-  //     chatData,
-  //     null,
-  //     2,
-  //   )}`,
-  // );
+  console.log(
+    `Сработало событие создание нового чата у фронитового клиента - ${JSON.stringify(
+      chatData,
+      null,
+      2,
+    )}`,
+  );
   const res = JSON.parse(chatData);
   socket.emit('start-dialog', {
     from: res.sender,
@@ -128,9 +127,11 @@ function showMenu(user) {
                 },
               ])
               .then((answer) => {
+                const participantsArray = answer.room.substring(1).split(':');
                 const answerObj = {
-                  to: answer.room, // Добавлено указание комнаты
-                  from: user.name,
+                  ...messageData,
+                  participants: participantsArray, // Добавлено указание комнаты
+                  sender: user.name,
                   message: answer.message,
                 };
                 // Отправка сообщения в указанную комнату или пользователю
