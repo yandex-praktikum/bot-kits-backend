@@ -126,6 +126,10 @@ Promise.all([
       return;
     }
 
+    emitter
+      .to(`/user/${objMessage.participants[1]}`)
+      .emit('message', messageData); // Отправка уведомления пользователю.
+
     try {
       const message = new Messages(objMessage); // Создание экземпляра сообщения для MongoDB.
 
@@ -160,10 +164,32 @@ Promise.all([
   });
 
   subClient.subscribe('get_rooms', async (data) => {
+    console.log(`Сработало событие на воркере get_rooms - ${data}`);
     const { userId } = JSON.parse(data); // Разбор JSON строки с задачей.
 
     const chats = await Chats.find({
       profile: new mongoose.Types.ObjectId(userId),
+    });
+
+    const rooms = chats.map((room) => room.chatId);
+
+    emitter.to(`/user/${userId}`).emit('send_rooms', rooms); // Отправка уведомления пользователю.
+  });
+
+  // Подписка на канал 'rigister' и обработка полученных задач.
+  subClient.subscribe('register', async (user) => {
+    const userObj = JSON.parse(user);
+    console.log(`Сработало событие на воркере register - ${user}`);
+
+    const chats = await Chats.find({
+      profile: new mongoose.Types.ObjectId(
+        new mongoose.Types.ObjectId(userObj._id),
+      ),
+    }).populate('messages');
+
+    chats.forEach(async (chat) => {
+      // Кэширование истории сообщений в Redis.
+      await cacheClient.set(`history/${chat.chatId}`, JSON.stringify(chats));
     });
   });
 });

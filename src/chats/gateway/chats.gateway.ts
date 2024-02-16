@@ -87,10 +87,12 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     if (client.user) {
       console.log(`Пользователь ${user.username} подключен`);
-      // Теперь вы можете использовать данные пользователя для любых целей
+      //тут можно отправит уведосление пользователю
       client.emit('registered', { name: user.username, id: user._id });
+      //подключаем пользователя в отдельную комнату для уведомлений и прочего
       client.join(`/user/${user._id}`); // Присоединение к комнате пользователя.
-      this.pubClient.publish('register', `${user._id}`);
+
+      this.pubClient.publish('register', JSON.stringify(user));
 
       this.pubClient.publish('get_rooms', JSON.stringify({ userId: user._id }));
     } else {
@@ -150,6 +152,21 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleTask(@ConnectedSocket() client: Socket, @MessageBody() msg: any) {
     console.log(`task: `, msg);
     this.redisService.publish('task', JSON.stringify(msg)); // Публикация задачи в Redis.
+  }
+
+  @SubscribeMessage('send_rooms')
+  handleSendRooms(
+    @ConnectedSocket() client: AuthenticatedSocket,
+    @MessageBody() msg: any,
+  ) {
+    console.log(msg);
+
+    msg.forEach((element) => {
+      console.log(`Подключили пользователя к комнате - ${element}`);
+      client.join(element);
+    });
+
+    client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
   }
 
   handleDisconnect(client: Socket) {

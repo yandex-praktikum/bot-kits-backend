@@ -10,7 +10,7 @@ const socket = io('http://127.0.0.1:3001', {
   //   Authorization: Bearer token-yes,
   // },
   extraHeaders: {
-    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWNkZmE5NGM0ZGIyYTQ1Y2JkZDMyODMiLCJqdGkiOiI4MDY0MDkyOWJjOThhNjNjYTc5YTA5MmI5NTRiNjdkYiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MDc5OTc4NDUsImV4cCI6MTcwODA4NDI0NX0.Pnj5b52S6UTlVre8hfgpkhgxu8u3u-ovV_zMi1YXthY`,
+    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWNmYTUzYWQzNGUxZDU2NGQxYWY3MWUiLCJqdGkiOiIyNGIxYTMwMDlhYzU2N2JkMjNjMzNiMjNiZDgxYjg3OCIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MDgxMDcwNjYsImV4cCI6MTcwODE5MzQ2Nn0.igx_cS9pOy-jaxv5tizVbtQbtYCOA_udbMKVOXP8Jms`,
   },
 });
 
@@ -48,6 +48,16 @@ socket.on('registered', (data) => {
 // Подписка на приглашение в чат
 socket.on('invite', (inviteData) => {
   console.log('Received invite to dialog:', inviteData);
+});
+
+// Подписка на приглашение в чат
+socket.on('send_rooms', (inviteData) => {
+  console.log(
+    'Сработало событие получение чатов у фронитового клиента:',
+    inviteData,
+  );
+
+  socket.emit('send_rooms', inviteData);
 });
 
 // Подписка на получение сообщений в чате
