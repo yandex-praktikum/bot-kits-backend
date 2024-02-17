@@ -86,7 +86,7 @@ export class BotsRepository {
         dashboard: true, // предполагаем, что владелец имеет полный доступ
         botBuilder: true,
         mailing: true,
-        static: true,
+        statistics: true,
       };
     } else {
       // Извлечение прав доступа для бота, предоставленных другими пользователями
@@ -99,7 +99,7 @@ export class BotsRepository {
           dashboard: access.dashboard,
           botBuilder: access.botBuilder,
           mailing: access.mailing,
-          static: access.static,
+          statistics: access.statistics,
         };
       } else {
         throw new Error('Доступ этому боту не предоставлен');
@@ -229,7 +229,7 @@ export class BotsRepository {
         dashboard: access?.dashboard,
         botBuilder: access?.botBuilder,
         mailing: access?.mailing,
-        static: access?.static,
+        statistics: access?.statistics,
       };
     });
 

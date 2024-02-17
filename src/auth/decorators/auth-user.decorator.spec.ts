@@ -29,7 +29,7 @@ jest.mock('src/profiles/schema/profile.schema', () => {
     dasboard = true;
     botBuilder = true;
     mailing = true;
-    static = true;
+    statistics = true;
   }
 
   return {

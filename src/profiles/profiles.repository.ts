@@ -282,7 +282,7 @@ export class ProfilesRepository {
         dashboard: access.dashboard,
         botBuilder: access.botBuilder,
         mailing: access.mailing,
-        static: access.static,
+        statistics: access.statistics,
       };
     });
 

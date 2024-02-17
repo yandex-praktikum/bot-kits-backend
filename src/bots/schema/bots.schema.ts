@@ -48,7 +48,7 @@ export class Permission {
 
   @IsNotEmpty()
   @IsBoolean()
-  static: boolean;
+  statistics: boolean;
 }
 
 @Schema(baseSchemaOptions)

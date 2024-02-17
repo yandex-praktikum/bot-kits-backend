@@ -27,7 +27,7 @@ const permission: IFieldDescription = createNestedObject([
   createField('dashboard', true, 'boolean'),
   createField('botBuilder', true, 'boolean'),
   createField('mailing', true, 'boolean'),
-  createField('static', true, 'boolean'),
+  createField('statistics', true, 'boolean'),
 ]);
 
 const createBot: IFieldDescription[] = [
