@@ -2240,10 +2240,22 @@ components:
     UpdateSharedAccessDto:
       type: object
       properties:
-        access:
-          $ref: '#/components/schemas/Access'
+        profile:
+          type: string
+        dashboard:
+          type: boolean
+        botBuilder:
+          type: boolean
+        mailing:
+          type: boolean
+        statistics:
+          type: boolean
       required:
-        - access
+        - profile
+        - dashboard
+        - botBuilder
+        - mailing
+        - statistics
     SingleAccountResponseBodyOK:
       type: object
       properties:
@@ -2392,7 +2404,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-02-17T09:48:37.780Z
+          example: 2024-02-17T10:33:11.604Z
         amount:
           type: number
           example: 1000
@@ -2503,7 +2515,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-02-17T09:48:37.753Z
+          example: 2024-02-17T10:33:11.576Z
         isCancelled:
           type: boolean
           example: false
@@ -2822,7 +2834,7 @@ components:
             dashboard: true
             botBuilder: true
             mailing: true
-            static: true
+            statistics: true
       required:
         - permission
     UserUnauthirizedResponse:
@@ -3270,7 +3282,7 @@ components:
             dashboard: true
             botBuilder: true
             mailing: true
-            static: true
+            statistics: true
       required:
         - title
         - permission

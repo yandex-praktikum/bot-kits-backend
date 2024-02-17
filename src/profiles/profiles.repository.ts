@@ -277,6 +277,7 @@ export class ProfilesRepository {
           : null;
 
       return {
+        _id: access.profile._id,
         username,
         email,
         dashboard: access.dashboard,

@@ -142,7 +142,7 @@ export class ProfilesController {
   ): Promise<Profile> {
     return this.profilesService.updateAccesses(
       req.user.id,
-      updateSharedAccessDto.access,
+      updateSharedAccessDto,
     );
   }
 
