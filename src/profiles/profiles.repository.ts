@@ -87,7 +87,7 @@ export class ProfilesRepository {
       dashboard: true,
       botBuilder: true,
       mailing: false,
-      static: false,
+      statistics: false,
     };
   }
 
