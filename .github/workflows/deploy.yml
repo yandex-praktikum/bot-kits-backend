@@ -27,4 +27,4 @@ jobs:
 
     - name: Deploy to Server
       run: |
-        ssh -i private_key -o StrictHostKeyChecking=no botkits@84.201.178.186 "cd /home/botkits/bot-kits-backend && git pull && sudo docker compose --file docker-compose-dev-release.yml down -v && sudo docker compose --file docker-compose-dev-release.yml up -d --build"
+        ssh -i private_key -o StrictHostKeyChecking=no botkits@84.201.178.186 "cd /home/botkits/bot-kits-backend && git remote prune origin && git pull && sudo docker compose --file docker-compose-dev-release.yml down -v && sudo docker compose --file docker-compose-dev-release.yml up -d --build"

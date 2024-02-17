@@ -103,7 +103,7 @@ export class Bot extends Document {
       dashboard: true,
       botBuilder: true,
       mailing: true,
-      static: true,
+      statistics: true,
     }),
   })
   permission: Permission;

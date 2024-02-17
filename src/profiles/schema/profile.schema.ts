@@ -71,7 +71,7 @@ export class Access {
   dashboard: boolean;
   botBuilder: boolean;
   mailing: boolean;
-  static: boolean;
+  statistics: boolean;
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);
