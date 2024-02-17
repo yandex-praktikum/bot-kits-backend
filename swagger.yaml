@@ -2392,7 +2392,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-02-13T10:12:23.949Z
+          example: 2024-02-17T09:48:37.780Z
         amount:
           type: number
           example: 1000
@@ -2503,7 +2503,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-02-13T10:12:23.916Z
+          example: 2024-02-17T09:48:37.753Z
         isCancelled:
           type: boolean
           example: false

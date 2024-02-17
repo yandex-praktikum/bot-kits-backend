@@ -245,14 +245,48 @@ export class ProfilesRepository {
     }
   }
 
-  async findAllGrantedAccesses(userId: string): Promise<Access[]> {
-    const profile = await this.profileModel.findById(userId);
+  async findAllGrantedAccesses(userId: string): Promise<any> {
+    const profile = await this.profileModel
+      .findById(userId)
+      .populate({
+        path: 'grantedSharedAccess',
+        populate: {
+          path: 'profile',
+          model: 'Profile',
+          populate: {
+            path: 'accounts',
+            model: 'Account',
+          },
+        },
+      })
+      .exec();
 
     if (!profile) {
       throw new NotFoundException('Профиль не найден');
     }
 
-    return profile.grantedSharedAccess;
+    // Убедитесь, что profile.grantedSharedAccess соответствует ожидаемому типу
+    const accesses = profile.grantedSharedAccess as any;
+
+    // Трансформация результатов
+    const transformedAccesses = accesses.map((access) => {
+      const username = access.profile.username;
+      const email =
+        access.profile.accounts.length > 0
+          ? access.profile.accounts[0].credentials.email
+          : null;
+
+      return {
+        username,
+        email,
+        dashboard: access.dashboard,
+        botBuilder: access.botBuilder,
+        mailing: access.mailing,
+        static: access.static,
+      };
+    });
+
+    return transformedAccesses;
   }
 
   async updateAccesses(grantorId: string, access: Access): Promise<Access[]> {
