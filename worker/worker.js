@@ -81,7 +81,13 @@ Promise.all([
 
   // Подписка на канал 'task' и обработка полученных задач.
   subClient.subscribe('newChat', async (chatData) => {
-    console.log(`Сработал подписчик на newChat в воркере - ` + chatData);
+    console.log(
+      `Сработал подписчик на newChat в воркере - ${JSON.stringify(
+        chatData,
+        null,
+        2,
+      )}`,
+    );
     const { participants } = JSON.parse(chatData); // Разбор JSON строки с задачей.
 
     try {
@@ -91,11 +97,12 @@ Promise.all([
       }); // Создание экземпляра сообщения для MongoDB.
 
       await newChat.save(); // Сохранение сообщения в MongoDB.
+
       // Добавили в Redis комнату
-      await pubClient.set(
-        `chat:${newChat.chatId}`,
-        JSON.stringify({ newChat }),
-      );
+      // await pubClient.set(
+      //   `chat:${newChat.chatId}`,
+      //   JSON.stringify({ newChat }),
+      // );
     } catch (e) {
       if (e.code === 11000) {
         console.log('Отправили пользователя в свою комнату с этмтом message');
@@ -115,10 +122,16 @@ Promise.all([
       objMessage.chatId = `/${objMessage.participants[0]}:${objMessage.participants[1]}`;
     }
 
-    console.log(`Сработало событие на воркере message - ${messageData}`);
+    console.log(
+      `Сработало событие на воркере message - ${JSON.stringify(
+        messageData,
+        null,
+        2,
+      )}`,
+    );
 
     const chat = await Chats.findOne({
-      profile: new mongoose.Types.ObjectId(objMessage.participants[1]),
+      profile: new mongoose.Types.ObjectId(`${objMessage.participants[1]}`),
     });
 
     if (!chat) {
@@ -137,19 +150,19 @@ Promise.all([
 
       await pushToArray(chat.messages, message._id);
       await chat.save();
-      console.log(`save message (${message._id}) to history`);
+      console.log(`save message ${message._id}) to history`);
     } catch (err) {
       console.log(err.message); // Логирование в случае ошибки.
     }
 
-    // Получение последних 30 сообщений из MongoDB.
-    const lastMessages = await Messages.find({})
-      .limit(30)
-      .sort('createdAt')
-      .exec();
+    // // Получение последних 30 сообщений из MongoDB.
+    // const lastMessages = await Messages.find({})
+    //   .limit(30)
+    //   .sort('createdAt')
+    //   .exec();
 
     // Кэширование истории сообщений в Redis.
-    await cacheClient.set('history', JSON.stringify(lastMessages));
+    //await cacheClient.set('history', JSON.stringify(lastMessages));
     console.log('saved history cache');
   });
 
@@ -164,7 +177,13 @@ Promise.all([
   });
 
   subClient.subscribe('get_rooms', async (data) => {
-    console.log(`Сработало событие на воркере get_rooms - ${data}`);
+    console.log(
+      `Сработало событие на воркере get_rooms - ${JSON.stringify(
+        data,
+        null,
+        2,
+      )}`,
+    );
     const { userId } = JSON.parse(data); // Разбор JSON строки с задачей.
 
     const chats = await Chats.find({
@@ -179,7 +198,13 @@ Promise.all([
   // Подписка на канал 'rigister' и обработка полученных задач.
   subClient.subscribe('register', async (user) => {
     const userObj = JSON.parse(user);
-    console.log(`Сработало событие на воркере register - ${user}`);
+    console.log(
+      `Сработало событие на воркере register - ${JSON.stringify(
+        user,
+        null,
+        2,
+      )}`,
+    );
 
     const chats = await Chats.find({
       profile: new mongoose.Types.ObjectId(
@@ -187,9 +212,15 @@ Promise.all([
       ),
     }).populate('messages');
 
+    if (chats.length === 0 || !chats) {
+      console.log('У пользователя нет пока истории');
+      return;
+    }
+
     chats.forEach(async (chat) => {
+      console.log(`Складыываем чат в кеш - ${JSON.stringify(chat, null, 2)}`);
       // Кэширование истории сообщений в Redis.
-      await cacheClient.set(`history/${chat.chatId}`, JSON.stringify(chats));
+      await cacheClient.set(`history/${chat.chatId}`, JSON.stringify(chat));
     });
   });
 });

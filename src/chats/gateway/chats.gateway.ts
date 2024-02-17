@@ -159,8 +159,6 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody() msg: any,
   ) {
-    console.log(msg);
-
     msg.forEach((element) => {
       console.log(`Подключили пользователя к комнате - ${element}`);
       client.join(element);

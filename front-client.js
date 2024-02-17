@@ -10,7 +10,7 @@ const socket = io('http://127.0.0.1:3001', {
   //   Authorization: Bearer token-yes,
   // },
   extraHeaders: {
-    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWNmYTUzYWQzNGUxZDU2NGQxYWY3MWUiLCJqdGkiOiIyNGIxYTMwMDlhYzU2N2JkMjNjMzNiMjNiZDgxYjg3OCIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MDgxMDcwNjYsImV4cCI6MTcwODE5MzQ2Nn0.igx_cS9pOy-jaxv5tizVbtQbtYCOA_udbMKVOXP8Jms`,
+    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWQxMDMxN2FmMzQzZDlhZGFlMzM0MzIiLCJqdGkiOiIwMWJkNTc4Y2ZmNjBlYTMwOTZlYzA1ZTU2YzdlOTM1MiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MDgxOTY2MzEsImV4cCI6MTcwODI4MzAzMX0.jUIVH2rAI9sUQz6e2hx-GUOtusLL_gGpDUBkZumze5Q`,
   },
 });
 
@@ -138,6 +138,7 @@ function showMenu(user) {
               ])
               .then((answer) => {
                 const participantsArray = answer.room.substring(1).split(':');
+
                 const answerObj = {
                   ...messageData,
                   participants: participantsArray, // Добавлено указание комнаты
