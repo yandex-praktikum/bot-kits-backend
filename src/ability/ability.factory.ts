@@ -130,7 +130,12 @@ export class AbilityFactory {
       );
 
       //--Администраторы могут делать запросы по эндпоинтам связанные с ботами--//
-      can([Action.Share, Action.Read], [CreateBotDto]);
+      can([Action.Share, Action.Read, Action.Delete], [CreateBotDto]);
+
+      //--Администраторы могут удалять бота если они его создатели--//
+      can(Action.Delete, this.botModel, ({ profile }) =>
+        profile.equals(user._id),
+      );
 
       //проверяем есть ли у пользователя активная подписка
       if (await this.getSubStatus()) {
@@ -174,11 +179,6 @@ export class AbilityFactory {
           //--Администраторы могут создать бота--//
           can([Action.Create], [CreateBotDto]);
         }
-
-        //--Администраторы могут удалять бота если они его создатели--//
-        can(Action.Delete, this.botModel, ({ profile }) =>
-          profile.equals(user._id),
-        );
       } else {
         cannot(
           [Action.Copy, Action.Create],

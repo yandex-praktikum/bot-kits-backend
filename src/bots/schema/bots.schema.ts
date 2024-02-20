@@ -48,7 +48,7 @@ export class Permission {
 
   @IsNotEmpty()
   @IsBoolean()
-  static: boolean;
+  statistics: boolean;
 }
 
 @Schema(baseSchemaOptions)
@@ -103,7 +103,7 @@ export class Bot extends Document {
       dashboard: true,
       botBuilder: true,
       mailing: true,
-      static: true,
+      statistics: true,
     }),
   })
   permission: Permission;

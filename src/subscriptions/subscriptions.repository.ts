@@ -73,6 +73,7 @@ export class SubscriptionsRepository {
       debitDate: new Date(),
       balance: profile.balance,
       payments: payment,
+      isCancelled: false,
     };
 
     if (subscription) {
@@ -83,6 +84,7 @@ export class SubscriptionsRepository {
       dataObject.status = subscription.status;
       dataObject.cardMask = subscription.cardMask;
       dataObject.debitDate = subscription.debitDate;
+      dataObject.isCancelled = subscription.isCancelled;
     }
     return dataObject;
   }

@@ -90,7 +90,7 @@ export class ProfilesService {
     return await this.profilesRepository.findAllGrantedAccesses(userId);
   }
 
-  async updateAccesses(userId: string, access: Access) {
+  async updateAccesses(userId: string, access: any) {
     try {
       return await this.profilesRepository.updateAccesses(userId, access);
     } catch (e) {
