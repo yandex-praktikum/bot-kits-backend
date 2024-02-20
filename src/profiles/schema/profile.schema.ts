@@ -30,18 +30,18 @@ export class Profile extends Document {
   @Prop()
   partner_ref: string;
 
-  @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Profile' }],
-  })
-  referredUsers: Types.ObjectId[];
+  // @Prop({
+  //   type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Profile' }],
+  // })
+  // referredUsers: Types.ObjectId[];
 
-  @ApiProperty({ example: 0 })
-  @Prop({ default: 0 })
-  visited_ref: number;
+  // @ApiProperty({ example: 0 })
+  // @Prop({ default: 0 })
+  // visited_ref: number;
 
-  @ApiProperty({ example: 0 })
-  @Prop({ default: 0 })
-  registration_ref: number;
+  // @ApiProperty({ example: 0 })
+  // @Prop({ default: 0 })
+  // registration_ref: number;
 
   @ApiProperty()
   @Prop({

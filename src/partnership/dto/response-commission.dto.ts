@@ -16,5 +16,5 @@ export class WithdrawalResponseDto {
       'The remaining available amount for withdrawal after the request.',
   })
   @IsNumber()
-  remainingAmount: number;
+  availableForWithdrawal: number;
 }

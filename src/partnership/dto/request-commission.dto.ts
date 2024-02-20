@@ -7,6 +7,6 @@ export class CreateWithdrawalRequestDto {
     description: 'The amount the user wishes to withdraw.',
   })
   @IsNumber()
-  @Min(1, { message: 'Amount must be greater than 0.' })
+  @Min(100, { message: 'Amount must be greater than 0.' })
   amount: number;
 }

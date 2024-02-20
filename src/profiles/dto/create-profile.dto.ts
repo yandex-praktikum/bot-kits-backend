@@ -51,11 +51,11 @@ export class CreateProfileDto {
   @IsString()
   partner_ref?: string;
 
-  @ApiProperty({ example: 0 })
-  @IsNumber()
-  visited_ref?: number;
+  // @ApiProperty({ example: 0 })
+  // @IsNumber()
+  // visited_ref?: number;
 
-  @ApiProperty({ example: 0 })
-  @IsNumber()
-  registration_ref?: number;
+  // @ApiProperty({ example: 0 })
+  // @IsNumber()
+  // registration_ref?: number;
 }

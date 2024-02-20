@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 import { Profile } from '../../profiles/schema/profile.schema';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
@@ -20,8 +20,8 @@ class WithdrawalRequestDto {
 
 @Schema()
 export class Partnership extends Document {
-  @Prop({ required: true, type: Types.ObjectId, ref: 'Profile' })
-  profile: Types.ObjectId | Profile;
+  @Prop({ required: true, type: mongoose.Schema.Types.Mixed })
+  profile: Profile;
 
   @ApiProperty({ example: '0000000' })
   @IsOptional()
@@ -35,11 +35,24 @@ export class Partnership extends Document {
   visited_ref: { timestamp: Date }[];
 
   @ApiProperty({ example: 0 })
-  @Prop([{ profileId: Types.ObjectId, timestamp: Date, paymentAmount: Number }])
+  @Prop([
+    {
+      profileId: Types.ObjectId,
+      timestamp: Date,
+      paymentAmount: Number,
+      payments: [
+        {
+          paymentDate: Date,
+          amount: Number,
+        },
+      ],
+    },
+  ])
   registration_ref: {
     profileId: Types.ObjectId;
     timestamp: Date;
     paymentAmount: number;
+    payments: { paymentDate: Date; amount: number }[];
   }[];
 
   @Prop([
