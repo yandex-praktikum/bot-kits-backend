@@ -42,7 +42,7 @@ export enum NotificationType {
 export class NotificationController {
   constructor(private notificationService: NotificationService) {}
 
-  @CheckAbility({ action: Action.Create, subject: UpdateNotificationDto })
+  @CheckAbility({ action: Action.Create, subject: CreateNotificationDto })
   @UseGuards(AbilityGuard)
   @Post()
   @ApiOperation({
@@ -63,7 +63,7 @@ export class NotificationController {
     this.notificationService.create(createNotificationDto);
   }
 
-  @CheckAbility({ action: Action.Read, subject: CreateNotificationDto })
+  @CheckAbility({ action: Action.Read, subject: UpdateNotificationDto })
   @UseGuards(AbilityGuard)
   @Get()
   @ApiOperation({
@@ -156,7 +156,7 @@ export class NotificationController {
     return this.notificationService.update(updateNotificationDto, id);
   }
 
-  @CheckAbility({ action: Action.Update, subject: CreateNotificationDto })
+  @CheckAbility({ action: Action.Update, subject: UpdateNotificationDto })
   @UseGuards(AbilityGuard)
   @Patch(':id/status')
   @ApiOperation({

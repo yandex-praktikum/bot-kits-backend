@@ -49,7 +49,7 @@ export class SubscriptionsRepository {
 
   async findSubscriptionByProfile(profile: Profile) {
     const subscription = await this.subscriptionModel
-      .findOne({ profile: profile })
+      .findOne({ 'profile._id': profile })
       .exec();
     if (!subscription) {
       throw new NotFoundException('Не найдена подписка пользователя');
@@ -73,6 +73,7 @@ export class SubscriptionsRepository {
       debitDate: new Date(),
       balance: profile.balance,
       payments: payment,
+      isCancelled: false,
     };
 
     if (subscription) {
@@ -83,6 +84,7 @@ export class SubscriptionsRepository {
       dataObject.status = subscription.status;
       dataObject.cardMask = subscription.cardMask;
       dataObject.debitDate = subscription.debitDate;
+      dataObject.isCancelled = subscription.isCancelled;
     }
     return dataObject;
   }
@@ -142,7 +144,7 @@ export class SubscriptionsRepository {
         .findByIdAndUpdate(
           subscription._id,
           {
-            updatingTariff: tariff.toObject(),
+            updatingTariff: tariff,
             status: true,
             isCancelled: false,
           },

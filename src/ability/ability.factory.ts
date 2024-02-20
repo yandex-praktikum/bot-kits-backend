@@ -9,7 +9,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import Role from 'src/accounts/types/role';
-import { BotsService } from 'src/bots/bots.service';
 import { CreateBotDto } from 'src/bots/dto/create-bot.dto';
 import { CreateTemplateDto } from 'src/bots/dto/create-template.dto';
 import { UpdateBotDto } from 'src/bots/dto/update-bot.dto';
@@ -26,7 +25,6 @@ import {
   SubscriptionDocument,
 } from 'src/subscriptions/schema/subscription.schema';
 import { Tariff, TariffDocument } from 'src/tariffs/schema/tariff.schema';
-import { TariffsService } from 'src/tariffs/tariffs.service';
 
 //ability.factory.ts
 export enum Action {
@@ -55,6 +53,7 @@ export type Subjects = InferSubjects<
 
 @Injectable()
 export class AbilityFactory {
+  private sub: Subscription;
   constructor(
     @InjectModel(Bot.name) private botModel: Model<BotDocument>,
     @InjectModel(Subscription.name)
@@ -67,26 +66,17 @@ export class AbilityFactory {
   }
 
   private async getSub(user): Promise<any> {
-    const subs = await this.subscriptionModel.find();
-    return subs.find((sub) => (sub.profile._id = user._id));
-    return true;
+    this.sub = await this.subscriptionModel.findOne({
+      'profile._id': user._id,
+    });
   }
 
-  private async getSubStatus(user): Promise<boolean> {
-    return (await this.getSub(user)).status;
+  private async getSubStatus(): Promise<boolean> {
+    return this.sub.status;
   }
 
-  private async getUserTariff(user): Promise<Tariff> {
-    const tariff = await this.tariffModel.findOne(
-      (
-        await this.getSub(user)
-      ).tariff._id,
-    );
-    return tariff;
-  }
-
-  private async getBotsLimit(user): Promise<number> {
-    return (await this.getUserTariff(user)).botsCount;
+  private async getBotsLimit(): Promise<number> {
+    return this.sub.tariff.botsCount;
   }
 
   private async getBotsCount(user): Promise<number> {
@@ -100,6 +90,10 @@ export class AbilityFactory {
 
     const isSuperAdmin = this.getRole(user, Role.SUPER_ADMIN);
     const isAdmin = this.getRole(user, Role.ADMIN);
+
+    //--Инициализируем текущую подписку пользователя--//
+    await this.getSub(user);
+
     //--Создаем строитель AbilityBuilder, который поможет нам определить правила доступа--//
     const { can, cannot, build } = new AbilityBuilder<AppAbility>(PureAbility);
 
@@ -116,7 +110,7 @@ export class AbilityFactory {
       cannot(Action.Manage, CreatePlatformDto);
 
       //--Администраторы могут только создавать уведомления--//
-      can(Action.Create, UpdateNotificationDto);
+      can([Action.Read, Action.Update], UpdateNotificationDto);
       //--Администраторы НЕ могут удалять, изменять и получать уведомления--//
       cannot(Action.Manage, CreateNotificationDto);
 
@@ -125,28 +119,18 @@ export class AbilityFactory {
         'Этот функционал только у супер администратора',
       );
 
+      //--Администраторы могут делать запросы по эндпоинтам связанные с ботами--//
+      can([Action.Share, Action.Read, Action.Delete], [CreateBotDto]);
+
+      //--Администраторы могут удалять бота если они его создатели--//
+      can(Action.Delete, this.botModel, ({ profile }) =>
+        profile.equals(user._id),
+      );
+
       //проверяем есть ли у пользователя активная подписка
-      if (await this.getSubStatus(user)) {
-        //проверяем лимит создания ботов по тарифу
-        if ((await this.getBotsLimit(user)) > (await this.getBotsCount(user))) {
-          //--Администраторы могут копировать бота если они его создатели--//
-          can(Action.Copy, this.botModel, ({ profile }) =>
-            profile.equals(user._id),
-          );
-
-          //--Администраторы могут создать бота--//
-          can(Action.Create, [CreateBotDto]);
-
-          //--Администраторы могут создавать бота только из шаблонов--//
-          can(
-            Action.CreateOnlyFromTemplate,
-            this.botModel,
-            ({ type }) => type === 'template',
-          );
-        }
-
-        //--Администраторы могут делать запросы по эндпоинтам связанные с ботами--//
-        can([Action.Share, Action.Read], [CreateBotDto]);
+      if (await this.getSubStatus()) {
+        //--Администраторы могут обновлять бота--//
+        can(Action.Update, UpdateBotDto);
 
         //--Администраторы могут обновлять бота если они его создатели и если им был предоставлен общий доступ--//
         can(Action.Update, this.botModel, (bot: Bot) => {
@@ -168,12 +152,25 @@ export class AbilityFactory {
           );
         });
 
-        //--Администраторы могут удалять бота если они его создатели--//
-        can(Action.Delete, this.botModel, ({ profile }) =>
-          profile.equals(user._id),
+        //--Администраторы могут создавать бота только из шаблонов--//
+        can(
+          Action.CreateOnlyFromTemplate,
+          this.botModel,
+          ({ type }) => type === 'template',
         );
+
+        //проверяем лимит создания ботов по тарифу
+        if ((await this.getBotsLimit()) > (await this.getBotsCount(user))) {
+          //--Администраторы могут копировать бота если они его создатели--//
+          can(Action.Copy, this.botModel, ({ profile }) =>
+            profile.equals(user._id),
+          );
+
+          //--Администраторы могут создать бота--//
+          can([Action.Create], [CreateBotDto]);
+        }
       } else {
-        cannot(Action.Manage, [CreateBotDto, UpdateBotDto, CreateTemplateDto]);
+        cannot([Action.Copy, Action.Create], [CreateBotDto, UpdateBotDto]);
       }
     } else if (isSuperAdmin) {
       //--Супер администраторы имеют доступ ко всем операциям в приложении--//

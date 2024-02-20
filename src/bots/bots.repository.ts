@@ -86,7 +86,7 @@ export class BotsRepository {
         dashboard: true, // предполагаем, что владелец имеет полный доступ
         botBuilder: true,
         mailing: true,
-        static: true,
+        statistics: true,
       };
     } else {
       // Извлечение прав доступа для бота, предоставленных другими пользователями
@@ -99,7 +99,7 @@ export class BotsRepository {
           dashboard: access.dashboard,
           botBuilder: access.botBuilder,
           mailing: access.mailing,
-          static: access.static,
+          statistics: access.statistics,
         };
       } else {
         throw new Error('Доступ этому боту не предоставлен');
@@ -137,6 +137,7 @@ export class BotsRepository {
     if (!ability.can(Action.Update, existingBot)) {
       throw new ForbiddenException('Вы не администратор этого бота');
     }
+
     //--Не обновляем права у бота даже у собственного--//
     try {
       const { permission, ...updateData } = updateBotDto;
@@ -228,7 +229,7 @@ export class BotsRepository {
         dashboard: access?.dashboard,
         botBuilder: access?.botBuilder,
         mailing: access?.mailing,
-        static: access?.static,
+        statistics: access?.statistics,
       };
     });
 

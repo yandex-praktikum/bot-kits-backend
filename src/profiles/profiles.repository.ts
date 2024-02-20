@@ -13,7 +13,6 @@ import { CreateSharedAccessDto } from './dto/create-access.dto';
 import { Bot } from 'src/bots/schema/bots.schema';
 import { Subscription } from 'src/subscriptions/schema/subscription.schema';
 import { Tariff } from 'src/tariffs/schema/tariff.schema';
-import TypeAccount from 'src/accounts/types/type-account';
 import Role from 'src/accounts/types/role';
 
 // Определение типа для ответа функции findAll
@@ -66,7 +65,9 @@ export class ProfilesRepository {
         phone: user.phone,
         botCount: allBotsUser.length,
         dateRegistration: user.dateRegistration, // Используем дату создния из модели пользователя
-        lastActivityAccount: user.lastAccountActivity, // Требует реализации
+        lastActivityAccount: user.lastAccountActivity
+          ? user.lastAccountActivity
+          : new Date(), // Требует реализации
         lastActivityBot: new Date(), // Требует реализации
         tariff: subscriptionUser ? subscriptionUser.tariff : null,
         debitDate: subscriptionUser ? subscriptionUser.debitDate : null,
@@ -86,7 +87,7 @@ export class ProfilesRepository {
       dashboard: true,
       botBuilder: true,
       mailing: false,
-      static: false,
+      statistics: false,
     };
   }
 
@@ -244,14 +245,49 @@ export class ProfilesRepository {
     }
   }
 
-  async findAllGrantedAccesses(userId: string): Promise<Access[]> {
-    const profile = await this.profileModel.findById(userId);
+  async findAllGrantedAccesses(userId: string): Promise<any> {
+    const profile = await this.profileModel
+      .findById(userId)
+      .populate({
+        path: 'grantedSharedAccess',
+        populate: {
+          path: 'profile',
+          model: 'Profile',
+          populate: {
+            path: 'accounts',
+            model: 'Account',
+          },
+        },
+      })
+      .exec();
 
     if (!profile) {
       throw new NotFoundException('Профиль не найден');
     }
 
-    return profile.grantedSharedAccess;
+    // Убедитесь, что profile.grantedSharedAccess соответствует ожидаемому типу
+    const accesses = profile.grantedSharedAccess as any;
+
+    // Трансформация результатов
+    const transformedAccesses = accesses.map((access) => {
+      const username = access.profile.username;
+      const email =
+        access.profile.accounts.length > 0
+          ? access.profile.accounts[0].credentials.email
+          : null;
+
+      return {
+        _id: access.profile._id,
+        username,
+        email,
+        dashboard: access.dashboard,
+        botBuilder: access.botBuilder,
+        mailing: access.mailing,
+        statistics: access.statistics,
+      };
+    });
+
+    return transformedAccesses;
   }
 
   async updateAccesses(grantorId: string, access: Access): Promise<Access[]> {
