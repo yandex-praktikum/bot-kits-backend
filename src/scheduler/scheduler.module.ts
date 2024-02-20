@@ -10,11 +10,8 @@ import {
 import { Payment, PaymentSchema } from 'src/payments/schema/payment.schema';
 import { Tariff, TariffSchema } from 'src/tariffs/schema/tariff.schema';
 import { Profile, ProfileSchema } from 'src/profiles/schema/profile.schema';
-import {
-  Promocode,
-  PromocodeSchema,
-} from 'src/promocodes/schema/promocode.schema';
-import { RabbitMQService } from 'src/rabbitmq/rabbitmq.service';
+import { Mailing, MailingSchema } from 'src/mailing/schema/mailing.schema';
+import { MailingModule } from 'src/mailing/mailing.module';
 import { RabbitmqModule } from 'src/rabbitmq/rabbitmq.module';
 
 @Module({
@@ -24,7 +21,9 @@ import { RabbitmqModule } from 'src/rabbitmq/rabbitmq.module';
       { name: Payment.name, schema: PaymentSchema },
       { name: Tariff.name, schema: TariffSchema },
       { name: Profile.name, schema: ProfileSchema },
+      { name: Mailing.name, schema: MailingSchema },
     ]),
+    MailingModule,
     ScheduleModule.forRoot(),
     RabbitmqModule,
   ],

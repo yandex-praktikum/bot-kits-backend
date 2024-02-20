@@ -57,6 +57,12 @@ export class Profile extends Document {
 
   @Prop()
   promocode: string[];
+
+  @Prop({ default: new Date(), required: true })
+  dateRegistration: Date;
+
+  @Prop({ default: Date.now })
+  lastAccountActivity: Date;
 }
 
 export class Access {
@@ -65,7 +71,7 @@ export class Access {
   dashboard: boolean;
   botBuilder: boolean;
   mailing: boolean;
-  static: boolean;
+  statistics: boolean;
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);

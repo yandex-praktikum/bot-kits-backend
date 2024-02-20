@@ -87,7 +87,7 @@ export class HandlersQueuesService implements OnModuleInit {
 
     // Определение текущего тарифа или обновленного тарифа
     const tariffId = sub.updatingTariff
-      ? this.stringToObjectId(sub.updatingTariff.tariff._id)
+      ? this.stringToObjectId(sub.updatingTariff._id)
       : this.stringToObjectId(sub.tariff._id);
 
     const currentTariff = await this.tariffModel.findOne(tariffId);
@@ -128,7 +128,7 @@ export class HandlersQueuesService implements OnModuleInit {
         console.log('Пользователь сменил тариф на новый');
         subscriptionDocument.tariff = sub.updatingTariff;
         subscriptionDocument.updatingTariff = null; // Очистка поля обновления тарифа
-        subscriptionDocument.save();
+        await subscriptionDocument.save();
       }
 
       // Обработка демо-тарифа

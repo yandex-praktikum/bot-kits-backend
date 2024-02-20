@@ -6,12 +6,16 @@ import {
   BlacklistTokensDocument,
 } from './schema/blacklistTokens.schema';
 import { decode } from 'jsonwebtoken';
+import { JwtService } from '@nestjs/jwt';
+import { Profile, ProfileDocument } from '../profiles/schema/profile.schema';
 
 @Injectable()
 export class BlacklistTokensRepository {
   constructor(
     @InjectModel(BlacklistTokens.name)
     private readonly blacklistTokensModel: Model<BlacklistTokensDocument>,
+    private readonly jwtService: JwtService,
+    @InjectModel(Profile.name) private profileModel: Model<ProfileDocument>,
   ) {}
 
   //--Удаляем истекшие токены из БД--//
@@ -41,9 +45,21 @@ export class BlacklistTokensRepository {
     await blacklistedToken.save();
     await this.cleanupTokens();
   }
+
   //--Проверяем есть находитсся ли токен в черном списке--//
   async isTokenBlacklisted(token: string): Promise<boolean> {
     const count = await this.blacklistTokensModel.countDocuments({ token });
     return count > 0;
+  }
+
+  async updateLastActivity(token: string) {
+    const decoded = this.jwtService.decode(token);
+
+    if (decoded && decoded.sub) {
+      await this.profileModel.updateOne(
+        { _id: decoded.sub },
+        { $set: { lastAccountActivity: new Date() } },
+      );
+    }
   }
 }

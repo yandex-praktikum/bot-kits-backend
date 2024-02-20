@@ -22,6 +22,8 @@ import { databaseConfig } from './configs/database.config';
 import { BotsModule } from './bots/bots.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 
+import { MailingModule } from './mailing/mailing.module';
+
 import { StatisticsModule } from './statistics/statistics.module';
 import { PaymentsModule } from './payments/payments.module';
 import { HttpModule } from '@nestjs/axios';
@@ -33,6 +35,7 @@ import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
 import { HandlersQueuesModule } from './handlers-queues/handlers-queues.module';
 import { ChatsModule } from './chats/chats.module';
 import { RedisModule } from './redis/redis.module';
+import { GridFSModule } from './gridFS/grifFS.module';
 
 //app.module.ts
 @Module({
@@ -58,7 +61,9 @@ import { RedisModule } from './redis/redis.module';
     BlacklistTokensModule,
     ChatsModule,
     PartnershipModule,
+    MailingModule,
     HandlersQueuesModule,
+    GridFSModule,
   ],
   controllers: [AppController, AuthController],
   providers: [
