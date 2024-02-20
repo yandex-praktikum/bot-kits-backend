@@ -20,7 +20,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "husky install",
-    "socket": "node front-client.js"
+    "socket": "node front-client.js",
+    "worker": "cd worker && npm i && node worker"
   },
   "dependencies": {
     "@casl/ability": "^6.5.0",
