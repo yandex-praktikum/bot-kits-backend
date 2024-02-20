@@ -5,102 +5,170 @@ import {
   MessageBody,
   WebSocketServer,
   ConnectedSocket,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { createAdapter } from 'socket.io-redis';
-import Redis from 'ioredis';
-import {
-  OnModuleInit,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
-import { Chat, ChatDocument } from '../schema/chat.schema';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { WSGuard } from 'src/auth/guards/ws.guards';
+import { RedisService } from 'src/redis/redis.service';
+import { createAdapter } from '@socket.io/redis-adapter';
+import { Redis } from 'ioredis';
+import { Emitter } from '@socket.io/redis-emitter';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { BlacklistTokensService } from 'src/blacklistTokens/blacklistTokens.service';
+import { ProfilesService } from 'src/profiles/profiles.service';
+import { socketMiddleware } from '../adapters/socketMiddleware';
+import { Profile } from 'src/profiles/schema/profile.schema';
+
+interface AuthenticatedSocket extends Socket {
+  user: Profile;
+}
 
 //chats.gateway.ts
-@UseGuards(WSGuard)
-@WebSocketGateway()
-export class WsGateway implements OnModuleInit {
-  @WebSocketServer()
-  server: Server;
-  private redisClient: Redis;
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Authorization'],
+  },
+})
+export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  private pubClient: Redis;
+  private subClient: Redis;
+  private taskClient: Redis;
+  private emitter: Emitter;
+  private redisOptions: Record<string, string | number>;
 
-  constructor(@InjectModel(Chat.name) private chatModel: Model<ChatDocument>) {
-    this.redisClient = new Redis({ host: '127.0.0.1', port: 3003 });
+  @WebSocketServer() server: Server = new Server();
+
+  constructor(
+    private readonly redisService: RedisService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly profilesService: ProfilesService,
+    private readonly blacklistTokensService: BlacklistTokensService,
+  ) {
+    this.redisOptions = {
+      host: configService.get<string>('REDIS_HOST'),
+      port: +configService.get<string>('REDIS_PORT'),
+    };
   }
 
   async onModuleInit() {
-    const subClient = this.redisClient.duplicate();
-    this.server.adapter(
-      createAdapter({ pubClient: this.redisClient, subClient }),
+    const { emitter } = this.redisService;
+    this.redisService.createClient(
+      'pubClientWSGateway',
+      this.redisOptions,
+      true,
+    );
+    this.pubClient = this.redisService.getClient('pubClientWSGateway');
+
+    this.redisService.createClient(
+      'subClientWSGateway',
+      this.redisOptions,
+      true,
+    );
+    this.subClient = this.redisService.getClient('subClientWSGateway');
+
+    this.redisService.createClient(
+      'taskClientWSGateway',
+      this.redisOptions,
+      true,
+    );
+    this.taskClient = this.redisService.getClient('taskClientWSGateway');
+
+    this.emitter = emitter;
+
+    //--Интеграция адаптера Redis с сервером Socket.IO без явного вызова connect--//
+    this.server.adapter(createAdapter(this.pubClient, this.subClient));
+
+    //--Примените middleware к серверу Socket.IO для проверки авторизации--//
+    this.server.use(
+      socketMiddleware(
+        this.jwtService,
+        this.configService,
+        this.profilesService,
+        this.blacklistTokensService,
+      ),
     );
   }
 
-  async handleConnection(client: Socket) {
-    if (!client.handshake.headers.authorization) {
-      client.disconnect();
-      client.emit('error', 'Пользователь не авторизован');
-    }
-    const user = client.data.user;
-    if (!user) return;
+  //--Логика подключения пользователя--//
+  handleConnection(client: AuthenticatedSocket, ...args: any[]) {
+    //--Если пользователь авторизован, то мы имеем доступ к модели профиля из mongoDB--//
+    const { user } = client;
 
-    const cacheKey = `chat_history_${user.id}`;
-    let chats = await this.redisClient.get(cacheKey);
+    if (user) {
+      //--TODO: возможно не нужный эмит на стороне клиента - под удаление--//
+      client.emit('registered', { name: user.username, id: user._id });
 
-    if (!chats) {
-      const chatDocuments = await this.chatModel
-        .find({
-          $or: [{ sender: user.id }, { recipient: user.id }],
-        })
-        .exec();
+      //--Подключаем пользователя в отдельную уникальную комнату--//
+      client.join(`/user/${user._id}`); // Присоединение к комнате пользователя.
 
-      // Сериализация результатов запроса в строку
-      chats = JSON.stringify(chatDocuments);
-      await this.redisClient.set(cacheKey, chats);
+      //--Как только пользователь подключился публикуем событие в Redis для получения истории чатов именно этого пользователя--//
+      this.pubClient.publish('register', JSON.stringify(user));
+
+      //--TODO: возможно не нужный эмит на стороне клиента - под удаление--//
+      this.pubClient.publish('get_rooms', JSON.stringify({ userId: user._id }));
     } else {
-      chats = JSON.parse(chats);
+      console.error('Пользователь не аутентифицирован');
+      client.disconnect();
     }
-
-    client.emit('chatHistory', chats);
   }
 
-  @UsePipes(new ValidationPipe())
-  @SubscribeMessage('sendMessage')
-  async handleMessage(
-    client: Socket,
-    payload: { recipient: string; message: string; roomId: string },
-  ): Promise<void> {
-    const sender = client.data.user.id;
-    const newChat = new this.chatModel({
-      message: payload.message,
-      sender: sender,
-      recipient: payload.recipient,
-      roomId: payload.roomId, // определить логику для roomId
-      profile: sender,
-    });
-
-    await newChat.save();
-
-    // Обновляем кеш
-    const cacheKey = `chat_history_${sender}`;
-    const cachedChats = await this.redisClient.get(cacheKey);
-    const chats = cachedChats ? JSON.parse(cachedChats) : [];
-    chats.push(newChat);
-    await this.redisClient.set(cacheKey, JSON.stringify(chats));
-
-    // Отправляем сообщение получателю
-    this.server.to(payload.recipient).emit('newMessage', JSON.stringify(chats));
-  }
-
-  @SubscribeMessage('joinRoom')
-  handleJoinRoom(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() roomId: string,
+  //--Логика создания чата с пользователем бота--//
+  @SubscribeMessage('start-dialog')
+  async handleStartDialog(
+    @ConnectedSocket() client: AuthenticatedSocket,
+    @MessageBody()
+    { from, to }: { from: string; to: string },
   ) {
-    client.join(roomId);
-    // Опционально: отправить историю сообщений или уведомление о новом пользователе в комнате
+    //--Гарантируем уникальность имени комнаты путем сортировки идентификаторов--//
+    const participants = [from, to].sort();
+    const roomName = `/${participants[0]}:${participants[1]}`;
+    const roomNamereversed = `/${participants[1]}:${participants[0]}`;
+
+    //--Проверяем, существует ли уже такая комната--//
+    const existingRoom = [...client.rooms].find((room) => room === roomName);
+
+    //--Если комнаты нет тогда присоединяем пользвоателя к двум комнатам с чатом--//
+    if (!existingRoom) {
+      client.join(roomName);
+      client.join(roomNamereversed);
+      //--TODO: возможно не нужный эмит на стороне клиента - под удаление--//
+      client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
+    } else {
+      console.log(`Уже присоединен к комнате: ${existingRoom}`);
+      //--TODO: возможно не нужный эмит на стороне клиента - под удаление--//
+      client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
+    }
+  }
+
+  //--Логика получения сообщения от клиента--//
+  @SubscribeMessage('rootServerMessage')
+  async handleMessage(
+    @ConnectedSocket() client: AuthenticatedSocket,
+    @MessageBody() msg: any,
+  ) {
+    //--Добавляем уникальное поле с идентификатором чата--//
+    const messageWithChatId = {
+      ...msg,
+      chatId: `/${msg.participants[0]}:${msg.participants[1]}`,
+    };
+
+    //--Публикуем в Redis для сохраннеия истории--//
+    this.pubClient.publish('message', JSON.stringify(messageWithChatId));
+  }
+
+  //--TODO: для уведомлений и прочего--//
+  @SubscribeMessage('task')
+  handleTask(@ConnectedSocket() client: Socket, @MessageBody() msg: any) {
+    console.log(`task: `, msg);
+    this.redisService.publish('task', JSON.stringify(msg)); // Публикация задачи в Redis.
+  }
+
+  //--TODO: доработать логику при отключении пользователя--//
+  handleDisconnect(client: Socket) {
+    console.log('user disconnected');
   }
 }
