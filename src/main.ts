@@ -37,13 +37,13 @@ async function bootstrap() {
   app.use(helmet());
 
   const cors = {
-    origin: [configService.get('ALLOW_URL')],
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
     credentials: true,
   };
 
-  // app.enableCors(cors);
+  app.enableCors(cors);
 
   // app.useWebSocketAdapter(new SocketIoAdapter(app, configService, cors));
 

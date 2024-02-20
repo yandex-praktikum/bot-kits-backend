@@ -3,6 +3,6 @@ ENV NODE_ENV=production
 RUN mkdir /app
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm install --production
+RUN npm ci --no-fund --no-audit
 COPY . .
 CMD ["npm", "start"]

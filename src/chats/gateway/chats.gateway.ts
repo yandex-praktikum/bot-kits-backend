@@ -21,16 +21,23 @@ import { socketMiddleware } from '../adapters/socketMiddleware';
 import { Profile } from 'src/profiles/schema/profile.schema';
 
 interface AuthenticatedSocket extends Socket {
-  user: Profile; // User - предполагается ваш тип пользователя
+  user: Profile;
 }
 
 //chats.gateway.ts
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Authorization'],
+  },
+})
 export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private pubClient: Redis;
   private subClient: Redis;
   private taskClient: Redis;
   private emitter: Emitter;
+  private redisOptions: Record<string, string | number>;
 
   @WebSocketServer() server: Server = new Server();
 
@@ -40,37 +47,42 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly configService: ConfigService,
     private readonly profilesService: ProfilesService,
     private readonly blacklistTokensService: BlacklistTokensService,
-  ) {}
+  ) {
+    this.redisOptions = {
+      host: configService.get<string>('REDIS_HOST'),
+      port: +configService.get<string>('REDIS_PORT'),
+    };
+  }
 
   async onModuleInit() {
     const { emitter } = this.redisService;
     this.redisService.createClient(
       'pubClientWSGateway',
-      { host: '127.0.0.1', port: 6379 },
+      this.redisOptions,
       true,
     );
     this.pubClient = this.redisService.getClient('pubClientWSGateway');
 
     this.redisService.createClient(
       'subClientWSGateway',
-      { host: '127.0.0.1', port: 6379 },
+      this.redisOptions,
       true,
     );
     this.subClient = this.redisService.getClient('subClientWSGateway');
 
     this.redisService.createClient(
       'taskClientWSGateway',
-      { host: '127.0.0.1', port: 6379 },
+      this.redisOptions,
       true,
     );
     this.taskClient = this.redisService.getClient('taskClientWSGateway');
 
     this.emitter = emitter;
 
-    // Интеграция адаптера Redis с сервером Socket.IO без явного вызова connect
+    //--Интеграция адаптера Redis с сервером Socket.IO без явного вызова connect--//
     this.server.adapter(createAdapter(this.pubClient, this.subClient));
 
-    // Примените middleware к вашему серверу Socket.IO
+    //--Примените middleware к серверу Socket.IO для проверки авторизации--//
     this.server.use(
       socketMiddleware(
         this.jwtService,
@@ -81,108 +93,82 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
   }
 
+  //--Логика подключения пользователя--//
   handleConnection(client: AuthenticatedSocket, ...args: any[]) {
-    console.log('Пользователь подключился');
+    //--Если пользователь авторизован, то мы имеем доступ к модели профиля из mongoDB--//
     const { user } = client;
 
-    if (client.user) {
-      console.log(`Пользователь ${user.username} подключен`);
-      //тут можно отправит уведосление пользователю
+    if (user) {
+      //--TODO: возможно не нужный эмит на стороне клиента - под удаление--//
       client.emit('registered', { name: user.username, id: user._id });
-      //подключаем пользователя в отдельную комнату для уведомлений и прочего
+
+      //--Подключаем пользователя в отдельную уникальную комнату--//
       client.join(`/user/${user._id}`); // Присоединение к комнате пользователя.
 
+      //--Как только пользователь подключился публикуем событие в Redis для получения истории чатов именно этого пользователя--//
       this.pubClient.publish('register', JSON.stringify(user));
 
+      //--TODO: возможно не нужный эмит на стороне клиента - под удаление--//
       this.pubClient.publish('get_rooms', JSON.stringify({ userId: user._id }));
     } else {
-      console.log('Пользователь не аутентифицирован');
+      console.error('Пользователь не аутентифицирован');
+      client.disconnect();
     }
   }
 
+  //--Логика создания чата с пользователем бота--//
   @SubscribeMessage('start-dialog')
   async handleStartDialog(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody()
     { from, to }: { from: string; to: string },
   ) {
-    // Гарантируем уникальность имени комнаты путем сортировки идентификаторов
+    //--Гарантируем уникальность имени комнаты путем сортировки идентификаторов--//
     const participants = [from, to].sort();
     const roomName = `/${participants[0]}:${participants[1]}`;
     const roomNamereversed = `/${participants[1]}:${participants[0]}`;
 
-    // Проверяем, существует ли уже такая комната
+    //--Проверяем, существует ли уже такая комната--//
     const existingRoom = [...client.rooms].find((room) => room === roomName);
 
+    //--Если комнаты нет тогда присоединяем пользвоателя к двум комнатам с чатом--//
     if (!existingRoom) {
       client.join(roomName);
       client.join(roomNamereversed);
-      console.log(
-        `Присоединение к комнате: ${roomName} и к комнате ${roomNamereversed}`,
-      );
+      //--TODO: возможно не нужный эмит на стороне клиента - под удаление--//
       client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
-      //this.taskClient.publish('message', JSON.stringify({ from, to, message }));
     } else {
       console.log(`Уже присоединен к комнате: ${existingRoom}`);
+      //--TODO: возможно не нужный эмит на стороне клиента - под удаление--//
       client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
     }
   }
 
-  @SubscribeMessage('message')
+  //--Логика получения сообщения от клиента--//
+  @SubscribeMessage('rootServerMessage')
   async handleMessage(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody() msg: any,
   ) {
-    console.log(
-      `Сработало событие mesage на рутовом сервере /${msg.participants[0]}:${msg.participants[1]}`,
-    );
-    this.server
-      .to(`/${msg.participants[0]}:${msg.participants[1]}`)
-      .emit('message', msg); // Отправка сообщения всем в комнате чата.
-    this.pubClient.publish(
-      'message',
-      JSON.stringify({
-        ...msg,
-        chatId: `/${msg.participants[0]}:${msg.participants[1]}`,
-      }),
-    ); // Публикация сообщения в Redis.
+    //--Добавляем уникальное поле с идентификатором чата--//
+    const messageWithChatId = {
+      ...msg,
+      chatId: `/${msg.participants[0]}:${msg.participants[1]}`,
+    };
+
+    //--Публикуем в Redis для сохраннеия истории--//
+    this.pubClient.publish('message', JSON.stringify(messageWithChatId));
   }
 
+  //--TODO: для уведомлений и прочего--//
   @SubscribeMessage('task')
   handleTask(@ConnectedSocket() client: Socket, @MessageBody() msg: any) {
     console.log(`task: `, msg);
     this.redisService.publish('task', JSON.stringify(msg)); // Публикация задачи в Redis.
   }
 
-  @SubscribeMessage('send_rooms')
-  handleSendRooms(
-    @ConnectedSocket() client: AuthenticatedSocket,
-    @MessageBody() msg: any,
-  ) {
-    msg.forEach((element) => {
-      console.log(`Подключили пользователя к комнате - ${element}`);
-      client.join(element);
-    });
-
-    client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
-  }
-
+  //--TODO: доработать логику при отключении пользователя--//
   handleDisconnect(client: Socket) {
     console.log('user disconnected');
   }
-
-  // @SubscribeMessage('register')
-  // handleRegister(
-  //   @ConnectedSocket() client: AuthenticatedSocket,
-  //   @MessageBody() data: { id?: string; name: string },
-  // ) {
-  //   const userID = data.id ?? uuidv4(); // Генерация или использование существующего ID.
-  //   console.log(`register: ${userID}`);
-
-  //   client.emit('registered', { name: data.name, id: userID });
-  //   client.join(`/user/${userID}`); // Присоединение к комнате пользователя.
-  //   //client.join('/chat'); // Присоединение к общей комнате чата.
-  //   client.emit('get-rooms', JSON.stringify({ rooms: [...client.rooms] }));
-  //   this.pubClient.publish('register', `${userID}`);
-  // }
 }

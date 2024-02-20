@@ -38,5 +38,6 @@ _*.ts
 
 #custom ignore
 .env*
+!.env.worker
 !.env.example
 docker-compose-dev-local.yml

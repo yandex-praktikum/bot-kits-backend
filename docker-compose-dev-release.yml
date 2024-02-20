@@ -1,4 +1,3 @@
-#docker-compose-dev-release
 version: "3.9"
 
 services:
@@ -14,8 +13,28 @@ services:
     networks:
       - back-dev
       - default
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep 'node' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     depends_on:
       mongo-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_started
+
+  worker-dev:
+    container_name: 'botkit-worker-dev-release'
+    build:
+      context: ./worker/
+    env_file:
+      - .env.dev.release
+    restart: always
+    networks:
+      - back-dev
+    depends_on:
+      backend-dev:
         condition: service_healthy
 
   mongo-dev:
@@ -38,9 +57,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 40s
-    depends_on:
-      rabbitmq-dev:
-        condition: service_healthy
 
   rabbitmq-dev:
     container_name: 'botkit-rabbitmq-dev-release'
@@ -60,6 +76,23 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
+
+  redis-dev:
+    container_name: 'botkit-redis-dev-release'
+    image: redis:latest
+    restart: always
+    env_file:
+      - .env.dev.release
+    ports:
+      - "6379:6379"
+    networks:
+      - back-dev
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 networks:
   back-dev:
