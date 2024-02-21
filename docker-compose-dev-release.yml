@@ -37,6 +37,19 @@ services:
       backend-dev:
         condition: service_healthy
 
+  mock_server-dev:
+    container_name: 'botkit-mock_server-dev-release'
+    build:
+      context: ./microservices/mockServer/
+    env_file:
+      - .env.dev.release
+    restart: always
+    networks:
+      - back-dev
+    depends_on:
+      redis-dev:
+        condition: service_healthy
+
   mongo-dev:
     container_name: 'botkit-mongodb-dev-release'
     image: mongo:5
