@@ -227,7 +227,9 @@ const databaseOptions = (
     'DB_PORT',
   )}/${configService.get(
     'DB_NAME',
-  )}?authSource=admin&replicaSet=${configService.get('DB_REPLICATION_SET')}`,
+  )}?authSource=admin&replicaSet=${configService.get(
+    'DB_REPLICATION_SET',
+  )}&directConnection=true`,
 });
 
 export const databaseConfig = (): MongooseModuleAsyncOptions => ({
