@@ -1668,6 +1668,43 @@ paths:
           description: Ресурс не найден
       tags: *ref_19
       security: *ref_20
+  /dev/api/chats/task:
+    post:
+      operationId: ChatsController_createTask
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatDto'
+      responses:
+        '201':
+          description: ''
+  /dev/api/chats/message:
+    post:
+      operationId: ChatsController_createMessage
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatDto'
+      responses:
+        '201':
+          description: ''
+  /dev/api/chats/history:
+    get:
+      operationId: ChatsController_getHistory
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
 info:
   title: API BotKits
   description: Ручки для команды frontend
@@ -2054,7 +2091,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-01-28T12:51:39.076Z
+          example: 2024-02-20T08:05:52.764Z
         amount:
           type: number
           example: 1000
@@ -2165,7 +2202,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-01-28T12:51:39.103Z
+          example: 2024-02-20T08:05:52.788Z
         isCancelled:
           type: boolean
           example: false
@@ -2239,12 +2276,16 @@ components:
           type: number
           minimum: 1
           example: 1500
+        status:
+          type: boolean
+          example: 1500
       required:
         - code
         - actionPeriod
         - activationCount
         - maxActivationCount
         - amount
+        - status
     Promocode:
       type: object
       properties:
@@ -2264,12 +2305,16 @@ components:
         amount:
           type: number
           example: 1500
+        status:
+          type: boolean
+          example: 1500
       required:
         - code
         - actionPeriod
         - activationCount
         - maxActivationCount
         - amount
+        - status
     UpdatePromocodeDto:
       type: object
       properties: {}
@@ -2464,3 +2509,16 @@ components:
         isReceived:
           type: boolean
           example: false
+    CreateChatDto:
+      type: object
+      properties:
+        message:
+          type: string
+        sender:
+          type: object
+        recipient:
+          type: object
+      required:
+        - message
+        - sender
+        - recipient

@@ -10,14 +10,74 @@ import { Access, Profile } from './schema/profile.schema';
 import { Account } from 'src/accounts/schema/account.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateSharedAccessDto } from './dto/create-access.dto';
+import { Bot } from 'src/bots/schema/bots.schema';
+import { Subscription } from 'src/subscriptions/schema/subscription.schema';
+import { Tariff } from 'src/tariffs/schema/tariff.schema';
+import Role from 'src/accounts/types/role';
+
+// Определение типа для ответа функции findAll
+export type TAllUsersResponse = {
+  id: Types.ObjectId;
+  name: string;
+  mail: string;
+  phone: string;
+  botCount: number;
+  dateRegistration: Date;
+  lastActivityAccount: Date; // Эти поля могут требовать дополнительной логики для точного заполнения
+  lastActivityBot: Date;
+  tariff: Tariff | null; // Указываем, что может быть null, если подписка не найдена
+  debitDate: Date | null; // То же, что и для tariff
+};
 
 @Injectable()
 export class ProfilesRepository {
   constructor(
     @InjectModel(Profile.name) private profileModel: Model<Profile>,
     @InjectModel(Account.name) private accountModel: Model<Account>,
+    @InjectModel(Bot.name) private botModel: Model<Bot>,
+    @InjectModel(Subscription.name)
+    private subscriptionModel: Model<Subscription>,
     @InjectConnection() private readonly connection: mongoose.Connection,
   ) {}
+
+  async findAll(): Promise<TAllUsersResponse[]> {
+    // Извлекаем всех пользователей и их аккаунты
+    const allUsers = await this.profileModel.find().populate('accounts').exec();
+
+    // Маппинг пользователей в асинхронные промисы для обработки данных
+    const responseUsersPromises = allUsers.map(async (user) => {
+      // Пропускаем пользователей с ролью SUPER_ADMIN
+      if (user.accounts[0].role === Role.SUPER_ADMIN) return null;
+
+      // Получаем количество ботов пользователя
+      const allBotsUser = await this.botModel.find({ profile: user._id });
+
+      // Пытаемся найти подписку пользователя
+      const subscriptionUser = await this.subscriptionModel
+        .findOne({ 'profile._id': user._id })
+        .exec();
+
+      // Структурируем ответ с проверками на null для подписки
+      return {
+        id: user._id,
+        name: user.username,
+        mail: user.accounts[0].credentials.email, // Используем исправленное название поля
+        phone: user.phone,
+        botCount: allBotsUser.length,
+        dateRegistration: user.dateRegistration, // Используем дату создния из модели пользователя
+        lastActivityAccount: user.lastAccountActivity
+          ? user.lastAccountActivity
+          : new Date(), // Требует реализации
+        lastActivityBot: new Date(), // Требует реализации
+        tariff: subscriptionUser ? subscriptionUser.tariff : null,
+        debitDate: subscriptionUser ? subscriptionUser.debitDate : null,
+      };
+    });
+
+    // Ожидаем выполнения всех промисов и фильтруем null значения
+    const responseUsers = await Promise.all(responseUsersPromises);
+    return responseUsers.filter((user) => user !== null);
+  }
 
   private async createDefaultAccessObject(
     profileId: Types.ObjectId,
@@ -27,7 +87,7 @@ export class ProfilesRepository {
       dashboard: true,
       botBuilder: true,
       mailing: false,
-      static: false,
+      statistics: false,
     };
   }
 
@@ -84,10 +144,6 @@ export class ProfilesRepository {
     });
 
     return profile;
-  }
-
-  async findAll(): Promise<Profile[]> {
-    return await this.profileModel.find().exec();
   }
 
   async findByPartnerRef(ref: string): Promise<Profile | null> {
@@ -189,14 +245,49 @@ export class ProfilesRepository {
     }
   }
 
-  async findAllGrantedAccesses(userId: string): Promise<Access[]> {
-    const profile = await this.profileModel.findById(userId);
+  async findAllGrantedAccesses(userId: string): Promise<any> {
+    const profile = await this.profileModel
+      .findById(userId)
+      .populate({
+        path: 'grantedSharedAccess',
+        populate: {
+          path: 'profile',
+          model: 'Profile',
+          populate: {
+            path: 'accounts',
+            model: 'Account',
+          },
+        },
+      })
+      .exec();
 
     if (!profile) {
       throw new NotFoundException('Профиль не найден');
     }
 
-    return profile.grantedSharedAccess;
+    // Убедитесь, что profile.grantedSharedAccess соответствует ожидаемому типу
+    const accesses = profile.grantedSharedAccess as any;
+
+    // Трансформация результатов
+    const transformedAccesses = accesses.map((access) => {
+      const username = access.profile.username;
+      const email =
+        access.profile.accounts.length > 0
+          ? access.profile.accounts[0].credentials.email
+          : null;
+
+      return {
+        _id: access.profile._id,
+        username,
+        email,
+        dashboard: access.dashboard,
+        botBuilder: access.botBuilder,
+        mailing: access.mailing,
+        statistics: access.statistics,
+      };
+    });
+
+    return transformedAccesses;
   }
 
   async updateAccesses(grantorId: string, access: Access): Promise<Access[]> {

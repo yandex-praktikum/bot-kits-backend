@@ -23,6 +23,13 @@ const settingsDescription: IFieldDescription = createNestedObject([
   ),
 ]);
 
+const permissionDescription: IFieldDescription = createNestedObject([
+  createField('dashboard', true, 'boolean', '', true),
+  createField('botBuilder', true, 'boolean', '', true),
+  createField('mailing', true, 'boolean', '', true),
+  createField('statistics', true, 'boolean', '', true),
+]);
+
 const botsDescription: IFieldDescription[] = [
   createField('isTemplate', 'false', 'boolean', '', true),
   createField(
@@ -40,6 +47,15 @@ const botsDescription: IFieldDescription[] = [
   { ...settingsDescription, key: 'settings' },
 ];
 
+const updateBotDescription: IFieldDescription[] = [
+  createField('title', 'name bot', 'string', '', true),
+  { ...permissionDescription, key: 'permission' },
+];
+
 export const BotCreateRequestBody = new ApiPropertyFactory(
   botsDescription,
 ).generate('BotCreateRequestBody');
+
+export const UpdateBotDescription = new ApiPropertyFactory(
+  updateBotDescription,
+).generate('UpdateBotDescription');

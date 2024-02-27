@@ -3,19 +3,22 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
-  ApiForbiddenResponse,
-  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import { AccountsService } from './accounts.service';
 import { Account } from './schema/account.schema';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
-import { SingleAccountResponseBodyOK } from './sdo/response-body.sdo';
+import {
+  BadRequestResponse,
+  InvalidTokenResponse,
+  SingleAccountResponseBodyOK,
+} from './sdo/response-body.sdo';
 import { AccountUpdateRequestBody } from './sdo/request-body.sdo';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -29,6 +32,17 @@ export class AccountsController {
   @Get()
   @UseGuards(RolesGuard)
   @Roles('admin')
+  @ApiOperation({
+    summary: 'Получение всех пользователей',
+  })
+  @ApiOkResponse({
+    description: 'Успешный ответ сервера',
+    type: [SingleAccountResponseBodyOK],
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Неверный токен',
+    type: InvalidTokenResponse,
+  })
   findAll(): Promise<Account[]> {
     return this.accountService.findAll();
   }
@@ -38,9 +52,14 @@ export class AccountsController {
     description: 'Аккаунт успешно обновлен',
     type: SingleAccountResponseBodyOK,
   })
-  @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @ApiForbiddenResponse({ description: 'Отказ в доступе' })
-  @ApiBadRequestResponse({ description: 'Неверный запрос' })
+  @ApiBadRequestResponse({
+    description: 'Неверный запрос',
+    type: BadRequestResponse,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Неверный токен',
+    type: InvalidTokenResponse,
+  })
   @ApiBody({ type: AccountUpdateRequestBody })
   @ApiParam({
     name: 'id',

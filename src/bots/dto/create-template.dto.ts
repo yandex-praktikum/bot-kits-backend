@@ -19,8 +19,8 @@ export class CreateTemplateDto {
     example:
       'https://cdn.icon-icons.com/icons2/1233/PNG/512/1492718766-vk_83600.png',
   })
-  @IsUrl()
   @IsOptional()
+  @IsNotEmpty()
   icon?: string;
 
   @ApiProperty({

@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { WSGuard } from 'src/auth/guards/ws.guards';
 import { ProfilesModule } from 'src/profiles/profiles.module';
 import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.module';
+import { RedisService } from 'src/redis/redis.service';
 
 @Module({
   imports: [
@@ -17,6 +18,13 @@ import { BlacklistTokensModule } from 'src/blacklistTokens/blacklistTokens.modul
     BlacklistTokensModule,
   ],
   controllers: [ChatsController],
-  providers: [WsGateway, ChatsService, ConfigService, JwtService, WSGuard],
+  providers: [
+    WsGateway,
+    ChatsService,
+    ConfigService,
+    JwtService,
+    WSGuard,
+    RedisService,
+  ],
 })
 export class ChatsModule {}

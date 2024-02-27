@@ -43,6 +43,9 @@ import {
   SignupResponseBodyNotOK,
   refreshTokenResponseBodyNotOK,
   refreshTokenResponseBodyOK,
+  SingUpBadRequest,
+  YandexExchangeBadRequest,
+  MailruExchangeBadRequest,
 } from './sdo/response-body.sdo';
 import { VkontakteGuard } from './guards/vkontakte.guards';
 import { Account } from 'src/accounts/schema/account.schema';
@@ -87,7 +90,10 @@ export class AuthController {
     description: 'Успешная регистрация',
     type: SigninResponseBodyOK,
   })
-  @ApiBadRequestResponse({ description: 'Некорректные данные' })
+  @ApiBadRequestResponse({
+    description: 'Некорректные данные',
+    type: SingUpBadRequest,
+  })
   @ApiConflictResponse({
     description: 'Аккаунт уже существует',
     type: SignupResponseBodyNotOK,
@@ -140,6 +146,10 @@ export class AuthController {
     description: 'Успешная регистрация',
     type: SigninResponseBodyOK,
   })
+  @ApiBadRequestResponse({
+    description: 'Некорректные данные',
+    type: YandexExchangeBadRequest,
+  })
   async exchangeCodeYandex(@Body('codeAuth') codeAuth: string) {
     const userData = await this.authService.authYandex(codeAuth);
     const newAccount: CombinedDto = {
@@ -166,6 +176,10 @@ export class AuthController {
   @ApiCreatedResponse({
     description: 'Успешная регистрация',
     type: SigninResponseBodyOK,
+  })
+  @ApiBadRequestResponse({
+    description: 'Некорректные данные',
+    type: MailruExchangeBadRequest,
   })
   async exchangeCodeMail(@Body('codeAuth') codeAuth: string) {
     const userData = await this.authService.authMailru(codeAuth);
@@ -282,9 +296,6 @@ export class AuthController {
   @ApiCreatedResponse({
     type: ResetPasswordResponseBodyOK,
     description: 'Ссылка для сброса пароля отправлена на указанный Email',
-  })
-  @ApiBadRequestResponse({
-    description: 'Некорректные данные',
   })
   @ApiNotFoundResponse({
     type: ResetPasswordResponseBodyNotFound,

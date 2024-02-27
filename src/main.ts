@@ -9,6 +9,7 @@ import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { SanitizePipe } from './utils/pipe/sanitize.pipe';
 import { AppClusterService } from './appCluster/appCluster.service';
 import { LoggerFactory } from './utils/loggerFactory';
+import 'reflect-metadata';
 
 //--событие, которое перехватывает необработанные исключения--//
 process.on('unhandledRejection', (reason, promise) => {
@@ -35,12 +36,16 @@ async function bootstrap() {
   );
   app.use(helmet());
 
-  app.enableCors({
-    origin: configService.get('ALLOW_URL'),
+  const cors = {
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
     credentials: true,
-  });
+  };
+
+  app.enableCors(cors);
+
+  // app.useWebSocketAdapter(new SocketIoAdapter(app, configService, cors));
 
   // Создаем экземпляр билдера Swagger-документации
   const config = new DocumentBuilder()
