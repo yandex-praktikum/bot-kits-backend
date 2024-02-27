@@ -69,7 +69,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 40s
 
   rabbitmq-dev:
     container_name: 'botkit-rabbitmq-dev-release'
