@@ -7,7 +7,7 @@ import { createClient } from 'redis'; // Импорт клиента Redis дл�
 import { Emitter } from '@socket.io/redis-emitter'; // Импорт Emitter для работы с Redis и Socket.IO.
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '.env.mock' });
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
@@ -18,7 +18,7 @@ const io = new socketIO(server, {
   },
 }); // Используйте new для создания экземпляра Server
 
-const PORT = process.env.PORT || 3005;
+const PORT = process.env.MOCK_SERVER_PORT;
 
 // Создание клиентов Redis для публикации (pubClient), подписки (subClient) и кэширования (cacheClient).
 const pubClient = createClient({
@@ -31,6 +31,43 @@ const cacheClient = pubClient.duplicate(); // Дублирование для к
 app.use(cors('*'));
 
 app.use(express.json());
+
+app.get('', (req, res) => {
+  res.json({ success: 'Все хорошо, я в порядке' });
+});
+
+// Ручка для получения пользователей бота
+app.get('/bot/users', (req, res) => {
+  // Здесь вы можете обработать запрос и вернуть пользователей бота
+  // Например, отправить массив пользователей в формате JSON
+  //TODO: отправлять рандомный список пользователей:
+  // const botUsers = {
+  //   id: string ,
+  //   name: string,
+  //   email: string,
+  //   phone: string,
+  // };
+  const botUsers = ['user1', 'user2', 'user3'];
+  res.json({ users: botUsers });
+});
+
+// Ручка для получения статуса мокового сервера
+app.get('/mock-server/status', (req, res) => {
+  // Здесь вы можете проверить статус сервера и вернуть его в ответе
+  // Например, вернуть объект с полем "status"
+  //TODO: отправлять рандомно статус :
+  // const iconMap = {
+  //   started: { icon: 'syncDone' as const, label: 'запущен' },
+  //   error: { icon: 'slash' as const, label: 'ошибка' },
+  //   updating: { icon: 'syncUpdate' as const, label: 'обновляется' },
+  //   editing: { icon: 'dropdownEdit' as const, label: 'редактируется' },
+  // };
+
+  const serverStatus = {
+    status: 'running', // Замените на актуальный статус вашего сервера
+  };
+  res.json(serverStatus);
+});
 
 io.on('connection', (socket) => {
   console.log('Chat connected');
@@ -103,39 +140,6 @@ io.on('connection', (socket) => {
       pubClient.publish('newChat', JSON.stringify(msg));
     }
   });
-});
-
-// Ручка для получения пользователей бота
-app.get('/bot/users', (req, res) => {
-  // Здесь вы можете обработать запрос и вернуть пользователей бота
-  // Например, отправить массив пользователей в формате JSON
-  //TODO: отправлять рандомный список пользователей:
-  // const botUsers = {
-  //   id: string ,
-  //   name: string,
-  //   email: string,
-  //   phone: string,
-  // };
-  const botUsers = ['user1', 'user2', 'user3'];
-  res.json({ users: botUsers });
-});
-
-// Ручка для получения статуса мокового сервера
-app.get('/mock-server/status', (req, res) => {
-  // Здесь вы можете проверить статус сервера и вернуть его в ответе
-  // Например, вернуть объект с полем "status"
-  //TODO: отправлять рандомно статус :
-  // const iconMap = {
-  //   started: { icon: 'syncDone' as const, label: 'запущен' },
-  //   error: { icon: 'slash' as const, label: 'ошибка' },
-  //   updating: { icon: 'syncUpdate' as const, label: 'обновляется' },
-  //   editing: { icon: 'dropdownEdit' as const, label: 'редактируется' },
-  // };
-
-  const serverStatus = {
-    status: 'running', // Замените на актуальный статус вашего сервера
-  };
-  res.json(serverStatus);
 });
 
 server.listen(PORT, () => {

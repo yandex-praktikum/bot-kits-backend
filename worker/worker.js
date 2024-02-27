@@ -2,7 +2,7 @@ import { createClient } from 'redis';
 import { Emitter } from '@socket.io/redis-emitter';
 import mongoose, { Schema } from 'mongoose';
 import dotenv from 'dotenv';
-dotenv.config({ path: '.env.worker' });
+dotenv.config();
 
 //--Cхема для сообщений в MongoDB--//
 const Messages = mongoose.model(

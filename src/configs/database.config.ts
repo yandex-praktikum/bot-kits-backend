@@ -20,11 +20,10 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
     'DB_PORT',
   )}/`;
   const client = new MongoClient(uri);
-
   try {
     // Подключаемся к серверу MongoDB
     await client.connect();
-
+    console.log('Я тут сейчас и могу подключиться в БД');
     // Получаем доступ к базе данных 'admin' (обычно используется для административных команд)
     const adminDb = client.db('admin');
 
@@ -227,9 +226,7 @@ const databaseOptions = (
     'DB_PORT',
   )}/${configService.get(
     'DB_NAME',
-  )}?authSource=admin&replicaSet=${configService.get(
-    'DB_REPLICATION_SET',
-  )}&directConnection=true`,
+  )}?authSource=admin&replicaSet=${configService.get('DB_REPLICATION_SET')}`,
 });
 
 export const databaseConfig = (): MongooseModuleAsyncOptions => ({

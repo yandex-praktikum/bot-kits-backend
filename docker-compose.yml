@@ -1,22 +1,60 @@
-#docker-compose
 version: "3.9"
 
 services:
   backend:
-    container_name: 'botkit-backend-release'
+    container_name: 'botkits_backend'
     build:
       context: .
     ports:
-      - "${PORT_CONTAINER:-3000}:${APP_PORT:-3000}"
+      - "${PORT_CONTAINER:-4000}:${APP_PORT:-3000}"
     env_file:
       - .env
     restart: always
     networks:
       - back
       - default
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep 'node' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  worker:
+    container_name: 'botkits_worker'
+    build:
+      context: ./worker/
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - back
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  mock_server:
+    container_name: 'botkits_mock_server'
+    build:
+      context: ./microservices/mockServer/
+    ports:
+      - "${MOCK_SERVER_CONTAINER_PORT:-5000}:${MOCK_SERVER_PORT:-3010}"
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - back
+      - default
+    depends_on:
+      redis:
+        condition: service_healthy
 
   mongo:
-    container_name: 'botkit-mongodb-release'
+    container_name: 'botkits_mongodb'
     image: mongo:5
     restart: always
     env_file:
@@ -36,6 +74,42 @@ services:
       retries: 5
       start_period: 40s
 
+  rabbitmq:
+    container_name: 'botkits_rabbitmq'
+    image: rabbitmq:latest
+    env_file:
+      - .env
+    ports:
+      - "5672:5672" # RabbitMQ server
+      - "15672:15672" # Management console
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - back
+    restart: always
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  redis:
+    container_name: 'botkits_redis'
+    image: redis:latest
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "6379:6379"
+    networks:
+      - back
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 networks:
   back:
     driver: bridge
@@ -44,3 +118,4 @@ networks:
 volumes:
   db_data:
   db_config:
+  rabbitmq_data:
