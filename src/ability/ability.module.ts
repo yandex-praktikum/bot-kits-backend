@@ -15,6 +15,6 @@ import {
     ]),
   ],
   providers: [AbilityFactory],
-  exports: [AbilityFactory], // Экспорт AbilityFactory
+  exports: [AbilityFactory],
 })
 export class AbilityModule {}

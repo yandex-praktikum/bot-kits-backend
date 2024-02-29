@@ -15,7 +15,6 @@ import { Subscription } from 'src/subscriptions/schema/subscription.schema';
 import { Tariff } from 'src/tariffs/schema/tariff.schema';
 import Role from 'src/accounts/types/role';
 
-// Определение типа для ответа функции findAll
 export type TAllUsersResponse = {
   id: Types.ObjectId;
   name: string;
@@ -23,10 +22,10 @@ export type TAllUsersResponse = {
   phone: string;
   botCount: number;
   dateRegistration: Date;
-  lastActivityAccount: Date; // Эти поля могут требовать дополнительной логики для точного заполнения
+  lastActivityAccount: Date; //-- Эти поля могут требовать дополнительной логики для точного заполнения --//
   lastActivityBot: Date;
-  tariff: Tariff | null; // Указываем, что может быть null, если подписка не найдена
-  debitDate: Date | null; // То же, что и для tariff
+  tariff: Tariff | null; //-- Указываем, что может быть null, если подписка не найдена например у superAdmin --//
+  debitDate: Date | null; //-- То же, что и для tariff например у superAdmin --//
 };
 
 @Injectable()
@@ -39,46 +38,7 @@ export class ProfilesRepository {
     private subscriptionModel: Model<Subscription>,
     @InjectConnection() private readonly connection: mongoose.Connection,
   ) {}
-
-  async findAll(): Promise<TAllUsersResponse[]> {
-    // Извлекаем всех пользователей и их аккаунты
-    const allUsers = await this.profileModel.find().populate('accounts').exec();
-
-    // Маппинг пользователей в асинхронные промисы для обработки данных
-    const responseUsersPromises = allUsers.map(async (user) => {
-      // Пропускаем пользователей с ролью SUPER_ADMIN
-      if (user.accounts[0].role === Role.SUPER_ADMIN) return null;
-
-      // Получаем количество ботов пользователя
-      const allBotsUser = await this.botModel.find({ profile: user._id });
-
-      // Пытаемся найти подписку пользователя
-      const subscriptionUser = await this.subscriptionModel
-        .findOne({ 'profile._id': user._id })
-        .exec();
-
-      // Структурируем ответ с проверками на null для подписки
-      return {
-        id: user._id,
-        name: user.username,
-        mail: user.accounts[0].credentials.email, // Используем исправленное название поля
-        phone: user.phone,
-        botCount: allBotsUser.length,
-        dateRegistration: user.dateRegistration, // Используем дату создния из модели пользователя
-        lastActivityAccount: user.lastAccountActivity
-          ? user.lastAccountActivity
-          : new Date(), // Требует реализации
-        lastActivityBot: new Date(), // Требует реализации
-        tariff: subscriptionUser ? subscriptionUser.tariff : null,
-        debitDate: subscriptionUser ? subscriptionUser.debitDate : null,
-      };
-    });
-
-    // Ожидаем выполнения всех промисов и фильтруем null значения
-    const responseUsers = await Promise.all(responseUsersPromises);
-    return responseUsers.filter((user) => user !== null);
-  }
-
+  //-- Приватная функция для создания деофлтных выдаваемых правах --//
   private async createDefaultAccessObject(
     profileId: Types.ObjectId,
   ): Promise<Access> {
@@ -89,6 +49,45 @@ export class ProfilesRepository {
       mailing: false,
       statistics: false,
     };
+  }
+
+  async findAll(): Promise<TAllUsersResponse[]> {
+    //-- Извлекаем всех пользователей и их аккаунты --//
+    const allUsers = await this.profileModel.find().populate('accounts').exec();
+
+    //-- Маппинг пользователей в асинхронные промисы для обработки данных --//
+    const responseUsersPromises = allUsers.map(async (user) => {
+      //-- Пропускаем пользователей с ролью SUPER_ADMIN --//
+      if (user.accounts[0].role === Role.SUPER_ADMIN) return null;
+
+      //-- Получаем количество ботов пользователя --//
+      const allBotsUser = await this.botModel.find({ profile: user._id });
+
+      //-- Пытаемся найти подписку пользователя --//
+      const subscriptionUser = await this.subscriptionModel
+        .findOne({ 'profile._id': user._id })
+        .exec();
+
+      //-- Структурируем ответ с проверками на null для подписки --//
+      return {
+        id: user._id,
+        name: user.username,
+        mail: user.accounts[0].credentials.email, //-- Используем исправленное название поля --//
+        phone: user.phone,
+        botCount: allBotsUser.length,
+        dateRegistration: user.dateRegistration, //-- Используем дату создния из модели пользователя --//
+        lastActivityAccount: user.lastAccountActivity
+          ? user.lastAccountActivity
+          : new Date(), //-- Требует реализации --//
+        lastActivityBot: new Date(), //-- Требует реализации --//
+        tariff: subscriptionUser ? subscriptionUser.tariff : null,
+        debitDate: subscriptionUser ? subscriptionUser.debitDate : null,
+      };
+    });
+
+    //-- Ожидаем выполнения всех промисов и фильтруем null значения --//
+    const responseUsers = await Promise.all(responseUsersPromises);
+    return responseUsers.filter((user) => user !== null);
   }
 
   async create(
@@ -166,16 +165,17 @@ export class ProfilesRepository {
     return await this.profileModel.findByIdAndDelete(id).exec();
   }
 
+  //-- Функция предоставления общего доступа к пользовательским ботам --//
   async sharedAccess(
     createSharedAccessDto: CreateSharedAccessDto,
     userId: string,
   ) {
-    // Начинаем сессию и транзакцию для работы с БД
+    //-- Начинаем сессию и транзакцию для работы с БД --//
     const session = await this.connection.startSession();
     session.startTransaction();
 
     try {
-      // Находим аккаунт получателя доступа по адресу электронной почты
+      //-- Находим аккаунт получателя доступа по адресу электронной почты --//
       const recipientAccount = await this.accountModel.findOne(
         { 'credentials.email': createSharedAccessDto.email },
         { 'credentials.password': 0 },
@@ -184,7 +184,7 @@ export class ProfilesRepository {
         throw new NotFoundException('Профиль получателя не найден');
       }
 
-      // Проверяем, найден ли соответствующий профиль пользователя получателя
+      //-- Проверяем, найден ли соответствующий профиль пользователя получателя --//
       const recipientProfile = await this.profileModel
         .findById(recipientAccount.profile)
         .exec();
@@ -193,7 +193,7 @@ export class ProfilesRepository {
         throw new NotFoundException('Профиль получателя не найден');
       }
 
-      // Поиск профиля пользователя, предоставляющего доступ, по идентификатору
+      //-- Поиск профиля пользователя, предоставляющего доступ, по идентификатору --//
       const grantingProfile = await this.profileModel.findById(userId);
 
       if (!grantingProfile) {
@@ -202,7 +202,7 @@ export class ProfilesRepository {
         );
       }
 
-      // Проверка на то, был ли доступ уже предоставлен этому пользователю
+      //-- Проверка на то, был ли доступ уже предоставлен этому пользователю --//
       const accessAlreadyGranted = recipientProfile.receivedSharedAccess.some(
         (access) => access.profile.toString() === userId,
       );
@@ -213,7 +213,7 @@ export class ProfilesRepository {
         );
       }
 
-      // Добавление записей о предоставленном доступе в профили пользователей
+      //-- Добавление записей о предоставленном доступе в профили пользователей --//
       recipientProfile.receivedSharedAccess.push(
         await this.createDefaultAccessObject(
           new mongoose.Types.ObjectId(userId),
@@ -225,124 +225,141 @@ export class ProfilesRepository {
         ),
       );
 
-      // Сохранение изменений в профилях пользователей в БД
+      //-- Сохранение изменений в профилях пользователей в БД --//
       await recipientProfile.save({ session });
       await grantingProfile.save({ session });
 
-      // Фиксация транзакции
+      //-- Фиксация транзакции --//
       await session.commitTransaction();
 
-      // Возвращаем обновленные профили
-      return { recipientProfile, grantingProfile };
-      // return `Функционал уведосления на email - ${createSharedAccessDto.email} с сообщением о предоставленном доступе`
+      return `Функционал уведосления на email - ${createSharedAccessDto.email} с сообщением о предоставленном доступе`;
     } catch (e) {
-      // В случае ошибки откатываем транзакцию
+      //-- В случае ошибки откатываем транзакцию --//
       await session.abortTransaction();
       return e;
     } finally {
-      // Завершаем сессию вне зависимости от результата
+      //-- Завершаем сессию вне зависимости от результата --//
       session.endSession();
     }
   }
 
+  //-- Метод для получения всех разрешений на доступ, предоставленных пользователем --//
   async findAllGrantedAccesses(userId: string): Promise<any> {
+    //-- Поиск профиля пользователя по ID и загрузка связанных данных о предоставленных доступах --//
     const profile = await this.profileModel
       .findById(userId)
       .populate({
-        path: 'grantedSharedAccess',
+        path: 'grantedSharedAccess', //-- Путь к полю с предоставленными доступами --//
         populate: {
-          path: 'profile',
-          model: 'Profile',
+          path: 'profile', //-- Загрузка данных профилей, которым предоставлен доступ --//
+          model: 'Profile', //-- Указание модели для загрузки --//
           populate: {
-            path: 'accounts',
-            model: 'Account',
+            path: 'accounts', //-- Дальнейшая загрузка связанных аккаунтов этих профилей --//
+            model: 'Account', //-- Указание модели аккаунтов для загрузки --//
           },
         },
       })
       .exec();
 
+    //-- Если профиль не найден, выбрасываем исключение --//
     if (!profile) {
       throw new NotFoundException('Профиль не найден');
     }
 
-    // Убедитесь, что profile.grantedSharedAccess соответствует ожидаемому типу
+    //-- Получение массива предоставленных доступов из профиля --//
     const accesses = profile.grantedSharedAccess as any;
 
-    // Трансформация результатов
+    //-- Трансформация данных о предоставленных доступах для удобства отображения --//
     const transformedAccesses = accesses.map((access) => {
+      //-- Извлечение имени пользователя и электронной почты из профиля, которому предоставлен доступ --//
       const username = access.profile.username;
       const email =
         access.profile.accounts.length > 0
           ? access.profile.accounts[0].credentials.email
-          : null;
+          : null; //-- Получение электронной почты из первого аккаунта профиля, если аккаунты есть --//
 
+      //-- Возвращение трансформированной структуры данных об доступе --//
       return {
-        _id: access.profile._id,
-        username,
-        email,
-        dashboard: access.dashboard,
-        botBuilder: access.botBuilder,
-        mailing: access.mailing,
-        statistics: access.statistics,
+        _id: access.profile._id, //-- ID профиля, которому предоставлен доступ --//
+        username, //-- Имя пользователя профиля --//
+        email, //-- Электронная почта пользователя (если есть) --//
+        dashboard: access.dashboard, //-- Доступ к панели управления --//
+        botBuilder: access.botBuilder, //-- Доступ к конструктору ботов --//
+        mailing: access.mailing, //-- Доступ к рассылкам --//
+        statistics: access.statistics, //-- Доступ к статистике --//
       };
     });
 
+    //-- Возвращение массива трансформированных данных о предоставленных доступах --//
     return transformedAccesses;
   }
 
+  //-- Метод для обновления данных о предоставленных доступах между пользователями --//
   async updateAccesses(grantorId: string, access: Access): Promise<Access[]> {
+    //-- Запуск сессии MongoDB для поддержки транзакций --//
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
+      //-- Поиск профиля пользователя, предоставившего доступ --//
       const grantorProfile = await this.profileModel
         .findById(grantorId)
-        .session(session);
+        .session(session); //-- Привязка операции к сессии транзакции --//
+      //-- Поиск профиля пользователя, которому предоставлен доступ --//
       const grantedUserProfile = await this.profileModel
         .findById(access.profile)
-        .session(session);
+        .session(session); //-- Привязка операции к сессии транзакции --//
 
+      //-- Проверка на существование обоих профилей --//
       if (!grantorProfile || !grantedUserProfile) {
         throw new NotFoundException('Профиль не найден');
       }
 
-      // Обновление grantedSharedAccess у пользователя, который выдал доступ
+      //-- Обновление списка выданных доступов у пользователя-донора --//
       const grantorAccessIndex = grantorProfile.grantedSharedAccess.findIndex(
-        (a) => a.profile.toString() === access.profile.toString(),
+        (a) => a.profile.toString() === access.profile.toString(), //-- Поиск индекса существующего доступа --//
       );
 
+      //-- Если доступ уже существует, обновляем его, иначе добавляем новый --//
       if (grantorAccessIndex !== -1) {
         grantorProfile.grantedSharedAccess[grantorAccessIndex] = access;
       } else {
         grantorProfile.grantedSharedAccess.push(access);
       }
 
-      // Обновление receivedSharedAccess у пользователя, которому был выдан доступ
+      //-- Обновление списка полученных доступов у пользователя-реципиента --//
       const grantedAccessIndex =
         grantedUserProfile.receivedSharedAccess.findIndex(
-          (a) => a.profile.toString() === grantorId,
+          (a) => a.profile.toString() === grantorId, //-- Поиск индекса существующего доступа --//
         );
+
+      //-- Если доступ уже существует, обновляем его, иначе добавляем новый --//
       if (grantedAccessIndex !== -1) {
         grantedUserProfile.receivedSharedAccess[grantedAccessIndex] = {
           ...access,
-          profile: grantorProfile._id,
+          profile: grantorProfile._id, //-- Установка ссылки на профиль-донора --//
         };
       } else {
         grantedUserProfile.receivedSharedAccess.push({
           ...access,
-          profile: grantorProfile._id,
+          profile: grantorProfile._id, //-- Установка ссылки на профиль-донора --//
         });
       }
 
+      //-- Сохранение изменений профилей с учетом транзакции --//
       await grantorProfile.save({ session });
       await grantedUserProfile.save({ session });
 
+      //-- Фиксация транзакции --//
       await session.commitTransaction();
 
+      //-- Возвращение обновленного списка предоставленных доступов --//
       return grantorProfile.grantedSharedAccess;
     } catch (e) {
+      //-- В случае ошибки отменяем транзакцию и возвращаем ошибку --//
       await session.abortTransaction();
       return e;
     } finally {
+      //-- Завершение сессии --//
       session.endSession();
     }
   }

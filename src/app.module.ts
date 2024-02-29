@@ -33,11 +33,8 @@ import { throttlerConfig } from './configs/throttler.config';
 import { PartnershipModule } from './partnership/partnership.module';
 import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
 import { HandlersQueuesModule } from './handlers-queues/handlers-queues.module';
-import { ChatsModule } from './chats/chats.module';
-import { RedisModule } from './redis/redis.module';
 import { GridFSModule } from './gridFS/grifFS.module';
 
-//app.module.ts
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -59,7 +56,6 @@ import { GridFSModule } from './gridFS/grifFS.module';
     HttpModule,
     NotificationModule,
     BlacklistTokensModule,
-    ChatsModule,
     PartnershipModule,
     MailingModule,
     HandlersQueuesModule,

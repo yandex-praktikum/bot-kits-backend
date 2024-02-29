@@ -45,8 +45,6 @@ async function bootstrap() {
 
   app.enableCors(cors);
 
-  // app.useWebSocketAdapter(new SocketIoAdapter(app, configService, cors));
-
   // Создаем экземпляр билдера Swagger-документации
   const config = new DocumentBuilder()
     .setTitle('API BotKits')

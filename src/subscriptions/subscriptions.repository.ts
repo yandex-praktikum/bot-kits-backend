@@ -89,82 +89,97 @@ export class SubscriptionsRepository {
     return dataObject;
   }
 
+  //-- Метод для активации или деактивации подписки пользователя --//
   async activateSubscription(userId: Profile, status: boolean) {
+    //-- Поиск подписки пользователя по его профилю --//
     const subscription = await this.findSubscriptionByProfile(userId);
+    //-- Поиск профиля пользователя --//
     const profile = await this.profileModel.findById(userId);
+    //-- Поиск тарифа, на который оформлена подписка --//
     const tariff = await this.tariffModel.findById(subscription.tariff);
 
+    //-- Если подписка не найдена, выбрасывается исключение --//
     if (!subscription) {
       throw new NotFoundException('Не найдена подписка пользователя');
     }
-    //Когда приостанавливается тариф status === true
+
+    //-- Проверка на деактивацию подписки --//
     if (!status) {
+      //-- Если баланс профиля меньше стоимости тарифа или тариф является демо, выбрасывается исключение --//
       if (profile.balance < tariff.price || tariff.isDemo) {
         throw new BadRequestException(
           'Нельзя активировать Демо тариф или недостаточно средств',
         );
       }
+      //-- Обновление статуса подписки на противоположный и установка флага отмены подписки --//
       subscription.status = !status;
       subscription.isCancelled = status;
     }
 
+    //-- Установка флага отмены подписки в зависимости от переданного статуса --//
     subscription.isCancelled = status;
+    //-- Сохранение обновленной подписки --//
     return await subscription.save();
   }
 
+  //-- Метод для создания или обновления подписки пользователя на тариф --//
   async create(
-    createSubscriptionDto: CreateSubscriptionDto,
-    tariffId: string,
-    user: Profile,
+    createSubscriptionDto: CreateSubscriptionDto, //-- DTO с данными для создания подписки --//
+    tariffId: string, //-- ID тарифа, на который подписывается пользователь --//
+    user: Profile, //-- Профиль пользователя, подписывающегося на тариф --//
   ): Promise<Subscription> {
+    //-- Поиск существующей подписки пользователя --//
     const subscription = await this.subscriptionModel
       .findOne({ 'profile._id': user._id })
       .exec();
 
+    //-- Поиск тарифа по ID --//
     const tariff = await this.tariffModel.findById(tariffId).exec();
 
+    //-- Проверка существования тарифа и что это не демо-тариф --//
     if (!tariff || tariff.isDemo) {
       throw new NotFoundException('Неверный идентификатор тарифа');
     }
 
     const profile = await this.profileModel.findById(user._id);
 
-    // Обработка оплаты
+    //-- Обработка оплаты тарифа --//
     const paymentSuccess = await this.processPayment(tariff, profile);
 
+    //-- Проверка успешности оплаты --//
     if (!paymentSuccess.successful) {
       throw new BadRequestException('Ошибка оплаты');
     }
 
-    // Создание или обновление подписки
+    //-- Проверка наличия активной подписки у пользователя --//
     if (subscription && subscription.status) {
       console.log('Пользователь сменил тариф при имеющимся активном тарифе');
-      // Обновление существующей подписки если пользователь выбрал новый тариф
+      //-- Обновление существующей подписки, если пользователь выбрал новый тариф --//
       return await this.subscriptionModel
         .findByIdAndUpdate(
-          subscription._id,
+          subscription._id, //-- ID подписки для обновления --//
           {
-            updatingTariff: tariff,
-            status: true,
-            isCancelled: false,
+            updatingTariff: tariff, //-- Новый тариф, на который меняется подписка --//
+            status: true, //-- Статус подписки активен --//
+            isCancelled: false, //-- Подписка не отменена --//
           },
-          { new: true },
+          { new: true }, //-- Возвращать обновленный документ --//
         )
         .exec();
     } else {
       console.log(`Пользователь активировал тариф - ${tariff.name}`);
-      // если у пользователя была деактивирована подписка, обновляем статус и дату следующего списания
+      //-- Создание новой подписки или обновление деактивированной подписки --//
       return await this.subscriptionModel
         .findByIdAndUpdate(
-          subscription._id,
+          subscription ? subscription._id : undefined, //-- ID подписки для обновления, если она существует --//
           {
-            ...createSubscriptionDto,
-            tariff: tariff.toObject(),
-            status: true,
-            profile: profile.toObject(),
-            isCancelled: false,
+            ...createSubscriptionDto, //-- Данные для создания/обновления подписки --//
+            tariff: tariff.toObject(), //-- Данные тарифа --//
+            status: true, //-- Статус подписки активен --//
+            profile: profile.toObject(), //-- Профиль пользователя --//
+            isCancelled: false, //-- Подписка не отменена --//
           },
-          { new: true },
+          { new: true }, //-- Возвращать обновленный документ --//
         )
         .exec();
     }
