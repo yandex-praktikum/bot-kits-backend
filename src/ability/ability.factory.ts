@@ -20,13 +20,15 @@ import { UpdatePlatformDto } from 'src/platforms/dto/update-platform.dto';
 import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
 import { UpdateProfileDto } from 'src/profiles/dto/update-profile.dto';
 import { Profile } from 'src/profiles/schema/profile.schema';
+import { CreatePromocodeDto } from 'src/promocodes/dto/create-promocode.dto';
+import { UpdatePromocodeDto } from 'src/promocodes/dto/update-promocode.dto';
 import { Statistics } from 'src/statistics/schema/statistics.schema';
 import {
   Subscription,
   SubscriptionDocument,
 } from 'src/subscriptions/schema/subscription.schema';
+import { CreateTariffDto } from 'src/tariffs/dto/create-tariff.dto';
 
-//ability.factory.ts
 export enum Action {
   Manage = 'manage',
   Create = 'create',
@@ -49,6 +51,9 @@ export type Subjects = InferSubjects<
   | typeof UpdateNotificationDto
   | typeof CreateNotificationDto
   | typeof Statistics
+  | typeof CreatePromocodeDto
+  | typeof UpdatePromocodeDto
+  | typeof CreateTariffDto
   | 'all'
 >;
 
@@ -83,76 +88,88 @@ export class AbilityFactory {
     return (await this.botModel.find(user)).length;
   }
 
-  //--Функция defineAbility определяет, что может делать пользователь в приложении--//
+  //-- Функция defineAbility определяет, что может делать пользователь в приложении --//
   async defineAbility(user: Profile): Promise<PureAbility> {
+    /*
+      Для того чтобы организовать сложные правила, например для изменения, создания и т.д. с моделями ботов, 
+      необходимо работать не с DTO, и не с моделью Bots из БД, 
+      используйте именно заинжектированную модель из БД например this.botModel 
+      так фабрика получит корректный Subjects передаваемого бота из репозитория в правило для проверки.
+    */
     type AppAbility = PureAbility<[Action, Subjects | typeof this.botModel]>;
     const lambdaMatcher = (matchConditions: MatchConditions) => matchConditions;
 
     const isSuperAdmin = this.getRole(user, Role.SUPER_ADMIN);
     const isAdmin = this.getRole(user, Role.ADMIN);
 
-    //--Инициализируем текущую подписку пользователя--//
+    //-- Инициализируем текущую подписку пользователя --//
     await this.getSub(user);
 
-    //--Создаем строитель AbilityBuilder, который поможет нам определить правила доступа--//
+    //-- Создаем строитель AbilityBuilder, который поможет нам определить правила доступа --//
     const { can, cannot, build } = new AbilityBuilder<AppAbility>(PureAbility);
 
-    //--Здесь определяем правила доступа--//
+    //-- Здесь определяем правила доступа --//
     if (isAdmin) {
       cannot(Action.Manage, Statistics).because(
         'Этот функционал только у супер администратора',
       );
 
-      //--Администраторы могут делать запросы по эндпоинтам связанные с профилем--//
+      //-- Администраторы могут делать запросы по эндпоинтам связанные с профилем --//
       can(Action.Manage, UpdateProfileDto);
-      //--Администраторы НЕ могут удалять чужие профиля и получать к ним доступ--//
+      //-- Администраторы НЕ могут удалять чужие профиля и получать к ним доступ --//
       cannot(Action.Manage, CreateProfileDto).because(
         'Этот функционал только у супер администратора',
       );
 
-      //--Администраторы могут только получать платформы--//
+      //-- Администраторы могут только получать платформы --//
       can(Action.Read, UpdatePlatformDto);
-      //--Администраторы НЕ могут удалять, обновлять и создавать платформы--//
+      //-- Администраторы НЕ могут удалять, обновлять и создавать платформы --//
       cannot(Action.Manage, CreatePlatformDto).because(
         'Этот функционал только у супер администратора',
       );
 
-      //--Администраторы могут только создавать уведомления--//
+      //-- Администраторы могут только создавать уведомления --//
       can([Action.Read, Action.Update], UpdateNotificationDto);
-      //--Администраторы НЕ могут удалять, изменять и получать уведомления--//
+      //-- Администраторы НЕ могут удалять, изменять и получать уведомления --//
       cannot(Action.Manage, CreateNotificationDto).because(
         'Этот функционал только у супер администратора',
       );
 
-      //--Администраторы НЕ имеют право на любые действия связанные с шаблонами--//
+      //-- Администраторы НЕ имеют право на любые действия связанные с шаблонами --//
       cannot(Action.Manage, CreateTemplateDto).because(
         'Этот функционал только у супер администратора',
       );
 
-      //--Администраторы могут делать запросы по эндпоинтам связанные с ботами--//
+      //-- Администраторы могут делать запросы по эндпоинтам связанные с ботами --//
       can([Action.Share, Action.Read, Action.Delete], [CreateBotDto]);
 
-      //--Администраторы могут удалять бота если они его создатели--//
+      //-- Администраторы могут использовать промокод --//
+      can(Action.Update, UpdatePromocodeDto);
+
+      //-- Администраторы не могут управлять тарифами --//
+      cannot(Action.Manage, CreateTariffDto);
+
+      //-- Администраторы могут удалять бота если они его создатели --//
       can(Action.Delete, this.botModel, ({ profile }) =>
         profile.equals(user._id),
       );
 
-      //проверяем есть ли у пользователя активная подписка
+      //-- Проверяем есть ли у пользователя активная подписка --//
       if (await this.getSubStatus()) {
-        //--Администраторы могут обновлять бота--//
+        //-- Администраторы могут обновлять бота --//
         can(Action.Update, UpdateBotDto);
 
-        //--Администраторы могут обновлять бота если они его создатели и если им был предоставлен общий доступ--//
+        //-- Администраторы могут обновлять бота если они его создатели и если им был предоставлен общий доступ --//
         can(Action.Update, this.botModel, (bot: Bot) => {
           return (
             bot.profile.equals(user._id) ||
             user.receivedSharedAccess.some((access) => {
-              //--Создаем объект с пришедшими правами для сравнения--//
+              //-- Создаем объект с пришедшими правами для сравнения --//
               const comparisonObject = {
                 ...bot.permission,
                 profile: bot.profile._id,
               };
-              //--Сравниваем объект выданных прав с пришедшими в запросе--//
+              //-- Сравниваем объект выданных прав с пришедшими в запросе --//
               return Object.keys(comparisonObject).every((key) => {
                 return (
                   access[key].toString() === comparisonObject[key].toString()
@@ -162,21 +179,21 @@ export class AbilityFactory {
           );
         });
 
-        //--Администраторы могут создавать бота только из шаблонов--//
+        //-- Администраторы могут создавать бота только из шаблонов --//
         can(
           Action.CreateOnlyFromTemplate,
           this.botModel,
           ({ type }) => type === 'template',
         );
 
-        //проверяем лимит создания ботов по тарифу
+        //-- Проверяем лимит создания ботов по тарифу --//
         if ((await this.getBotsLimit()) > (await this.getBotsCount(user))) {
-          //--Администраторы могут копировать бота если они его создатели--//
+          // --Администраторы могут копировать бота если они его создатели --//
           can(Action.Copy, this.botModel, ({ profile }) =>
             profile.equals(user._id),
           );
 
-          //--Администраторы могут создать бота--//
+          //-- Администраторы могут создать бота --//
           can([Action.Create], [CreateBotDto]);
         }
       } else {
@@ -186,14 +203,14 @@ export class AbilityFactory {
         ).because('Оформите подписку');
       }
     } else if (isSuperAdmin) {
-      //--Супер администраторы имеют доступ ко всем операциям в приложении--//
+      //-- Супер администраторы имеют доступ ко всем операциям в приложении --//
       can(Action.Manage, 'all');
     } else {
-      //--Остальные ничего не могут--//
+      //-- Остальные ничего не могут --//
       cannot(Action.Manage, 'all').because('Зарегистрируйтесь');
     }
 
-    //--Возвращаем сформированный набор правил в гарду--//
+    //-- Возвращаем сформированный набор правил в гарду --//
     return build({
       conditionsMatcher: lambdaMatcher,
       detectSubjectType: (object) =>

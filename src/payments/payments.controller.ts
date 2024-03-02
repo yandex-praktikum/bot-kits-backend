@@ -24,10 +24,6 @@ import {
 } from '@nestjs/swagger';
 import { Payment } from './schema/payment.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
-import { RolesGuard } from 'src/auth/guards/role.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
-import { Profile } from 'src/profiles/schema/profile.schema';
 import { TJwtRequest } from 'src/types/jwtRequest';
 
 @ApiTags('payments')
@@ -87,8 +83,6 @@ export class PaymentsController {
   })
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
   delete(@Param('id') id: string) {
     return this.paymentsService.delete(id);
   }
@@ -109,10 +103,7 @@ export class PaymentsController {
   @ApiForbiddenResponse({ description: 'Отказ в доступе' })
   @ApiNotFoundResponse({ description: 'Ресурс не найден' })
   @ApiBadRequestResponse({ description: 'Неверный запрос' })
-  @UseGuards(RolesGuard)
-  @Roles('admin')
   update(
-    @AuthUser() profile: Profile,
     @Param('id') id: string,
     @Body() updatePaymentDto: Omit<CreatePaymentDto, 'profie'>,
   ): Promise<Payment> {

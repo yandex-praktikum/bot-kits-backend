@@ -24,7 +24,6 @@ interface AuthenticatedSocket extends Socket {
   user: Profile;
 }
 
-//chats.gateway.ts
 @WebSocketGateway({
   cors: {
     origin: '*',

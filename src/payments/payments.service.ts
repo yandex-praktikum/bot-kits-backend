@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Payment } from './schema/payment.schema';
-import { Profile } from '../profiles/schema/profile.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { RepositoryPort } from './payments.repository';
 import { Types } from 'mongoose';

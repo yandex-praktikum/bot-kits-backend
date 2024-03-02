@@ -4,7 +4,7 @@ import mongoose, { Schema } from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
 
-//--Cхема для сообщений в MongoDB--//
+//-- Cхема для сообщений в MongoDB --//
 const Messages = mongoose.model(
   'Message',
   new Schema(
@@ -33,7 +33,7 @@ const Messages = mongoose.model(
   ),
 );
 
-//--Cхема для чатов в MongoDB--//
+//-- Cхема для чатов в MongoDB --//
 const Chats = mongoose.model(
   'Chat',
   new Schema(
@@ -52,17 +52,19 @@ const Chats = mongoose.model(
   ),
 );
 
-//--Проверки размера массива участников--//
+//-- Проверки размера массива участников --//
 function arrayLimit(val) {
-  return val.length === 2; // Условие, что в массиве ровно 2 элемента
+  //-- TODO: Пока что убеждаемся, что в массиве только 2 элемента --//
+  //-- При реализации невидимых сообщений и кол-ве администраторов в диалоге изменить валидатор --//
+  return val.length === 2;
 }
 
-//--Асинхронное добавление элемента в массив--//
+//-- Асинхронное добавление элемента в массив --//
 async function pushToArray(arr, el) {
   return arr.push(el);
 }
 
-//--Создание клиентов Redis--//
+//-- Создание клиентов Redis --//
 const pubClient = createClient({
   url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
 });
@@ -70,7 +72,7 @@ const pubClient = createClient({
 const subClient = pubClient.duplicate();
 const cacheClient = pubClient.duplicate();
 
-//--Подключение к Redis и MongoDB--//
+//-- Подключение к Redis и MongoDB --//
 Promise.all([
   pubClient.connect(),
   subClient.connect(),
@@ -80,121 +82,121 @@ Promise.all([
   ),
 ])
   .then(() => {
-    const emitter = new Emitter(pubClient); //--Emitter для публикации событий через Redis.--//
+    const emitter = new Emitter(pubClient); // --Emitter для публикации событий по SocketIO через Redis --//
 
-    //--Подписка на событие создания нового чата. При получении события, выполняется асинхронная функция.--//
+    //-- Подписка на событие создания нового чата. При получении события, выполняется асинхронная функция --//
     subClient.subscribe('newChat', async (chatData) => {
-      //--Парсинг полученных данных о чате из формата JSON--//
+      //-- Парсинг полученных данных о чате из формата JSON --//
       const { participants } = JSON.parse(chatData);
 
       try {
-        //--Создание нового документа чата в базе данных MongoDB--//
+        //-- Создание нового документа чата в базе данных MongoDB --//
         const newChat = new Chats({
           chatId: `/${participants[0]}:${participants[1]}`,
           profile: new mongoose.Types.ObjectId(participants[1]),
         });
 
-        //--Попытка сохранить новый чат в базе данных--//
+        //-- Попытка сохранить новый чат в базе данных --//
         await newChat.save();
       } catch (e) {
         if (e.code === 11000) {
-          //--Если чат уже существует, тогда отправляем сообщение в существующую комнату--//
+          //-- Если чат уже существует, тогда отправляем сообщение в существующую комнату --//
           emitter.to(`/user/${participants[1]}`).emit('message', chatData);
           return;
         }
-        //--Обработка остальных ошибок--//
+        //-- Обработка остальных ошибок --//
         console.error(`Ошибка в подписчике newChat - ${e.message}`);
       }
-      //--Если же чата не существует тогда присоединяем пользователя к комнате с новым чатм--//
+      //-- Если же чата не существует тогда присоединяем пользователя к комнате с новым чатм --//
       emitter.to(`/user/${participants[1]}`).emit('newChat', chatData);
     });
 
-    //--Подписка на событие отправки сообщения. При получении события выполняется асинхронная функция--//
+    //-- Подписка на событие отправки сообщения. При получении события выполняется асинхронная функция --//
     subClient.subscribe('message', async (messageData) => {
       const objMessage = JSON.parse(messageData); // Парсинг данных сообщения из JSON.
 
       if (!objMessage.chatId) {
-        //--Если в сообщении не указан идентификатор чата, формируем его--//
+        //-- Если в сообщении не указан идентификатор чата, формируем его --//
         objMessage.chatId = `/${objMessage.participants[0]}:${objMessage.participants[1]}`;
       }
 
-      //--Поиск чата по идентификатору профиля получателя сообщения--//
+      //-- Поиск чата по идентификатору профиля получателя сообщения --//
       const chat = await Chats.findOne({
         profile: new mongoose.Types.ObjectId(`${objMessage.participants[1]}`),
       });
 
-      //--TODO: что делать если чат не найден?--//
+      //-- TODO: что делать если чат не найден? --//
       if (!chat) {
         console.log(`no chat item.`);
         return;
       }
 
       try {
-        //--Создание экземпляра сообщения для сохранения в MongoDB--//
+        //-- Создание экземпляра сообщения для сохранения в MongoDB --//
         const message = new Messages(objMessage);
 
-        //--Сохранение сообщения и добавление его идентификатора в массив сообщений чата--//
+        //-- Сохранение сообщения и добавление его идентификатора в массив сообщений чата --//
         await message.save();
         await pushToArray(chat.messages, message._id);
         await chat.save();
 
-        //--Отправка сообщения пользователю на клиент--//
+        //-- Отправка сообщения пользователю на клиент --//
         emitter
           .to(`/user/${objMessage.participants[1]}`)
           .emit('message', messageData);
       } catch (err) {
-        //--TODO: нужно ли пытаться ещё раз пробовать сохранять сообщение в чате?--//
+        //-- TODO: нужно ли пытаться ещё раз пробовать сохранять сообщение в чате? --//
         console.log(err.message);
       }
 
-      //--Кэширование обновленной истории чата пользователя в Redis для быстрого доступа--//
+      //-- Кэширование обновленной истории чата пользователя в Redis для быстрого доступа --//
       await cacheClient.set(
         `history/${chat.chatId}`,
         JSON.stringify(await chat.populate('messages')),
       );
     });
 
-    //--Подписка на событие получения задач--//
+    //-- Подписка на событие получения задач --//
     subClient.subscribe('task', (task) => {
       const { user, payload } = JSON.parse(task);
 
-      //--Имитация выполнения задачи с задержкой--//
+      //-- Имитация выполнения задачи с задержкой --//
       setTimeout(() => {
-        //--TODO: доработать отправку уведомлений--//
+        //-- TODO: доработать отправку уведомлений --//
         emitter.to(`/user/${user}`).emit('notify', `task "${payload}" ready!`);
       }, 3000);
     });
 
-    //--Подписка на событие запроса списка комнат (чатов) пользователя--//
+    //-- Подписка на событие запроса списка комнат (чатов) пользователя --//
     subClient.subscribe('get_rooms', async (userID) => {
       const { userId } = JSON.parse(userID);
 
-      //--Поиск чатов, в которых участвует пользователь--//
+      //-- Поиск чатов, в которых участвует пользователь --//
       const chats = await Chats.find({
         profile: new mongoose.Types.ObjectId(userId),
       });
 
-      //--Формирование списка идентификаторов чатов пользователя--//
+      //-- Формирование списка идентификаторов чатов пользователя --//
       const rooms = chats.map((room) => room.chatId);
 
-      //--Отправка списка комнат пользователю--//
+      //-- Отправка списка комнат пользователю --//
       emitter.to(`/user/${userId}`).emit('send_rooms', rooms);
     });
 
-    //--Подписка на событие регистрации пользователя и обработка его истории чатов--//
+    //-- Подписка на событие регистрации пользователя и обработка его истории чатов --//
     subClient.subscribe('register', async (user) => {
       const userObj = JSON.parse(user);
 
-      //--Поиск чатов пользователя и предварительная загрузка сообщений для каждого чата--//
+      //-- Поиск чатов пользователя и предварительная загрузка сообщений для каждого чата --//
       const chats = await Chats.find({
         profile: new mongoose.Types.ObjectId(userObj._id),
       }).populate('messages');
 
-      //--Если у пользователя есть история чатов, кэшируем её в Redis по комнатам--//
+      //-- Если у пользователя есть история чатов, кэшируем её в Redis по комнатам --//
       if (chats.length > 0) {
-        //--Отправляем историю конкретного пользователя клиенту--//
+        //-- Отправляем историю конкретного пользователя клиенту --//
         emitter.to(`/user/${userObj._id}`).emit('allChatsHistory', chats);
-        //--Складываем в кеш всю историию предварительно раскидывая её по комнатам для удобства разбора на моковом сервере--//
+        //-- Складываем в кеш всю историию предварительно раскидывая её по комнатам для удобства разбора на моковом сервере --//
         chats.forEach(async (chat) => {
           await cacheClient.set(`history/${chat.chatId}`, JSON.stringify(chat));
         });

@@ -14,8 +14,9 @@ import { createPaymentData, addDuration } from 'src/utils/utils';
 
 @Injectable()
 export class HandlersQueuesService implements OnModuleInit {
+  //-- Имена очередей для подписок и других задач --//
   private readonly subscriptionsQueue = 'subscriptionsQueue';
-  private readonly anotherQueue = 'anotherQueue'; // Дополнительная очередь
+  private readonly anotherQueue = 'anotherQueue';
 
   constructor(
     private readonly rabbitMQService: RabbitMQService,
@@ -26,23 +27,28 @@ export class HandlersQueuesService implements OnModuleInit {
     @InjectModel(Profile.name) private profileModel: Model<Profile>,
   ) {}
 
+  //-- Инициализация подписок на сообщения из очередей --//
   async onModuleInit() {
     await this.init();
   }
 
   private init() {
+    //-- Подписка на очередь подписок --//
     this.rabbitMQService.consume(
       this.subscriptionsQueue,
+      //-- Привязка контекста для доступа к методам и свойствам класса --//
       this.handleSubscription.bind(this),
     );
 
-    // Подписка на другую очередь
+    //-- Подписка на другую очередь --//
     this.rabbitMQService.consume(
       this.anotherQueue,
+      //-- Привязка контекста для доступа к методам и свойствам класса --//
       this.handleAnotherQueue.bind(this),
     );
   }
 
+  //-- Преобразование строки в ObjectId для использования в запросах MongoDB --//
   private stringToObjectId(idString: string): Types.ObjectId {
     if (!Types.ObjectId.isValid(idString)) {
       throw new Error('Некорректный формат id');
@@ -50,17 +56,18 @@ export class HandlersQueuesService implements OnModuleInit {
     return new Types.ObjectId(idString);
   }
 
-  // Логика обработки подписки
+  //-- Обработка сообщений из очереди подписок --//
   private async handleSubscription(sub) {
     const now = new Date();
-    // Если время еще не наступило, снова отправляем подписку в очередь
+    //-- Проверка, не наступило ли время для списания подписки --//
     if (sub.debitDate > now) {
       console.log('Eщё не время списывать деньги за подписку');
+      //-- Если время не наступило, сообщение отправляется обратно в очередь --//
       await this.rabbitMQService.publish(this.subscriptionsQueue, sub);
       return;
     }
 
-    // Здесь может быть ваша логика обработки подписок
+    //-- Проверка статуса подписки --//
     if (!sub.status) {
       console.log(`У пользователя ${sub.profile._id} - нет активной подписки`);
       return;
@@ -77,6 +84,7 @@ export class HandlersQueuesService implements OnModuleInit {
       return;
     }
 
+    //-- Обработка отменённой подписки --//
     if (sub.isCancelled) {
       console.log(`Данный пользователь ${sub.profile} - деактивировал тариф`);
       subscriptionDocument.status = false;
@@ -85,7 +93,7 @@ export class HandlersQueuesService implements OnModuleInit {
       return;
     }
 
-    // Определение текущего тарифа или обновленного тарифа
+    //-- Определение тарифа для списания --//
     const tariffId = sub.updatingTariff
       ? this.stringToObjectId(sub.updatingTariff._id)
       : this.stringToObjectId(sub.tariff._id);
@@ -96,13 +104,14 @@ export class HandlersQueuesService implements OnModuleInit {
 
     const currentProfile = await this.profileModel.findOne(currentProfileId);
 
-    // Проверка, является ли тариф архивным
+    //-- Проверка на архивность тарифа --//
     if (!currentTariff.status) {
-      //тут будет логика если пользователь использует архвный тариф
+      //-- TODO: тут будет логика если пользователь использует архвный тариф --//
       console.log(`Тариф ${currentTariff.name} теперь архивный`);
       return;
     }
 
+    //-- Создание данных для платежа --//
     const paymentData = await createPaymentData(
       new Date(),
       currentTariff.price,
@@ -113,7 +122,7 @@ export class HandlersQueuesService implements OnModuleInit {
       currentTariff.toObject(),
     );
 
-    // Проверка баланса
+    //-- Проверка баланса пользователя и обновление статуса подписки при недостаточном балансе --//
     if (currentProfile.balance < currentTariff.price) {
       console.log(
         `У пользователя ${sub.profile} - не достаточно средств для списания по тарифу - ${currentTariff.name}`,
@@ -123,15 +132,15 @@ export class HandlersQueuesService implements OnModuleInit {
       await this.paymentModel.create({ ...paymentData, successful: false });
       return;
     } else {
-      // Обновление подписки, если используется новый тариф
+      //-- Обновление подписки, если используется новый тариф --//
       if (sub.updatingTariff) {
         console.log('Пользователь сменил тариф на новый');
         subscriptionDocument.tariff = sub.updatingTariff;
-        subscriptionDocument.updatingTariff = null; // Очистка поля обновления тарифа
+        subscriptionDocument.updatingTariff = null; //-- Очистка поля обновления тарифа --//
         await subscriptionDocument.save();
       }
 
-      // Обработка демо-тарифа
+      //-- Обработка демо-тарифа --//
       if (currentTariff.isDemo) {
         console.log(
           `У пользователя ${sub.profile._id} Демо тариф окончен мы его деактивируем`,
@@ -145,12 +154,12 @@ export class HandlersQueuesService implements OnModuleInit {
         });
         return;
       }
-      console.log('Ура мы получим бабла!');
-      // Списание средств
+      console.log('Ура мы получим денег!');
+      //-- Списание средств --//
       currentProfile.balance -= currentTariff.price;
       await currentProfile.save();
 
-      // Обновление даты следующего списания
+      //-- Обновление даты следующего списания --//
       const nextDebitDate = await addDuration(
         sub.debitDate,
         currentTariff.duration,
@@ -159,13 +168,13 @@ export class HandlersQueuesService implements OnModuleInit {
       subscriptionDocument.debitDate = new Date(nextDebitDate);
       await subscriptionDocument.save();
 
-      // Запись об успешном платеже
+      //-- Запись об успешном платеже --//
       await this.paymentModel.create(paymentData);
     }
   }
 
   private handleAnotherQueue(message) {
-    // Логика обработки сообщений из другой очереди
+    //-- Логика обработки сообщений из другой очереди --//
     console.log('Сообщение из другой очереди:', message);
   }
 }

@@ -8,7 +8,6 @@ import {
   Res,
   Query,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { LocalGuard } from './guards/localAuth.guard';
 import {
   ApiTags,
@@ -22,7 +21,6 @@ import {
   ApiNotFoundResponse,
   ApiConflictResponse,
 } from '@nestjs/swagger';
-import { ProfileDocument } from 'src/profiles/schema/profile.schema';
 import { AuthService, ITokens } from './auth.service';
 import { AuthDtoPipe } from './pipe/auth-dto.pipe';
 import { CombinedDto } from './dto/combined.dto';
@@ -51,10 +49,7 @@ import { VkontakteGuard } from './guards/vkontakte.guards';
 import { Account } from 'src/accounts/schema/account.schema';
 import { TelegramGuard } from './guards/telegram.guard';
 import { ConfigService } from '@nestjs/config';
-
-interface RequestProfile extends Request {
-  user: ProfileDocument;
-}
+import { TJwtRequest } from 'src/types/jwtRequest';
 
 @ApiTags('auth')
 @Controller()
@@ -79,8 +74,8 @@ export class AuthController {
     description: 'Неверное имя пользователя или пароль',
     type: SigninResponseBodyNotOK,
   })
-  async signin(@Req() req: RequestProfile): Promise<Account> {
-    return this.authService.auth(req.user);
+  async signin(@Req() req: TJwtRequest): Promise<Account> {
+    return this.authService.auth(req.user._id);
   }
 
   @Post('signup')

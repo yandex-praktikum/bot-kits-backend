@@ -2,12 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Payment, PaymentDocument } from './schema/payment.schema';
 import { Model, Types } from 'mongoose';
-import { Profile } from '../profiles/schema/profile.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import TypeOperation from './types/type-operation';
 import { ProfilesService } from 'src/profiles/profiles.service';
 
-//payments.repository.ts
 export abstract class RepositoryPort {
   abstract create(userId: string, data: CreatePaymentDto): Promise<Payment>;
   abstract delete(data: string): Promise<Payment>;
@@ -27,41 +25,50 @@ export class PaymentsRepository extends RepositoryPort {
     super();
   }
 
+  //-- Функция для создания платежа, изменения баланса профиля и сохранения информации о платеже в базе данных --//
   async create(
     userId: string,
     createPaymentDto: CreatePaymentDto,
   ): Promise<Payment> {
+    //-- Поиск профиля пользователя по ID --//
     const profile = await this.profileServise.findById(userId);
+
+    //-- Определение типа операции платежа и выполнение соответствующей логики --//
     switch (createPaymentDto.operation) {
       case TypeOperation.INCOME:
-        // Логика для обработки случая "Поступление"
-        profile.balance += createPaymentDto.amount;
+        //-- Логика для обработки случая "Поступление" средств на счет пользователя --//
+        profile.balance += createPaymentDto.amount; // Увеличиваем баланс
         await profile.save();
+        //-- Создаем запись о платеже в базе данных и возвращаем ее --//
         return await this.paymentModel.create({
           profile: userId,
           ...createPaymentDto,
         });
-      // Логика для обработки случая "Списание"
+
       case TypeOperation.OUTGONE:
-        // Если на балансе недостаточно средств, выбросить исключение
+        //-- Логика для обработки случая "Списание" средств с счета пользователя --//
+        //-- Проверяем достаточность средств на балансе и успешность операции --//
         if (
           profile.balance < createPaymentDto.amount ||
           createPaymentDto.successful === false
         ) {
+          //-- В случае недостаточности средств, создаем запись о платеже с соответствующей отметкой --//
           return await this.paymentModel.create({
             profile: userId,
             ...createPaymentDto,
-            note: 'Недостаточно средств',
+            note: 'Недостаточно средств', //-- Добавляем примечание о недостаточности средств --//
           });
         }
-        profile.balance -= createPaymentDto.amount;
+        profile.balance -= createPaymentDto.amount; //-- Уменьшаем баланс --//
         await profile.save();
+        //-- Создаем запись о платеже в базе данных и возвращаем ее --//
         return await this.paymentModel.create({
           profile: userId,
           ...createPaymentDto,
         });
+
       default:
-        // Логика для обработки других случаев
+        //-- Логика для обработки других неопределенных случаев (пока не реализована) --//
         break;
     }
   }

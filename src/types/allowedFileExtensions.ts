@@ -11,7 +11,7 @@ enum AllowedFileExtensions {
   MP4 = '.mp4',
   AVI = '.avi',
 }
-//ext - any, по-хорошему бы типизировать
+//-- TODO: ext - any, необходимо типизировать --//
 export function isAllowedExtension(ext) {
   return Object.values(AllowedFileExtensions).includes(
     path.extname(ext) as any,

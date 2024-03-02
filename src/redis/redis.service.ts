@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import Redis, { RedisOptions } from 'ioredis';
-import { Emitter } from '@socket.io/redis-emitter'; // Emitter для публикации событий через Redis.
+import { Emitter } from '@socket.io/redis-emitter';
 import { ConfigService } from '@nestjs/config';
 
 //-- Инъекция зависимостей для сервиса работы с Redis --//

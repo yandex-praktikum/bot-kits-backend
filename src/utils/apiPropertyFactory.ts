@@ -1,104 +1,103 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-// Определение типа для разных типов полей
-type FieldType =
-  | 'string' // строка
-  | 'number' // число
-  | 'boolean' // булевое значение
-  | 'object' // объект
-  | 'array' // массив
-  | (() => any); // функция, возвращающая любое значение
+//-- Определение типа для разных типов полей --//
+type TFieldType =
+  | 'string' //-- Строка --//
+  | 'number' //-- Число --//
+  | 'boolean' //-- Булевое значение --//
+  | 'object' //-- Объект --//
+  | 'array' //-- Массив --//
+  | (() => any); //-- Функция, возвращающая любое значение --//
 
 // Определение интерфейса для описания поля
 export interface IFieldDescription {
-  key: string; // ключ поля
-  example: any; // пример значения поля
-  type: FieldType; // тип поля
-  description?: string; // необязательное описание поля
-  required?: boolean; // необязательный флаг, указывающий на обязательность поля
+  key: string; //-- Ключ поля описания в Swagger --//
+  example: any; //-- Пример значения поля --//
+  type: TFieldType; //-- Тип поля --//
+  description?: string; //-- Необязательное описание поля --//
+  required?: boolean; //-- Необязательный флаг, указывающий на обязательность поля --//
 }
 
-// Функция для создания описания поля
+//-- Функция для создания описания поля --//
 export function createField(
-  key: string, // ключ поля
-  example: any, // пример значения поля
-  type: 'string' | 'number' | 'boolean' | 'object' | 'array' = 'string', // тип поля со значением по умолчанию 'string'
-  description?: string, // необязательное описание поля
-  required = false, // необязательный флаг, указывающий на обязательность поля со значением по умолчанию false
+  key: string, //-- Ключ поля --//
+  example: any, //-- Пример значения поля --//
+  type: TFieldType = 'string', //-- Тип поля со значением по умолчанию 'string' --//
+  description?: string, //-- Необязательное описание поля --//
+  required = false, //-- Необязательный флаг, указывающий на обязательность поля со значением по умолчанию false --//
 ): IFieldDescription {
-  // Возвращаем объект с описанием поля
+  //-- Возвращаем объект с описанием поля --//
   return { key, example, type, description, required };
 }
 
-// Функция для создания описания вложенного объекта
+//-- Функция для создания описания вложенного объекта --//
 export function createNestedObject(
-  fields: IFieldDescription[], // список полей вложенного объекта
+  fields: IFieldDescription[], //-- Cписок полей вложенного объекта --//
 ): IFieldDescription {
-  const exampleObj: any = {}; // создаем пустой объект для примеров значений полей
+  const exampleObj: Record<string, unknown> = {}; //-- Cоздаем пустой объект для примеров значений полей --//
   fields.forEach((field) => {
-    // для каждого поля
-    exampleObj[field.key] = field.example; // добавляем в объект пример значения поля
+    //-- Для каждого поля добавляем в объект пример значения поля --//
+    exampleObj[field.key] = field.example;
   });
 
-  // Возвращаем описание вложенного объекта
+  //-- Возвращаем описание вложенного объекта --//
   return {
-    key: '', // ключ будет установлен в родительском объекте
-    example: exampleObj, // пример значения - объект с примерами значений полей
-    type: 'object', // тип поля - объект
+    key: '', //-- Ключ будет установлен в родительском объекте --//
+    example: exampleObj, //-- Пример значения - объект с примерами значений полей --//
+    type: 'object', //-- Тип поля - объект --//
   };
 }
 
-// Класс для создания описаний API свойств
+//-- Класс для создания описаний API свойств --//
 export class ApiPropertyFactory {
-  // Конструктор класса принимает список полей
+  //-- Конструктор класса принимает список полей --//
   constructor(private fields: IFieldDescription[]) {}
 
-  // Статический метод для создания класса на основе описания полей
+  //-- Статический метод для создания класса на основе описания полей --//
   private static createClassFromDescription(
-    description: IFieldDescription[], // описание полей
+    description: IFieldDescription[], //-- Описание полей --//
   ): any {
-    const TempClass = class {}; // создаем временный пустой класс
+    const TempClass = class {}; //-- Создаем временный пустой класс --//
 
     for (const field of description) {
-      // для каждого поля из описания
+      //-- Для каждого поля из описания создаем объект с опциями для декоратора --//
       const options = {
-        // создаем объект с опциями для декоратора
         example: field.example,
         type: field.type,
         description: field.description,
         required: field.required,
       };
 
-      // Если поле является объектом и у него есть примеры значений
+      //-- Если поле является объектом и у него есть примеры значений --//
       if (field.type === 'object' && Array.isArray(field.example)) {
-        // Создаем динамический класс для вложенного объекта
+        //-- Создаем динамический класс для вложенного объекта --//
         const NestedClass = this.createClassFromDescription(field.example);
-        options.type = () => NestedClass; // указываем этот класс как тип для поля
-        options.example = undefined; // убираем пример, так как он теперь представлен классом
+        options.type = () => NestedClass; //-- Указываем этот класс как тип для поля --//
+        options.example = undefined; //-- Убираем пример, так как он теперь представлен классом --//
       }
 
-      // Применяем декоратор ApiProperty к временному классу
+      //-- Применяем декоратор ApiProperty к временному классу --//
       ApiProperty(options)(TempClass.prototype, field.key);
     }
 
-    // Возвращаем созданный класс
+    //-- Возвращаем созданный класс --//
     return TempClass;
   }
 
-  // Метод для генерации класса на основе списка полей
+  //-- Метод для генерации класса на основе списка полей --//
   generate(name) {
-    const uniqueClassName = name; // создаем уникальное имя для класса
-    // Создаем класс на основе списка полей
+    const uniqueClassName = name; //-- Создаем уникальное имя для класса --//
+    //-- Создаем класс на основе списка полей --//
     const GeneratedClass = ApiPropertyFactory.createClassFromDescription(
       this.fields,
     );
 
-    // Назначаем классу уникальное имя
+    //-- Назначаем классу уникальное имя --//
     Object.defineProperty(GeneratedClass, 'name', {
       value: uniqueClassName,
     });
 
-    // Возвращаем сгенерированный класс
+    //-- Возвращаем сгенерированный класс --//
     return GeneratedClass;
   }
 }

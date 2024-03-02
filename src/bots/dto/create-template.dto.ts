@@ -5,11 +5,9 @@ import {
   IsObject,
   IsOptional,
   IsString,
-  IsUrl,
 } from 'class-validator';
 import { TBuilderData } from '../schema/types/botBuilderTypes';
 
-//create-template.dto.ts
 export class CreateTemplateDto {
   @IsString()
   @IsOptional()

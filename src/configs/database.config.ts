@@ -15,27 +15,26 @@ import { promocodesTemplates } from 'src/promocodes/dto/constants/promocodesTemp
  * @param configService - сервис для доступа к конфигурации приложения.
  */
 async function initializeDatabase(configService: ConfigService): Promise<void> {
-  // Формирование строки подключения к базе данных
+  //-- Формирование строки подключения к базе данных --//
   const uri = `mongodb://${configService.get('DB_HOST')}:${configService.get(
     'DB_PORT',
   )}/`;
   const client = new MongoClient(uri);
   try {
-    // Подключаемся к серверу MongoDB
+    //-- Подключаемся к серверу MongoDB --//
     await client.connect();
-    console.log('Я тут сейчас и могу подключиться в БД');
-    // Получаем доступ к базе данных 'admin' (обычно используется для административных команд)
+    //-- Получаем доступ к базе данных 'admin' (обычно используется для административных команд) --//
     const adminDb = client.db('admin');
 
-    // Запрашиваем информацию о пользователях базы данных
+    //-- Запрашиваем информацию о пользователях базы данных --//
     const result = await adminDb.command({ usersInfo: 1 });
 
-    // Проверяем наличие нашего пользователя в списке пользователей
+    //-- Проверяем наличие нашего пользователя в списке пользователей --//
     const hasUser = result.users.some(
       (user) => user.user === `${configService.get('DB_USERNAME')}`,
     );
 
-    // Если пользователя нет, создаем его
+    //-- Если пользователя нет, создаем его --//
     if (!hasUser) {
       console.log('Creating user...');
 
@@ -45,7 +44,7 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
         roles: [{ role: 'readWrite', db: `${configService.get('DB_NAME')}` }],
       };
 
-      // Отправляем команду для создания пользователя
+      //-- Отправляем команду для создания пользователя --//
       await adminDb.command(createUserCommand);
 
       console.log('User created successfully.');
@@ -53,14 +52,14 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
       console.log('User already exists.');
     }
 
-    // Получаем доступ к целевой базе данных
+    //-- Получаем доступ к целевой базе данных --//
     const currentDb = client.db(`${configService.get('DB_NAME')}`);
 
-    // Получаем доступ к коллекциям 'accounts' и 'profiles'
+    //-- Получаем доступ к коллекциям 'accounts' и 'profiles' --//
     const accountsCollection = currentDb.collection('accounts');
     const profilesCollection = currentDb.collection('profiles');
 
-    // Проверяем наличие профиля администратора
+    //-- Проверяем наличие профиля администратора --//
     const adminProfile = await profilesCollection.findOne({
       username: 'ADMIN',
     });
@@ -68,20 +67,20 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
     if (!adminProfile) {
       console.log('Creating admin profile and account...');
 
-      // Создаем профиль администратора
+      //-- Создаем профиль администратора --//
       const adminProfileData = {
         username: 'ADMIN',
         phone: '+999999999',
         avatar: 'https://i.pravatar.cc/300',
-        // accounts: [] - будет добавлено позже, после создания аккаунта
+        //-- accounts: [] - будет добавлено позже, после создания аккаунта --//
       };
 
-      // Вставляем профиль в коллекцию 'profiles'
+      //-- Вставляем профиль в коллекцию 'profiles' --//
       const profileResult = await profilesCollection.insertOne(
         adminProfileData,
       );
 
-      // Создаем учетную запись администратора
+      //-- Создаем учетную запись администратора --//
       const adminAccountData = {
         type: 'local',
         role: 'superAdmin',
@@ -94,12 +93,12 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
         profile: profileResult.insertedId,
       };
 
-      // Вставляем учетную запись в коллекцию 'accounts'
+      //-- Вставляем учетную запись в коллекцию 'accounts' --//
       const accountResult = await accountsCollection.insertOne(
         adminAccountData,
       );
 
-      // Обновляем профиль администратора, добавляя ID учетной записи в массив accounts
+      //-- Обновляем профиль администратора, добавляя ID учетной записи в массив accounts --//
       await profilesCollection.updateOne(
         { _id: profileResult.insertedId },
         { $push: { accounts: accountResult.insertedId } },
@@ -110,19 +109,19 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
       console.log('Admin profile already exists.');
     }
 
-    // Получаем коллекцию 'bots'
+    //-- Получаем коллекцию 'bots' --//
     const botsCollection = currentDb.collection('bots');
 
-    // Запрашиваем количество шаблонных ботов в коллекции
+    //-- Запрашиваем количество шаблонных ботов в коллекции --//
     const templateBotsCount = await botsCollection.countDocuments({
       type: 'template',
     });
 
-    // Если в коллекции меньше 12 шаблонных ботов или их вообще нет, создаем недостающие
+    //-- Если в коллекции меньше 12 шаблонных ботов или их вообще нет, создаем недостающие --//
     if (!templateBotsCount) {
       console.log('Creating template bots...');
 
-      // Создаем шаблонные боты
+      //-- Создаем шаблонные боты --//
       await botsCollection.insertMany(botTemplates);
 
       console.log('Template bots created successfully.');
@@ -130,26 +129,26 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
       console.log('All template bots already exist.');
     }
 
-    // Получаем коллекцию 'platforms'
+    //-- Получаем коллекцию 'platforms' --//
     const platformsCollection = currentDb.collection('platforms');
 
-    // Запрашиваем количество платформ в коллекции
+    //-- Запрашиваем количество платформ в коллекции
     const platformsCount = await platformsCollection.countDocuments();
 
-    // Если в коллекции нет платформ или их количество меньше ожидаемого, создаем недостающие
+    //-- Если в коллекции нет платформ или их количество меньше ожидаемого, создаем недостающие --//
     if (platformsCount < platforms.length) {
       console.log('Creating platforms...');
 
-      // Получаем список существующих платформ
+      //-- Получаем список существующих платформ --//
       const existingPlatforms = await platformsCollection.find().toArray();
       const existingPlatformTitles = existingPlatforms.map((p) => p.title);
 
-      // Фильтруем список платформ, чтобы добавить только те, которых еще нет в базе данных
+      //-- Фильтруем список платформ, чтобы добавить только те, которых еще нет в базе данных --//
       const platformsToAdd = platforms.filter(
         (platform) => !existingPlatformTitles.includes(platform.title),
       );
 
-      // Создаем платформы
+      //-- Создаем платформы --//
       await platformsCollection.insertMany(platformsToAdd);
 
       console.log('Platforms created successfully.');
@@ -157,25 +156,25 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
       console.log('All platforms already exist.');
     }
 
-    // Получаем коллекцию 'tariff'
+    //-- Получаем коллекцию 'tariff' --//
     const tariffsCollection = currentDb.collection('tariffs');
 
-    // Запрашиваем количество тарифов в коллекции
+    //-- Запрашиваем количество тарифов в коллекции --//
     const tariffsCount = await tariffsCollection.countDocuments();
 
     if (tariffsCount < tariffsTemplates.length) {
       console.log('Creating tariffs...');
 
-      // Получаем список существующих тарифов
+      //-- Получаем список существующих тарифов --//
       const existingTariffs = await tariffsCollection.find().toArray();
       const existingTariffName = existingTariffs.map((p) => p.name);
 
-      // Фильтруем список тарифов, чтобы добавить только те, которых еще нет в базе данных
+      //-- Фильтруем список тарифов, чтобы добавить только те, которых еще нет в базе данных --//
       const tariffsToAdd = tariffsTemplates.filter(
         (tariff) => !existingTariffName.includes(tariff.name),
       );
 
-      // Создаем тарифы
+      //-- Создаем тарифы --//
       await tariffsCollection.insertMany(tariffsToAdd);
 
       console.log('Tariffs created successfully.');
@@ -183,25 +182,25 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
       console.log('All tariffs already exist.');
     }
 
-    // Получаем коллекцию 'promocodes'
+    //-- Получаем коллекцию 'promocodes' --//
     const promocodesCollection = currentDb.collection('promocodes');
 
-    // Запрашиваем количество тарифов в коллекции
+    //-- Запрашиваем количество тарифов в коллекции
     const promocodesCount = await promocodesCollection.countDocuments();
 
     if (promocodesCount < promocodesTemplates.length) {
       console.log('Creating promocodes...');
 
-      // Получаем список существующих тарифов
+      //-- Получаем список существующих тарифов --//
       const existingPromocodes = await promocodesCollection.find().toArray();
       const existingPromocodesName = existingPromocodes.map((p) => p.name);
 
-      // Фильтруем список тарифов, чтобы добавить только те, которых еще нет в базе данных
+      //-- Фильтруем список тарифов, чтобы добавить только те, которых еще нет в базе данных --//
       const promocodesToAdd = promocodesTemplates.filter(
         (promocode) => !existingPromocodesName.includes(promocode.code),
       );
 
-      // Создаем тарифы
+      //-- Создаем тарифы --//
       await promocodesCollection.insertMany(promocodesToAdd);
 
       console.log('Promocodes created successfully.');
@@ -209,10 +208,10 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
       console.log('All promocodes already exist.');
     }
   } catch (error) {
-    // Ловим и выводим любые ошибки
+    //-- Ловим и выводим любые ошибки --//
     console.error('Error:', error);
   } finally {
-    // Закрываем соединение с базой данных
+    //-- Закрываем соединение с базой данных --//
     await client.close();
   }
 }
