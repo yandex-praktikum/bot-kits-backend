@@ -23,7 +23,6 @@ async function initializeDatabase(configService: ConfigService): Promise<void> {
   try {
     //-- Подключаемся к серверу MongoDB --//
     await client.connect();
-    console.log('Я тут сейчас и могу подключиться в БД');
     //-- Получаем доступ к базе данных 'admin' (обычно используется для административных команд) --//
     const adminDb = client.db('admin');
 

@@ -20,11 +20,14 @@ import { UpdatePlatformDto } from 'src/platforms/dto/update-platform.dto';
 import { CreateProfileDto } from 'src/profiles/dto/create-profile.dto';
 import { UpdateProfileDto } from 'src/profiles/dto/update-profile.dto';
 import { Profile } from 'src/profiles/schema/profile.schema';
+import { CreatePromocodeDto } from 'src/promocodes/dto/create-promocode.dto';
+import { UpdatePromocodeDto } from 'src/promocodes/dto/update-promocode.dto';
 import { Statistics } from 'src/statistics/schema/statistics.schema';
 import {
   Subscription,
   SubscriptionDocument,
 } from 'src/subscriptions/schema/subscription.schema';
+import { CreateTariffDto } from 'src/tariffs/dto/create-tariff.dto';
 
 export enum Action {
   Manage = 'manage',
@@ -48,6 +51,9 @@ export type Subjects = InferSubjects<
   | typeof UpdateNotificationDto
   | typeof CreateNotificationDto
   | typeof Statistics
+  | typeof CreatePromocodeDto
+  | typeof UpdatePromocodeDto
+  | typeof CreateTariffDto
   | 'all'
 >;
 
@@ -136,6 +142,12 @@ export class AbilityFactory {
 
       //-- Администраторы могут делать запросы по эндпоинтам связанные с ботами --//
       can([Action.Share, Action.Read, Action.Delete], [CreateBotDto]);
+
+      //-- Администраторы могут использовать промокод --//
+      can(Action.Update, UpdatePromocodeDto);
+
+      //-- Администраторы не могут управлять тарифами --//
+      cannot(Action.Manage, CreateTariffDto);
 
       //-- Администраторы могут удалять бота если они его создатели --//
       can(Action.Delete, this.botModel, ({ profile }) =>

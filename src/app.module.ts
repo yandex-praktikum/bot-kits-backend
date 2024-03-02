@@ -34,6 +34,7 @@ import { PartnershipModule } from './partnership/partnership.module';
 import { GlobalHTTPExceptionFilter } from './utils/globalFilterHTTP.exception';
 import { HandlersQueuesModule } from './handlers-queues/handlers-queues.module';
 import { GridFSModule } from './gridFS/grifFS.module';
+import { ChatsModule } from './chats/chats.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { GridFSModule } from './gridFS/grifFS.module';
     MailingModule,
     HandlersQueuesModule,
     GridFSModule,
+    ChatsModule,
   ],
   controllers: [AppController, AuthController],
   providers: [
