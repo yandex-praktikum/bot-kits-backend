@@ -11,41 +11,50 @@ import { AppClusterService } from './appCluster/appCluster.service';
 import { LoggerFactory } from './utils/loggerFactory';
 import 'reflect-metadata';
 
-//--событие, которое перехватывает необработанные исключения--//
+//-- Подключение глобального обработчика для перехвата необработанных исключений и отклоненных промисов --//
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   Logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
+//-- Асинхронная функция для инициализации и запуска NestJS приложения --//
 async function bootstrap() {
+  //-- Создание экземпляра приложения с пользовательским логгером --//
   const app = await NestFactory.create(AppModule, {
     logger: LoggerFactory('Botkits Logger'),
   });
 
+  //-- Получение сервиса конфигурации и настройка глобального префикса для всех маршрутов --//
   const configService = app.get(ConfigService);
   app.setGlobalPrefix(configService.get('GLOBAL_PREFIX'));
+
+  //-- Установка порта из конфигурации --//
   const port = configService.get('APP_PORT');
+
+  //-- Настройка глобальных пайпов для валидации и санитизации входных данных --//
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-      exceptionFactory: (errors) => new BadRequestException(errors),
+      whitelist: true, //-- Игнорировать свойства объектов, не описанные в DTO --//
+      forbidNonWhitelisted: true, //-- Запретить неизвестные свойства --//
+      transform: true, //-- Преобразование входных данных к соответствующим DTO классам --//
+      exceptionFactory: (errors) => new BadRequestException(errors), //-- Фабрика исключений для ошибок валидации --//
     }),
-    new SanitizePipe(),
+    new SanitizePipe(), //-- Пайп для санитизации входных данных
   );
+
+  //-- Применение промежуточного ПО Helmet для увеличения безопасности приложения --//
   app.use(helmet());
 
+  //-- Настройка CORS --//
   const cors = {
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
-    credentials: true,
+    origin: '*', //-- Разрешить запросы с любого источника --//
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', //-- Разрешенные HTTP-методы --//
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'], //-- Разрешенные заголовки --//
+    credentials: true, //-- Поддержка учетных данных --//
   };
-
   app.enableCors(cors);
 
-  // Создаем экземпляр билдера Swagger-документации
+  //-- Настройка Swagger для автогенерации документации API --//
   const config = new DocumentBuilder()
     .setTitle('API BotKits')
     .setDescription('Ручки для команды frontend')
@@ -61,24 +70,24 @@ async function bootstrap() {
     .addTag('payments', 'Платежи пользователей')
     .addTag('promocodes', 'Промокоды')
     .addTag('notification', 'Уведомления пользователей')
-    .addBearerAuth()
-    .build(); // завершаем конфигурирование вызовом build
+    .addBearerAuth() //-- Настройка схемы авторизации --//
+    .build(); //-- Завершаем конфигурирование вызовом build --//
 
+  //-- Создание документа Swagger и его экспорт в формате YAML --//
   const document = SwaggerModule.createDocument(app, config);
-
-  // Сохраняем JSON документ в YAML файл
   const yamlDocument = yaml.dump(document);
   fs.writeFileSync('./swagger.yaml', yamlDocument, 'utf8');
 
-  // первый аргумент - путь, по которому будет доступна
-  // веб-страница с документацией Swagger
+  //-- Настройка маршрута для доступа к документации через веб-интерфейс --//
   SwaggerModule.setup(
     `${configService.get('GLOBAL_PREFIX')}/docs`,
     app,
     document,
   );
 
+  //-- Запуск приложения на указанном порте --//
   await app.listen(port);
 }
 
+//-- Запуск приложения с возможностью масштабирования (в данном случае без масштабирования) --//
 AppClusterService.clusterize(bootstrap, 1);

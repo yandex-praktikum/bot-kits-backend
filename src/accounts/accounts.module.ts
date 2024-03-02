@@ -1,4 +1,3 @@
-//src/account/account.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 

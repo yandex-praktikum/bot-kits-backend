@@ -94,15 +94,15 @@ export class PartnershipService {
   async getStatistic(userId: string) {
     const profile = await this.profileServices.findById(userId);
 
-    // Создаем массив промисов для получения платежей каждого реферального пользователя
+    //-- Создаем массив промисов для получения платежей каждого реферального пользователя --//
     const paymentsPromises = profile.referredUsers.map((refUser) =>
       this.paymentsService.findUsersAll(refUser),
     );
 
-    // Ожидаем выполнения всех промисов
+    //-- Ожидаем выполнения всех промисов --//
     const allPayments = await Promise.all(paymentsPromises);
 
-    // Объединяем все платежи в один массив и фильтруем их
+    //-- Объединяем все платежи в один массив и фильтруем их --//
     const filteredPayments = allPayments
       .flat()
       .filter(
@@ -112,9 +112,6 @@ export class PartnershipService {
           payment.successful &&
           payment.amount > 0,
       );
-
-    // // Сортируем платежи по дате
-    // filteredPayments.sort((a, b) => a.createdAt - b.createdAt);
 
     return filteredPayments;
   }

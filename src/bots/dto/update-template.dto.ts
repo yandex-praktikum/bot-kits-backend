@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsUrl,
   IsString,
   IsOptional,
   IsObject,
@@ -9,7 +8,6 @@ import {
 } from 'class-validator';
 import { TBuilderData } from '../schema/types/botBuilderTypes';
 
-// update-template.dto.ts
 export class UpdateTemplateDto {
   @ApiProperty({
     example:

@@ -6,28 +6,13 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
   UseGuards,
   Req,
 } from '@nestjs/common';
 import { MailingService } from './mailing.service';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiBody,
-  ApiOkResponse,
-  ApiForbiddenResponse,
-  ApiNotFoundResponse,
-  ApiCreatedResponse,
-  ApiConflictResponse,
-  ApiParam,
-  ApiBearerAuth,
-  ApiBadRequestResponse,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Mailing } from './schema/mailing.schema';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guards';
-import { RolesGuard } from 'src/auth/guards/role.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
 import { TJwtRequest } from 'src/types/jwtRequest';
 import { CreateMailingDTO } from './dto/create-mailing.dto';
 import { UpdateMailingDTO } from './dto/update-mailing.dto';

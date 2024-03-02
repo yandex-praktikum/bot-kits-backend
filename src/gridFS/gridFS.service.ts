@@ -28,102 +28,133 @@ export class FilesBucketService {
   getBucket() {
     return this.filesBucket;
   }
-  //add gridfs module
+
+  //-- Функция для загрузки файлов в хранилище и возврата их идентификаторов --//
   async filesUpload(files: Array<Express.Multer.File>) {
+    //-- Получаем экземпляр бакета для работы с файловым хранилищем --//
     const bucket = this.getBucket();
+    //-- Определяем путь к папке для временного хранения файлов --//
     const outputFolder = path.join(process.cwd(), 'attachments');
     console.log(files.length);
+    //-- Проверяем, были ли предоставлены файлы для загрузки --//
     if (files.length === 0) {
       throw new BadRequestException('no files provided');
     }
+    //-- Асинхронно обрабатываем массив файлов, загружая их и получая их идентификаторы --//
     const filesIds: string[] = await Promise.all(
       files.map(async (file) => {
         try {
+          //-- Создаем папку для файлов, если она не существует --//
           if (!fs.existsSync(outputFolder)) {
             fs.mkdirSync(outputFolder);
           }
           console.log(file);
+          //-- Проверяем расширение файла на допустимость --//
           if (!isAllowedExtension(file.originalname)) {
             throw new UnsupportedMediaTypeException(
               `${file.originalname} has restricted extension`,
             );
           }
+          //-- Формируем путь к файлу в папке для временного хранения --//
           const filepath = path.join(outputFolder, file.originalname);
+          //-- Записываем файл в файловую систему --//
           await fs.promises.writeFile(filepath, file.buffer);
+          //-- Создаем промис для загрузки файла в хранилище --//
           const uploadPromise = new Promise<ObjectId>((resolve, reject) => {
+            //-- Открываем поток для загрузки файла --//
             const uploadStream = bucket.openUploadStream(file.originalname, {
               metadata: { mime: file.mimetype },
             });
 
+            //-- Читаем файл из файловой системы и передаем в поток загрузки --//
             const readStream = fs.createReadStream(filepath);
             readStream.pipe(uploadStream);
 
+            //-- По завершении загрузки возвращаем идентификатор файла --//
             uploadStream.on('finish', () => {
               console.log(`${uploadStream.id} id of file`);
               resolve(uploadStream.id);
             });
+            //-- Обрабатываем возможные ошибки при загрузке --//
             uploadStream.on('error', (e) => {
               reject(e);
             });
           });
 
+          //-- Ожидаем завершения загрузки и возвращаем идентификатор файла --//
           const fileId = await uploadPromise;
-          //todo: надо подусать в какой момент перемещать файл во временную директорию для очистки по расписанию
+          //-- TODO: рассмотреть логику перемещения файла во временную директорию для последующей очистки --//
           return fileId.toString();
         } catch (error) {
-          console.log('OTLOVILO');
           return error;
         }
       }),
     );
+    //-- Возвращаем массив идентификаторов загруженных файлов --//
     return filesIds;
   }
 
+  //-- Функция для скачивания файла по идентификатору и возврата его в виде потока --//
   async filesDownload(id: string): Promise<StreamableFile> {
+    //-- Получаем экземпляр бакета для работы с файловым хранилищем --//
     const bucket = this.getBucket();
+    //-- Ищем метаданные файла в хранилище по идентификатору --//
     const fileMeta = bucket.find({ _id: new ObjectId(id) });
+    //-- Определяем путь к папке для сохранения скачанных файлов --//
     const outputFolder = path.join(process.cwd(), 'downloaded');
     let meta;
+    //-- Перебираем результаты запроса метаданных файла (ожидаем один документ) --//
     for await (const doc of fileMeta) {
       meta = doc;
     }
     console.log(meta);
+    //-- Проверяем, найдены ли метаданные файла. Если нет, выбрасываем исключение --//
     if (meta === undefined) {
       throw new NotFoundException('cant find picture with this id', {
         cause: new Error(),
         description: 'Wrong ObjectId',
       });
     }
+    //-- Открываем поток для скачивания файла из хранилища по идентификатору --//
     const downloadStream = bucket.openDownloadStream(new ObjectId(id));
+    //-- Если папка для скачивания не существует, создаем ее --//
     if (!fs.existsSync(outputFolder)) {
       fs.mkdirSync(outputFolder);
     }
+    //-- Формируем путь к файлу в папке для скачиванных файлов --//
     const filePath = path.join(outputFolder, meta.filename);
+    //-- Создаем поток для записи файла в файловую систему --//
     const writeStream = fs.createWriteStream(filePath);
 
-    // Создаем Promise для отслеживания завершения операции скачивания
+    //-- Создаем Promise для отслеживания завершения операции скачивания --//
     const downloadPromise = new Promise<void>((resolve, reject) => {
-      writeStream.on('finish', resolve);
-      writeStream.on('error', reject);
+      writeStream.on('finish', resolve); // При успешной записи файла разрешаем Promise
+      writeStream.on('error', reject); // При ошибке записи отклоняем Promise
     });
 
-    // Подписываемся на событие завершения скачивания
+    //-- Перенаправляем поток скачивания в поток записи для сохранения файла --//
     downloadStream.pipe(writeStream);
 
-    // Дожидаемся завершения скачивания
+    //-- Дожидаемся завершения скачивания файла --//
     await downloadPromise;
 
-    // После завершения скачивания, создаем поток для чтения файла
+    //-- После завершения скачивания, создаем поток для чтения файла --//
     const fileReadStream = fs.createReadStream(filePath);
+    //-- Возвращаем файл в виде потока, готового к передаче клиенту --//
     return new StreamableFile(fileReadStream);
   }
 
+  //-- Функция для удаления файла из хранилища по идентификатору --//
   async filesDelete(id: string) {
+    //-- Получаем экземпляр бакета для работы с файловым хранилищем --//
     const bucket = this.getBucket();
     try {
+      //-- Пытаемся удалить файл по идентификатору. Идентификатор преобразуется в ObjectId для совместимости с MongoDB --//
       await bucket.delete(new ObjectId(id));
+      //-- В случае успеха, возвращаем сообщение об успешном удалении --//
       return { message: 'successfully deleted' };
     } catch (e) {
+      //-- В случае возникновения ошибки, возвращаем ее. Это может быть полезно для отладки, но в реальном приложении лучше возвращать стандартизированный ответ об ошибке --//
       return e;
     }
   }

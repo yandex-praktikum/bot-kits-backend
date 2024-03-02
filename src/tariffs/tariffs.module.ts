@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TariffsService } from './tariffs.service';
 import { TariffsController } from './tariffs.controller';
 import { MongooseModule } from '@nestjs/mongoose';
