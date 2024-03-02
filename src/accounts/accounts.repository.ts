@@ -65,7 +65,6 @@ export class AccountsRepository {
         fields: { 'credentials.password': 0 },
       })
       .session(session);
-    //.populate('profile');
   }
 
   async findByEmail(
@@ -146,12 +145,12 @@ export class AccountsRepository {
       .findOneAndUpdate(
         { profile: profileId },
         updateQuery,
-        { new: true }, //--Этот параметр возвращает измененный документ--//
+        { new: true }, //-- Этот параметр возвращает измененный документ --//
       )
       .populate({
         path: 'profile',
         select: '-receivedSharedAccess -grantedSharedAccess',
-      }); //--Возвращает вместе с документом Profile--//
+      }); //-- Возвращает вместе с документом Profile --//
 
     if (updatedAccount) {
       return updatedAccount.profile;

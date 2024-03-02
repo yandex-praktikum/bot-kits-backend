@@ -6,7 +6,6 @@ import { BlacklistTokensService } from 'src/blacklistTokens/blacklistTokens.serv
 import { ProfilesService } from 'src/profiles/profiles.service';
 import { TJwtRequest } from 'src/types/jwtRequest';
 
-//socketMiddleware.ts
 export const socketMiddleware =
   (
     jwtService: JwtService,

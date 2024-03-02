@@ -26,6 +26,9 @@ import { TariffsService } from './tariffs.service';
 import { CreateTariffDto } from './dto/create-tariff.dto';
 import { UpdateTariffDto } from './dto/update-tariff.dto';
 import { Tariff } from './schema/tariff.schema';
+import { CheckAbility } from 'src/auth/decorators/ability.decorator';
+import { Action } from 'src/ability/ability.factory';
+import { AbilityGuard } from 'src/auth/guards/ability.guard';
 
 @ApiTags('tariffs')
 @ApiBearerAuth()
@@ -46,6 +49,8 @@ export class TariffsController {
     return this.tariffsService.findAll();
   }
 
+  @CheckAbility({ action: Action.Read, subject: CreateTariffDto })
+  @UseGuards(AbilityGuard)
   @Get(':id')
   @ApiOperation({
     summary: 'Получить тариф по id',
@@ -65,6 +70,8 @@ export class TariffsController {
     return this.tariffsService.findOne(id);
   }
 
+  @CheckAbility({ action: Action.Create, subject: CreateTariffDto })
+  @UseGuards(AbilityGuard)
   @Post()
   @ApiOperation({
     summary: 'Добавить новый тариф',
@@ -81,6 +88,8 @@ export class TariffsController {
     return this.tariffsService.create(createTariffDto);
   }
 
+  @CheckAbility({ action: Action.Update, subject: CreateTariffDto })
+  @UseGuards(AbilityGuard)
   @Patch(':id')
   @ApiOperation({
     summary: 'Изменить данные тарифа по id',
@@ -105,6 +114,8 @@ export class TariffsController {
     return this.tariffsService.updateTariff(id, updateTariffDto);
   }
 
+  @CheckAbility({ action: Action.Delete, subject: CreateTariffDto })
+  @UseGuards(AbilityGuard)
   @Delete(':id')
   @ApiOperation({
     summary: 'Удалить тариф по id',

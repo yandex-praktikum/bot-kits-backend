@@ -1,6 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
 import { Action, Subjects } from '../../ability/ability.factory';
-import { Profile } from 'src/profiles/schema/profile.schema';
 
 //ability.decorator.ts
 // Определение интерфейса RequiredRules.

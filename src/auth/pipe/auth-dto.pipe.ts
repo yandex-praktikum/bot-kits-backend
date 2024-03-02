@@ -4,7 +4,7 @@ import Role from '../../accounts/types/role';
 import { AuthDto } from '../dto/auth.dto';
 import { CombinedDto } from '../dto/combined.dto';
 import { ConfigService } from '@nestjs/config';
-//auth-dto.pipe.ts
+
 @Injectable()
 export class AuthDtoPipe implements PipeTransform {
   constructor(private configService: ConfigService) {}

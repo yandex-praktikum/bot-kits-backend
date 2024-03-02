@@ -1,7 +1,4 @@
-import { IsNotEmpty, ValidateNested } from 'class-validator';
-import { Access } from '../schema/profile.schema';
-import { Type } from 'class-transformer';
-import { Types } from 'mongoose';
+import { IsNotEmpty } from 'class-validator';
 
 export class UpdateSharedAccessDto {
   @IsNotEmpty()

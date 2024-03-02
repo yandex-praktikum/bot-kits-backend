@@ -20,8 +20,6 @@ import {
   SingleAccountResponseBodyOK,
 } from './sdo/response-body.sdo';
 import { AccountUpdateRequestBody } from './sdo/request-body.sdo';
-import { RolesGuard } from 'src/auth/guards/role.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @UseGuards(JwtGuard)
 @ApiTags('accounts')
@@ -30,8 +28,6 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 export class AccountsController {
   constructor(private readonly accountService: AccountsService) {}
   @Get()
-  @UseGuards(RolesGuard)
-  @Roles('admin')
   @ApiOperation({
     summary: 'Получение всех пользователей',
   })

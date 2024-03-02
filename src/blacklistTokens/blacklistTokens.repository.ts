@@ -18,7 +18,7 @@ export class BlacklistTokensRepository {
     @InjectModel(Profile.name) private profileModel: Model<ProfileDocument>,
   ) {}
 
-  //--Удаляем истекшие токены из БД--//
+  //-- Удаляем истекшие токены из БД --//
   private async cleanupTokens(): Promise<void> {
     const now = new Date();
     await this.blacklistTokensModel.deleteMany({
@@ -27,15 +27,15 @@ export class BlacklistTokensRepository {
   }
 
   async addToken(token: string): Promise<void> {
-    //--Декодируем токен без проверки подлинности--//
+    //-- Декодируем токен без проверки подлинности --//
     const decodedToken: any = decode(token);
 
-    //--Проверяем, существует ли поле exp в декодированном токене--//
+    //-- Проверяем, существует ли поле exp в декодированном токене --//
     if (!decodedToken?.exp) {
       throw new BadRequestException('Невалидный токен');
     }
 
-    //--Преобразуем временную метку UNIX в объект Date--//
+    //-- Преобразуем временную метку UNIX в объект Date --//
     const expirationDate = new Date(decodedToken.exp * 1000);
 
     const blacklistedToken = new this.blacklistTokensModel({
@@ -46,7 +46,7 @@ export class BlacklistTokensRepository {
     await this.cleanupTokens();
   }
 
-  //--Проверяем есть находитсся ли токен в черном списке--//
+  //-- Проверяем есть находитсся ли токен в черном списке --//
   async isTokenBlacklisted(token: string): Promise<boolean> {
     const count = await this.blacklistTokensModel.countDocuments({ token });
     return count > 0;

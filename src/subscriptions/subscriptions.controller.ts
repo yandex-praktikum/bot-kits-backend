@@ -6,7 +6,6 @@ import {
   Req,
   Post,
   Param,
-  BadRequestException,
 } from '@nestjs/common';
 import { SubscriptionsService } from './subscriptions.service';
 import { JwtGuard } from '../auth/guards/jwtAuth.guards';
