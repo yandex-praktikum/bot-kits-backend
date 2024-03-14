@@ -1744,6 +1744,52 @@ paths:
                 $ref: '#/components/schemas/UserUnauthirizedResponse'
       tags: *ref_19
       security: *ref_20
+  /dev/api/bots/run/{id}:
+    patch:
+      operationId: BotsController_run
+      summary: Запустить бота
+      parameters:
+        - *ref_18
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBotDescription'
+      responses:
+        '200':
+          description: Статус бота
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateBotResponseOk'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotDataBadRequestResponse'
+        '401':
+          description: Отказ в доступе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateBotNotFoundBadRequest'
+      tags: *ref_19
+      security: *ref_20
   /dev/api/bots/{id}:
     delete:
       operationId: BotsController_remove
@@ -2757,7 +2803,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-03-02T14:46:39.163Z
+          example: 2024-03-14T07:59:08.217Z
         amount:
           type: number
           example: 1000
@@ -2868,7 +2914,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-03-02T14:46:39.121Z
+          example: 2024-03-14T07:59:08.190Z
         isCancelled:
           type: boolean
           example: false

@@ -9,6 +9,8 @@ import { CopyBotDto } from './dto/copy-bot.dto';
 import { FilesBucketService } from 'src/gridFS/gridFS.service';
 import { PureAbility } from '@casl/ability';
 import { Profile } from 'src/profiles/schema/profile.schema';
+import axios from 'axios';
+import { StatusBot } from './schema/types/status';
 
 @Injectable()
 export class BotsService {
@@ -172,6 +174,23 @@ export class BotsService {
       } else {
         return e;
       }
+    }
+  }
+
+  //-- Имитация работы с сервером заказчика и выдача статуса по запуску бота. ТРЕБУЕТ ДОРАБОТКИ --//
+  //-- Лучше отправить пользователю сразу статус updating, а обновление бота на сервере кинуть в очередь задач а после обновления или ошибки по WS уведомить или обновить бота на фронте--//
+  async run(botId: string, updateBotDto: UpdateBotDto, ability: PureAbility) {
+    try {
+      const response = await axios.post(
+        'http://localhost:3005/bot/status',
+        botId,
+      );
+
+      const newUpdateBotDto = { ...updateBotDto, status: response.data.status };
+
+      return await this.dbQuery.update(botId, newUpdateBotDto, ability);
+    } catch (e) {
+      return e;
     }
   }
 }

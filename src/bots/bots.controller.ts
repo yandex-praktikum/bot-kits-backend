@@ -358,6 +358,42 @@ export class BotsController {
   }
 
   @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Update, subject: CreateBotDto })
+  @Patch('run/:id')
+  @ApiBody({ type: UpdateBotDescription })
+  @ApiOperation({
+    summary: 'Запустить бота',
+  })
+  @ApiOkResponse({
+    description: 'Статус бота',
+    type: UpdateBotResponseOk,
+  })
+  @ApiBadRequestResponse({
+    description: 'Неверный запрос',
+    type: BotDataBadRequestResponse,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Ресурс не найден',
+    type: UpdateBotNotFoundBadRequest,
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор бота',
+    example: '64f81ba37571bfaac18a857f',
+  })
+  run(
+    @Req() req,
+    @Param('id') botId: string,
+    @Body() updateBotDto: UpdateBotDto,
+  ): Promise<string> {
+    return this.botsService.run(botId, updateBotDto, req.ability);
+  }
+
+  @UseGuards(AbilityGuard)
   @CheckAbility({ action: Action.Delete, subject: CreateBotDto })
   @Delete(':id')
   @ApiOperation({

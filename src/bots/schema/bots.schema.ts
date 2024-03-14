@@ -11,6 +11,7 @@ import { Profile } from '../../profiles/schema/profile.schema';
 import { baseSchemaOptions } from 'src/utils/baseSchemaOptions';
 import { TypeCommands, botCommands } from '../dto/constants/botCommands';
 import { TBuilderData } from './types/botBuilderTypes';
+import { StatusBot } from './types/status';
 
 //bots.schema.ts
 export type BotDocument = HydratedDocument<Bot>;
@@ -96,6 +97,13 @@ export class Bot extends Document {
 
   @Prop({ default: false })
   isToPublish?: boolean;
+
+  @Prop({
+    required: true,
+    enum: StatusBot,
+    default: StatusBot.EDITING,
+  })
+  status: string;
 
   @Prop({
     type: Permission,
