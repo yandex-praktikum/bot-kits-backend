@@ -17,6 +17,10 @@ import { FilesBucketService } from 'src/gridFS/gridFS.service';
 import { Action } from 'src/ability/ability.factory';
 import { PureAbility } from '@casl/ability';
 import { Profile } from 'src/profiles/schema/profile.schema';
+import {
+  MessageDataTypes,
+  TMessageBlock,
+} from './schema/types/botBuilderTypes';
 
 @Injectable()
 export class BotsRepository {
@@ -295,5 +299,29 @@ export class BotsRepository {
 
   async findAllTemplates(): Promise<Bot[]> {
     return await this.botModel.find({ type: 'template' }).exec();
+  }
+
+  async updateNodeBots(fileId: string, botId: string, nodeId: string) {
+    //-- TODO: доработать ролевую модель --//
+    const bot = await this.botModel.findById(botId);
+
+    if (!bot) {
+      throw new NotFoundException(`Бот с ID ${botId} не найден`);
+    }
+
+    for (const node of bot.features.nodes) {
+      if (
+        node.id === nodeId &&
+        'data' in node.data &&
+        Array.isArray((node.data as TMessageBlock).data)
+      ) {
+        (node.data as TMessageBlock).data.push({
+          type: MessageDataTypes.file,
+          fileId: fileId,
+        });
+        await bot.save();
+        return (node.data as TMessageBlock).data;
+      }
+    }
   }
 }

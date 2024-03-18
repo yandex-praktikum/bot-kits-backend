@@ -10,7 +10,6 @@ import { FilesBucketService } from 'src/gridFS/gridFS.service';
 import { PureAbility } from '@casl/ability';
 import { Profile } from 'src/profiles/schema/profile.schema';
 import axios from 'axios';
-import { StatusBot } from './schema/types/status';
 
 @Injectable()
 export class BotsService {
@@ -19,10 +18,15 @@ export class BotsService {
     private gridFS: FilesBucketService,
   ) {}
 
-  async uploadFiles(files: Array<Express.Multer.File>) {
+  async uploadFiles(
+    files: Array<Express.Multer.File>,
+    botId: string,
+    nodeId: string,
+  ) {
     //todo: сделать добавление attachment'ов к боту
     try {
-      return await this.gridFS.filesUpload(files);
+      const fileId = await this.gridFS.filesUpload(files);
+      return await this.dbQuery.updateNodeBots(fileId[0], botId, nodeId);
     } catch (e) {
       return e;
     }

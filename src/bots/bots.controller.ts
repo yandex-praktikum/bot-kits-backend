@@ -71,10 +71,14 @@ import {
 @Controller('bots')
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
-  @Post('files/upload')
-  @UseInterceptors(FilesInterceptor('files'))
-  async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>) {
-    return await this.botsService.uploadFiles(files);
+  @Post('files/upload/:botId/:nodeId')
+  @UseInterceptors(FilesInterceptor('files[]'))
+  async uploadFiles(
+    @Param('botId') botId: string,
+    @Param('nodeId') nodeId: string,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    return await this.botsService.uploadFiles(files, botId, nodeId);
   }
 
   @Get('files/download/:id')

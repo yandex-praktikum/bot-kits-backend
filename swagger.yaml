@@ -1367,7 +1367,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_16
       security: *ref_17
-  /dev/api/bots/files/upload:
+  /dev/api/bots/files/upload/{botId}/{nodeId}:
     post:
       operationId: BotsController_uploadFiles
       parameters:
@@ -1376,6 +1376,16 @@ paths:
           in: header
           description: Access токен
           required: true
+          schema:
+            type: string
+        - name: botId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: nodeId
+          required: true
+          in: path
           schema:
             type: string
       responses:
@@ -2803,7 +2813,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-03-14T07:59:08.217Z
+          example: 2024-03-18T10:30:34.193Z
         amount:
           type: number
           example: 1000
@@ -2914,7 +2924,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-03-14T07:59:08.190Z
+          example: 2024-03-18T10:30:34.160Z
         isCancelled:
           type: boolean
           example: false
