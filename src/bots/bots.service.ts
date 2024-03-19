@@ -26,6 +26,7 @@ export class BotsService {
     //todo: сделать добавление attachment'ов к боту
     try {
       const fileId = await this.gridFS.filesUpload(files);
+      //-- TODO: сейчас всегда с фронта приходит один файл. В будущем если такое нужно будет можно реализовать мультизагрузку файлов --//
       return await this.dbQuery.updateNodeBots(fileId[0], botId, nodeId);
     } catch (e) {
       return e;

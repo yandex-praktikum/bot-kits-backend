@@ -301,7 +301,11 @@ export class BotsRepository {
     return await this.botModel.find({ type: 'template' }).exec();
   }
 
-  async updateNodeBots(fileId: string, botId: string, nodeId: string) {
+  async updateNodeBots(
+    fileId: Record<string, string>,
+    botId: string,
+    nodeId: string,
+  ) {
     //-- TODO: доработать ролевую модель --//
     const bot = await this.botModel.findById(botId);
 
@@ -310,14 +314,11 @@ export class BotsRepository {
     }
 
     for (const node of bot.features.nodes) {
-      if (
-        node.id === nodeId &&
-        'data' in node.data &&
-        Array.isArray((node.data as TMessageBlock).data)
-      ) {
+      if (node.id === nodeId && 'data' in node.data) {
         (node.data as TMessageBlock).data.push({
           type: MessageDataTypes.file,
-          fileId: fileId,
+          fileId: fileId.fileId,
+          fileType: fileId.mime,
         });
         await bot.save();
         return (node.data as TMessageBlock).data;

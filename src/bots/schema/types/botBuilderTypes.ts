@@ -171,6 +171,7 @@ type TAnswersData = {
 type TFileData = {
   type: MessageDataTypes.file;
   fileId: string;
+  fileType: string;
 };
 
 export enum MessageDataTypes {
