@@ -17,6 +17,8 @@ const io = new socketIO(server, {
   },
 });
 
+const STATUS_BOT = ['updating', 'started', 'error'];
+
 const PORT = process.env.MOCK_SERVER_PORT;
 
 //-- Создание клиентов Redis для публикации (pubClient), подписки (subClient) и кэширования (cacheClient) --//
@@ -43,9 +45,11 @@ app.get('/bot/users', (req, res) => {
 });
 
 //-- Ручка для получения статуса запуска бота --//
-app.get('/bot/status', (req, res) => {
+app.post('/bot/status', (req, res) => {
+  const randIndex = Math.floor(Math.random() * STATUS_BOT.length);
+
   const serverStatus = {
-    status: 'running',
+    status: STATUS_BOT[randIndex],
   };
   res.json(serverStatus);
 });

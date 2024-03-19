@@ -71,10 +71,14 @@ import {
 @Controller('bots')
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
-  @Post('files/upload')
-  @UseInterceptors(FilesInterceptor('files'))
-  async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>) {
-    return await this.botsService.uploadFiles(files);
+  @Post('files/upload/:botId/:nodeId')
+  @UseInterceptors(FilesInterceptor('files[]'))
+  async uploadFiles(
+    @Param('botId') botId: string,
+    @Param('nodeId') nodeId: string,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    return await this.botsService.uploadFiles(files, botId, nodeId);
   }
 
   @Get('files/download/:id')
@@ -355,6 +359,42 @@ export class BotsController {
     @Body() updateBotDto: UpdateBotDto,
   ): Promise<Bot> {
     return this.botsService.update(botId, updateBotDto, req.ability);
+  }
+
+  @UseGuards(AbilityGuard)
+  @CheckAbility({ action: Action.Update, subject: CreateBotDto })
+  @Patch('run/:id')
+  @ApiBody({ type: UpdateBotDescription })
+  @ApiOperation({
+    summary: 'Запустить бота',
+  })
+  @ApiOkResponse({
+    description: 'Статус бота',
+    type: UpdateBotResponseOk,
+  })
+  @ApiBadRequestResponse({
+    description: 'Неверный запрос',
+    type: BotDataBadRequestResponse,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Отказ в доступе',
+    type: UserUnauthirizedResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Ресурс не найден',
+    type: UpdateBotNotFoundBadRequest,
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Идентификатор бота',
+    example: '64f81ba37571bfaac18a857f',
+  })
+  run(
+    @Req() req,
+    @Param('id') botId: string,
+    @Body() updateBotDto: UpdateBotDto,
+  ): Promise<string> {
+    return this.botsService.run(botId, updateBotDto, req.ability);
   }
 
   @UseGuards(AbilityGuard)

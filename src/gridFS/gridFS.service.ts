@@ -33,32 +33,37 @@ export class FilesBucketService {
   async filesUpload(files: Array<Express.Multer.File>) {
     //-- Получаем экземпляр бакета для работы с файловым хранилищем --//
     const bucket = this.getBucket();
+
     //-- Определяем путь к папке для временного хранения файлов --//
     const outputFolder = path.join(process.cwd(), 'attachments');
-    console.log(files.length);
+
     //-- Проверяем, были ли предоставлены файлы для загрузки --//
     if (files.length === 0) {
       throw new BadRequestException('no files provided');
     }
+
     //-- Асинхронно обрабатываем массив файлов, загружая их и получая их идентификаторы --//
-    const filesIds: string[] = await Promise.all(
+    const filesIds: Record<string, string>[] = await Promise.all(
       files.map(async (file) => {
         try {
           //-- Создаем папку для файлов, если она не существует --//
           if (!fs.existsSync(outputFolder)) {
             fs.mkdirSync(outputFolder);
           }
-          console.log(file);
+
           //-- Проверяем расширение файла на допустимость --//
           if (!isAllowedExtension(file.originalname)) {
             throw new UnsupportedMediaTypeException(
               `${file.originalname} has restricted extension`,
             );
           }
+
           //-- Формируем путь к файлу в папке для временного хранения --//
           const filepath = path.join(outputFolder, file.originalname);
+
           //-- Записываем файл в файловую систему --//
           await fs.promises.writeFile(filepath, file.buffer);
+
           //-- Создаем промис для загрузки файла в хранилище --//
           const uploadPromise = new Promise<ObjectId>((resolve, reject) => {
             //-- Открываем поток для загрузки файла --//
@@ -72,9 +77,9 @@ export class FilesBucketService {
 
             //-- По завершении загрузки возвращаем идентификатор файла --//
             uploadStream.on('finish', () => {
-              console.log(`${uploadStream.id} id of file`);
               resolve(uploadStream.id);
             });
+
             //-- Обрабатываем возможные ошибки при загрузке --//
             uploadStream.on('error', (e) => {
               reject(e);
@@ -84,12 +89,13 @@ export class FilesBucketService {
           //-- Ожидаем завершения загрузки и возвращаем идентификатор файла --//
           const fileId = await uploadPromise;
           //-- TODO: рассмотреть логику перемещения файла во временную директорию для последующей очистки --//
-          return fileId.toString();
+          return { fileId: fileId.toString(), mime: file.mimetype };
         } catch (error) {
           return error;
         }
       }),
     );
+
     //-- Возвращаем массив идентификаторов загруженных файлов --//
     return filesIds;
   }

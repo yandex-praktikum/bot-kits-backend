@@ -1367,7 +1367,7 @@ paths:
           description: Ресурс не найден
       tags: *ref_16
       security: *ref_17
-  /dev/api/bots/files/upload:
+  /dev/api/bots/files/upload/{botId}/{nodeId}:
     post:
       operationId: BotsController_uploadFiles
       parameters:
@@ -1376,6 +1376,16 @@ paths:
           in: header
           description: Access токен
           required: true
+          schema:
+            type: string
+        - name: botId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: nodeId
+          required: true
+          in: path
           schema:
             type: string
       responses:
@@ -1742,6 +1752,52 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserUnauthirizedResponse'
+      tags: *ref_19
+      security: *ref_20
+  /dev/api/bots/run/{id}:
+    patch:
+      operationId: BotsController_run
+      summary: Запустить бота
+      parameters:
+        - *ref_18
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор бота
+          example: 64f81ba37571bfaac18a857f
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBotDescription'
+      responses:
+        '200':
+          description: Статус бота
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateBotResponseOk'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotDataBadRequestResponse'
+        '401':
+          description: Отказ в доступе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnauthirizedResponse'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateBotNotFoundBadRequest'
       tags: *ref_19
       security: *ref_20
   /dev/api/bots/{id}:
@@ -2757,7 +2813,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-03-02T14:46:39.163Z
+          example: 2024-03-19T09:12:42.574Z
         amount:
           type: number
           example: 1000
@@ -2868,7 +2924,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-03-02T14:46:39.121Z
+          example: 2024-03-19T09:12:42.429Z
         isCancelled:
           type: boolean
           example: false

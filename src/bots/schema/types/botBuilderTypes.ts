@@ -9,7 +9,7 @@ export type TBuilderData = {
   triggers?: TTrigger[];
 };
 
-type TReactFlowNode = {
+export type TReactFlowNode = {
   id: string; // уникальная строка
   type: string; // один из типов блоков (нужно придумать)
   data:
@@ -120,7 +120,7 @@ type TApiBlock = {
   variable?: TVariable;
 };
 
-type TMessageBlock = {
+export type TMessageBlock = {
   name: string;
   data: TMessageBlockData[];
   saveAnswer: {
@@ -148,7 +148,11 @@ export type TButtonBlock = {
 };
 
 //      3.
-type TMessageBlockData = TMessageData | TButtonsData | TAnswersData | TFileData;
+export type TMessageBlockData =
+  | TMessageData
+  | TButtonsData
+  | TAnswersData
+  | TFileData;
 
 type TMessageData = {
   type: MessageDataTypes.message;
@@ -166,10 +170,11 @@ type TAnswersData = {
 
 type TFileData = {
   type: MessageDataTypes.file;
-  file: File;
+  fileId: string;
+  fileType: string;
 };
 
-enum MessageDataTypes {
+export enum MessageDataTypes {
   buttons = 'buttons',
   message = 'message',
   answers = 'answers',

@@ -9,6 +9,7 @@ import { CopyBotDto } from './dto/copy-bot.dto';
 import { FilesBucketService } from 'src/gridFS/gridFS.service';
 import { PureAbility } from '@casl/ability';
 import { Profile } from 'src/profiles/schema/profile.schema';
+import axios from 'axios';
 
 @Injectable()
 export class BotsService {
@@ -17,10 +18,16 @@ export class BotsService {
     private gridFS: FilesBucketService,
   ) {}
 
-  async uploadFiles(files: Array<Express.Multer.File>) {
+  async uploadFiles(
+    files: Array<Express.Multer.File>,
+    botId: string,
+    nodeId: string,
+  ) {
     //todo: сделать добавление attachment'ов к боту
     try {
-      return await this.gridFS.filesUpload(files);
+      const fileId = await this.gridFS.filesUpload(files);
+      //-- TODO: сейчас всегда с фронта приходит один файл. В будущем если такое нужно будет можно реализовать мультизагрузку файлов --//
+      return await this.dbQuery.updateNodeBots(fileId[0], botId, nodeId);
     } catch (e) {
       return e;
     }
@@ -172,6 +179,23 @@ export class BotsService {
       } else {
         return e;
       }
+    }
+  }
+
+  //-- Имитация работы с сервером заказчика и выдача статуса по запуску бота. ТРЕБУЕТ ДОРАБОТКИ --//
+  //-- Лучше отправить пользователю сразу статус updating, а обновление бота на сервере кинуть в очередь задач а после обновления или ошибки по WS уведомить или обновить бота на фронте--//
+  async run(botId: string, updateBotDto: UpdateBotDto, ability: PureAbility) {
+    try {
+      const response = await axios.post(
+        'http://localhost:3005/bot/status',
+        botId,
+      );
+
+      const newUpdateBotDto = { ...updateBotDto, status: response.data.status };
+
+      return await this.dbQuery.update(botId, newUpdateBotDto, ability);
+    } catch (e) {
+      return e;
     }
   }
 }

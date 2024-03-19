@@ -21,7 +21,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "husky install",
     "socket": "node front-client.js",
-    "worker": "cd worker && npm i && node worker"
+    "worker": "cd worker && npm i && node worker",
+    "mock": "cd microservices/mockServer && npm i && node mockServer.mjs"
   },
   "dependencies": {
     "@casl/ability": "^6.5.0",
