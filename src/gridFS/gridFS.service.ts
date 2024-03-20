@@ -8,8 +8,8 @@ import {
 import { GridFSBucket } from 'mongodb';
 import { InjectConnection } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import * as path from 'node:path';
-import * as fs from 'node:fs';
+import * as path from 'path';
+import * as fs from 'fs';
 import { ObjectId } from 'mongodb';
 import { isAllowedExtension } from 'src/types/allowedFileExtensions';
 
@@ -25,7 +25,7 @@ export class FilesBucketService {
     });
   }
 
-  getBucket() {
+  private getBucket() {
     return this.filesBucket;
   }
 
@@ -35,14 +35,14 @@ export class FilesBucketService {
     const bucket = this.getBucket();
 
     //-- Определяем путь к папке для временного хранения файлов --//
-    const outputFolder = path.join(process.cwd(), 'attachments');
+    const outputFolder = path.join(__dirname, 'attachments');
 
     //-- Проверяем, были ли предоставлены файлы для загрузки --//
     if (files.length === 0) {
       throw new BadRequestException('no files provided');
     }
 
-    //-- Асинхронно обрабатываем массив файлов, загружая их и получая их идентификаторы --//
+    //-- Асинхронно обрабатываем массив файлов, загружая их и получая их идентификаторы с типом файла--//
     const filesIds: Record<string, string>[] = await Promise.all(
       files.map(async (file) => {
         try {
@@ -88,6 +88,7 @@ export class FilesBucketService {
 
           //-- Ожидаем завершения загрузки и возвращаем идентификатор файла --//
           const fileId = await uploadPromise;
+
           //-- TODO: рассмотреть логику перемещения файла во временную директорию для последующей очистки --//
           return { fileId: fileId.toString(), mime: file.mimetype };
         } catch (error) {
@@ -107,13 +108,13 @@ export class FilesBucketService {
     //-- Ищем метаданные файла в хранилище по идентификатору --//
     const fileMeta = bucket.find({ _id: new ObjectId(id) });
     //-- Определяем путь к папке для сохранения скачанных файлов --//
-    const outputFolder = path.join(process.cwd(), 'downloaded');
+    const outputFolder = path.join(__dirname, 'downloaded');
     let meta;
     //-- Перебираем результаты запроса метаданных файла (ожидаем один документ) --//
     for await (const doc of fileMeta) {
       meta = doc;
     }
-    console.log(meta);
+
     //-- Проверяем, найдены ли метаданные файла. Если нет, выбрасываем исключение --//
     if (meta === undefined) {
       throw new NotFoundException('cant find picture with this id', {
@@ -157,8 +158,6 @@ export class FilesBucketService {
     try {
       //-- Пытаемся удалить файл по идентификатору. Идентификатор преобразуется в ObjectId для совместимости с MongoDB --//
       await bucket.delete(new ObjectId(id));
-      //-- В случае успеха, возвращаем сообщение об успешном удалении --//
-      return { message: 'successfully deleted' };
     } catch (e) {
       //-- В случае возникновения ошибки, возвращаем ее. Это может быть полезно для отладки, но в реальном приложении лучше возвращать стандартизированный ответ об ошибке --//
       return e;
