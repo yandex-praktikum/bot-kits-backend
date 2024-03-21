@@ -320,9 +320,15 @@ export class BotsRepository {
           type: MessageDataTypes.file,
           fileId: fileId.fileId,
           fileType: fileId.mime,
+          fileName: fileId.name,
         });
-        await bot.save();
-        return (node.data as TMessageBlock).data;
+        //-- TODO: сохранять бота или доработать функционал удаления неиспользуемых файлов в ботах --//
+        return {
+          type: MessageDataTypes.file,
+          fileId: fileId.fileId,
+          fileType: fileId.mime,
+          fileName: fileId.name,
+        };
       }
     }
   }
@@ -351,17 +357,16 @@ export class BotsRepository {
           // Если элемент найден, удаляем его из массива
           if (index !== -1) {
             (node.data as TMessageBlock).data.splice(index, 1);
-            await bot.save();
-            return (node.data as TMessageBlock).data; // Возвращаем обновленный массив data
+          } else {
+            throw new NotFoundException(
+              `Файл с ID ${fileId} в узле с ID ${nodeId} не найден`,
+            );
           }
         }
       }
+      await bot.save();
 
-      // Если узел с заданным nodeId не найден или в его data нет файла с fileId,
-      // можно бросить исключение или просто вернуть текущее состояние данных
-      throw new NotFoundException(
-        `Файл с ID ${fileId} в узле с ID ${nodeId} не найден`,
-      );
+      return bot.features.nodes;
     } catch (e) {
       return e;
     }

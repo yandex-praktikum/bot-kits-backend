@@ -172,6 +172,7 @@ export type TFileData = {
   type: MessageDataTypes.file;
   fileId: string;
   fileType: string;
+  fileName: string;
 };
 
 export enum MessageDataTypes {

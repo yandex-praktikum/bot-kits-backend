@@ -49,6 +49,7 @@ export class BotsService {
 
       return await this.dbQuery.deleteFileNodeBot(fileId, botId, nodeId);
     } catch (e) {
+      console.log(e);
       return e;
     }
   }

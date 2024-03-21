@@ -90,7 +90,11 @@ export class FilesBucketService {
           const fileId = await uploadPromise;
 
           //-- TODO: рассмотреть логику перемещения файла во временную директорию для последующей очистки --//
-          return { fileId: fileId.toString(), mime: file.mimetype };
+          return {
+            fileId: fileId.toString(),
+            mime: file.mimetype,
+            name: file.originalname,
+          };
         } catch (error) {
           return error;
         }
