@@ -1414,11 +1414,26 @@ paths:
           description: ''
       tags: *ref_19
       security: *ref_20
-  /dev/api/bots/files/delete/{id}:
+  /dev/api/bots/files/delete/{fileId}/{botId}/{nodeId}:
     delete:
       operationId: BotsController_deleteFile
       parameters:
         - *ref_18
+        - name: fileId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: botId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: nodeId
+          required: true
+          in: path
+          schema:
+            type: string
       responses:
         '200':
           description: ''
@@ -2813,7 +2828,7 @@ components:
         date:
           format: date-time
           type: string
-          example: 2024-03-19T09:12:42.574Z
+          example: 2024-03-21T09:29:00.481Z
         amount:
           type: number
           example: 1000
@@ -2924,7 +2939,7 @@ components:
         debitDate:
           format: date-time
           type: string
-          example: 2024-03-19T09:12:42.429Z
+          example: 2024-03-21T09:29:00.406Z
         isCancelled:
           type: boolean
           example: false

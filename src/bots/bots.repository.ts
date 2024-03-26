@@ -19,6 +19,7 @@ import { PureAbility } from '@casl/ability';
 import { Profile } from 'src/profiles/schema/profile.schema';
 import {
   MessageDataTypes,
+  TFileData,
   TMessageBlock,
 } from './schema/types/botBuilderTypes';
 
@@ -319,10 +320,55 @@ export class BotsRepository {
           type: MessageDataTypes.file,
           fileId: fileId.fileId,
           fileType: fileId.mime,
+          fileName: fileId.name,
         });
-        await bot.save();
-        return (node.data as TMessageBlock).data;
+        //-- TODO: сохранять бота или доработать функционал удаления неиспользуемых файлов в ботах --//
+        return {
+          type: MessageDataTypes.file,
+          fileId: fileId.fileId,
+          fileType: fileId.mime,
+          fileName: fileId.name,
+        };
       }
+    }
+  }
+
+  async deleteFileNodeBot(fileId: string, botId: string, nodeId: string) {
+    try {
+      // Поиск бота по ID
+      const bot = await this.botModel.findById(botId);
+
+      // Если бот не найден, бросаем исключение
+      if (!bot) {
+        throw new NotFoundException(`Бот с ID ${botId} не найден`);
+      }
+
+      // Перебор всех узлов в поисках нужного узла по ID
+      for (const node of bot.features.nodes) {
+        // Проверка, соответствует ли ID узла и наличие поля data
+        if (node.id === nodeId && 'data' in node.data) {
+          // Находим индекс элемента в массиве data, fileId которого совпадает с искомым
+          const index = (node.data as TMessageBlock).data.findIndex(
+            (item: TFileData) => {
+              return item.fileId === fileId;
+            },
+          );
+
+          // Если элемент найден, удаляем его из массива
+          if (index !== -1) {
+            (node.data as TMessageBlock).data.splice(index, 1);
+          } else {
+            throw new NotFoundException(
+              `Файл с ID ${fileId} в узле с ID ${nodeId} не найден`,
+            );
+          }
+        }
+      }
+      await bot.save();
+
+      return bot.features.nodes;
+    } catch (e) {
+      return e;
     }
   }
 }

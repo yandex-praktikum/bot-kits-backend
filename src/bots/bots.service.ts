@@ -42,11 +42,14 @@ export class BotsService {
     }
   }
 
-  async deleteFile(id: string) {
+  async deleteFile(fileId: string, botId: string, nodeId: string) {
     //todo: сделать добавление attachment'ов к боту
     try {
-      return await this.gridFS.filesDelete(id);
+      await this.gridFS.filesDelete(fileId);
+
+      return await this.dbQuery.deleteFileNodeBot(fileId, botId, nodeId);
     } catch (e) {
+      console.log(e);
       return e;
     }
   }

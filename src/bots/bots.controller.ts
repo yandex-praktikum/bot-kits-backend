@@ -87,9 +87,13 @@ export class BotsController {
     return await this.botsService.downloadFile(id);
   }
 
-  @Delete('files/delete/:id')
-  deleteFile(@Param() id: string) {
-    return this.botsService.deleteFile(id);
+  @Delete('files/delete/:fileId/:botId/:nodeId')
+  deleteFile(
+    @Param('fileId') fileId: string,
+    @Param('botId') botId: string,
+    @Param('nodeId') nodeId: string,
+  ) {
+    return this.botsService.deleteFile(fileId, botId, nodeId);
   }
 
   @CheckAbility({ action: Action.Read, subject: CreateBotDto })
